@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Gull Project</title>
+</head>
+<body>
+
+<h1>Materiales en db</h1>
+	<img th:src="@{/images/gull.png}" />
+
+	<table>
+		<thead>
+			<tr>
+				<th>Name</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="material : ${materiales}">
+				<td th:text="${material.name}">MATERIAL</td>
+			</tr>
+		</tbody>
+	</table>
+
+</body>
+</html>

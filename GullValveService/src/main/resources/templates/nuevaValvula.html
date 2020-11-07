@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Gull Project</title>
+</head>
+<body>
+
+<h1>Nueva Válvula</h1>
+	<img th:src="@{images/gull.png}" />
+
+	<form method="POST" th:object="${valvula}">
+	
+		<div th:if="${#fields.hasErrors()}">
+     	   <span class="validationError">
+      	  Please correct the problems below and resubmit.
+     	   </span>
+    	</div>
+    	
+    	<span class="validationError"
+      	th:if="${#fields.hasErrors('materialIds')}"
+      	th:errors="*{materialIds}">Chose at least 1 material</span>
+      
+		<div class="grid">
+		
+			<div class="valve-group" id="metal">
+				<h3>Designate your metal:</h3>
+				<div th:each="material : ${hashmap.metal}">
+					<input name="materials" type="checkbox"
+						th:field="*{materialIds}"
+						th:value="${material.id}" /> <span
+						th:text="${material.name}">MATERIAL</span><br />
+				</div>
+			</div>
+
+			<div class="valve-group" id="polimero">
+				<h3>Designate your polymer:</h3>
+				<div th:each="material : ${hashmap.polimero}">
+					<input name="materials" type="checkbox"
+						th:field="*{materialIds}"
+						th:value="${material.id}" /> <span
+						th:text="${material.name}">MATERIAL</span><br />
+				</div>
+			</div>
+			
+			<div class="valve-group" id="caucho">
+				<h3>Designate your rubber:</h3>
+				<div th:each="material : ${hashmap.caucho}">
+					<input name="materials" type="checkbox"
+						th:field="*{materialIds}"
+						th:value="${material.id}" /> <span
+						th:text="${material.name}">MATERIAL</span><br />
+				</div>
+			</div>
+		</div>
+
+		<div>
+
+
+			<h3>Name your valve creation:</h3>
+			<input type="text" th:field="*{name}" /> <span class="validationError"
+      	th:if="${#fields.hasErrors('name')}"
+      	th:errors="*{name}">Name is required</span> <br />
+
+			<button>Submit your valve</button>
+		</div>
+		
+	</form>
+
+</body>
+</html>
