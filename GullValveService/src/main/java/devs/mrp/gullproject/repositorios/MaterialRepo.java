@@ -8,7 +8,5 @@ import reactor.core.publisher.Flux;
 
 public interface MaterialRepo extends ReactiveMongoRepository<Material, String> {
 	
-	// TODO test
-	
 	Flux<Material> findAllByName(String name);
 }

@@ -17,7 +17,6 @@ import org.springframework.http.MediaType;
 public class MaterialRestController {
 
 	// TODO hacer service entre repository y restController
-	// TODO hacer test
 	
 	private final MediaType mediaType = MediaType.APPLICATION_JSON;
 	private final MaterialRepo materialRepo;
