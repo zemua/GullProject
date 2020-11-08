@@ -1,5 +1,6 @@
 package devs.mrp.gullproject.controllers;
 
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 import org.hamcrest.BaseMatcher;
@@ -7,6 +8,8 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -71,25 +74,28 @@ class MaterialControllerTest {
 	@Test
 	public void testProcesaMaterial() {
 		
-		Material m = new Material();
-		m.setName("epdm");
-		Flux<Material> mFlux = Flux.just(m);
-		Mono<Material> mMono = Mono.just(m);
+		Material material = new Material();
+		material.setName("epdm");
+		material.setId("idAleatoria1231");
+		Flux<Material> mFlux = Flux.just(material);
+		Mono<Material> mMono = Mono.just(material);
 		when(materialRepo.findAll()).thenReturn(mFlux);
-		when(materialRepo.save(m)).thenReturn(mMono);
+		when(materialRepo.save(ArgumentMatchers.any(Material.class))).thenReturn(mMono);
 		
 		Matcher<String> epdmString = new ContainsMatcher("epdm");
 		Matcher<String> materialesEnDb = new ContainsMatcher("Materiales en db");
 		
 		webTestClient.post()
 		.uri("/material/nuevo")
-		.accept(MediaType.ALL)
-		.body(BodyInserters.fromValue(m))
+		//.accept(MediaType.ALL)
+		.contentType(MediaType.APPLICATION_JSON)
+		.attribute("material", material)
+		//.body(BodyInserters.fromValue(m))
 		.exchange()
-		.expectStatus().isCreated()
-		.expectBody(String.class)
-		.value(epdmString)
-		.value(materialesEnDb);
+		.expectStatus().is3xxRedirection()
+		.expectBody(String.class);
+		
+		Mockito.verify(materialRepo, times(1)).save(ArgumentMatchers.any(Material.class));
 		
 	}
 	
