@@ -48,7 +48,7 @@ public class ValveController {
 		this.materialRepo = materialRepo;
 	}
 	
-	@GetMapping("/nueva")
+	@GetMapping(value = {"/nueva", "/nueva/added"})
 	public String formularioNueva(Model model) {
 		model.addAttribute("valvula", new Valvula());
 		
@@ -58,7 +58,6 @@ public class ValveController {
 		IReactiveDataDriverContextVariable piezas = new ReactiveDataDriverContextVariable(piezaRepo.findAll(), 1);
 		model.addAttribute("piezas", piezas);
 		
-		// TODO retocar template para que funcione como debe
 		return "nuevaValvula";
 	}
 	
@@ -69,7 +68,7 @@ public class ValveController {
 		}
 		
 		
-		return "redirect:/valvula/creada";
+		return "redirect:/nueva/added";
 	}
 
 	@GetMapping("/reciente")
