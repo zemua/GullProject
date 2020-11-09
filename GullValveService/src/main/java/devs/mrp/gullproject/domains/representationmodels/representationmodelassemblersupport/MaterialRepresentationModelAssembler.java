@@ -11,6 +11,8 @@ import devs.mrp.gullproject.rest.MaterialRestController;
 @Service
 public class MaterialRepresentationModelAssembler extends RepresentationModelAssemblerSupport<Material, MaterialRepresentationModel> {
 
+	// TODO test
+	
 	public MaterialRepresentationModelAssembler() {
 		super(MaterialByIdRestController.class, MaterialRepresentationModel.class);
 	}
