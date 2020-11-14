@@ -6,12 +6,9 @@ import org.springframework.stereotype.Service;
 import devs.mrp.gullproject.domains.Material;
 import devs.mrp.gullproject.domains.representationmodels.MaterialRepresentationModel;
 import devs.mrp.gullproject.rest.MaterialByIdRestController;
-import devs.mrp.gullproject.rest.MaterialRestController;
 
 @Service
 public class MaterialRepresentationModelAssembler extends RepresentationModelAssemblerSupport<Material, MaterialRepresentationModel> {
-
-	// TODO test
 	
 	public MaterialRepresentationModelAssembler() {
 		super(MaterialByIdRestController.class, MaterialRepresentationModel.class);
