@@ -15,8 +15,6 @@ import org.springframework.http.MediaType;
 @RestController
 @RequestMapping(value = "/api/materiales",  produces = MediaType.APPLICATION_JSON_VALUE)
 public class MaterialRestController {
-
-	// TODO hacer service entre repository y restController
 	
 	private final MediaType mediaType = MediaType.APPLICATION_JSON;
 	private final MaterialRepo materialRepo;
