@@ -12,5 +12,7 @@ public class GullValveServiceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(GullValveServiceApplication.class, args);
 	}
+	
+	// TODO conectar servicio de descubrimiento EUREKA
 
 }
