@@ -3,7 +3,7 @@ spring:
     rest:
       base-path: /api
   application:
-    name: valve-service
+    name: atributo-service
 server:
   port: 0
 eureka:

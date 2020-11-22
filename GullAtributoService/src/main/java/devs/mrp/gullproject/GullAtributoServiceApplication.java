@@ -7,10 +7,10 @@ import org.springframework.hateoas.config.EnableHypermediaSupport.HypermediaType
 
 @SpringBootApplication
 @EnableHypermediaSupport(type = { HypermediaType.HAL, HypermediaType.HAL_FORMS })
-public class GullValveServiceApplication {
+public class GullAtributoServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(GullValveServiceApplication.class, args);
+		SpringApplication.run(GullAtributoServiceApplication.class, args);
 	}
 
 }
