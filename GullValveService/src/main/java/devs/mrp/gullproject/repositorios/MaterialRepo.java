@@ -5,10 +5,14 @@ import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 
 import devs.mrp.gullproject.domains.Material;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public interface MaterialRepo extends ReactiveMongoRepository<Material, String> {
 	
 	// TODO hacer servicio entre repositorio y los controladores
 	
 	Flux<Material> findAllByName(String name);
+	
+	Flux<Material> findAllByName(Mono<String> name);
+	
 }
