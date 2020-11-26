@@ -4,7 +4,7 @@ import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 
 import devs.mrp.gullproject.domains.Atributo;
 
-public interface AtributoRepo extends ReactiveMongoRepository<Atributo, String> {
+public interface AtributoRepo extends ReactiveMongoRepository<Atributo, String>, CustomAtributoRepo {
 
 	
 	

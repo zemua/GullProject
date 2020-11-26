@@ -2,8 +2,12 @@ package devs.mrp.gullproject.repositorios;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 
-import devs.mrp.gullproject.domains.Atributo.dataFormat;
+import devs.mrp.gullproject.domains.Atributo;
+import devs.mrp.gullproject.domains.Tipo;
 import reactor.core.publisher.Mono;
 
 public class CustomAtributoRepoImpl implements CustomAtributoRepo {
@@ -16,14 +20,10 @@ public class CustomAtributoRepoImpl implements CustomAtributoRepo {
 	}
 	
 	@Override
-	public void pushAtributo(String id, String name, dataFormat dataFormat) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void pushAtributo(Mono<String> id, Mono<String> name, Mono<dataFormat> dataFormat) {
-		// TODO Auto-generated method stub
+	public Mono<Atributo> pushAtributo(String id, Tipo tipo) {
+		Query query = new Query(Criteria.where("id").is(id));
+		Update update = new Update().addToSet("tipos", tipo);
+		return mongoTemplate.findAndModify(query, update, Atributo.class);
 		
 	}
 

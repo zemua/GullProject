@@ -1,5 +1,6 @@
 package devs.mrp.gullproject.domains;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.validation.constraints.NotBlank;
@@ -19,12 +20,8 @@ public class Atributo {
 	@NotBlank(message = "El nombre es obligatorio")
 	private String name;
 	
-	private Map<String, dataFormat> tipos;
+	private List<Tipo> tipos;
 	
-	private boolean valoresFijos;
-	
-	public enum dataFormat {
-		atributoTexto, cantidad, coste, margen, pvp, plazo;
-	}
+	private boolean valoresFijos; // para escoger de un dropdown de la lista
 
 }
