@@ -9,9 +9,4 @@ public class Tipo {
 	
 	DataFormat dataFormat;
 	
-	
-	public enum DataFormat {
-		atributoTexto, cantidad, coste, margen, pvp, plazo;
-	}
-	
 }

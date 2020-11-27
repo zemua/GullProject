@@ -22,6 +22,11 @@ public class Atributo {
 	
 	private List<Tipo> tipos;
 	
-	private boolean valoresFijos; // para escoger de un dropdown de la lista
+	/**
+	 * flag para saber si los valores
+	 * se deben escoger de un dropdown
+	 * o si deben ser escritos por el usuario
+	 */
+	private boolean valoresFijos;
 
 }
