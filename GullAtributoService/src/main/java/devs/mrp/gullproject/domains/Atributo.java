@@ -1,5 +1,6 @@
 package devs.mrp.gullproject.domains;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +21,7 @@ public class Atributo {
 	@NotBlank(message = "El nombre es obligatorio")
 	private String name;
 	
-	private List<Tipo> tipos;
+	private List<Tipo> tipos = new ArrayList<>();
 	
 	/**
 	 * flag para saber si los valores
@@ -28,5 +29,21 @@ public class Atributo {
 	 * o si deben ser escritos por el usuario
 	 */
 	private boolean valoresFijos;
+	
+	public void addTipo(Tipo t) {
+		tipos.add(t);
+	}
+	
+	public Tipo getTipo(int i) {
+		return tipos.get(i);
+	}
+	
+	public boolean removeTipo(Tipo t) {
+		return tipos.remove(t);
+	}
+	
+	public int getCantidadTipos() {
+		return tipos.size();
+	}
 
 }

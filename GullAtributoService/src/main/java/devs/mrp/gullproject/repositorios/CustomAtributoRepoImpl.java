@@ -13,8 +13,6 @@ import devs.mrp.gullproject.domains.Tipo;
 import reactor.core.publisher.Mono;
 
 public class CustomAtributoRepoImpl implements CustomAtributoRepo {
-	
-	// TODO test
 
 	private final ReactiveMongoTemplate mongoTemplate;
 	

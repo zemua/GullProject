@@ -5,8 +5,6 @@ import devs.mrp.gullproject.domains.Tipo;
 import reactor.core.publisher.Mono;
 
 public interface CustomAtributoRepo {
-	
-	// TODO test
 
 	public Mono<Atributo> addAtributo(String id, Tipo tipo);
 	
