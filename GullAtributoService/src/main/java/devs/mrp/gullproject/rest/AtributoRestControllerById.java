@@ -11,24 +11,25 @@ import devs.mrp.gullproject.domains.Atributo;
 import devs.mrp.gullproject.domains.representationmodels.AtributoRepresentationModel;
 import devs.mrp.gullproject.domains.representationmodels.AtributoRepresentationModelAssembler;
 import devs.mrp.gullproject.repositorios.AtributoRepo;
+import devs.mrp.gullproject.service.AtributoService;
 import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping(value = "/api/atributos/id", produces = MediaType.APPLICATION_JSON_VALUE)
 public class AtributoRestControllerById {
 	
-	private final AtributoRepo atributoRepo;
+	private final AtributoService atributoService;
 	private final AtributoRepresentationModelAssembler arma;
 	
 	@Autowired
-	public AtributoRestControllerById(AtributoRepo atributoRepo, AtributoRepresentationModelAssembler arma) {
-		this.atributoRepo = atributoRepo;
+	public AtributoRestControllerById(AtributoService atributoService, AtributoRepresentationModelAssembler arma) {
+		this.atributoService = atributoService;
 		this.arma = arma;
 	}
 	
 	@GetMapping(path = "/{id}")
 	public Mono<AtributoRepresentationModel> getAtributoById(@PathVariable(value = "id") String id) {
-		Mono<Atributo> atributo = atributoRepo.findById(id);
+		Mono<Atributo> atributo = atributoService.findById(id);
 		Mono<AtributoRepresentationModel> arm = atributo.map(e -> arma.toModel(e));
 		return arm;
 	}

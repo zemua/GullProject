@@ -1,9 +1,14 @@
 package devs.mrp.gullproject.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import devs.mrp.gullproject.domains.Atributo;
 import devs.mrp.gullproject.repositorios.AtributoRepo;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
+@Service
 public class AtributoService {
 	
 	private AtributoRepo atributoRepo;
@@ -11,6 +16,14 @@ public class AtributoService {
 	@Autowired
 	public AtributoService(AtributoRepo atributoRepo) {
 		this.atributoRepo = atributoRepo;
+	}
+	
+	public Flux<Atributo> findAll() {
+		return atributoRepo.findAll();
+	}
+	
+	public Mono<Atributo> findById(String id){
+		return atributoRepo.findById(id);
 	}
 
 }
