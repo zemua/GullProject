@@ -42,7 +42,7 @@ class AtributoRestControllerByIdTest {
 	@Test
 	void testGetAtributoById() {
 		
-WebTestClient client = webTestClient.mutateWith(configurer);
+		WebTestClient client = webTestClient.mutateWith(configurer);
 		
 		Tipo tipo = new Tipo();
 		tipo.setNombre("type name");

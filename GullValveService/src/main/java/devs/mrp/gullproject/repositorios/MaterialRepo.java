@@ -9,7 +9,6 @@ import reactor.core.publisher.Mono;
 
 public interface MaterialRepo extends ReactiveMongoRepository<Material, String> {
 	
-	// TODO hacer servicio entre repositorio y los controladores
 	
 	Flux<Material> findAllByName(String name);
 	
