@@ -21,6 +21,7 @@ public class Linea {
 	private String nombre;
 	
 	private List<Campo<?>> campos = new ArrayList<>();
+	//private Flux<Campo<?>> campos;
 	
 	public int getCantidadCampos() {
 		return campos.size();
