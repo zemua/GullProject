@@ -17,8 +17,6 @@ import reactor.core.publisher.Mono;
 @RequestMapping(value = "/api/campos/id", produces = MediaType.APPLICATION_JSON_VALUE)
 public class CampoByIdRestController {
 	
-	// TODO hacer campo rest controller general, y ByLineaId
-	
 	private final CampoService campoService;
 	private final CampoRepresentationModelAssembler crma;
 	

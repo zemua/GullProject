@@ -1,10 +1,8 @@
 package devs.mrp.gullproject.domains.representationmodels;
 
-import java.util.List;
-
 import org.springframework.hateoas.RepresentationModel;
 
-import devs.mrp.gullproject.domains.Tipo;
+import devs.mrp.gullproject.domains.DataFormat;
 import lombok.Data;
 
 @Data
@@ -12,7 +10,7 @@ public class AtributoRepresentationModel extends RepresentationModel<AtributoRep
 
 	String id;
 	String name;
-	List<Tipo> tipos;
+	DataFormat tipo;
 	boolean valoresFijos;
 	
 }

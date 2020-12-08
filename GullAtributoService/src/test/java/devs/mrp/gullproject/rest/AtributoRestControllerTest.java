@@ -9,8 +9,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.config.HypermediaWebTestClientConfigurer;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -22,11 +24,14 @@ import devs.mrp.gullproject.domains.Tipo;
 import devs.mrp.gullproject.domains.representationmodels.AtributoRepresentationModel;
 import devs.mrp.gullproject.domains.representationmodels.AtributoRepresentationModelAssembler;
 import devs.mrp.gullproject.repositorios.AtributoRepo;
+import devs.mrp.gullproject.service.AtributoService;
 import reactor.core.publisher.Flux;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest
-@AutoConfigureWebTestClient
+//@SpringBootTest
+//@AutoConfigureWebTestClient
+@WebFluxTest(controllers = AtributoRestController.class)
+@Import({AtributoService.class})
 class AtributoRestControllerTest {
 	
 	@Autowired
@@ -47,12 +52,12 @@ class AtributoRestControllerTest {
 		
 		Tipo tipo = new Tipo();
 		tipo.setNombre("type name");
-		tipo.setDataFormat(DataFormat.atributoTexto);
+		tipo.setDataFormat(DataFormat.ATRIBUTO_TEXTO);
 		
 		Atributo m = new Atributo();
 		m.setName("bonnet");
 		m.setId("idaleatoria");
-		m.addTipo(tipo);
+		m.setTipo(DataFormat.ATRIBUTO_TEXTO);
 		m.setValoresFijos(true);
 		Flux<Atributo> mFlux = Flux.just(m);
 		
@@ -60,7 +65,7 @@ class AtributoRestControllerTest {
 		AtributoRepresentationModel mrm = new AtributoRepresentationModel();
 		mrm.setId(m.getId());
 		mrm.setName(m.getName());
-		mrm.setTipos(m.getTipos());
+		mrm.setTipo(m.getTipo());
 		mrm.setValoresFijos(m.isValoresFijos());
 		mrm.add(Link.of("/api/esto/es/un/link"));
 		when(arma.toModel(ArgumentMatchers.eq(m))).thenReturn(mrm);
@@ -77,7 +82,7 @@ class AtributoRestControllerTest {
 				public boolean matches(Object actual) {
 					return actual.toString().contains("bonnet") && 
 							actual.toString().contains("idaleatoria") && 
-							actual.toString().contains("type name") && 
+							actual.toString().contains("ATRIBUTO_TEXTO") && 
 							actual.toString().contains("esto/es/un/link");
 				}
 

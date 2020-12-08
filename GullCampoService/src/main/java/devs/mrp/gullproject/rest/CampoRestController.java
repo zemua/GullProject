@@ -14,8 +14,6 @@ import reactor.core.publisher.Flux;
 @RestController
 @RequestMapping(value = "/api/campos", produces = MediaType.APPLICATION_JSON_VALUE)
 public class CampoRestController {
-
-	// TODO test
 	
 	private final CampoService campoService;
 	private final CampoRepresentationModelAssembler crma;

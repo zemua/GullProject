@@ -35,21 +35,22 @@ class AtributoRepresentationModelAssemblerTest {
 	void testToModel() {
 		
 		Tipo tipo = new Tipo();
-		tipo.setDataFormat(DataFormat.atributoTexto);
+		tipo.setDataFormat(DataFormat.ATRIBUTO_TEXTO);
 		tipo.setNombre("type name");
 		
 		Atributo m = new Atributo();
 		m.setName("size");
 		m.setId("idaleatoria");
 		m.setValoresFijos(true);
-		m.addTipo(tipo);
+		//m.addTipo(tipo);
+		m.setTipo(DataFormat.ATRIBUTO_TEXTO);
 		Flux<Atributo> mFlux = Flux.just(m);
 		
 		AtributoRepresentationModel mrm = arma.toModel(m);
 		
 		assertThat(mrm.getId()).isSameAs(m.getId());
 		assertThat(mrm.getName()).isSameAs(m.getName());
-		assertThat(mrm.getTipos().get(0).getNombre()).isSameAs(m.getTipo(0).getNombre());
+		assertThat(mrm.getTipo()).isSameAs(m.getTipo());
 		assertThat(mrm.getLink("self").toString()).contains("/api/atributos/id/" + m.getId());
 
 	}

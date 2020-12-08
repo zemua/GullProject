@@ -25,5 +25,9 @@ public class AtributoService {
 	public Mono<Atributo> findById(String id){
 		return atributoRepo.findById(id);
 	}
+	
+	public Mono<Atributo> save(Atributo a) {
+		return atributoRepo.save(a);
+	}
 
 }

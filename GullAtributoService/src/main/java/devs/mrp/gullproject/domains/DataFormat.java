@@ -2,6 +2,6 @@ package devs.mrp.gullproject.domains;
 
 public enum DataFormat {
 
-	atributoTexto, cantidad, coste, margen, pvp, plazo;
+	ATRIBUTO_TEXTO, CANTIDAD, COSTE, MARGEN, PVP, PLAZO;
 	
 }

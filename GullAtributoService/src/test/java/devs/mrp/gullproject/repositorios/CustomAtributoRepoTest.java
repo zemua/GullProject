@@ -32,6 +32,7 @@ class CustomAtributoRepoTest {
 		}
 	}
 	
+	/*
 	@Test
 	void testRemoveAtributo() {
 		
@@ -145,5 +146,6 @@ class CustomAtributoRepoTest {
 			.verify();
 		
 	}
+	*/
 
 }

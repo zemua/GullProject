@@ -44,7 +44,7 @@ class LineaRestControllerTest {
 	LineaRepresentationModelAssembler lrma;
 
 	@Test
-	void testGetLineaById() {
+	void testGetAllLineas() {
 		
 		// WebTestClient client = webTestClient.mutateWith(configurer);
 		WebTestClient client = WebTestClient.bindToController(lineaRestController).build().mutateWith(configurer);
@@ -68,14 +68,16 @@ class LineaRestControllerTest {
 		lrm.setId(l.getId());
 		lrm.setNombre(l.getNombre());
 		lrm.add(Link.of("/api/esto/es/un/link"));
-		when(lrma.toModel(ArgumentMatchers.eq(l))).thenReturn(lrm);
 		
 		LineaRepresentationModel lrm2 = new LineaRepresentationModel();
 		lrm2.setCampos(null);
 		lrm2.setId("sin_id");
 		lrm2.setNombre("sin_nombre");
 		lrm2.add(Link.of("sin_link"));
-		//when(lrma.toModel(ArgumentMatchers.any())).thenReturn(lrm2);
+		
+		// el último when toma precedencia
+		when(lrma.toModel(ArgumentMatchers.any())).thenReturn(lrm2);
+		when(lrma.toModel(ArgumentMatchers.eq(l))).thenReturn(lrm);
 		
 		client.get()
 			.uri("/api/lineas/all").exchange()

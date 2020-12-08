@@ -29,7 +29,7 @@ public class AtributoRepresentationModelAssembler extends RepresentationModelAss
 		
 		atributo.setId(entity.getId());
 		atributo.setName(entity.getName());
-		atributo.setTipos(entity.getTipos());
+		atributo.setTipo(entity.getTipo());
 		atributo.setValoresFijos(entity.isValoresFijos());
 		return atributo;
 		
