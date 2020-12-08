@@ -16,7 +16,6 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping(value = "/api/lineas/id", produces = MediaType.APPLICATION_JSON_VALUE)
 public class LineaByIdRestController {
-	// TODO test
 	
 	private final LineaService lineaService;
 	private final LineaRepresentationModelAssembler lrma;

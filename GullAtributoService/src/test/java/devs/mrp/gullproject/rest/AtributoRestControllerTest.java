@@ -30,9 +30,9 @@ import reactor.core.publisher.Flux;
 class AtributoRestControllerTest {
 	
 	@Autowired
-	WebTestClient webTestClient;
-	@Autowired
 	HypermediaWebTestClientConfigurer configurer;
+	@Autowired
+	AtributoRestController atributoRestController;
 	
 	@MockBean
 	AtributoRepresentationModelAssembler arma;
@@ -43,7 +43,7 @@ class AtributoRestControllerTest {
 	void testgetAllAtributos() {
 		
 		// Create a WebTestClient by binding to the controller and applying the hypermedia configurer.
-		WebTestClient client = webTestClient.mutateWith(configurer);
+		WebTestClient client = WebTestClient.bindToController(atributoRestController).build().mutateWith(configurer);
 		
 		Tipo tipo = new Tipo();
 		tipo.setNombre("type name");
@@ -63,7 +63,7 @@ class AtributoRestControllerTest {
 		mrm.setTipos(m.getTipos());
 		mrm.setValoresFijos(m.isValoresFijos());
 		mrm.add(Link.of("/api/esto/es/un/link"));
-		when(arma.toModel(ArgumentMatchers.any(Atributo.class))).thenReturn(mrm);
+		when(arma.toModel(ArgumentMatchers.eq(m))).thenReturn(mrm);
 		
 		client.get()
 			.uri("/api/atributos/all")

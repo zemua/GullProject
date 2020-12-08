@@ -24,30 +24,30 @@ import devs.mrp.gullproject.domains.models.LineaRepresentationModel;
 import devs.mrp.gullproject.domains.models.LineaRepresentationModelAssembler;
 import devs.mrp.gullproject.repository.CampoRepo;
 import devs.mrp.gullproject.repository.LineaRepo;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-class LineaRestControllerTest {
-	
+class LineaByIdRestControllerTest {
+
 	@Autowired
 	HypermediaWebTestClientConfigurer configurer;
 	@Autowired
-	LineaRestController lineaRestController;
+	LineaByIdRestController lineaByIdRestController;
 	
-	@MockBean
-	CampoRepo campoRepo; // evita problemas en el contexto del test con configuracion auto @SpringBootTest en lugar de @WebFluxTest
 	@MockBean
 	LineaRepo lineaRepo;
 	@MockBean
+	CampoRepo campoRepo;
+	@MockBean
 	LineaRepresentationModelAssembler lrma;
-
+	
+	
 	@Test
 	void testGetLineaById() {
 		
 		// WebTestClient client = webTestClient.mutateWith(configurer);
-		WebTestClient client = WebTestClient.bindToController(lineaRestController).build().mutateWith(configurer);
+		WebTestClient client = WebTestClient.bindToController(lineaByIdRestController).build().mutateWith(configurer);
 
 		Campo<Integer> m = new Campo<>();
 		m.setAtributoId("id_del_campo");
@@ -57,12 +57,13 @@ class LineaRestControllerTest {
 		campos.add(m);
 		
 		Linea l = new Linea();
-		l.setId("linea_id");
-		l.setNombre("linea_name");
+		l.setNombre("nombre_linea");
+		l.setId("id_linea");
 		l.setCampos(campos);
-		Flux<Linea> flux = Flux.just(l);
+		Mono<Linea> mono = Mono.just(l);
 		
-		when(lineaRepo.findAll()).thenReturn(flux);
+		when(lineaRepo.findById(ArgumentMatchers.eq("id_linea"))).thenReturn(mono);
+		
 		LineaRepresentationModel lrm = new LineaRepresentationModel();
 		lrm.setCampos(l.getCampos());
 		lrm.setId(l.getId());
@@ -70,29 +71,24 @@ class LineaRestControllerTest {
 		lrm.add(Link.of("/api/esto/es/un/link"));
 		when(lrma.toModel(ArgumentMatchers.eq(l))).thenReturn(lrm);
 		
-		LineaRepresentationModel lrm2 = new LineaRepresentationModel();
-		lrm2.setCampos(null);
-		lrm2.setId("sin_id");
-		lrm2.setNombre("sin_nombre");
-		lrm2.add(Link.of("sin_link"));
-		//when(lrma.toModel(ArgumentMatchers.any())).thenReturn(lrm2);
-		
 		client.get()
-			.uri("/api/lineas/all").exchange()
+			.uri("/api/lineas/id/id_linea")
+			.exchange()
 			.expectStatus().isOk()
 			.expectBody(String.class)
 			.value(new BaseMatcher<String>() {
 
 				@Override
 				public boolean matches(Object actual) {
-					return actual.toString().contains("linea_name")
-							&& actual.toString().contains("linea_id")
+					return actual.toString().contains("id_del_campo")
 							&& actual.toString().contains("id_aleatoria")
-							&& actual.toString().contains("id_del_campo");
+							&& actual.toString().contains("235")
+							&& actual.toString().contains("nombre_linea")
+							&& actual.toString().contains("id_linea");
 				}
 
 				@Override
-				public void describeTo(Description description) {					
+				public void describeTo(Description description) {
 				}
 				
 			});
