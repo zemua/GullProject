@@ -7,7 +7,5 @@ import devs.mrp.gullproject.domains.Atributo;
 
 @Repository
 public interface AtributoRepo extends ReactiveMongoRepository<Atributo, String>, CustomAtributoRepo {
-
-	
 	
 }

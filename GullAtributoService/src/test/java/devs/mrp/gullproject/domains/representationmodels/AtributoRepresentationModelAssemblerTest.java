@@ -35,7 +35,7 @@ class AtributoRepresentationModelAssemblerTest {
 	void testToModel() {
 		
 		Tipo tipo = new Tipo();
-		tipo.setDataFormat(DataFormat.ATRIBUTO_TEXTO);
+		tipo.setDataFormat(DataFormat.DESCRIPCION);
 		tipo.setNombre("type name");
 		
 		Atributo m = new Atributo();
@@ -43,7 +43,7 @@ class AtributoRepresentationModelAssemblerTest {
 		m.setId("idaleatoria");
 		m.setValoresFijos(true);
 		//m.addTipo(tipo);
-		m.setTipo(DataFormat.ATRIBUTO_TEXTO);
+		m.setTipo(DataFormat.DESCRIPCION);
 		Flux<Atributo> mFlux = Flux.just(m);
 		
 		AtributoRepresentationModel mrm = arma.toModel(m);

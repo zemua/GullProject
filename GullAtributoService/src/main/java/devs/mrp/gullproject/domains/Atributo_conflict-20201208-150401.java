@@ -1,15 +1,10 @@
 package devs.mrp.gullproject.domains;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import devs.mrp.gullproject.anotaciones.ValorEnum;
 import lombok.Data;
 
 @Data
@@ -22,8 +17,6 @@ public class Atributo {
 	@NotBlank(message = "El nombre es obligatorio")
 	private String name;
 	
-	@NotNull
-	@ValorEnum(enumClass = DataFormat.class)
 	private DataFormat tipo;
 	
 	/**
@@ -32,7 +25,5 @@ public class Atributo {
 	 * o si deben ser escritos por el usuario
 	 */
 	private boolean valoresFijos;
-	
-	List<String> valoresPredefinidos = new ArrayList<>();
 
 }

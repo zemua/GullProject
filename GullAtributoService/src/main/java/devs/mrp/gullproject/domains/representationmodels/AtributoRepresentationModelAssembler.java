@@ -1,9 +1,12 @@
 package devs.mrp.gullproject.domains.representationmodels;
 
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
+import org.springframework.stereotype.Service;
+
 import devs.mrp.gullproject.domains.Atributo;
 import devs.mrp.gullproject.rest.AtributoRestControllerById;
 
+@Service
 public class AtributoRepresentationModelAssembler extends RepresentationModelAssemblerSupport<Atributo, AtributoRepresentationModel> {
 	
 	public AtributoRepresentationModelAssembler() {

@@ -53,12 +53,12 @@ class AtributoRestControllerByIdTest {
 		
 		Tipo tipo = new Tipo();
 		tipo.setNombre("type name");
-		tipo.setDataFormat(DataFormat.ATRIBUTO_TEXTO);
+		tipo.setDataFormat(DataFormat.DESCRIPCION);
 
 		Atributo m = new Atributo();
 		m.setName("seal");
 		m.setId("idaleatoria");
-		m.setTipo(DataFormat.ATRIBUTO_TEXTO);
+		m.setTipo(DataFormat.DESCRIPCION);
 		m.setValoresFijos(true);
 		Mono<Atributo> mono = Mono.just(m);
 		

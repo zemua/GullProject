@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Gull Project - Todos Los Atributos</title>
+</head>
+<body>
+
+<h1>Todos Los Atributos</h1>
+
+	<div>
+		<div th:each="a : ${atributos}">
+			<span th:value="${a.id}" th:text="${a.name}"></span>
+		</div>
+	</div>
+	<div>
+		<p>
+			<a th:href="@{/atributos/nuevo}">Crear nuevo atributo</a>
+		</p>
+	</div>
+
+</body>
+</html>

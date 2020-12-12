@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
@@ -39,14 +40,24 @@ public class AtributoController {
 	}
 	
 	@PostMapping("/nuevo")
-	public String procesaNuevoAtributo(@Valid Atributo atributo, BindingResult bindingResult) {
+	public String procesaNuevoAtributo(@Valid Atributo atributo, BindingResult bindingResult, Model model) {
 		if (bindingResult.hasErrors()) {
-			return "/nuevo";
+			model.addAttribute("atributo", atributo);
+			model.addAttribute("tipos", DataFormat.values());
+			return "crearAtributo";
 		}
 		
 		atributoService.save(atributo).subscribe();
 		
-		return "/nuevo?add=1";
+		return "redirect:/atributos/nuevo?add=1";
+	}
+	
+	@GetMapping("/editar/id/{id}")
+	public String editarAtributo(Model model, @PathVariable(name = "id") String id) {
+		
+		model.addAttribute("atributo", atributoService.findById(id));
+		
+		return "editarAtributo";
 	}
 	
 	@GetMapping("/todos")
