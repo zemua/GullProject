@@ -9,18 +9,15 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
 import devs.mrp.gullproject.domains.Atributo;
 import devs.mrp.gullproject.domains.DataFormat;
 import devs.mrp.gullproject.service.AtributoService;
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Slf4j
 @Controller
 @RequestMapping(path = "/atributos")
 public class AtributoController {
@@ -88,6 +85,26 @@ public class AtributoController {
 		
 		return "actualizarAtributo";
 		
+	}
+	
+	@GetMapping("/borrar/id/{id}")
+	public String borrarAtributo(Model model, @PathVariable(name = "id") String id) {
+		
+		Mono<Atributo> a = atributoService.findById(id);
+		model.addAttribute("atributo", a);
+		
+		return "borrarAtributo";
+	}
+	
+	@PostMapping("/borrar/id/{id}")
+	public String confirmBorrarAtributo(@Valid Atributo atributo, BindingResult bindingResult, Model model) {
+		if (bindingResult.hasErrors()) {
+			return "mostrarAtributos";
+		}
+		
+		atributoService.deleteById(atributo.getId()).subscribe();
+		
+		return "borradoAtributo";
 	}
 	
 }

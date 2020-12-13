@@ -2,6 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:th="http://www.thymeleaf.org">
 <head>
+<meta charset="utf-8">
 <title>Gull Project - Nuevo Atributo</title>
 </head>
 <body>
@@ -23,6 +24,12 @@
       	<span class="validationError"
       	th:if="${#fields.hasErrors('tipo')}"
       	th:errors="*{tipo}">Selecciona un tipo de atributo</span>
+      	
+      	<div th:if="${param.add != null ? param.add[0] == '1' : false}">
+			<span class="success">
+				Guardado. ¿Añadir otro?
+			</span>
+    	</div>
       
 		<div class="grid">
 			<div class="define-group" id="name">

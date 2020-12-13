@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>Gull Project - Borrar Atributo</title>
+</head>
+<body>
+
+<h1>Borrar Atributo</h1>
+
+	<form th:method="DELETE" th:object="${atributo}" id="atributoform">
+      
+		<div class="grid">
+			<div class="define-group" id="id">
+				<h3>ID:</h3>
+					<input name="id" type="text"
+						th:field="*{id}" th:value="*{id}" readonly/>
+			</div>
+			<div class="define-group" id="name">
+				<h3>Nombre:</h3>
+					<input name="name" type="text"
+						th:field="*{name}" th:value="*{name}" readonly/>
+			</div>
+			
+			<div class="define-group" id="tipo">
+				<h3>Tipo:</h3>
+					<input name="tipo" type="text" 
+						th:field="*{tipo}" th:value="*{tipo}" readonly/>
+			</div>
+		</div>
+
+		<div>
+			<p>
+				<button>Confirmar borrado</button>
+			</p>
+		</div>
+		
+		<div>
+			<p>
+				<a th:href="@{/atributos/todos}">Volver a todos los atributos</a>
+			</p>
+		</div>
+		
+	</form>
+
+</body>
+</html>

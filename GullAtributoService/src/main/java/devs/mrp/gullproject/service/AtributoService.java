@@ -29,5 +29,9 @@ public class AtributoService {
 	public Mono<Atributo> save(Atributo a) {
 		return atributoRepo.save(a);
 	}
+	
+	public Mono<Void> deleteById(String a) {
+		return atributoRepo.deleteById(a);
+	}
 
 }
