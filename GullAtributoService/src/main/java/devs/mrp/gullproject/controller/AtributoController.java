@@ -9,14 +9,18 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
 import devs.mrp.gullproject.domains.Atributo;
 import devs.mrp.gullproject.domains.DataFormat;
 import devs.mrp.gullproject.service.AtributoService;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
+@Slf4j
 @Controller
 @RequestMapping(path = "/atributos")
 public class AtributoController {
@@ -52,14 +56,6 @@ public class AtributoController {
 		return "redirect:/atributos/nuevo?add=1";
 	}
 	
-	@GetMapping("/editar/id/{id}")
-	public String editarAtributo(Model model, @PathVariable(name = "id") String id) {
-		
-		model.addAttribute("atributo", atributoService.findById(id));
-		
-		return "editarAtributo";
-	}
-	
 	@GetMapping("/todos")
 	public String mostrarAtributos(Model model) {
 		
@@ -67,6 +63,31 @@ public class AtributoController {
 		model.addAttribute("atributos", new ReactiveDataDriverContextVariable(atributos, 1));
 		
 		return "mostrarAtributos";
+	}
+	
+	@GetMapping("/editar/id/{id}")
+	public String editarAtributo(Model model, @PathVariable(name = "id") String id) {
+		
+		model.addAttribute("atributo", atributoService.findById(id));
+		model.addAttribute("tipos", DataFormat.values());
+		
+		return "editarAtributo";
+	}
+	
+	@PostMapping("/actualizar/id/{id}")
+	public String actualizarAtributo(@Valid Atributo atributo, BindingResult bindingResult, Model model, @PathVariable(name = "id") String id) {
+		if (bindingResult.hasErrors()) {
+			model.addAttribute("atributo", atributo);
+			model.addAttribute("tipos", DataFormat.values());
+			//return "redirect:/atributos/editar/id/" + id;
+			return "editarAtributo";
+		}
+		
+		Mono<Atributo> a = atributoService.save(atributo);
+		model.addAttribute("atributo", a);
+		
+		return "actualizarAtributo";
+		
 	}
 	
 }

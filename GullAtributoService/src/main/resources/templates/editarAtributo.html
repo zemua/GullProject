@@ -2,13 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:th="http://www.thymeleaf.org">
 <head>
-<title>Gull Project - Nuevo Atributo</title>
+<title>Gull Project - Editar Atributo</title>
 </head>
 <body>
 
-<h1>Nuevo Atributo</h1>
+<h1>Editar Atributo</h1>
 
-	<form method="POST" th:object="${atributo}" id="atributoform">
+	<form th:method="PUT" th:object="${atributo}" id="atributoform" th:action="@{'/atributos/actualizar/id/' + ${atributo.id}}">
 	
 		<div th:if="${#fields.hasErrors()}">
      	   <span class="validationError">
@@ -33,8 +33,8 @@
 			
 			<div class="define-group" id="tipo">
 				<h3>Tipo:</h3>
-					<select th:field="*{tipo}" name="tipo" form="atributoform">
-						<option th:each="t : ${tipos}" th:value="${t}" th:text="${t}"></option>
+					<select name="tipo" id="tipo" form="atributoform">
+						<option th:each="t : ${tipos}" th:value="${t}" th:text="${t}" th:selected="${t} == *{tipo}"></option>
 					</select>
 			</div>
 		</div>
@@ -47,7 +47,7 @@
 		
 		<div>
 			<p>
-				<a th:href="@{/atributos/todos}">Ver todos los atributos</a>
+				<a th:href="@{/atributos/todos}">Volver a todos los atributos</a>
 			</p>
 		</div>
 		

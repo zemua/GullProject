@@ -11,6 +11,8 @@
 	<div>
 		<div th:each="a : ${atributos}">
 			<span th:value="${a.id}" th:text="${a.name}"></span>
+			<span> - </span>
+			<a th:href="@{'/atributos/editar/id/' + ${a.id}}">editar</a>
 		</div>
 	</div>
 	<div>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Gull Project - Actualizar Atributo</title>
+</head>
+<body>
+
+<h1>Atributo Actualizado</h1>
+
+	<div>
+		<div><span>ID: </span><span th:text="${atributo.id}"></span></div>
+		<div><span>Nombre: </span><span th:text="${atributo.name}"></span></div>
+		<div><span>Tipo: </span><span th:text="${atributo.tipo}"></span></div>
+		<div><p><a th:href="@{/atributos/todos}">Volver</a></p></div>
+	</div>
+
+</body>
+</html>
