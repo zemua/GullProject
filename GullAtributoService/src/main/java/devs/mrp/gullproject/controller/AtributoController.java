@@ -23,6 +23,7 @@ import reactor.core.publisher.Mono;
 public class AtributoController {
 	
 	// TODO test
+	// TODO añadir handler para situaciones de error como cuando el "id" de la url no existe en db
 
 	AtributoService atributoService;
 	
@@ -58,6 +59,7 @@ public class AtributoController {
 		
 		Flux<Atributo> atributos = atributoService.findAll();
 		model.addAttribute("atributos", new ReactiveDataDriverContextVariable(atributos, 1));
+		//model.addAttribute("atributos", atributos);
 		
 		return "mostrarAtributos";
 	}
@@ -99,10 +101,11 @@ public class AtributoController {
 	@PostMapping("/borrar/id/{id}")
 	public String confirmBorrarAtributo(@Valid Atributo atributo, BindingResult bindingResult, Model model) {
 		if (bindingResult.hasErrors()) {
-			return "mostrarAtributos";
+			return "error";
 		}
 		
 		atributoService.deleteById(atributo.getId()).subscribe();
+		// TODO comprobar que se ha modificado un registro
 		
 		return "borradoAtributo";
 	}

@@ -42,7 +42,7 @@ class ValorEnumValidatorTest {
 	public void givenAtributoUriPostWithPostAndFormatData_whenMockMvc_ThenVerifyErrorResponse() throws Exception {
 		this.mockMvc.perform(MockMvcRequestBuilders.post("/atributos/nuevo").
 			      accept(MediaType.TEXT_HTML).
-			      param("phoneInput", "123")). // TODO ajustar de acuerdo a la plantilla Thymeleaf
+			      param("phoneInput", "123")).
 			      andExpect(model().attributeHasFieldErrorCode(
 			          "atributo","tipo","ValorEnum")).
 			      andExpect(view().name("phoneHome")).

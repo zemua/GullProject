@@ -23,7 +23,7 @@ public class Atributo {
 	private String name;
 	
 	@NotNull
-	@ValorEnum(enumClass = DataFormat.class)
+	@ValorEnum(enumClass = DataFormat.class, message = "Escoge un tipo correcto")
 	private DataFormat tipo;
 	
 	/**

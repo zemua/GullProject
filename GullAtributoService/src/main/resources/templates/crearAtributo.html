@@ -23,7 +23,7 @@
       	
       	<span class="validationError"
       	th:if="${#fields.hasErrors('tipo')}"
-      	th:errors="*{tipo}">Selecciona un tipo de atributo</span>
+      	>Escoge un tipo correcto</span>
       	
       	<div th:if="${param.add != null ? param.add[0] == '1' : false}">
 			<span class="success">
