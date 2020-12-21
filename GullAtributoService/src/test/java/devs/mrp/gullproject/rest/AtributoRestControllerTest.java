@@ -1,12 +1,15 @@
 package devs.mrp.gullproject.rest;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
+import org.assertj.core.api.Assertions;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -21,6 +24,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import devs.mrp.gullproject.domains.Atributo;
 import devs.mrp.gullproject.domains.DataFormat;
 import devs.mrp.gullproject.domains.Tipo;
+import devs.mrp.gullproject.domains.DTO.AtributoDTO;
 import devs.mrp.gullproject.domains.representationmodels.AtributoRepresentationModel;
 import devs.mrp.gullproject.domains.representationmodels.AtributoRepresentationModelAssembler;
 import devs.mrp.gullproject.repositorios.AtributoRepo;
@@ -31,13 +35,15 @@ import reactor.core.publisher.Flux;
 //@SpringBootTest
 //@AutoConfigureWebTestClient
 @WebFluxTest(controllers = AtributoRestController.class)
-@Import({AtributoService.class})
+@Import({AtributoService.class, ModelMapper.class})
 class AtributoRestControllerTest {
 	
 	@Autowired
 	HypermediaWebTestClientConfigurer configurer;
 	@Autowired
 	AtributoRestController atributoRestController;
+	@Autowired
+	private ModelMapper modelMapper;
 	
 	@MockBean
 	AtributoRepresentationModelAssembler arma;
@@ -76,22 +82,27 @@ class AtributoRestControllerTest {
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody(String.class)
-			.value(new BaseMatcher<String>() {
-
-				@Override
-				public boolean matches(Object actual) {
-					return actual.toString().contains("bonnet") && 
-							actual.toString().contains("idaleatoria") && 
-							actual.toString().contains("ATRIBUTO_TEXTO") && 
-							actual.toString().contains("esto/es/un/link");
-				}
-
-				@Override
-				public void describeTo(Description description) {
-					
-				}
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("bonnet")
+					.contains("idaleatoria")
+					.contains("DESCRIPCION")
+					.contains("esto/es/un/link");
 			});
 		
+	}
+	
+	@Test
+	public void testGetAtributoForCampoById() {
+		Atributo a = new Atributo();
+		a.setId("id");
+		a.setName("nombre");
+		a.setTipo(DataFormat.CANTIDAD);
+		
+		AtributoDTO dto = modelMapper.map(a, AtributoDTO.class);
+		assertEquals(a.getId(), dto.getId());
+		assertEquals(a.getName(), dto.getName());
+		assertEquals(a.getTipo(), dto.getTipo());
 	}
 
 }

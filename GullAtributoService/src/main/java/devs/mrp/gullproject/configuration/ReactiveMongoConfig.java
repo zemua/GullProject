@@ -1,5 +1,6 @@
 package devs.mrp.gullproject.configuration;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractReactiveMongoConfiguration;
@@ -21,6 +22,13 @@ public class ReactiveMongoConfig extends AbstractReactiveMongoConfiguration {
 	    @Override
 	    protected String getDatabaseName() {
 	        return "test";
+	    }
+	    
+	    @Bean
+	    public ModelMapper modelMapper() {
+	    	// https://www.baeldung.com/entity-to-and-from-dto-for-a-java-spring-application
+	    	// https://ngdeveloper.com/entity-to-dto-using-model-mapper-in-spring-restful-web-services/
+	    	return new ModelMapper();
 	    }
 	
 }

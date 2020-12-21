@@ -2,6 +2,7 @@ package devs.mrp.gullproject.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.repository.CampoRepo;
@@ -12,10 +13,12 @@ import reactor.core.publisher.Mono;
 public class CampoService {	
 	
 	private CampoRepo campoRepo;
+	private AtributoServiceProxy asp;
 	
 	@Autowired
-	public CampoService(CampoRepo campoRepo) {
+	public CampoService(CampoRepo campoRepo, AtributoServiceProxy asp) {
 		this.campoRepo = campoRepo;
+		this.asp = asp;
 	}
 	
 	public Mono<Campo<?>> findById(String id) {
@@ -25,5 +28,10 @@ public class CampoService {
 	public Flux<Campo<?>> findAll(){
 		return campoRepo.findAll();
 	}
+	
+	// TODO test
+	/*public Mono<Boolean> validateDataFormat(Campo<?> campo) {
+		
+	}*/
 
 }
