@@ -1,10 +1,12 @@
 package devs.mrp.gullproject.domains.models;
 
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
+import org.springframework.stereotype.Service;
 
 import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.rest.CampoByIdRestController;
 
+@Service
 public class CampoRepresentationModelAssembler extends RepresentationModelAssemblerSupport<Campo<?>, CampoRepresentationModel> {
 	
 	public CampoRepresentationModelAssembler() {

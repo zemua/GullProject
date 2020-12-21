@@ -22,8 +22,7 @@ import reactor.core.publisher.Mono;
 @RequestMapping(path = "/atributos")
 public class AtributoController {
 	
-	// TODO test
-	// TODO añadir handler para situaciones de error como cuando el "id" de la url no existe en db
+	// falta añadir handler para situaciones de error como cuando el "id" de la url no existe en db
 
 	AtributoService atributoService;
 	
@@ -104,8 +103,8 @@ public class AtributoController {
 			return "error";
 		}
 		
+		
 		atributoService.deleteById(atributo.getId()).subscribe();
-		// TODO comprobar que se ha modificado un registro
 		
 		return "borradoAtributo";
 	}

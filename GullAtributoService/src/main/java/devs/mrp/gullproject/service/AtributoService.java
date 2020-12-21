@@ -33,5 +33,9 @@ public class AtributoService {
 	public Mono<Void> deleteById(String a) {
 		return atributoRepo.deleteById(a);
 	}
+	
+	public Mono<Long> getCount() {
+		return atributoRepo.count();
+	}
 
 }

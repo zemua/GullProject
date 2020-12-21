@@ -8,20 +8,20 @@ import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRep
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 
-@EnableReactiveMongoRepositories
+//@EnableReactiveMongoRepositories
 @Configuration
 public class ReactiveMongoConfig extends AbstractReactiveMongoConfiguration {
 
 	// solamente necesario cuando se utiliza una instalación de MongoDB, no la embedded
 	
-		@Bean
-	    public MongoClient mongoClient() {
-	        return MongoClients.create();
-	    }
-	 
-	    @Override
-	    protected String getDatabaseName() {
-	        return "reactive";
-	    }
+	@Bean
+    public MongoClient mongoClient() {
+        return MongoClients.create("mongodb://localhost:27017");
+    }
+ 
+    @Override
+    protected String getDatabaseName() {
+        return "test";
+    }
 	
 }

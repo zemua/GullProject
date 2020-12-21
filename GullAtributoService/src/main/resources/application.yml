@@ -1,3 +1,6 @@
+spring:
+  application:
+    name: atributo-service
 server:
   port: 0
 eureka:

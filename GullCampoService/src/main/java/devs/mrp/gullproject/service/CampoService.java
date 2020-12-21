@@ -11,19 +11,19 @@ import reactor.core.publisher.Mono;
 @Service
 public class CampoService {	
 	
-	private CampoRepo repo;
+	private CampoRepo campoRepo;
 	
 	@Autowired
-	public CampoService(CampoRepo repo) {
-		this.repo = repo;
+	public CampoService(CampoRepo campoRepo) {
+		this.campoRepo = campoRepo;
 	}
 	
 	public Mono<Campo<?>> findById(String id) {
-		return repo.findById(id);
+		return campoRepo.findById(id);
 	}
 	
 	public Flux<Campo<?>> findAll(){
-		return repo.findAll();
+		return campoRepo.findAll();
 	}
 
 }

@@ -49,8 +49,6 @@ import reactor.core.publisher.Mono;
 @WebFluxTest(controllers = AtributoController.class)
 @AutoConfigureWebTestClient
 class AtributoControllerTest {
-	
-	// TODO completar todos los tests
 
 	@Autowired
 	WebTestClient webTestClient;
@@ -83,12 +81,12 @@ class AtributoControllerTest {
 			});
 		
 		webTestClient.get()
-		.uri("/atributos/nuevo?add=1")
-		.accept(MediaType.TEXT_HTML)
-		.exchange()
-		.expectStatus().isOk()
-		.expectBody()
-		.consumeWith(response -> {
+			.uri("/atributos/nuevo?add=1")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
 				Assertions.assertThat(response.getResponseBody()).asString()
 					.contains("Nombre:")
 					.contains("Tipo:")

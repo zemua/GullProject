@@ -1,10 +1,12 @@
 package devs.mrp.gullproject.domains.models;
 
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
+import org.springframework.stereotype.Service;
 
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.rest.LineaByIdRestController;
 
+@Service
 public class LineaRepresentationModelAssembler extends RepresentationModelAssemblerSupport<Linea, LineaRepresentationModel> {
 	
 	public LineaRepresentationModelAssembler() {

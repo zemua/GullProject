@@ -8,8 +8,6 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 public class ValorEnumValidator implements ConstraintValidator<ValorEnum, CharSequence> {
-	
-	// TODO test
 
 	private List<String> acceptedValues;
 	
