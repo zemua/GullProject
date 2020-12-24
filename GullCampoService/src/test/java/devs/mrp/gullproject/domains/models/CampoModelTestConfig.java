@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+//import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import devs.mrp.gullproject.repository.LineaRepo;
 import devs.mrp.gullproject.service.LineaService;
@@ -23,7 +23,7 @@ public class CampoModelTestConfig {
 		return new CampoRepresentationModelAssembler();
 	}
 	
-	@Bean
+	/*@Bean
 	public ServletUriComponentsBuilder servletUriComponentsBuilder() {
 		MockHttpServletRequest request;
 		
@@ -35,5 +35,5 @@ public class CampoModelTestConfig {
 		request.setContextPath("/showcase	");
 
 		return ServletUriComponentsBuilder.fromRequest(request);
-	}
+	}*/
 }

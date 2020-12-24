@@ -7,8 +7,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.config.EnableHypermediaSupport;
 import org.springframework.hateoas.config.EnableHypermediaSupport.HypermediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -21,6 +23,7 @@ import reactor.core.publisher.Flux;
 @EnableHypermediaSupport(type = { HypermediaType.HAL, HypermediaType.HAL_FORMS })
 @SpringBootTest
 @ContextConfiguration(classes = {AtributoModelTestConfig.class})
+@ActiveProfiles("hackteoas")
 class AtributoRepresentationModelAssemblerTest {
 	
 	// cuando haces @Mock para insertarlo en la instancia a testear
@@ -30,6 +33,7 @@ class AtributoRepresentationModelAssemblerTest {
 	// cuando no tiene dependencias
 	@Autowired
 	AtributoRepresentationModelAssembler arma;
+	
 
 	@Test
 	void testToModel() {

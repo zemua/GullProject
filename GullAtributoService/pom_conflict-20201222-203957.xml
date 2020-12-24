@@ -95,16 +95,6 @@
     		<artifactId>assertj-core</artifactId>
     		<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-contract-verifier</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<!-- <dependency>
-    		<groupId>org.springframework.cloud</groupId>
-    		<artifactId>spring-cloud-contract-maven-plugin</artifactId>
-    		<scope>test</scope>
-		</dependency> -->
 	</dependencies>
 
 	<dependencyManagement>
@@ -118,19 +108,6 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-	
-	<profiles>
-	    <profile>
-			<id>hackteoas</id>
-			<dependencies>
-				<dependency>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-starter-web</artifactId>
-					<scope>test</scope>
-				</dependency>
-        	</dependencies>
-    	</profile>
-	</profiles>
 
 	<build>
 		<plugins>
@@ -138,16 +115,6 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
-			<!-- <plugin>
-    			<groupId>org.springframework.cloud</groupId>
-    			<artifactId>spring-cloud-contract-maven-plugin</artifactId>
-    			<extensions>true</extensions>
-    			<configuration>
-        			<baseClassForTests>
-            			devs.mrp.gullproject.BaseTestClass
-        			</baseClassForTests>
-    			</configuration>
-			</plugin> -->
 		</plugins>
 	</build>
 

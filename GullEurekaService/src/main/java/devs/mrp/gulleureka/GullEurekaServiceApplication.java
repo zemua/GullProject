@@ -9,7 +9,6 @@ import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 public class GullEurekaServiceApplication {
 	
 	// TODO configurar application.yml para interactuar con otros servidores eureka
-	// TODO usar feign para los clientes
 
 	public static void main(String[] args) {
 		SpringApplication.run(GullEurekaServiceApplication.class, args);

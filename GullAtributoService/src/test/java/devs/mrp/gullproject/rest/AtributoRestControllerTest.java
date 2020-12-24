@@ -30,6 +30,7 @@ import devs.mrp.gullproject.domains.representationmodels.AtributoRepresentationM
 import devs.mrp.gullproject.repositorios.AtributoRepo;
 import devs.mrp.gullproject.service.AtributoService;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @ExtendWith(SpringExtension.class)
 //@SpringBootTest
@@ -93,7 +94,7 @@ class AtributoRestControllerTest {
 	}
 	
 	@Test
-	public void testGetAtributoForCampoById() {
+	public void testModelMapper() {
 		Atributo a = new Atributo();
 		a.setId("id");
 		a.setName("nombre");
@@ -103,6 +104,38 @@ class AtributoRestControllerTest {
 		assertEquals(a.getId(), dto.getId());
 		assertEquals(a.getName(), dto.getName());
 		assertEquals(a.getTipo(), dto.getTipo());
+	}
+	
+	@Test
+	public void testGetAtributoForCampoById() {
+		
+		// https://www.baeldung.com/spring-cloud-contract
+		
+		WebTestClient client = WebTestClient.bindToController(atributoRestController).build();
+		
+		Atributo m = new Atributo();
+		m.setName("bonnet");
+		m.setId("idaleatoria");
+		m.setTipo(DataFormat.DESCRIPCION);
+		m.setValoresFijos(true);
+		Mono<Atributo> mono = Mono.just(m);
+		
+		when(atributoRepo.findById(ArgumentMatchers.eq(m.getId()))).thenReturn(mono);
+		
+		client.get()
+		.uri("/api/atributos/idforcampo/idaleatoria")
+		//.accept(MediaType.APPLICATION_JSON)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody(String.class)
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+				.contains("bonnet")
+				.contains("idaleatoria")
+				.contains("DESCRIPCION")
+				.doesNotContain("esto/es/un/link")
+				.doesNotContain("valoresFijos");
+		});
 	}
 
 }

@@ -2,7 +2,7 @@ package devs.mrp.gullproject.domains.models;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+//import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 public class LineaModelTestConfig {
 
@@ -17,7 +17,7 @@ public class LineaModelTestConfig {
 		return new LineaRepresentationModelAssembler();
 	}
 	
-	@Bean
+	/*@Bean
 	public ServletUriComponentsBuilder servletUriComponentsBuilder() {
 		MockHttpServletRequest request;
 		
@@ -29,6 +29,6 @@ public class LineaModelTestConfig {
 		request.setContextPath("/showcase	");
 
 		return ServletUriComponentsBuilder.fromRequest(request);
-	}
+	}*/
 	
 }
