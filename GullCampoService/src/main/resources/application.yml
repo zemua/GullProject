@@ -4,6 +4,10 @@ spring:
       base-path: /api
   application:
     name: campo-service
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
 server:
   port: 0
 eureka:

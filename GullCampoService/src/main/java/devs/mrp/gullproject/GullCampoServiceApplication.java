@@ -7,10 +7,12 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.hateoas.config.EnableHypermediaSupport;
 import org.springframework.hateoas.config.EnableHypermediaSupport.HypermediaType;
 
+import reactivefeign.spring.config.EnableReactiveFeignClients;
+
 @SpringBootApplication
 @EnableHypermediaSupport(type = { HypermediaType.HAL, HypermediaType.HAL_FORMS })
 @EnableDiscoveryClient
-@EnableFeignClients
+@EnableReactiveFeignClients
 public class GullCampoServiceApplication {
 
 	public static void main(String[] args) {

@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "reactive.feign.circuit.breaker.enabled",
+    "type": "java.lang.String",
+    "description": "A description for 'reactive.feign.circuit.breaker.enabled'"
+  },
+  {
+    "name": "reactive.feign.loadbalancer.enabled",
+    "type": "java.lang.String",
+    "description": "A description for 'reactive.feign.loadbalancer.enabled'"
+  }
+]}

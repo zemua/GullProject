@@ -32,11 +32,13 @@ public class CampoService {
 	
 	// TODO test
 	public Mono<Boolean> validateDataFormat(Campo<?> campo) {
-		Mono<AtributoForCampo> afc = Mono.just(asp.getAtributoForCampoById(campo.getAtributoId()));
-		Mono<Boolean> validated = Mono.just(asp.validateDataFormat(afc.block().getTipo(), campo.getDatos().toString()));
+		
+		// TODO combinar, del lado de atributo-service, ambas consultas en 1 sola (solo 1 punto REST)
+		
+		Mono<AtributoForCampo> afc = asp.getAtributoForCampoById(campo.getAtributoId());
+		Mono<Boolean> validated = asp.validateDataFormat(afc.block().getTipo(), campo.getDatos().toString());
 				
-		//return validated;
-		return null;
+		return validated;
 	}
 
 }
