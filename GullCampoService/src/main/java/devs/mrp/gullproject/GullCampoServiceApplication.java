@@ -12,7 +12,7 @@ import reactivefeign.spring.config.EnableReactiveFeignClients;
 @SpringBootApplication
 @EnableHypermediaSupport(type = { HypermediaType.HAL, HypermediaType.HAL_FORMS })
 @EnableDiscoveryClient
-@EnableReactiveFeignClients
+//@EnableReactiveFeignClients // rompe otros tests, añadimos esto en una configuracion específica del reactive feign para que no se cargue automático con springboottest
 public class GullCampoServiceApplication {
 
 	public static void main(String[] args) {

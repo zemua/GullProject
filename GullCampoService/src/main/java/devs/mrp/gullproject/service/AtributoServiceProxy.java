@@ -9,14 +9,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import reactivefeign.spring.config.ReactiveFeignClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @ReactiveFeignClient(name = "atributo-service")
 public interface AtributoServiceProxy {
 	
-	// TODO load balanced
-	// TODO circuit breaker
+	// TODO load balancer
+	// TODO circuit breaker / hystrix
 	// TODO security
+	
+	// TODO hacer UI para crear campos
 	
 	// añadir wrapper reactivo
 	// https://github.com/OpenFeign/feign/tree/master/reactive
@@ -30,5 +33,10 @@ public interface AtributoServiceProxy {
 	
 	@GetMapping("/api/atributos/idforcampo/{id}")
 	public Mono<AtributoForCampo> getAtributoForCampoById(@PathVariable(name = "id") String id);
+	
+	
+	//TODO test
+	@GetMapping("/api/atributos/formatos")
+	public Flux<String> getTodosLosDataFormat();
 	
 }

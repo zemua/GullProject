@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import devs.mrp.gullproject.domains.Atributo;
+import devs.mrp.gullproject.domains.DataFormat;
 import devs.mrp.gullproject.domains.DTO.AtributoDTO;
 import devs.mrp.gullproject.domains.representationmodels.AtributoRepresentationModel;
 import devs.mrp.gullproject.domains.representationmodels.AtributoRepresentationModelAssembler;
-import devs.mrp.gullproject.repositorios.AtributoRepo;
 import devs.mrp.gullproject.service.AtributoService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -45,6 +45,14 @@ public class AtributoRestController {
 		Mono<Atributo> atributo = atributoService.findById(id);
 		Mono<AtributoDTO> atributoDTO = atributo.map(a -> modelMapper.map(a, AtributoDTO.class));
 		return atributoDTO;
+	}
+	
+	@GetMapping(path = "/formatos")
+	public Flux<String> getTodosLosDataFormat(){
+		DataFormat[] values = DataFormat.values();
+		Flux<String> flux = Flux.fromArray(values)
+			.map(mapper -> mapper.toString());
+		return flux;
 	}
 	
 }

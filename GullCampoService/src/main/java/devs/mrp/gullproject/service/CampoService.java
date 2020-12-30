@@ -30,10 +30,9 @@ public class CampoService {
 		return campoRepo.findAll();
 	}
 	
-	// TODO test
 	public Mono<Boolean> validateDataFormat(Campo<?> campo) {
 		
-		// TODO combinar, del lado de atributo-service, ambas consultas en 1 sola (solo 1 punto REST)
+		// TODO combinar, del lado de atributo-service, ambas consultas en 1 sola totalmente reactiva (solo 1 punto REST)
 		
 		Mono<AtributoForCampo> afc = asp.getAtributoForCampoById(campo.getAtributoId());
 		Mono<Boolean> validated = asp.validateDataFormat(afc.block().getTipo(), campo.getDatos().toString());

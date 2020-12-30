@@ -31,6 +31,7 @@ import devs.mrp.gullproject.repositorios.AtributoRepo;
 import devs.mrp.gullproject.service.AtributoService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 @ExtendWith(SpringExtension.class)
 //@SpringBootTest
@@ -109,6 +110,7 @@ class AtributoRestControllerTest {
 	@Test
 	public void testGetAtributoForCampoById() {
 		
+		// por aprender a usar... aunque con reactor da problemas...
 		// https://www.baeldung.com/spring-cloud-contract
 		
 		WebTestClient client = WebTestClient.bindToController(atributoRestController).build();
@@ -136,6 +138,20 @@ class AtributoRestControllerTest {
 				.doesNotContain("esto/es/un/link")
 				.doesNotContain("valoresFijos");
 		});
+	}
+	
+	@Test
+	public void testGetTodosLosDataFormat() {
+		Flux<String> flux = atributoRestController.getTodosLosDataFormat();
+		StepVerifier
+			.create(flux)
+			.expectNext("DESCRIPCION")
+			.expectNext("CANTIDAD")
+			.expectNext("COSTE")
+			.expectNext("MARGEN")
+			.expectNext("PVP")
+			.expectNext("PLAZO")
+			.verifyComplete();
 	}
 
 }

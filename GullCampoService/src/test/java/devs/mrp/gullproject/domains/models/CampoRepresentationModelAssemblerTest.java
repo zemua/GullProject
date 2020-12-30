@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.hateoas.config.EnableHypermediaSupport;
 import org.springframework.hateoas.config.EnableHypermediaSupport.HypermediaType;
 import org.springframework.test.context.ContextConfiguration;
@@ -18,7 +20,7 @@ import reactor.core.publisher.Flux;
 @ExtendWith(SpringExtension.class)
 @EnableHypermediaSupport(type = { HypermediaType.HAL, HypermediaType.HAL_FORMS })
 @SpringBootTest
-@ContextConfiguration(classes = {CampoModelTestConfig.class})
+@ContextConfiguration(classes = {CampoRepresentationModelAssemblerTest.CampoModelTestConfig.class})
 class CampoRepresentationModelAssemblerTest {
 	
 	@Autowired
@@ -39,6 +41,35 @@ class CampoRepresentationModelAssemblerTest {
 		assertThat(crm.getDatos()).isSameAs(campo.getDatos());
 		assertThat(crm.getLink("self").toString()).contains("/api/campos/id/" + campo.getId());
 		
+	}
+	
+	@Configuration
+	public static class CampoModelTestConfig {
+		
+		/**
+		 * necesita incluir dependencia mvc en el pom scope test
+		 * que excluimos de la importación de hateoas porque
+		 * da problemas, por el momento, con reactor
+		 */
+		
+		@Bean
+		public CampoRepresentationModelAssembler campoRepresentationModelAssembler() {
+			return new CampoRepresentationModelAssembler();
+		}
+		
+		/*@Bean
+		public ServletUriComponentsBuilder servletUriComponentsBuilder() {
+			MockHttpServletRequest request;
+			
+			request = new MockHttpServletRequest();
+			request.setScheme("http");
+			request.setServerName("localhost");
+			request.setServerPort(-1);
+			request.setRequestURI("/showcase");
+			request.setContextPath("/showcase	");
+
+			return ServletUriComponentsBuilder.fromRequest(request);
+		}*/
 	}
 
 }
