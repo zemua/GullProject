@@ -1,5 +1,7 @@
 package devs.mrp.gullproject.service;
 
+import java.util.List;
+
 import org.reactivestreams.Publisher;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Service;
@@ -8,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import devs.mrp.gullproject.domains.AtributoForCampo;
+import devs.mrp.gullproject.domains.StringWrapper;
 import reactivefeign.spring.config.ReactiveFeignClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -34,9 +37,7 @@ public interface AtributoServiceProxy {
 	@GetMapping("/api/atributos/idforcampo/{id}")
 	public Mono<AtributoForCampo> getAtributoForCampoById(@PathVariable(name = "id") String id);
 	
-	
-	//TODO test
 	@GetMapping("/api/atributos/formatos")
-	public Flux<String> getTodosLosDataFormat();
+	public Flux<StringWrapper> getTodosLosDataFormat();
 	
 }

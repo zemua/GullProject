@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import devs.mrp.gullproject.domains.Atributo;
 import devs.mrp.gullproject.domains.DataFormat;
+import devs.mrp.gullproject.domains.StringWrapper;
 import devs.mrp.gullproject.domains.DTO.AtributoDTO;
 import devs.mrp.gullproject.domains.representationmodels.AtributoRepresentationModel;
 import devs.mrp.gullproject.domains.representationmodels.AtributoRepresentationModelAssembler;
@@ -18,7 +19,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping(value = "/api/atributos", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/atributos", produces = "application/json")
 public class AtributoRestController {
 
 	private final AtributoService atributoService;
@@ -48,10 +49,10 @@ public class AtributoRestController {
 	}
 	
 	@GetMapping(path = "/formatos")
-	public Flux<String> getTodosLosDataFormat(){
+	public Flux<StringWrapper> getTodosLosDataFormat(){
 		DataFormat[] values = DataFormat.values();
-		Flux<String> flux = Flux.fromArray(values)
-			.map(mapper -> mapper.toString());
+		Flux<StringWrapper> flux = Flux.fromArray(values)
+			.map(df -> new StringWrapper(df.toString()));
 		return flux;
 	}
 	

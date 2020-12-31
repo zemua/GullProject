@@ -2,6 +2,9 @@ package devs.mrp.gullproject.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -17,13 +20,20 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import devs.mrp.gullproject.domains.AtributoForCampo;
+import devs.mrp.gullproject.domains.StringWrapper;
 import reactivefeign.ReactiveOptions;
 import reactivefeign.spring.config.EnableReactiveFeignClients;
 import reactivefeign.spring.config.ReactiveFeignClient;
 import reactivefeign.webclient.WebReactiveOptions;
+import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.github.tomakehurst.wiremock.WireMockServer;
+
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
@@ -121,6 +131,21 @@ class AtributoServiceProxyTest {
 				.willReturn(aResponse()
 						.withJsonBody(node)
 						.withHeader("Content-Type", "application/json")));
+		
+		List<String> array = new ArrayList<>();
+		array.add("uno");
+		array.add("dos");
+		array.add("tres");
+		
+		ArrayNode arrayNode = mapper.createArrayNode();
+		array.stream().forEach(s ->{
+			arrayNode.add(mapper.convertValue(s, JsonNode.class));
+		});
+		
+		mockHttpServer.stubFor(get(urlEqualTo("/api/atributos/formatos"))
+				.willReturn(aResponse()
+						.withJsonBody(arrayNode)
+						.withHeader("Content-Type", "application/json")));
 
 		mockHttpServer.start();
 
@@ -130,8 +155,8 @@ class AtributoServiceProxyTest {
 	@AfterAll
 	public static void teardown() {
 		mockHttpServer.stop();
-		//System.clearProperty(MOCK_SERVER_PORT_PROPERTY);
-		System.setProperty(MOCK_SERVER_PORT_PROPERTY, "0");
+		System.clearProperty(MOCK_SERVER_PORT_PROPERTY);
+		//System.setProperty(MOCK_SERVER_PORT_PROPERTY, "0");
 	}
 	
 	@Test // https://github.com/Playtika/feign-reactive/blob/develop/feign-reactor-test/feign-reactor-spring-configuration-test/src/test/java/reactivefeign/spring/config/ReactiveFeignClientUsingConfigurationsTests.java
@@ -157,7 +182,15 @@ class AtributoServiceProxyTest {
 	
 	@Test
 	public void testGetTodosLosDataFormat() {
-		// TODO
+		
+		Flux<StringWrapper> flux = mockAtributoServiceProxy.getTodosLosDataFormat();
+		
+		StepVerifier.create(flux)
+			.expectNext(new StringWrapper("uno"))
+			.expectNext(new StringWrapper("dos"))
+			.expectNext(new StringWrapper("tres"))
+			.verifyComplete();
+		
 	}
 	
 	@Configuration

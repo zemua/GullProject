@@ -23,6 +23,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import devs.mrp.gullproject.domains.Atributo;
 import devs.mrp.gullproject.domains.DataFormat;
+import devs.mrp.gullproject.domains.StringWrapper;
 import devs.mrp.gullproject.domains.Tipo;
 import devs.mrp.gullproject.domains.DTO.AtributoDTO;
 import devs.mrp.gullproject.domains.representationmodels.AtributoRepresentationModel;
@@ -142,15 +143,15 @@ class AtributoRestControllerTest {
 	
 	@Test
 	public void testGetTodosLosDataFormat() {
-		Flux<String> flux = atributoRestController.getTodosLosDataFormat();
+		Flux<StringWrapper> flux = atributoRestController.getTodosLosDataFormat();
 		StepVerifier
 			.create(flux)
-			.expectNext("DESCRIPCION")
-			.expectNext("CANTIDAD")
-			.expectNext("COSTE")
-			.expectNext("MARGEN")
-			.expectNext("PVP")
-			.expectNext("PLAZO")
+			.expectNext(new StringWrapper("DESCRIPCION"))
+			.expectNext(new StringWrapper("CANTIDAD"))
+			.expectNext(new StringWrapper("COSTE"))
+			.expectNext(new StringWrapper("MARGEN"))
+			.expectNext(new StringWrapper("PVP"))
+			.expectNext(new StringWrapper("PLAZO"))
 			.verifyComplete();
 	}
 
