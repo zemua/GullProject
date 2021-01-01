@@ -35,4 +35,16 @@ public class LineaService {
 		return lineaRepo.removeCampo(id, campo);
 	}
 	
+	public Mono<Linea> addLinea(Linea linea) {
+		return lineaRepo.insert(linea);
+	}
+	
+	public Mono<Linea> updateLinea(Linea linea) {
+		return lineaRepo.save(linea);
+	}
+	
+	public Mono<Long> deleteById(String id) { // TODO test
+		return lineaRepo.deleteByIdReturningDeletedCount(id);
+	}
+	
 }

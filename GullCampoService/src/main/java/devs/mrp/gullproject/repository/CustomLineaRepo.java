@@ -6,8 +6,10 @@ import reactor.core.publisher.Mono;
 
 public interface CustomLineaRepo {
 
-	public Mono<Linea> addCampo(String id, Campo campo);
+	public Mono<Linea> addCampo(String idLinea, Campo<?> campo);
 	
-	public Mono<Linea> removeCampo(String id, Campo campo);
+	public Mono<Linea> removeCampo(String idLinea, Campo<?> campo);
+	
+	public Mono<Linea> updateCampo(String idLinea, Campo<?> campo);
 	
 }

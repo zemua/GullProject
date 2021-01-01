@@ -19,8 +19,15 @@ public class CustomLineaRepoImpl implements CustomLineaRepo {
 		this.mongoTemplate = mongoTemplate;
 	}
 	
+	/**
+	 * Query personalizado mongodb
+	 * https://dev.to/andreevich/how-to-build-custom-queries-with-spring-data-reactive-mongodb-1802
+	 * referencia codigo fuente
+	 * https://github.com/mednikoviurii/spring-reactive-examples
+	 */
+	
 	@Override
-	public Mono<Linea> addCampo(String id, Campo campo) {
+	public Mono<Linea> addCampo(String id, Campo<?> campo) {
 		
 		Query query = new Query(Criteria.where("id").is(id));
 		Update update = new Update().addToSet("campos", campo);
@@ -29,10 +36,23 @@ public class CustomLineaRepoImpl implements CustomLineaRepo {
 	}
 
 	@Override
-	public Mono<Linea> removeCampo(String id, Campo campo) {
+	public Mono<Linea> removeCampo(String id, Campo<?> campo) {
 		
 		Query query = new Query(Criteria.where("id").is(id));
 		Update update = new Update().pull("campos", campo);
+		return mongoTemplate.findAndModify(query, update, Linea.class);
+		
+	}
+
+	@Override
+	public Mono<Linea> updateCampo(String idLinea, Campo<?> campo) {
+		
+		/**
+		 * https://stackoverflow.com/questions/35611449/mongodb-how-update-element-in-array-using-spring-query-update
+		 */
+		
+		Query query = new Query(Criteria.where("id").is(idLinea).and("campos.id").is(campo.getId()));
+		Update update = new Update().set("campos.$.datos", campo.getDatos());
 		return mongoTemplate.findAndModify(query, update, Linea.class);
 		
 	}
