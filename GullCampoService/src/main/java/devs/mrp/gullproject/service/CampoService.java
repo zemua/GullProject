@@ -31,13 +31,35 @@ public class CampoService {
 	}
 	
 	public Mono<Boolean> validateDataFormat(Campo<?> campo) {
-		
-		// TODO combinar, del lado de atributo-service, ambas consultas en 1 sola totalmente reactiva (solo 1 punto REST)
-		
-		Mono<AtributoForCampo> afc = asp.getAtributoForCampoById(campo.getAtributoId());
-		Mono<Boolean> validated = asp.validateDataFormat(afc.block().getTipo(), campo.getDatos().toString());
+		Mono<Boolean> afc = asp
+				.getAtributoForCampoById(campo.getAtributoId())
+				.flatMap(m -> asp.validateDataFormat(m.getTipo(), campo.getDatos().toString()));
 				
-		return validated;
+		return afc;
+	}
+	
+	public Mono<Campo<?>> anhadirUno(Campo<?> campo) {
+		return campoRepo.insert(campo);
+	}
+	
+	public Flux<Campo<?>> anhadirVarios(Flux<Campo<?>> campos){
+		return campoRepo.insert(campos);
+	}
+	
+	public Mono<Campo<?>> actualizarUno(Campo<?> campo) {
+		return campoRepo.save(campo);
+	}
+	
+	public Flux<Campo<?>> actualizarVarios(Flux<Campo<?>> campos) {
+		return campoRepo.saveAll(campos);
+	}
+	
+	public Mono<Long> borrarUno(String id) {
+		return campoRepo.deleteByIdReturningDeletedCount(id);
+	}
+	
+	public Flux<Long> borrarVarios(Flux<String> ids) {
+		return ids.flatMap(m -> campoRepo.deleteByIdReturningDeletedCount(m));
 	}
 
 }

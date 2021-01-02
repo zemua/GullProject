@@ -8,6 +8,8 @@ import javax.validation.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Data;
 
 @Data
@@ -23,6 +25,7 @@ public class Linea {
 	private List<Campo<?>> campos = new ArrayList<>();
 	//private Flux<Campo<?>> campos;
 	
+	@JsonIgnore
 	public int getCantidadCampos() {
 		return campos.size();
 	}

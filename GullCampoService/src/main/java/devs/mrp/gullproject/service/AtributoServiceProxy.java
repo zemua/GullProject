@@ -22,8 +22,6 @@ public interface AtributoServiceProxy {
 	// TODO circuit breaker / hystrix
 	// TODO security
 	
-	// TODO hacer UI para crear campos
-	
 	// añadir wrapper reactivo
 	// https://github.com/OpenFeign/feign/tree/master/reactive
 	

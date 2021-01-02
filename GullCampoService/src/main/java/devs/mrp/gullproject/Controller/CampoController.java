@@ -12,6 +12,10 @@ public class CampoController {
 	
 	// TODO controller UI para modificar campos desde la web MVC
 	
+	// creación de campo
+	// modificación de campo
+	// borrar campo
+	
 	CampoService campoService;
 	
 	@Autowired
