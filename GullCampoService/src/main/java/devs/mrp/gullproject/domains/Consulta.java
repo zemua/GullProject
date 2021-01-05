@@ -1,7 +1,53 @@
 package devs.mrp.gullproject.domains;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import lombok.Data;
+
+@Data
+@Document(collection = "consultas")
 public class Consulta {
-// TODO - es la categoría superior a "propuesta"
-	// deberá tener una lista de propuestas, con fechas, estados...
+	
+	@Id
+	String id;
+	
+	String nombre;
+	
+	Long createdTime = System.currentTimeMillis();
+	Long rootEditedTime;
+	
+	List<Propuesta> propuestas = new ArrayList<>();
+	
+	public void actualizaEditTime() {
+		rootEditedTime = System.currentTimeMillis();
+	}
+	
+	public void addPropuesta(Propuesta propuesta) {
+		propuestas.add(propuesta);
+	}
+	
+	public void removePropuesta(Propuesta propuesta) {
+		propuestas.remove(propuesta);
+		actualizaEditTime();
+	}
+	
+	public void removePropuesta(String propuestaId) {
+		propuestas.removeIf(propuesta -> propuesta.getId().equals(propuestaId));
+	}
+	
+	/**
+	 * Para generar automaticamente ids de subdocumentos
+	 * https://stackoverflow.com/questions/60246374/auto-generate-ids-for-mongodb-sub-documents-in-array-with-spring-mongotemplate
+	 * 
+	 * public CommentEntity() {
+	 * 		id = new ObjectId().toString();
+	 * 		...
+	 * }
+	 * 
+	 */
 	
 }

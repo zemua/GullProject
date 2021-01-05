@@ -61,7 +61,7 @@ public class LineaRestController {
 	
 	@DeleteMapping(path = "/borrar-una")
 	public Mono<Long> borrarLineaById(@RequestParam(name = "id") String id) {
-		Mono<Long> borradas = lineaService.deleteById(id);
+		Mono<Long> borradas = lineaService.deleteLineaById(id);
 		return borradas;
 	}
 	

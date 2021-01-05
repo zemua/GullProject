@@ -3,7 +3,7 @@ package devs.mrp.gullproject.domains;
 import java.util.List;
 import java.util.Map;
 
-public class OfertaProveedor extends PropuestaAbstracta {
+public class NuestroBid extends PropuestaAbstracta {
 
 	@Override
 	public boolean isRoot() {
@@ -12,7 +12,9 @@ public class OfertaProveedor extends PropuestaAbstracta {
 
 	@Override
 	public boolean isForBid() {
-		return false;
+		return true;
 	}
+
+
 
 }

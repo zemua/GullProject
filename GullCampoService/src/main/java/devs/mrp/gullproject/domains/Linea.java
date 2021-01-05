@@ -22,6 +22,8 @@ public class Linea {
 	@NotBlank
 	private String nombre;
 	
+	private Integer orden;
+	
 	private List<Campo<?>> campos = new ArrayList<>();
 	//private Flux<Campo<?>> campos;
 	

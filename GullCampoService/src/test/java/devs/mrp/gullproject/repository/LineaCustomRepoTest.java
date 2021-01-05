@@ -295,6 +295,206 @@ class LineaCustomRepoTest {
 				assertEquals("nombre_linea_2", line.getNombre());
 			})
 			.expectComplete()
+			.verify();	
+	}
+	
+	@Test
+	void testRemoveVariosCampos() {
+		
+		repo.deleteAll().block();
+		
+		String id = "linea_id";
+		String name = "linea_nombre";
+		List<Campo<?>> campos = new ArrayList<>();
+		boolean valoresFijos = true;
+		Campo<Integer> campo1 = new Campo<>();
+		campo1.setId("campo_1_id");
+		campo1.setDatos(24702);
+		campo1.setAtributoId("atributo_id_1");
+		campos.add(campo1);
+		Campo<String> campo2 = new Campo<>();
+		campo2.setId("campo_2_id");
+		campo2.setDatos("datos_en_campo_2");
+		campo2.setAtributoId("atributo_id_2");
+		campos.add(campo2);
+		Campo<String> campo3 = new Campo<>();
+		campo3.setId("campo_3_id");
+		campo3.setDatos("datos_en_campo_3");
+		campo2.setAtributoId("atributo_id_3");
+		campos.add(campo3);
+		
+		Linea linea = new Linea();
+		linea.setCampos(campos);
+		linea.setId(id);
+		linea.setNombre(name);
+		
+		repo.save(linea).block();
+		
+		Mono<Linea> mono = repo.findById(id);
+		
+		StepVerifier.create(mono)
+			.assertNext(line -> {
+				assertEquals(name, line.getNombre());
+				assertEquals(3, line.getCantidadCampos());
+				assertEquals(campo1, line.getCampo(0));
+				assertEquals(campo2, line.getCampo(1));
+				assertEquals(campo3, line.getCampo(2));
+			})
+			.expectComplete()
+			.verify();
+		
+		repo.removeVariosCampos(id, new Campo<?>[] {campo1, campo2}).block();
+		
+		Mono<Linea> mono2 = repo.findById(id);
+		
+		StepVerifier.create(mono2)
+			.assertNext(line -> {
+				assertEquals(name, line.getNombre());
+				assertEquals(1, line.getCantidadCampos());
+				assertEquals(campo3, line.getCampo(0));
+			})
+			.expectComplete()
+			.verify();
+		
+	}
+	
+	@Test
+	void testAddVariosCampos() {
+		
+		repo.deleteAll().block();
+		
+		String id = "linea_id";
+		String name = "linea_nombre";
+		List<Campo<?>> campos = new ArrayList<>();
+		boolean valoresFijos = true;
+		Campo<Integer> campo1 = new Campo<>();
+		campo1.setId("campo_1_id");
+		campo1.setDatos(24702);
+		campo1.setAtributoId("atributo_id_1");
+		campos.add(campo1);
+		Campo<String> campo2 = new Campo<>();
+		campo2.setId("campo_2_id");
+		campo2.setDatos("datos_en_campo_2");
+		campo2.setAtributoId("atributo_id_2");
+		//campos.add(campo2);
+		Campo<String> campo3 = new Campo<>();
+		campo3.setId("campo_3_id");
+		campo3.setDatos("datos_en_campo_3");
+		campo2.setAtributoId("atributo_id_3");
+		//campos.add(campo3);
+		
+		Linea linea = new Linea();
+		linea.setCampos(campos);
+		linea.setId(id);
+		linea.setNombre(name);
+		
+		repo.save(linea).block();
+		
+		Mono<Linea> mono = repo.findById(id);
+		
+		StepVerifier.create(mono)
+			.assertNext(line -> {
+				assertEquals(name, line.getNombre());
+				assertEquals(1, line.getCantidadCampos());
+				assertEquals(campo1, line.getCampo(0));
+				//assertEquals(campo2, line.getCampo(1));
+				//assertEquals(campo3, line.getCampo(2));
+			})
+			.expectComplete()
+			.verify();
+		
+		Long entradas = repo.addVariosCampos(id, Flux.just(campo2, campo3)).block();
+		
+		Mono<Linea> mono2 = repo.findById(id);
+		
+		StepVerifier.create(mono2)
+			.assertNext(line -> {
+				assertEquals(2, entradas);
+				assertEquals(name, line.getNombre());
+				assertEquals(3, line.getCantidadCampos());
+				assertEquals(campo1, line.getCampo(0));
+				assertEquals(campo2, line.getCampo(1));
+				assertEquals(campo3, line.getCampo(2));
+			})
+			.expectComplete()
+			.verify();
+		
+	}
+	
+	@Test
+	void testUpdateVariosCampos() {
+		
+		repo.deleteAll().block();
+		
+		String id = "linea_id";
+		String name = "linea_nombre";
+		List<Campo<?>> campos = new ArrayList<>();
+		boolean valoresFijos = true;
+		Campo<Integer> campo1 = new Campo<>();
+		campo1.setId("campo_1_id");
+		campo1.setDatos(24702);
+		campo1.setAtributoId("atributo_id_1");
+		campos.add(campo1);
+		Campo<String> campo2 = new Campo<>();
+		campo2.setId("campo_2_id");
+		campo2.setDatos("datos_en_campo_2");
+		campo2.setAtributoId("atributo_id_2");
+		campos.add(campo2);
+		Campo<String> campo3 = new Campo<>();
+		campo3.setId("campo_3_id");
+		campo3.setDatos("datos_en_campo_3");
+		campo2.setAtributoId("atributo_id_3");
+		campos.add(campo3);
+		
+		Linea linea = new Linea();
+		linea.setCampos(campos);
+		linea.setId(id);
+		linea.setNombre(name);
+		
+		repo.save(linea).block();
+		
+		Mono<Linea> mono = repo.findById(id);
+		
+		StepVerifier.create(mono)
+			.assertNext(line -> {
+				assertEquals(name, line.getNombre());
+				assertEquals(3, line.getCantidadCampos());
+				assertEquals(campo1, line.getCampo(0));
+				assertEquals(campo2, line.getCampo(1));
+				assertEquals(campo3, line.getCampo(2));
+			})
+			.expectComplete()
+			.verify();
+		
+		/**
+		 * Campos a modificar
+		 */
+		
+		Campo<String> campo2re = new Campo<>();
+		campo2re.setId("campo_2_id");
+		campo2re.setDatos("datos_actualizados_en_campo_2");
+		campo2re.setAtributoId("atributo_id_2");
+		Campo<String> campo3re = new Campo<>();
+		campo3re.setId("campo_3_id");
+		campo3re.setDatos("datos_actualizados_en_campo_3");
+		campo2re.setAtributoId("atributo_id_3");
+		
+		Long entradas = repo.updateVariosCampos(id, Flux.just(campo2re, campo3re)).block();
+		
+		Mono<Linea> mono2 = repo.findById(id);
+		
+		StepVerifier.create(mono2)
+			.assertNext(line -> {
+				assertEquals(2, entradas);
+				assertEquals(name, line.getNombre());
+				assertEquals(3, line.getCantidadCampos());
+				assertEquals(campo1, line.getCampo(0));
+				assertEquals(campo2re, line.getCampo(1));
+				assertEquals(campo3re, line.getCampo(2));
+				assertNotEquals(campo2, line.getCampo(1));
+				assertNotEquals(campo3, line.getCampo(2));
+			})
+			.expectComplete()
 			.verify();
 		
 	}

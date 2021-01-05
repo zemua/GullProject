@@ -1,5 +1,8 @@
 package devs.mrp.gullproject.repository;
 
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -8,6 +11,7 @@ import org.springframework.data.mongodb.core.query.Update;
 
 import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Linea;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class CustomLineaRepoImpl implements CustomLineaRepo {
@@ -55,6 +59,32 @@ public class CustomLineaRepoImpl implements CustomLineaRepo {
 		Update update = new Update().set("campos.$.datos", campo.getDatos());
 		return mongoTemplate.findAndModify(query, update, Linea.class);
 		
+	}
+
+	@Override
+	public Mono<Long> addVariosCampos(String idLinea, Flux<Campo<?>> campos) {
+		Query query = new Query(Criteria.where("id").is(idLinea));
+		return campos.flatMap(c -> mongoTemplate.findAndModify(
+				query,
+				new Update().addToSet("campos", c),
+				Linea.class))
+			.count();
+	}
+
+	@Override
+	public Mono<Linea> removeVariosCampos(String idLinea, Campo<?>[] campos) {
+		Query query = new Query(Criteria.where("id").is(idLinea));
+		Update update = new Update().pullAll("campos", campos);
+		return mongoTemplate.findAndModify(query, update, Linea.class);
+	}
+
+	@Override
+	public Mono<Long> updateVariosCampos(String idLinea, Flux<Campo<?>> campo) {
+		return campo.flatMap(c -> mongoTemplate.findAndModify(
+				new Query(Criteria.where("id").is(idLinea).and("campos.id").is(c.getId())),
+				new Update().set("campos.$.datos", c.getDatos()),
+				Linea.class))
+			.count();
 	}
 
 }
