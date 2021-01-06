@@ -39,6 +39,14 @@ public class Consulta {
 		propuestas.removeIf(propuesta -> propuesta.getId().equals(propuestaId));
 	}
 	
+	public int getCantidadPropuestas() {
+		return propuestas.size();
+	}
+	
+	public Propuesta getPropuestaByIndex(int index) {
+		return propuestas.get(index);
+	}
+	
 	/**
 	 * Para generar automaticamente ids de subdocumentos
 	 * https://stackoverflow.com/questions/60246374/auto-generate-ids-for-mongodb-sub-documents-in-array-with-spring-mongotemplate

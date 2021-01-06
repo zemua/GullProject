@@ -61,6 +61,11 @@ public abstract class PropuestaAbstracta implements Propuesta {
 	public List<Linea> getAllLineas() {
 		return lineas;
 	}
+	
+	@Override
+	public int getCantidadLineas() {
+		return lineas.size();
+	}
 
 	@Override
 	public Linea getLinea(int index) {

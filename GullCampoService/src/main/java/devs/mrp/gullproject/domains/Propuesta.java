@@ -21,6 +21,7 @@ public interface Propuesta {
 	
 	public void addLinea(Linea linea);
 	public void addLineas(List<Linea> lineas);
+	public int getCantidadLineas();
 	public boolean removeLinea(Linea linea);
 	public boolean removeLinea(String id);
 	public void removeLineas(List<Linea> lineas);
