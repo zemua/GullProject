@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,62 @@ class LineaCustomRepoTest {
 		if (!(repo instanceof CustomLineaRepo)) {
 			fail("LineaRepo no extiende CustomLineaRepo");
 		}
+	}
+	
+	Campo<Integer> campo1;
+	Campo<String> campo2;
+	Campo<String> campo3;
+	Linea linea;
+	Mono<Linea> mono;
+	
+	@BeforeEach
+	void setUp() {
+		repo.deleteAll().block();
+		
+		String id = "linea_id";
+		String name = "linea_nombre";
+		List<Campo<?>> campos = new ArrayList<>();
+		boolean valoresFijos = true;
+		
+		campo1 = new Campo<>();
+		campo1.setId("campo_1_id");
+		campo1.setDatos(24702);
+		campo1.setAtributoId("atributo_id_1");
+		campos.add(campo1);
+		
+		campo2 = new Campo<>();
+		campo2.setId("campo_2_id");
+		campo2.setDatos("datos_en_campo_2");
+		campo2.setAtributoId("atributo_id_2");
+		campos.add(campo2);
+		
+		campo3 = new Campo<>();
+		campo3.setId("campo_3_id");
+		campo3.setDatos("datos_en_campo_3");
+		campo3.setAtributoId("atributo_id_3");
+		campos.add(campo3);
+		
+		linea = new Linea();
+		linea.setCampos(campos);
+		linea.setId(id);
+		linea.setNombre(name);
+		linea.setOrder(2);
+		
+		repo.save(linea).block();
+		
+		mono = repo.findById(id);
+		
+		StepVerifier.create(mono)
+			.assertNext(line -> {
+				assertEquals(name, line.getNombre());
+				assertEquals(2, line.getOrder());
+				assertEquals(3, line.getCantidadCampos());
+				assertEquals(campo1, line.getCampoByIndex(0));
+				assertEquals(campo2, line.getCampoByIndex(1));
+				assertEquals(campo3, line.getCampoByIndex(2));
+			})
+			.expectComplete()
+			.verify();
 	}
 
 	@Test
@@ -68,8 +125,8 @@ class LineaCustomRepoTest {
 			.assertNext(line -> {
 				assertEquals(name, line.getNombre());
 				assertEquals(2, line.getCantidadCampos());
-				assertEquals(campo1, line.getCampo(0));
-				assertEquals(campo2, line.getCampo(1));
+				assertEquals(campo1, line.getCampoByIndex(0));
+				assertEquals(campo2, line.getCampoByIndex(1));
 			})
 			.expectComplete()
 			.verify();
@@ -82,7 +139,7 @@ class LineaCustomRepoTest {
 			.assertNext(line -> {
 				assertEquals(name, line.getNombre());
 				assertEquals(1, line.getCantidadCampos());
-				assertEquals(campo2, line.getCampo(0));
+				assertEquals(campo2, line.getCampoByIndex(0));
 			})
 			.expectComplete()
 			.verify();
@@ -121,7 +178,7 @@ class LineaCustomRepoTest {
 			.assertNext(line -> {
 				assertEquals(name, line.getNombre());
 				assertEquals(1, line.getCantidadCampos());
-				assertEquals(campo1, line.getCampo(0));
+				assertEquals(campo1, line.getCampoByIndex(0));
 			})
 			.expectComplete()
 			.verify();
@@ -134,8 +191,8 @@ class LineaCustomRepoTest {
 			.assertNext(line -> {
 				assertEquals(name, line.getNombre());
 				assertEquals(2, line.getCantidadCampos());
-				assertEquals(campo1, line.getCampo(0));
-				assertEquals(campo2, line.getCampo(1));
+				assertEquals(campo1, line.getCampoByIndex(0));
+				assertEquals(campo2, line.getCampoByIndex(1));
 			})
 			.expectComplete()
 			.verify();
@@ -149,8 +206,8 @@ class LineaCustomRepoTest {
 			.assertNext(line -> {
 				assertEquals(name, line.getNombre());
 				assertEquals(2, line.getCantidadCampos());
-				assertEquals(campo1, line.getCampo(0));
-				assertEquals(campo2, line.getCampo(1));
+				assertEquals(campo1, line.getCampoByIndex(0));
+				assertEquals(campo2, line.getCampoByIndex(1));
 			})
 			.expectComplete()
 			.verify();
@@ -193,8 +250,8 @@ class LineaCustomRepoTest {
 			.assertNext(line -> {
 				assertEquals(name, line.getNombre());
 				assertEquals(2, line.getCantidadCampos());
-				assertEquals(campo1, line.getCampo(0));
-				assertEquals(campo2, line.getCampo(1));
+				assertEquals(campo1, line.getCampoByIndex(0));
+				assertEquals(campo2, line.getCampoByIndex(1));
 			})
 			.expectComplete()
 			.verify();
@@ -217,9 +274,9 @@ class LineaCustomRepoTest {
 		.assertNext(line -> {
 			assertEquals(name, line.getNombre());
 			assertEquals(2, line.getCantidadCampos());
-			assertEquals(campo1, line.getCampo(0));
-			assertEquals(campo3, line.getCampo(1));
-			assertNotEquals(campo2, line.getCampo(1));
+			assertEquals(campo1, line.getCampoByIndex(0));
+			assertEquals(campo3, line.getCampoByIndex(1));
+			assertNotEquals(campo2, line.getCampoByIndex(1));
 		})
 		.expectComplete()
 		.verify();
@@ -242,9 +299,9 @@ class LineaCustomRepoTest {
 		.assertNext(line -> {
 			assertEquals(name, line.getNombre());
 			assertEquals(2, line.getCantidadCampos());
-			assertEquals(campo1, line.getCampo(0));
-			assertEquals(campo3, line.getCampo(1));
-			assertNotEquals(campo2, line.getCampo(1));
+			assertEquals(campo1, line.getCampoByIndex(0));
+			assertEquals(campo3, line.getCampoByIndex(1));
+			assertNotEquals(campo2, line.getCampoByIndex(1));
 		})
 		.expectComplete()
 		.verify();
@@ -320,7 +377,7 @@ class LineaCustomRepoTest {
 		Campo<String> campo3 = new Campo<>();
 		campo3.setId("campo_3_id");
 		campo3.setDatos("datos_en_campo_3");
-		campo2.setAtributoId("atributo_id_3");
+		campo3.setAtributoId("atributo_id_3");
 		campos.add(campo3);
 		
 		Linea linea = new Linea();
@@ -336,9 +393,9 @@ class LineaCustomRepoTest {
 			.assertNext(line -> {
 				assertEquals(name, line.getNombre());
 				assertEquals(3, line.getCantidadCampos());
-				assertEquals(campo1, line.getCampo(0));
-				assertEquals(campo2, line.getCampo(1));
-				assertEquals(campo3, line.getCampo(2));
+				assertEquals(campo1, line.getCampoByIndex(0));
+				assertEquals(campo2, line.getCampoByIndex(1));
+				assertEquals(campo3, line.getCampoByIndex(2));
 			})
 			.expectComplete()
 			.verify();
@@ -351,7 +408,7 @@ class LineaCustomRepoTest {
 			.assertNext(line -> {
 				assertEquals(name, line.getNombre());
 				assertEquals(1, line.getCantidadCampos());
-				assertEquals(campo3, line.getCampo(0));
+				assertEquals(campo3, line.getCampoByIndex(0));
 			})
 			.expectComplete()
 			.verify();
@@ -380,7 +437,7 @@ class LineaCustomRepoTest {
 		Campo<String> campo3 = new Campo<>();
 		campo3.setId("campo_3_id");
 		campo3.setDatos("datos_en_campo_3");
-		campo2.setAtributoId("atributo_id_3");
+		campo3.setAtributoId("atributo_id_3");
 		//campos.add(campo3);
 		
 		Linea linea = new Linea();
@@ -396,7 +453,7 @@ class LineaCustomRepoTest {
 			.assertNext(line -> {
 				assertEquals(name, line.getNombre());
 				assertEquals(1, line.getCantidadCampos());
-				assertEquals(campo1, line.getCampo(0));
+				assertEquals(campo1, line.getCampoByIndex(0));
 				//assertEquals(campo2, line.getCampo(1));
 				//assertEquals(campo3, line.getCampo(2));
 			})
@@ -412,9 +469,9 @@ class LineaCustomRepoTest {
 				assertEquals(2, entradas);
 				assertEquals(name, line.getNombre());
 				assertEquals(3, line.getCantidadCampos());
-				assertEquals(campo1, line.getCampo(0));
-				assertEquals(campo2, line.getCampo(1));
-				assertEquals(campo3, line.getCampo(2));
+				assertEquals(campo1, line.getCampoByIndex(0));
+				assertEquals(campo2, line.getCampoByIndex(1));
+				assertEquals(campo3, line.getCampoByIndex(2));
 			})
 			.expectComplete()
 			.verify();
@@ -443,7 +500,7 @@ class LineaCustomRepoTest {
 		Campo<String> campo3 = new Campo<>();
 		campo3.setId("campo_3_id");
 		campo3.setDatos("datos_en_campo_3");
-		campo2.setAtributoId("atributo_id_3");
+		campo3.setAtributoId("atributo_id_3");
 		campos.add(campo3);
 		
 		Linea linea = new Linea();
@@ -459,9 +516,9 @@ class LineaCustomRepoTest {
 			.assertNext(line -> {
 				assertEquals(name, line.getNombre());
 				assertEquals(3, line.getCantidadCampos());
-				assertEquals(campo1, line.getCampo(0));
-				assertEquals(campo2, line.getCampo(1));
-				assertEquals(campo3, line.getCampo(2));
+				assertEquals(campo1, line.getCampoByIndex(0));
+				assertEquals(campo2, line.getCampoByIndex(1));
+				assertEquals(campo3, line.getCampoByIndex(2));
 			})
 			.expectComplete()
 			.verify();
@@ -477,7 +534,7 @@ class LineaCustomRepoTest {
 		Campo<String> campo3re = new Campo<>();
 		campo3re.setId("campo_3_id");
 		campo3re.setDatos("datos_actualizados_en_campo_3");
-		campo2re.setAtributoId("atributo_id_3");
+		campo3re.setAtributoId("atributo_id_3");
 		
 		Long entradas = repo.updateVariosCampos(id, Flux.just(campo2re, campo3re)).block();
 		
@@ -488,15 +545,41 @@ class LineaCustomRepoTest {
 				assertEquals(2, entradas);
 				assertEquals(name, line.getNombre());
 				assertEquals(3, line.getCantidadCampos());
-				assertEquals(campo1, line.getCampo(0));
-				assertEquals(campo2re, line.getCampo(1));
-				assertEquals(campo3re, line.getCampo(2));
-				assertNotEquals(campo2, line.getCampo(1));
-				assertNotEquals(campo3, line.getCampo(2));
+				assertEquals(campo1, line.getCampoByIndex(0));
+				assertEquals(campo2re, line.getCampoByIndex(1));
+				assertEquals(campo3re, line.getCampoByIndex(2));
+				assertNotEquals(campo2, line.getCampoByIndex(1));
+				assertNotEquals(campo3, line.getCampoByIndex(2));
 			})
 			.expectComplete()
 			.verify();
+	}
+	
+	@Test
+	void testUpdateNombre() {
+		Linea resultado = repo.updateNombre(linea.getId(), "nombre actualizado").block();
 		
+		StepVerifier.create(mono)
+		.assertNext(line -> {
+			assertEquals(3, resultado.getCantidadCampos());
+			assertEquals("nombre actualizado", resultado.getNombre());
+			assertEquals("nombre actualizado", line.getNombre());
+		})
+		.expectComplete()
+		.verify();
+	}
+	
+	@Test
+	void testUpdateOrder() {
+		Linea resultado = repo.updateOrder(linea.getId(), 4).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(line -> {
+			assertEquals(3, resultado.getCantidadCampos());
+			assertEquals(4, line.getOrder());
+		})
+		.expectComplete()
+		.verify();
 	}
 
 }

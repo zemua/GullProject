@@ -19,4 +19,8 @@ public interface CustomLineaRepo {
 	
 	public Mono<Long> updateVariosCampos(String idLinea, Flux<Campo<?>> campo);
 	
+	public Mono<Linea> updateNombre(String idLinea, String nombre);
+	
+	public Mono<Linea> updateOrder(String idLinea, Integer order);
+	
 }

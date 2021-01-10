@@ -1,6 +1,7 @@
 package devs.mrp.gullproject.repository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -20,16 +21,8 @@ public class CustomLineaRepoImpl implements CustomLineaRepo {
 		this.mongoTemplate = mongoTemplate;
 	}
 	
-	/**
-	 * Query personalizado mongodb
-	 * https://dev.to/andreevich/how-to-build-custom-queries-with-spring-data-reactive-mongodb-1802
-	 * referencia codigo fuente
-	 * https://github.com/mednikoviurii/spring-reactive-examples
-	 */
-	
 	@Override
 	public Mono<Linea> addCampo(String id, Campo<?> campo) {
-		
 		Query query = new Query(Criteria.where("id").is(id));
 		Update update = new Update().addToSet("campos", campo);
 		return mongoTemplate.findAndModify(query, update, Linea.class);
@@ -38,7 +31,6 @@ public class CustomLineaRepoImpl implements CustomLineaRepo {
 
 	@Override
 	public Mono<Linea> removeCampo(String id, Campo<?> campo) {
-		
 		Query query = new Query(Criteria.where("id").is(id));
 		Update update = new Update().pull("campos", campo);
 		return mongoTemplate.findAndModify(query, update, Linea.class);
@@ -47,11 +39,6 @@ public class CustomLineaRepoImpl implements CustomLineaRepo {
 
 	@Override
 	public Mono<Linea> updateCampo(String idLinea, Campo<?> campo) {
-		
-		/**
-		 * https://stackoverflow.com/questions/35611449/mongodb-how-update-element-in-array-using-spring-query-update
-		 */
-		
 		Query query = new Query(Criteria.where("id").is(idLinea).and("campos.id").is(campo.getId()));
 		Update update = new Update().set("campos.$.datos", campo.getDatos());
 		return mongoTemplate.findAndModify(query, update, Linea.class);
@@ -82,6 +69,22 @@ public class CustomLineaRepoImpl implements CustomLineaRepo {
 				new Update().set("campos.$.datos", c.getDatos()),
 				Linea.class))
 			.count();
+	}
+	
+	@Override
+	public Mono<Linea> updateNombre(String idLinea, String nombre) {
+		Query query = new Query(Criteria.where("id").is(idLinea));
+		Update update = new Update().set("nombre", nombre);
+		FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true);
+		return mongoTemplate.findAndModify(query, update, options, Linea.class);
+	}
+	
+	@Override
+	public Mono<Linea> updateOrder(String idLinea, Integer order) {
+		Query query = new Query(Criteria.where("id").is(idLinea));
+		Update update = new Update().set("order", order);
+		FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true);
+		return mongoTemplate.findAndModify(query, update, options, Linea.class);
 	}
 
 }

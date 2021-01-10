@@ -22,17 +22,16 @@ public class Linea {
 	@NotBlank
 	private String nombre;
 	
-	private Integer orden;
+	private Integer order;
 	
 	private List<Campo<?>> campos = new ArrayList<>();
-	//private Flux<Campo<?>> campos;
 	
 	@JsonIgnore
 	public int getCantidadCampos() {
 		return campos.size();
 	}
 	
-	public Campo<?> getCampo(int i){
+	public Campo<?> getCampoByIndex(int i){
 		return campos.get(i);
 	}
 	
