@@ -127,30 +127,6 @@ class PropuestaAbstractaTest {
 	}
 	
 	@Test
-	void testSaveOrder() {
-		
-		assertEquals("l1id", propuesta.getAllLineaIds().get(0));
-		assertEquals("l2id", propuesta.getAllLineaIds().get(1));
-		
-		Map<String, Integer> idVSposicion1 = new HashMap<>();
-		idVSposicion1.put(l1.getId(), 0);
-		idVSposicion1.put(l2.getId(), 1);
-		
-		Map<String, Integer> idVSposicion2 = new HashMap<>();
-		idVSposicion2.put(l1.getId(), 1);
-		idVSposicion2.put(l2.getId(), 0);
-		
-		propuesta.saveOrder(idVSposicion2);
-		
-		// TODO assert with linea repo
-		
-		propuesta.saveOrder(idVSposicion1);
-		
-		// TODO assert with linea repo
-		
-	}
-	
-	@Test
 	void testConfirmaIguales() {	
 		assertTrue(Propuesta.confirmaIguales(l1, l2));
 		assertFalse(Propuesta.confirmaIguales(l1, l3));

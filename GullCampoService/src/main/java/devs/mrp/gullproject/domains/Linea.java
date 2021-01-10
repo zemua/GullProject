@@ -22,6 +22,15 @@ public class Linea {
 	@NotBlank
 	private String nombre;
 	
+	/**
+	 * When creating an updated snapshot, this will refer to the "old" line
+	 */
+	private String parentId;
+	/**
+	 * When creating an offer of suppliers or ours, this will refer to the customer line
+	 */
+	private String counterLineId;
+	
 	private Integer order;
 	
 	private List<Campo<?>> campos = new ArrayList<>();

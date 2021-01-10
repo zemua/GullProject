@@ -75,6 +75,8 @@ class LineaCustomRepoTest {
 		linea.setId(id);
 		linea.setNombre(name);
 		linea.setOrder(2);
+		linea.setParentId("parent id");
+		linea.setCounterLineId("counter line id");
 		
 		repo.save(linea).block();
 		
@@ -84,6 +86,8 @@ class LineaCustomRepoTest {
 			.assertNext(line -> {
 				assertEquals(name, line.getNombre());
 				assertEquals(2, line.getOrder());
+				assertEquals("parent id", line.getParentId());
+				assertEquals("counter line id", line.getCounterLineId());
 				assertEquals(3, line.getCantidadCampos());
 				assertEquals(campo1, line.getCampoByIndex(0));
 				assertEquals(campo2, line.getCampoByIndex(1));
@@ -577,6 +581,32 @@ class LineaCustomRepoTest {
 		.assertNext(line -> {
 			assertEquals(3, resultado.getCantidadCampos());
 			assertEquals(4, line.getOrder());
+		})
+		.expectComplete()
+		.verify();
+	}
+	
+	@Test
+	void testUpdateParentId() {
+		Linea resultado = repo.updateParentId(linea.getId(), "new parent id").block();
+		
+		StepVerifier.create(mono)
+		.assertNext(line -> {
+			assertEquals(3, resultado.getCantidadCampos());
+			assertEquals("new parent id", line.getParentId());
+		})
+		.expectComplete()
+		.verify();
+	}
+	
+	@Test
+	void testUpdateCounterLineId() {
+		Linea resultado = repo.updateCounterLineId(linea.getId(), "new counter id").block();
+		
+		StepVerifier.create(mono)
+		.assertNext(line -> {
+			assertEquals(3, resultado.getCantidadCampos());
+			assertEquals("new counter id", line.getCounterLineId());
 		})
 		.expectComplete()
 		.verify();

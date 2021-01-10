@@ -8,8 +8,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Id;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import devs.mrp.gullproject.service.LineaService;
 import lombok.Data;
 
 @Data
@@ -23,6 +27,10 @@ public abstract class PropuestaAbstracta implements Propuesta {
 	String parentId;
 	
 	List<String> lineaIds = new ArrayList<>();
+	
+	@Autowired
+	@JsonIgnore
+	LineaService lineaService;
 
 	@Override
 	public abstract boolean isRoot();
@@ -83,19 +91,5 @@ public abstract class PropuestaAbstracta implements Propuesta {
 	@Override
 	public boolean updateLineaIdByIndex(int index, String lineaId) {
 		return lineaIds.set(index, lineaId) != null;
-	}
-
-	@Override
-	public boolean saveOrder(Map<String, Integer> idlineaVSposicion) {
-		lineaIds.stream().forEach(li -> {
-			if (!idlineaVSposicion.containsKey(li)) {
-				//li.setOrden(-1);
-				// TODO call linea repository and set line order to -1
-			} else {
-				//li.setOrden(idlineaVSposicion.get(li));
-				// TODO call linea repository and set line order to idlineaVSposicion.get(li)
-			}
-		});
-		return true;
 	}
 }

@@ -1,5 +1,8 @@
 package devs.mrp.gullproject.service;
 
+import java.util.Map;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -70,6 +73,14 @@ public class LineaService {
 	
 	public Mono<Void> deleteVariasLineas(Flux<Linea> lineas) {
 		return lineaRepo.deleteAll(lineas);
+	}
+	
+	public Mono<Void> updateOrderOfSeveralLineas(Map<String, Integer> idlineaVSposicion) {
+		Set<String> set = idlineaVSposicion.keySet();
+		set.stream().forEach(id -> {
+			lineaRepo.updateOrder(id, idlineaVSposicion.get(id)).subscribe();
+		});
+		return Mono.empty();
 	}
 	
 }

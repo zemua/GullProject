@@ -23,4 +23,8 @@ public interface CustomLineaRepo {
 	
 	public Mono<Linea> updateOrder(String idLinea, Integer order);
 	
+	public Mono<Linea> updateParentId(String idLinea, String parentId);
+	
+	public Mono<Linea> updateCounterLineId(String idLinea, String counterLineId);
+	
 }
