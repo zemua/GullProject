@@ -1,10 +1,13 @@
 package devs.mrp.gullproject.domains;
 
-public class SolicitudCliente extends PropuestaAbstracta {
+import java.util.List;
+import java.util.Map;
+
+public class PropuestaProveedor extends PropuestaAbstracta {
 
 	@Override
 	public boolean isRoot() {
-		return true;
+		return false;
 	}
 
 	@Override

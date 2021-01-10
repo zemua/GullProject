@@ -7,7 +7,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
 import devs.mrp.gullproject.domains.Consulta;
-import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -71,7 +70,7 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 	@Override
 	public Mono<Consulta> updateLineasDeUnaPropuesta(String idConsulta, Propuesta propuesta) {
 		Query query = new Query(Criteria.where("id").is(idConsulta).and("propuestas.id").is(propuesta.getId()));
-		Update update = new Update().set("propuestas.$.lineas", propuesta.getAllLineas());
+		Update update = new Update().set("propuestas.$.lineaIds", propuesta.getAllLineaIds());
 		return mongoTemplate.findAndModify(query, update, Consulta.class);
 	}
 	
@@ -79,7 +78,7 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 	public Mono<Long> updateLineasDeVariasPropuestas(String idConsulta, Flux<Propuesta> propuestas) {
 		return propuestas.flatMap(c -> mongoTemplate.findAndModify(
 				new Query(Criteria.where("id").is(idConsulta).and("propuestas.id").is(c.getId())),
-				new Update().set("propuestas.$.lineas", c.getAllLineas()),
+				new Update().set("propuestas.$.lineaIds", c.getAllLineaIds()),
 				Consulta.class))
 			.count();
 	}
@@ -101,9 +100,17 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 	}
 	
 	@Override
-	public Mono<Consulta> addLineaEnPropuesta(String idConsulta, String idPropuesta, Linea linea) {
-		// TODO test
-		return null;
+	public Mono<Consulta> addLineaEnPropuesta(String idConsulta, String idPropuesta, String idLinea) {
+		Query query = new Query(Criteria.where("id").is(idConsulta).and("propuestas.id").is(idPropuesta));
+		Update update = new Update().addToSet("propuestas.$.lineaIds", idLinea);
+		return mongoTemplate.findAndModify(query, update, Consulta.class);
+	}
+	
+	@Override
+	public Mono<Consulta> removeLineaEnPropuesta(String idConsulta, String idPropuesta, String idLinea) {
+		Query query = new Query(Criteria.where("id").is(idConsulta).and("propuestas.id").is(idPropuesta));
+		Update update = new Update().pull("propuestas.$.lineaIds", idLinea);
+		return mongoTemplate.findAndModify(query, update, Consulta.class);
 	}
 	
 }

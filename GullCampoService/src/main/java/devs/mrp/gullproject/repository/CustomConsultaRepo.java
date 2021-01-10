@@ -1,8 +1,11 @@
 package devs.mrp.gullproject.repository;
 
+import java.util.Map;
+
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
+import devs.mrp.gullproject.domains.PropuestaCliente;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -28,6 +31,8 @@ public interface CustomConsultaRepo {
 	
 	public Mono<Long> updateVariasPropuestas(String idConsulta, Flux<Propuesta> propuestas);
 	
-	public Mono<Consulta> addLineaEnPropuesta(String idConsulta, String idPropuesta, Linea linea);
+	public Mono<Consulta> addLineaEnPropuesta(String idConsulta, String idPropuesta, String idLinea);
+	
+	public Mono<Consulta> removeLineaEnPropuesta(String idConsulta, String idPropuesta, String idLinea);
 	
 }

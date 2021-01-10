@@ -19,17 +19,16 @@ public interface Propuesta {
 	public boolean isRoot(); // si es o no consulta "original" (del cliente) o falso si es otro caso
 	public boolean isForBid(); // verdadero si es "nuestra oferta" para enviar al cliente
 	
-	public void addLinea(Linea linea);
-	public void addLineas(List<Linea> lineas);
-	public int getCantidadLineas();
-	public boolean removeLinea(Linea linea);
-	public boolean removeLinea(String id);
-	public void removeLineas(List<Linea> lineas);
-	public List<Linea> getAllLineas();
-	public Linea getLinea(int index);
-	public boolean updateLinea(String id, Linea linea);
-	public boolean updateLinea(int index, Linea linea);
-	public boolean saveOrder(Map<String, Integer> idVSposicion); // Integer = posición, String = id-de-linea
+	public void addLineaId(String lineaId);
+	public void addLineaIds(List<String> lineaIds);
+	public int getCantidadLineaIds();
+	public boolean removeLineaId(String lineaId);
+	public void removeLineaIds(List<String> lineaIds);
+	public List<String> getAllLineaIds();
+	public String getLineaIdByIndex(int index);
+	public boolean updateLineaId(String idOriginal, String idDeseado);
+	public boolean updateLineaIdByIndex(int index, String lineaId);
+	public boolean saveOrder(Map<String, Integer> idlineaVSposicion); // Integer = posición-de-la-línea, String = id-de-linea
 	
 	public static boolean confirmaIguales(Linea linea1, Linea linea2) {
 		

@@ -22,7 +22,7 @@ public abstract class PropuestaAbstracta implements Propuesta {
 	
 	String parentId;
 	
-	List<Linea> lineas = new ArrayList<>();
+	List<String> lineaIds = new ArrayList<>();
 
 	@Override
 	public abstract boolean isRoot();
@@ -31,55 +31,49 @@ public abstract class PropuestaAbstracta implements Propuesta {
 	public abstract boolean isForBid();
 
 	@Override
-	public void addLinea(Linea linea) {
-		lineas.add(linea);
+	public void addLineaId(String lineaId) {
+		lineaIds.add(lineaId);
 		
 	}
 
 	@Override
-	public void addLineas(List<Linea> lineas) {
-		lineas.addAll(lineas);
+	public void addLineaIds(List<String> lineaIds) {
+		lineaIds.addAll(lineaIds);
 		
 	}
 
 	@Override
-	public boolean removeLinea(Linea linea) {
-		return lineas.remove(linea);
+	public boolean removeLineaId(String lineaId) {
+		return lineaIds.remove(lineaId);
 	}
 
 	@Override
-	public boolean removeLinea(String id) {
-		return removeLinea(id);
+	public void removeLineaIds(List<String> lineaIds) {
+		lineaIds.removeAll(lineaIds);
 	}
 
 	@Override
-	public void removeLineas(List<Linea> lineas) {
-		lineas.removeAll(lineas);
-	}
-
-	@Override
-	public List<Linea> getAllLineas() {
-		return lineas;
+	public List<String> getAllLineaIds() {
+		return lineaIds;
 	}
 	
 	@Override
-	public int getCantidadLineas() {
-		return lineas.size();
+	public int getCantidadLineaIds() {
+		return lineaIds.size();
 	}
 
 	@Override
-	public Linea getLinea(int index) {
-		return lineas.get(index);
+	public String getLineaIdByIndex(int index) {
+		return lineaIds.get(index);
 	}
 
 	@Override
-	public boolean updateLinea(String id, Linea linea) {
-		linea.setId(new ObjectId().toString());
-		ListIterator<Linea> it = lineas.listIterator();
+	public boolean updateLineaId(String idOriginal, String idDeseado) {
+		ListIterator<String> it = lineaIds.listIterator();
 		while (it.hasNext()) {
-			Linea li = it.next();
-			if(li.getId().equals(id)) {
-				it.set(linea);
+			String li = it.next();
+			if(li.equals(idOriginal)) {
+				it.set(idDeseado);
 				return true;
 			}
 		}
@@ -87,21 +81,21 @@ public abstract class PropuestaAbstracta implements Propuesta {
 	}
 
 	@Override
-	public boolean updateLinea(int index, Linea linea) {
-		return lineas.set(index, linea) != null;
+	public boolean updateLineaIdByIndex(int index, String lineaId) {
+		return lineaIds.set(index, lineaId) != null;
 	}
 
 	@Override
-	public boolean saveOrder(Map<String, Integer> idVSposicion) {
-		lineas.stream().forEach(li -> {
-			if (!idVSposicion.containsKey(li.getId())) {
-				li.setOrden(-1);
+	public boolean saveOrder(Map<String, Integer> idlineaVSposicion) {
+		lineaIds.stream().forEach(li -> {
+			if (!idlineaVSposicion.containsKey(li)) {
+				//li.setOrden(-1);
+				// TODO call linea repository and set line order to -1
 			} else {
-				li.setOrden(idVSposicion.get(li.getId()));
+				//li.setOrden(idlineaVSposicion.get(li));
+				// TODO call linea repository and set line order to idlineaVSposicion.get(li)
 			}
 		});
-		
-		lineas.sort((a, b) -> a.getOrden() - b.getOrden());
 		return true;
 	}
 }

@@ -17,7 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
-import devs.mrp.gullproject.domains.SolicitudCliente;
+import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.service.AtributoServiceProxy;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -48,7 +48,7 @@ class CustomPropuestaRepoImplTest {
 		
 		propuestaRepo.deleteAll().block();
 		
-		propuesta = new SolicitudCliente();
+		propuesta = new PropuestaCliente();
 		propuesta.setId(new ObjectId().toString());
 		propuesta.setNombre("nombre propuesta");
 		
@@ -85,40 +85,51 @@ class CustomPropuestaRepoImplTest {
 		campo4.setId("campo_2_id");
 		campos2.add(campo4);
 		
-		linea1 = new Linea();
-		linea1.setCampos(campos2);
-		linea1.setId(new ObjectId().toString());
-		linea1.setNombre("nombre linea 2");
+		linea2 = new Linea();
+		linea2.setCampos(campos2);
+		linea2.setId(new ObjectId().toString());
+		linea2.setNombre("nombre linea 2");
 		
 		
 		
-		propuesta.addLinea(linea1);
+		propuesta.addLineaId(linea1.getId());
 		
 		propuestaRepo.save(propuesta).block();
 	}
 
 	@Test
-	void testAddLinea() {
+	void testAddLineaAndRemoveLinea() throws Exception {
 		
 		Mono<Propuesta> mono = propuestaRepo.findById(propuesta.getId());
 		
 		StepVerifier.create(mono)
 			.assertNext(prop -> {
 				assertEquals("nombre propuesta", prop.getNombre());
-				assertEquals(1, prop.getCantidadLineas());
-				assertEquals(linea1, prop.getLinea(0));
+				assertEquals(1, prop.getCantidadLineaIds());
+				assertEquals(linea1.getId(), prop.getLineaIdByIndex(0));
 			})
 			.expectComplete()
 			.verify();
 		
-		propuestaRepo.addLinea(propuesta.getId(), linea2);
+		propuestaRepo.addLinea(propuesta.getId(), linea2.getId()).block();
 		
 		StepVerifier.create(mono)
 		.assertNext(prop -> {
 			assertEquals("nombre propuesta", prop.getNombre());
-			assertEquals(2, prop.getCantidadLineas());
-			assertEquals(linea1, prop.getLinea(0));
-			assertEquals(linea2, prop.getLinea(1));
+			assertEquals(2, prop.getCantidadLineaIds());
+			assertEquals(linea1.getId(), prop.getLineaIdByIndex(0));
+			assertEquals(linea2.getId(), prop.getLineaIdByIndex(1));
+		})
+		.expectComplete()
+		.verify();
+		
+		propuestaRepo.removeLinea(propuesta.getId(), linea1.getId()).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(prop -> {
+			assertEquals("nombre propuesta", prop.getNombre());
+			assertEquals(1, prop.getCantidadLineaIds());
+			assertEquals(linea2.getId(), prop.getLineaIdByIndex(0));
 		})
 		.expectComplete()
 		.verify();

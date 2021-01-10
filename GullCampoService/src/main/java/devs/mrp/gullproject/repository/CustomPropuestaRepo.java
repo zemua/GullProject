@@ -6,8 +6,8 @@ import reactor.core.publisher.Mono;
 
 public interface CustomPropuestaRepo {
 
-	public Mono<Propuesta> addLinea(String id, Linea linea);
+	public Mono<Propuesta> addLinea(String id, String lineaId) throws Exception;
 	
-	public Mono<Propuesta> removeLinea(String id, Linea linea);
+	public Mono<Propuesta> removeLinea(String id, String lineaId) throws Exception;
 	
 }

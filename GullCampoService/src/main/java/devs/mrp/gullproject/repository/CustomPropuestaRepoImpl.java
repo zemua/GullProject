@@ -21,25 +21,27 @@ public class CustomPropuestaRepoImpl implements CustomPropuestaRepo {
 	}
 	
 	@Override
-	public Mono<Propuesta> addLinea(String idPropuesta, Linea linea) {
-		// TODO TEST
+	public Mono<Propuesta> addLinea(String idPropuesta, String lineaId) throws Exception {
 		
-		if (linea.getId().equals("") || linea.getId().equals(null)) {
-			linea.setId(new ObjectId().toString());
+		if (lineaId.equals("") || lineaId.equals(null)) {
+			throw new Exception("linea id is an invalid reference");
 		}
 		
 		Query query = new Query(Criteria.where("id").is(idPropuesta));
-		Update update = new Update().addToSet("lineas", linea);
+		Update update = new Update().addToSet("lineaIds", lineaId);
 		return mongoTemplate.findAndModify(query, update, Propuesta.class);
 
 	}
 
 	@Override
-	public Mono<Propuesta> removeLinea(String idPropuesta, Linea linea) {
-		// TODO TEST
+	public Mono<Propuesta> removeLinea(String idPropuesta, String lineaId) throws Exception {
+		
+		if (lineaId.equals("") || lineaId.equals(null)) {
+			throw new Exception("linea id is an invalid reference");
+		}
 		
 		Query query = new Query(Criteria.where("id").is(idPropuesta));
-		Update update = new Update().pull("lineas", linea);
+		Update update = new Update().pull("lineaIds", lineaId);
 		return mongoTemplate.findAndModify(query, update, Propuesta.class);
 		
 	}

@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 class PropuestaAbstractaTest {
 	
-	List<Linea> lineas = new ArrayList<>();
+	List<String> lineas = new ArrayList<>();
 	Linea l1;
 	Linea l2;
 	Linea l3;
@@ -44,7 +44,7 @@ class PropuestaAbstractaTest {
 		campos1.add(c2);
 		l1 = new Linea();
 		l1.setCampos(campos1);
-		l1.setId(new ObjectId().toString());
+		l1.setId("l1id");
 		l1.setNombre("nombre linea 1");
 		
 		Campo<String> c3 = new Campo<>();
@@ -60,15 +60,15 @@ class PropuestaAbstractaTest {
 		campos2.add(c4);
 		l2 = new Linea();
 		l2.setCampos(campos2);
-		l2.setId(new ObjectId().toString());
+		l2.setId("l2id");
 		l2.setNombre("nombre linea 2");
 		
 		lineas.clear();
-		lineas.add(l1);
-		lineas.add(l2);
+		lineas.add(l1.getId());
+		lineas.add(l2.getId());
 		
-		propuesta = new SolicitudCliente();
-		propuesta.setLineas(lineas);
+		propuesta = new PropuestaCliente();
+		propuesta.setLineaIds(lineas);
 		
 		Campo<String> c5 = new Campo<>();
 		c5.setAtributoId("a1");
@@ -83,7 +83,7 @@ class PropuestaAbstractaTest {
 		campos3.add(c6);
 		l3 = new Linea();
 		l3.setCampos(campos3);
-		l3.setId(new ObjectId().toString());
+		l3.setId("l3id");
 		l3.setNombre("nombre linea 1");
 		
 		List<Campo<?>> campos4 = new ArrayList<>();
@@ -91,13 +91,13 @@ class PropuestaAbstractaTest {
 		campos4.add(c6);
 		l4 = new Linea();
 		l4.setCampos(campos4);
-		l4.setId(new ObjectId().toString());
+		l4.setId("l4id");
 		l4.setNombre("nombre linea 4");
 	}
 
 	@Test
 	void testObjectId() {
-		PropuestaAbstracta sc = new SolicitudCliente();
+		PropuestaAbstracta sc = new PropuestaCliente();
 		log.debug(sc.getId());
 		
 		Pattern pattern = Pattern.compile("[[a-z]|[A-Z]|[0-9]]{24}");
@@ -109,28 +109,28 @@ class PropuestaAbstractaTest {
 	@Test
 	void testUpdateLinea() {
 		Linea l3 = new Linea();
-		l3.setId(new ObjectId().toString());
+		l3.setId("l3id");
 		l3.setNombre("nombre linea 3");
 		
-		assertEquals("nombre linea 1", lineas.get(0).getNombre());
-		assertEquals("nombre linea 2", lineas.get(1).getNombre());
+		assertEquals("l1id", lineas.get(0));
+		assertEquals("l2id", lineas.get(1));
 		
-		propuesta.updateLinea(l1.getId(), l3);
+		propuesta.updateLineaId(l1.getId(), l3.getId());
 		
-		assertEquals("nombre linea 3", lineas.get(0).getNombre());
-		assertEquals("nombre linea 2", lineas.get(1).getNombre());
+		assertEquals("l3id", lineas.get(0));
+		assertEquals("l2id", lineas.get(1));
 		
-		propuesta.updateLinea(l2.getId(), l3);
+		propuesta.updateLineaId(l2.getId(), l3.getId());
 		
-		assertEquals("nombre linea 3", lineas.get(0).getNombre());
-		assertEquals("nombre linea 3", lineas.get(1).getNombre());
+		assertEquals("l3id", lineas.get(0));
+		assertEquals("l3id", lineas.get(1));
 	}
 	
 	@Test
 	void testSaveOrder() {
 		
-		assertEquals("nombre linea 1", propuesta.getAllLineas().get(0).getNombre());
-		assertEquals("nombre linea 2", propuesta.getAllLineas().get(1).getNombre());
+		assertEquals("l1id", propuesta.getAllLineaIds().get(0));
+		assertEquals("l2id", propuesta.getAllLineaIds().get(1));
 		
 		Map<String, Integer> idVSposicion1 = new HashMap<>();
 		idVSposicion1.put(l1.getId(), 0);
@@ -142,13 +142,11 @@ class PropuestaAbstractaTest {
 		
 		propuesta.saveOrder(idVSposicion2);
 		
-		assertEquals("nombre linea 2", propuesta.getAllLineas().get(0).getNombre());
-		assertEquals("nombre linea 1", propuesta.getAllLineas().get(1).getNombre());
+		// TODO assert with linea repo
 		
 		propuesta.saveOrder(idVSposicion1);
 		
-		assertEquals("nombre linea 1", propuesta.getAllLineas().get(0).getNombre());
-		assertEquals("nombre linea 2", propuesta.getAllLineas().get(1).getNombre());
+		// TODO assert with linea repo
 		
 	}
 	
