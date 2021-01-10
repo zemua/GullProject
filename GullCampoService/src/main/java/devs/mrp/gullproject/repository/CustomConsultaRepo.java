@@ -35,4 +35,6 @@ public interface CustomConsultaRepo {
 	
 	public Mono<Consulta> removeLineaEnPropuesta(String idConsulta, String idPropuesta, String idLinea);
 	
+	public Mono<Consulta> updateStatus(String idConsulta, String status);
+	
 }

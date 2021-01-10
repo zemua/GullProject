@@ -55,6 +55,7 @@ class CustomConsultaRepoImplTest {
 	Campo<String> campo6;
 	Campo<String> campo7;
 	Campo<String> campo8;
+	Mono<Consulta> mono;
 	
 	@BeforeEach
 	void inicializacion() {
@@ -160,6 +161,7 @@ class CustomConsultaRepoImplTest {
 		consulta = new Consulta();
 		consulta.setId("consulta id");
 		consulta.setNombre("consulta nombre");
+		consulta.setStatus("estado original");
 		consulta.addPropuesta(propuesta1);
 		consulta.addPropuesta(propuesta2);
 		
@@ -172,11 +174,12 @@ class CustomConsultaRepoImplTest {
 		 */
 		
 		
-		Mono<Consulta> mono = repo.findById(consulta.getId());		
+		mono = repo.findById(consulta.getId());		
 		
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals("consulta nombre", cons.getNombre());
+			assertEquals("estado original", cons.getStatus());
 			assertEquals(2, cons.getCantidadPropuestas());
 			assertEquals(propuesta1, cons.getPropuestaByIndex(0));
 			assertEquals("nombre propuesta 1", cons.getPropuestaByIndex(0).getNombre());
@@ -577,6 +580,18 @@ class CustomConsultaRepoImplTest {
 			assertEquals("nombre propuesta 2", cons.getPropuestaByIndex(1).getNombre());
 			assertEquals("linea 3 id", cons.getPropuestaByIndex(1).getLineaIdByIndex(0));
 			assertEquals("linea 4 id", cons.getPropuestaByIndex(1).getLineaIdByIndex(1));
+		})
+		.expectComplete()
+		.verify();
+	}
+	
+	@Test
+	void testUpdateStatus() {
+		repo.updateStatus(consulta.getId(), "estado actualizado").block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals("estado actualizado", cons.getStatus());
 		})
 		.expectComplete()
 		.verify();

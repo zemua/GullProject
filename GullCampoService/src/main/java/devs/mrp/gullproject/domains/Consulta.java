@@ -3,6 +3,8 @@ package devs.mrp.gullproject.domains;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.validation.constraints.NotBlank;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -15,15 +17,17 @@ public class Consulta {
 	@Id
 	String id;
 	
+	@NotBlank
 	String nombre;
 	
+	String status;
 	Long createdTime = System.currentTimeMillis();
-	Long rootEditedTime;
+	Long editedTime;
 	
 	List<Propuesta> propuestas = new ArrayList<>();
 	
 	public void actualizaEditTime() {
-		rootEditedTime = System.currentTimeMillis();
+		editedTime = System.currentTimeMillis();
 	}
 	
 	public void addPropuesta(Propuesta propuesta) {
