@@ -3,16 +3,22 @@ package devs.mrp.gullproject.Controller;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.service.ConsultaService;
+import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
+@Slf4j
 @Controller
 @RequestMapping(path = "/consultas")
 public class ConsultaController {
@@ -25,24 +31,27 @@ public class ConsultaController {
 	}
 	
 	@GetMapping("/nuevo")
-	public String crearAtributo(Model model) {
+	public String createConsulta(Model model) {
 		
-		model.addAttribute(new Consulta());
+		model.addAttribute("consulta", new Consulta());
 		
 		return "createConsulta";
 	}
 	
-	@PostMapping("/nuevo")
-	public String procesaNuevoAtributo(@Valid Consulta consulta, BindingResult bindingResult, Model model) {
+	@PostMapping(path = "/nuevo", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	public String processNewConsulta(@Valid Consulta consulta, BindingResult bindingResult, Model model) {
 		// TODO test
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("consulta", consulta);
 			return "createConsulta";
 		}
 		
-		consultaService.save(consulta).subscribe();
+		log.info("consulta dentro de processNewConsulta es = " + consulta);
+		Mono<Consulta> c = consultaService.save(consulta);
+		log.debug(c.toString());
+		model.addAttribute("consulta", c);
 		
-		return "redirect:/consultas/nuevo?add=1";
+		return "processNewConsulta";
 	}
 	
 }

@@ -19,8 +19,9 @@ public class Consulta {
 	
 	@NotBlank
 	String nombre;
-	
+	@NotBlank
 	String status;
+	
 	Long createdTime = System.currentTimeMillis();
 	Long editedTime;
 	

@@ -14,12 +14,12 @@ import reactor.core.publisher.Mono;
 public class CampoService {	
 	
 	private CampoRepo campoRepo;
-	private AtributoServiceProxy asp;
+	private AtributoServiceProxy atributoServiceProxy;
 	
 	@Autowired
-	public CampoService(CampoRepo campoRepo, AtributoServiceProxy asp) {
+	public CampoService(CampoRepo campoRepo, AtributoServiceProxy atributoServiceProxy) {
 		this.campoRepo = campoRepo;
-		this.asp = asp;
+		this.atributoServiceProxy = atributoServiceProxy;
 	}
 	
 	public Mono<Campo<?>> findById(String id) {
@@ -31,9 +31,9 @@ public class CampoService {
 	}
 	
 	public Mono<Boolean> validateDataFormat(Campo<?> campo) {
-		Mono<Boolean> afc = asp
+		Mono<Boolean> afc = atributoServiceProxy
 				.getAtributoForCampoById(campo.getAtributoId())
-				.flatMap(m -> asp.validateDataFormat(m.getTipo(), campo.getDatos().toString()));
+				.flatMap(m -> atributoServiceProxy.validateDataFormat(m.getTipo(), campo.getDatos().toString()));
 				
 		return afc;
 	}
