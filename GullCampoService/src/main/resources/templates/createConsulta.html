@@ -21,6 +21,10 @@
       	th:if="${#fields.hasErrors('nombre')}"
       	th:errors="*{nombre}">Selecciona un nombre</span>
       	
+      	<span class="validationError"
+      	th:if="${#fields.hasErrors('status')}"
+      	th:errors="*{status}">Selecciona un estado</span>
+      	
       	<div th:if="${param.add != null ? param.add[0] == '1' : false}">
 			<span class="success">
 				Guardada. ¿Añadir otra?

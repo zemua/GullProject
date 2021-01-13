@@ -110,11 +110,11 @@ class ConsultaControllerTest {
 					.contains("Consulta Guardada Como...");
 		});
 		
-		/*webTestClient.post()
+		webTestClient.post()
 		.uri("/consultas/nuevo")
 		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 		.accept(MediaType.TEXT_HTML)
-		.body(BodyInserters.fromFormData("nombre", "incorrect name")
+		.body(BodyInserters.fromFormData("nombre", "")
 				.with("status", "cancelled"))
 		.exchange()
 		.expectStatus().isOk()
@@ -126,8 +126,29 @@ class ConsultaControllerTest {
 					.contains("Nueva Consulta")
 					.contains("errores")
 					.contains("El nombre es obligatorio")
-					.doesNotContain("Guardada. ¿Añadir otra?");
-		});*/
+					.doesNotContain("Guardada. ¿Añadir otra?")
+					.contains("cancelled");
+		});
+		
+		webTestClient.post()
+		.uri("/consultas/nuevo")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("nombre", "este es incorrecto")
+				.with("status", ""))
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Nombre:")
+					.contains("Estado:")
+					.contains("Nueva Consulta")
+					.contains("errores")
+					.contains("El estado es obligatorio.")
+					.doesNotContain("Guardada. ¿Añadir otra?")
+					.contains("este es incorrecto");
+		});
 	}
 
 }

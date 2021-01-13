@@ -17,9 +17,9 @@ public class Consulta {
 	@Id
 	String id;
 	
-	@NotBlank
+	@NotBlank(message = "El nombre es obligatorio.")
 	String nombre;
-	@NotBlank
+	@NotBlank(message = "El estado es obligatorio.")
 	String status;
 	
 	Long createdTime = System.currentTimeMillis();

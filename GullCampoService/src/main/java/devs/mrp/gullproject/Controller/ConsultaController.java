@@ -22,6 +22,8 @@ import reactor.core.publisher.Mono;
 @Controller
 @RequestMapping(path = "/consultas")
 public class ConsultaController {
+	
+	// TODO completar todas las funcionalidades
 
 	ConsultaService consultaService;
 	
@@ -40,15 +42,15 @@ public class ConsultaController {
 	
 	@PostMapping(path = "/nuevo", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public String processNewConsulta(@Valid Consulta consulta, BindingResult bindingResult, Model model) {
-		// TODO test
 		if (bindingResult.hasErrors()) {
+			//log.info("processNewConsulta entrando en la rama de error");
 			model.addAttribute("consulta", consulta);
 			return "createConsulta";
 		}
 		
-		log.info("consulta dentro de processNewConsulta es = " + consulta);
+		//log.info("consulta dentro de processNewConsulta es = " + consulta);
 		Mono<Consulta> c = consultaService.save(consulta);
-		log.debug(c.toString());
+		//log.info("mono dentro de processNewConsulta es = " + c.toString());
 		model.addAttribute("consulta", c);
 		
 		return "processNewConsulta";
