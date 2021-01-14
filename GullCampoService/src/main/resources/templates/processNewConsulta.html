@@ -3,11 +3,11 @@
 	xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="utf-8">
-<title>Gull Project - Nueva Consulta</title>
+<title>Gull Project - Consulta Guardada</title>
 </head>
 <body>
 
-<h1>Nueva Consulta</h1>
+<h1>Consulta Guardada</h1>
 
 	<div>
 		<span class="success"> Consulta Guardada Como... </span>
@@ -16,12 +16,12 @@
 	<div class="grid" th:object="${consulta}">
 		<div class="define-group" id="nombre">
 			<h3>Nombre:</h3>
-			<input name="nombre" type="text" th:field="*{nombre}" />
+			<span th:text="*{nombre}"> ... </span>
 		</div>
 
 		<div class="define-group" id="status">
 			<h3>Estado:</h3>
-			<input name="status" type="text" th:field="*{status}" />
+			<span th:text="*{status}"> ... </span>
 		</div>
 	</div>
 

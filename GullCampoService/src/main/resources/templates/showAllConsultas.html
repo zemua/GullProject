@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>Gull Project - Todas Las Consultas</title>
+</head>
+<body>
+
+<h1>Todas Las Consultas</h1>
+
+	<div>
+		<div th:each="a : ${consultas}">
+			<span th:value="${a.id}" th:text="${a.nombre}"></span>
+			<span> - </span>
+			<span th:text="${a.status}"></span>
+			<span> - </span>
+			<a th:href="@{'/consultas/revisar/id/' + ${a.id}}">revisar</a>
+		</div>
+	</div>
+	<div>
+		<p>
+			<a th:href="@{/consultas/nuevo}">Crear nuevo atributo</a>
+		</p>
+	</div>
+
+</body>
+</html>

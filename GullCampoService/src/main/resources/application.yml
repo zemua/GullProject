@@ -17,6 +17,6 @@ eureka:
       
 logging:
   level:
-    org.springframework.webflux: DEBUG
+    devs.mrp.gullproject: DEBUG
     org.springframework.web: DEBUG
     org.springframework.test: DEBUG

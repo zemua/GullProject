@@ -21,6 +21,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.service.ConsultaService;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(SpringExtension.class)
@@ -103,7 +104,7 @@ class ConsultaControllerTest {
 				Assertions.assertThat(response.getResponseBody()).asString()
 					.contains("Nombre:")
 					.contains("Estado:")
-					.contains("Nueva Consulta")
+					.contains("Consulta Guardada")
 					.doesNotContain("errores")
 					.contains("name of consulta")
 					.contains("open status")
@@ -127,6 +128,7 @@ class ConsultaControllerTest {
 					.contains("errores")
 					.contains("El nombre es obligatorio")
 					.doesNotContain("Guardada. ¿Añadir otra?")
+					.doesNotContain("Consulta Guardada")
 					.contains("cancelled");
 		});
 		
@@ -147,8 +149,43 @@ class ConsultaControllerTest {
 					.contains("errores")
 					.contains("El estado es obligatorio.")
 					.doesNotContain("Guardada. ¿Añadir otra?")
+					.doesNotContain("Consulta Guardada")
 					.contains("este es incorrecto");
 		});
+	}
+	
+	@Test
+	void testShowAllConsultas() throws Exception {
+		
+		Consulta a = new Consulta();
+		a.setNombre("consulta 1");
+		a.setStatus("estado 1");
+		a.setId("idConsulta1");
+		
+		Consulta b = new Consulta();
+		b.setNombre("consulta 2");
+		b.setStatus("estado 2");
+		b.setId("idConsulta2");
+		
+		Flux<Consulta> flux = Flux.just(a, b);
+		when(consultaService.findAll()).thenReturn(flux);
+		
+		webTestClient.get()
+			.uri("/consultas/all")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Todas Las Consultas")
+						.contains("Crear nuevo atributo")
+						.contains("consulta 1")
+						.contains("estado 1")
+						.contains("revisar")
+						.contains("consulta 2")
+						.contains("estado 2");
+			});
 	}
 
 }

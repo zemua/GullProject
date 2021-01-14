@@ -16,6 +16,7 @@ import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.service.ConsultaService;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -43,17 +44,22 @@ public class ConsultaController {
 	@PostMapping(path = "/nuevo", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public String processNewConsulta(@Valid Consulta consulta, BindingResult bindingResult, Model model) {
 		if (bindingResult.hasErrors()) {
-			//log.info("processNewConsulta entrando en la rama de error");
+			log.debug("processNewConsulta invalid consulta received by post");
 			model.addAttribute("consulta", consulta);
 			return "createConsulta";
 		}
 		
-		//log.info("consulta dentro de processNewConsulta es = " + consulta);
 		Mono<Consulta> c = consultaService.save(consulta);
-		//log.info("mono dentro de processNewConsulta es = " + c.toString());
 		model.addAttribute("consulta", c);
 		
 		return "processNewConsulta";
+	}
+	
+	@GetMapping("/all")
+	public String showAllConsultas(Model model) {
+		Flux<Consulta> consultas = consultaService.findAll();
+		model.addAttribute("consultas", new ReactiveDataDriverContextVariable(consultas, 1));
+		return "showAllConsultas";
 	}
 	
 }
