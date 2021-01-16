@@ -9,6 +9,6 @@ public class CampoRepresentationModel extends RepresentationModel<CampoRepresent
 
 	String id;
 	String atributoId;
-	Object datos; // evitamos genérics para poder hacer el asembler sin problemas
+	Object datos; // We avoid generics wildcard Campo<?> to be able to make the assembler class without issues
 	
 }

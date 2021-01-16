@@ -180,12 +180,16 @@ class ConsultaControllerTest {
 			.consumeWith(response -> {
 					Assertions.assertThat(response.getResponseBody()).asString()
 						.contains("Todas Las Consultas")
-						.contains("Crear nuevo atributo")
-						.contains("consulta 1")
+						.contains("Crear nueva consulta");
+					/**
+					 * Now the info is passed through rest to the javascript datasheet
+					 * so we don't include below data in the template anymore
+					 */
+						/*.contains("consulta 1")
 						.contains("estado 1")
 						.contains("revisar")
 						.contains("consulta 2")
-						.contains("estado 2");
+						.contains("estado 2");*/
 			});
 	}
 

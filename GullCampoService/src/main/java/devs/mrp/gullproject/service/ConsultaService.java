@@ -26,4 +26,8 @@ public class ConsultaService {
 		return consultaRepo.findAll();
 	}
 	
+	public Mono<Consulta> findById(String id) {
+		return consultaRepo.findById(id);
+	}
+	
 }

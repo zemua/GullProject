@@ -20,13 +20,14 @@ import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.models.CampoRepresentationModel;
 import devs.mrp.gullproject.domains.models.CampoRepresentationModelAssembler;
 import devs.mrp.gullproject.repository.CampoRepo;
+import devs.mrp.gullproject.service.AtributoServiceProxy;
 import devs.mrp.gullproject.service.CampoService;
 import reactor.core.publisher.Flux;
 
 @ExtendWith(SpringExtension.class)
 //@SpringBootTest
 @WebFluxTest(controllers = CampoRestController.class)
-@Import({CampoService.class, HypermediaWebTestClientConfigurer.class})
+@Import({CampoService.class})
 class CampoRestControllerTest {
 
 	@Autowired
@@ -38,6 +39,8 @@ class CampoRestControllerTest {
 	CampoRepo campoRepo;
 	@MockBean
 	CampoRepresentationModelAssembler crma;
+	@MockBean
+	AtributoServiceProxy asp;
 	
 	@Test
 	void testGetAllCampos() {
