@@ -1,4 +1,4 @@
-package devs.mrp.gullproject.Controller;
+package devs.mrp.gullproject.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

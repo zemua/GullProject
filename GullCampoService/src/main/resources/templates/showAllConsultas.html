@@ -4,12 +4,14 @@
 <head>
 <meta charset="utf-8">
 <title>Gull Project - Todas Las Consultas</title>
+<!-- CSS -->
+<link th:href="@{/js/x-spreadsheet-master/dist/xspreadsheet.css}" rel="stylesheet"></link>
 </head>
 <body>
 
 <h1>Todas Las Consultas</h1>
 
-	<div>
+	<!-- <div>
 		<div th:each="a : ${consultas}">
 			<span th:value="${a.id}" th:text="${a.nombre}"></span>
 			<span> - </span>
@@ -22,10 +24,15 @@
 		<p>
 			<a th:href="@{/consultas/nuevo}">Crear nuevo atributo</a>
 		</p>
-	</div>
+	</div> -->
+	
+	<div id="consultas-spreadsheet"></div>
 
- 
-<script th:src="@{/js/ag-grid-community.js}" type="text/javascript"></script>
+
+<!-- JS -->    
+<script th:src="@{/js/x-spreadsheet-master/dist/xspreadsheet.js}" type="text/javascript"></script>
+<!-- https://github.com/myliang/x-spreadsheet/ -->
+<script th:src="@{/js/spreadSheetController.js?version=(${T(java.lang.System).currentTimeMillis()})}" type="text/javascript"></script>
 
 </body>
 </html>

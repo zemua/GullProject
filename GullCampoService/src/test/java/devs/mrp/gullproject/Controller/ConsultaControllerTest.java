@@ -19,6 +19,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 
+import devs.mrp.gullproject.controller.ConsultaController;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.service.ConsultaService;
 import reactor.core.publisher.Flux;

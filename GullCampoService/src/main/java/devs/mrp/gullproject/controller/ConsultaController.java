@@ -1,4 +1,4 @@
-package devs.mrp.gullproject.Controller;
+package devs.mrp.gullproject.controller;
 
 import javax.validation.Valid;
 
