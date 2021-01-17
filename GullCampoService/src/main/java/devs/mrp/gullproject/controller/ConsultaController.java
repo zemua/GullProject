@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.models.ConsultaRepresentationModel;
 import devs.mrp.gullproject.service.ConsultaService;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;

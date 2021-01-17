@@ -52,15 +52,4 @@ public class Consulta {
 		return propuestas.get(index);
 	}
 	
-	/**
-	 * Para generar automaticamente ids de subdocumentos
-	 * https://stackoverflow.com/questions/60246374/auto-generate-ids-for-mongodb-sub-documents-in-array-with-spring-mongotemplate
-	 * 
-	 * public CommentEntity() {
-	 * 		id = new ObjectId().toString();
-	 * 		...
-	 * }
-	 * 
-	 */
-	
 }
