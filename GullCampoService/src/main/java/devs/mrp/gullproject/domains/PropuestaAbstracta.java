@@ -33,10 +33,14 @@ public abstract class PropuestaAbstracta implements Propuesta {
 	LineaService lineaService;
 
 	@Override
-	public abstract boolean isRoot();
+	public boolean isRoot() {
+		return false;
+	};
 
 	@Override
-	public abstract boolean isForBid();
+	public boolean isForBid() {
+		return false;
+	};
 
 	@Override
 	public void addLineaId(String lineaId) {

@@ -9,11 +9,13 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.PropuestaAbstracta;
 import devs.mrp.gullproject.domains.models.ConsultaRepresentationModel;
 import devs.mrp.gullproject.service.ConsultaService;
 import lombok.extern.slf4j.Slf4j;
@@ -62,5 +64,19 @@ public class ConsultaController {
 		model.addAttribute("consultas", new ReactiveDataDriverContextVariable(consultas, 1));
 		return "showAllConsultas";
 	}
+	
+	@GetMapping("/revisar/id/{id}")
+	public String reviewConsultaById(Model model, @PathVariable(name = "id") String id) {
+		Mono<Consulta> consulta = consultaService.findById(id);
+		model.addAttribute("consulta", consulta);
+		return "reviewConsulta";
+	}
+	
+	@GetMapping("/revisar/id/{id}/addpropuesta")
+	public String addPropuestaToId(Model model, @PathVariable(name= "id") String id) {
+		model.addAttribute("consultaId", id);
+		return "addPropuestaToConsulta";
+	}
+	
 	
 }

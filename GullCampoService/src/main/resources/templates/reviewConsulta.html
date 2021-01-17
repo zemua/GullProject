@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>Gull Project - Todas Las Consultas</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1>Todas Las Consultas</h1>
+
+	<div>
+		<p>
+			<a th:href="@{/consultas/nuevo}">Crear nueva consulta</a> - <a th:href="@{/consultas/all}">Volver a todas las consultas</a>
+		</p>
+	</div>
+	
+	<div id="consultas-spreadsheet"></div>
+	
+	<div>
+		<table>
+			<tr>
+				<th>Nombre</th>
+				<th>Estado</th>
+				<th>Creado</th>
+				<th>Editado</th>
+			</tr>
+			<tr>
+				<td th:text="${consulta.nombre}"></td>
+				<td th:text="${consulta.status}"></td>
+				<td th:text="${#dates.format(new java.util.Date(consulta.createdTime), 'dd/MM/yyyy - HH:mm')}"></td>
+				<td th:text="${consulta.editedTime} ? ${#dates.format(new java.util.Date(consulta.editedTime), 'dd/MM/yyyy - HH:mm')} : '-'"></td>
+			</tr>
+		</table>
+		
+		<div><br/><br/><a th:href="${'/revisar/id/' + consulta.id + '/addpropuesta'}">Añadir una propuesta</a></div>
+	
+		<table>
+			<tr>
+				<th>Nombre Propuesta</th>
+				<th>Cantidad de lineas</th>
+			</tr>
+			<tr th:each="a : ${consulta.propuestas}">
+				<td th:text="${a.nombre}"></td>
+				<td th:text="${a.lineaIds.size}"></td>
+			</tr>
+		</table>
+	</div>
+
+</body>
+</html>

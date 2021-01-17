@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.repository.ConsultaRepo;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -28,6 +29,10 @@ public class ConsultaService {
 	
 	public Mono<Consulta> findById(String id) {
 		return consultaRepo.findById(id);
+	}
+	
+	public Mono<Consulta> addPropuesta(String idConsulta, Propuesta propuesta) {
+		return consultaRepo.addPropuesta(idConsulta, propuesta);
 	}
 	
 }

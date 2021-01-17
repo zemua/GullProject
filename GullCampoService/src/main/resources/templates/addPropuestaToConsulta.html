@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>Gull Project - Nueva Consulta</title>
+</head>
+<body>
+
+<h1>Nueva Propuesta</h1>
+
+	<form method="POST" id="propuestaform">
+	
+		<div th:if="${#fields.hasErrors()}">
+     	   <span class="validationError">
+      	  Corrige los errores y reenvía.
+     	   </span>
+    	</div>
+    	
+    	<span class="validationError"
+      	th:if="${#fields.hasErrors('nombre')}"
+      	th:errors="*{nombre}">Selecciona un nombre</span>
+      	
+      	<span class="validationError"
+      	th:if="${#fields.hasErrors('status')}"
+      	th:errors="*{status}">Selecciona un estado</span>
+      
+		<div class="grid">
+			<div class="define-group" id="nombre">
+				<h3>Nombre:</h3>
+					<input name="nombre" type="text"
+						th:field="*{nombre}"/>
+			</div>
+			
+			<div class="define-group" id="status">
+				<h3>Estado:</h3>
+					<input name="status" type="text"
+						th:field="*{status}"/>
+			</div>
+		</div>
+
+		<div>
+			<p>
+				<button>Ok</button>
+			</p>
+		</div>
+		
+		<div>
+			<p>
+				<a th:href="@{/consultas/all}">Ver todas las consultas</a>
+			</p>
+		</div>
+		
+	</form>
+
+</body>
+</html>
