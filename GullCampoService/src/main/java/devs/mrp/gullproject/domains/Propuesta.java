@@ -77,6 +77,9 @@ public interface Propuesta {
 				return true;
 	}
 	public static boolean assertMatchesCampos(Linea l, Map<String, ?> atributoidVSvalue) {
+		/**
+		 * When values to compare don't exist, it takes the default (empy, zero, false...)
+		 */
 		
 		Map<String, Object> mapLinea = l.getCampos().stream().collect(Collectors.toMap(Campo::getAtributoId, Campo::getDatos));
 
@@ -115,7 +118,11 @@ public interface Propuesta {
 	}
 	
 	public static boolean assertMatchesCamposEstricto(Linea l, Map<String, ?> atributoidVSvalue) {
-
+		/**
+		 * When a field to compare doesn't exist, directly returns false
+		 */
+		
+		
 		Map<String, Object> mapLinea = l.getCampos().stream().collect(Collectors.toMap(Campo::getAtributoId, Campo::getDatos));
 
 		Set<String> atributoIds = atributoidVSvalue.keySet();

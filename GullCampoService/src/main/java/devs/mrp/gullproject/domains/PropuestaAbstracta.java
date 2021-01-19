@@ -27,10 +27,6 @@ public abstract class PropuestaAbstracta implements Propuesta {
 	String parentId;
 	
 	List<String> lineaIds = new ArrayList<>();
-	
-	@Autowired
-	@JsonIgnore
-	LineaService lineaService;
 
 	@Override
 	public boolean isRoot() {

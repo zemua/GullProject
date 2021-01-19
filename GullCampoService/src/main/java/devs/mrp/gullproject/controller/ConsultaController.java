@@ -67,6 +67,7 @@ public class ConsultaController {
 	
 	@GetMapping("/revisar/id/{id}")
 	public String reviewConsultaById(Model model, @PathVariable(name = "id") String id) {
+		// TODO test
 		Mono<Consulta> consulta = consultaService.findById(id);
 		model.addAttribute("consulta", consulta);
 		return "reviewConsulta";
@@ -74,9 +75,17 @@ public class ConsultaController {
 	
 	@GetMapping("/revisar/id/{id}/addpropuesta")
 	public String addPropuestaToId(Model model, @PathVariable(name= "id") String id) {
+		// TODO test
 		model.addAttribute("consultaId", id);
-		return "addPropuestaToConsulta";
+		model.addAttribute("propuesta", new PropuestaAbstracta() {
+		});
+		return "addPropuestaToConsulta"; // TODO hacer plantilla para realizar esta operación
 	}
 	
+	@PostMapping("/revisar/id/{id}")
+	public String processAddPropuestaToId(Model model, @PathVariable(name ="id") String id) {
+		// TODO test
+		return null;
+	}
 	
 }
