@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>Gull Project - Borrar Consulta</title>
+</head>
+<body>
+
+<h1>Borrar Consulta</h1>
+
+	<form method="POST" th:object="${consulta}" id="myForm">
+      	
+      	<div>
+      		¿Seguro que deseas borrar esta consulta?
+    	</div>
+      
+		<div class="grid">
+			<div class="define-group" id="nombre">
+				<h3>Nombre:</h3>
+					<span th:text="*{nombre}"></span>
+			</div>
+			
+			<div class="define-group" id="status">
+				<h3>Estado:</h3>
+					<span th:text="*{status}"></span>
+			</div>
+		</div>
+		
+		<input name="id" type="hidden" th:field="*{id}">
+		<input name="nombre" type="hidden" th:field="*{nombre}">
+		<input name="status" type="hidden" th:field="*{status}">
+
+		<div>
+			<p>
+				<span>Introduce "borrar" en el siguiente campo y pulsa el botón</span>
+				<br />
+				<input id="confirmaBorrar" type="text"/>
+				<button id="botonBorrar">Borrar</button>
+			</p>
+		</div>
+		
+		<div>
+			<p>
+				<a th:href="@{/consultas/all}">Volver</a>
+			</p>
+		</div>
+		
+	</form>
+
+<script type="text/javascript" th:src="@{/js/scripts/confirmDelete.js}"></script>
+
+</body>
+</html>

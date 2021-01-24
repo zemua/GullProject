@@ -1,19 +1,14 @@
 package devs.mrp.gullproject.domains;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
-import java.util.stream.Collectors;
+
+import javax.validation.constraints.NotBlank;
 
 import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Id;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import devs.mrp.gullproject.service.LineaService;
 import lombok.Data;
 
 @Data
@@ -22,19 +17,40 @@ public abstract class PropuestaAbstracta implements Propuesta {
 	@Id
 	String id = new ObjectId().toString();
 	
+	//private TipoPropuesta tipoPropuesta;
+	
+	@NotBlank(message = "Selecciona un nombre")
 	String nombre;
 	
 	String parentId;
 	
 	List<String> lineaIds = new ArrayList<>();
+	
+	/*public enum TipoPropuesta {
+		Client("Consulta de cliente"), Supplier ("Oferta de un proveedor"), Ours ("Nuestra propuesta para el cliente");
+		
+		String description;
+		private TipoPropuesta(String description) {
+			this.description = description;
+		}
+		public String getDescription() {
+			return this.description;
+		}
+	}*/
 
 	@Override
 	public boolean isRoot() {
+		/*if (tipoPropuesta.equals(TipoPropuesta.Client)) {
+			return true;
+		}*/
 		return false;
 	};
 
 	@Override
 	public boolean isForBid() {
+		/*if (tipoPropuesta.equals(TipoPropuesta.Ours)) {
+			return true;
+		}*/
 		return false;
 	};
 

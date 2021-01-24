@@ -3,12 +3,12 @@
 	xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="utf-8">
-<title>Gull Project - Todas Las Consultas</title>
+<title>Gull Project - Revisar Consulta</title>
 <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
 
-<h1>Todas Las Consultas</h1>
+<h1>Revisar Consulta</h1>
 
 	<div>
 		<p>
@@ -24,26 +24,28 @@
 				<th>Nombre</th>
 				<th>Estado</th>
 				<th>Creado</th>
-				<th>Editado</th>
+				<!-- <th>Editado</th> -->
 			</tr>
 			<tr>
 				<td th:text="${consulta.nombre}"></td>
 				<td th:text="${consulta.status}"></td>
-				<td th:text="${#dates.format(new java.util.Date(consulta.createdTime), 'dd/MM/yyyy - HH:mm')}"></td>
-				<td th:text="${consulta.editedTime} ? ${#dates.format(new java.util.Date(consulta.editedTime), 'dd/MM/yyyy - HH:mm')} : '-'"></td>
+				<td th:text="${consulta.createdTime} ? ${#dates.format(new java.util.Date(consulta.createdTime), 'dd/MM/yyyy - HH:mm')} : '-'"></td>
+				<!-- <td th:text="${consulta.editedTime} ? ${#dates.format(new java.util.Date(consulta.editedTime), 'dd/MM/yyyy - HH:mm')} : '-'"></td> -->
+				<td><a th:href="${'/consultas/delete/id/' + consulta.id}">Borrar esta consulta</a></td>
 			</tr>
 		</table>
 		
-		<div><br/><br/><a th:href="${'/consultas/revisar/id/' + consulta.id + '/addpropuesta'}">Añadir una propuesta</a></div>
+		<div><br/><br/><a th:if="${#lists.size(consulta.propuestas) == 0}" th:href="${'/consultas/revisar/id/' + consulta.id + '/addpropuesta'}">Añadir una solicitud de propuesta del cliente</a></div>
 	
 		<table>
 			<tr>
 				<th>Nombre Propuesta</th>
-				<th>Cantidad de lineas</th>
+				<th>Cantidad de Lineas</th>
 			</tr>
 			<tr th:each="a : ${consulta.propuestas}">
 				<td th:text="${a.nombre}"></td>
 				<td th:text="${a.lineaIds.size}"></td>
+				<td><a th:href="${'/consultas/delete/id/' + consulta.id + '/propuesta/' + a.id}">Borrar esta propuesta</a></td>
 			</tr>
 		</table>
 	</div>

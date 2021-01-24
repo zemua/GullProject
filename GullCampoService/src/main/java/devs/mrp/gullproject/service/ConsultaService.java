@@ -35,4 +35,17 @@ public class ConsultaService {
 		return consultaRepo.addPropuesta(idConsulta, propuesta);
 	}
 	
+	public Mono<Long> deleteById(String id){
+		return consultaRepo.deleteByIdReturningDeletedCount(id);
+	}
+	
+	public Mono<Consulta> removePropuesta(String idConsulta, Propuesta propuesta){
+		return consultaRepo.removePropuesta(idConsulta, propuesta);
+	}
+	
+	public Mono<Consulta> removePropuestaById(String idConsulta, String idPropuesta){
+		Mono<Propuesta> p = findById(idConsulta).flatMap(cons -> Mono.just(cons.getPropuestaById(idPropuesta)));
+		Mono<Consulta> c = p.flatMap(pro -> removePropuesta(idConsulta, pro));
+		return c;
+	}
 }

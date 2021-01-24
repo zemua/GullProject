@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>Gull Project - Borrar Consulta</title>
+</head>
+<body>
+
+<h1>Borrar Consulta</h1>
+
+	<div th:if="${count != null && count == 1}">
+		<span class="success">Consulta borrada correctamente</span>
+	</div>
+
+	<div th:if="${count == null || count != 1}">
+		<span class="fail">Algo no ha ido correctamente</span>
+	</div>
+
+	<div>
+		<p>
+			<a th:href="@{/consultas/all}">Volver</a>
+		</p>
+	</div>
+
+</body>
+</html>

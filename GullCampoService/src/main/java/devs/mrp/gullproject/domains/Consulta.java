@@ -1,6 +1,7 @@
 package devs.mrp.gullproject.domains;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.validation.constraints.NotBlank;
@@ -50,6 +51,26 @@ public class Consulta {
 	
 	public Propuesta getPropuestaByIndex(int index) {
 		return propuestas.get(index);
+	}
+	
+	public int getPropuestaIndexByPropuestaId(String id) {
+		for(int i = 0; i<propuestas.size(); i++) {
+			if (propuestas.get(i).getId().equals(id)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	public Propuesta getPropuestaById(String id) {
+		Iterator<Propuesta> i = propuestas.iterator();
+		while (i.hasNext()) {
+			Propuesta p = i.next();
+			if (p.getId().equals(id)) {
+				return p;
+			}
+		}
+		return null;
 	}
 	
 }

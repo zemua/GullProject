@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>Gull Project - Propuesta Guardada</title>
+</head>
+<body>
+
+<h1>Propuesta Guardada</h1>
+
+	<div>
+		<span class="success"> Propuesta Guardada Como... </span>
+	</div>
+
+	<div class="grid" th:object="${propuestaCliente}">
+		<div class="define-group" id="nombre">
+			<h3>Nombre:</h3>
+			<span th:text="*{nombre}"> ... </span>
+		</div>
+	</div>
+
+	<div>
+		<p>
+			<a th:href="${'/consultas/revisar/id/' + consultaId}">Volver a la consulta</a>
+		</p>
+	</div>
+
+</body>
+</html>

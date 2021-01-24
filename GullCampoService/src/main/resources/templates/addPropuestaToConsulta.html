@@ -3,13 +3,13 @@
 	xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="utf-8">
-<title>Gull Project - Nueva Consulta</title>
+<title>Gull Project - Nueva Solicitud de Propuesta</title>
 </head>
 <body>
 
-<h1>Nueva Propuesta</h1>
+<h1>Nueva Solicitud de Propuesta</h1>
 
-	<form method="POST" th:action="${'/consultas/revisar/id/' + consultaId}" id="propuestaform" th:object="${propuesta}">
+	<form method="POST" th:action="${'/consultas/revisar/id/' + consultaId}" id="propuestaform" th:object="${propuestaCliente}">
 	
 		<div th:if="${#fields.hasErrors()}">
      	   <span class="validationError">
@@ -27,6 +27,7 @@
 					<input name="nombre" type="text"
 						th:field="*{nombre}"/>
 			</div>
+			<input id="parentId" name="parentId" type="hidden" value="${consultaId}">
 		</div>
 
 		<div>
@@ -37,7 +38,7 @@
 		
 		<div>
 			<p>
-				<a th:href="@{'/consultas/revisar/id/' + consultaId}">Volver</a>
+				<a th:href="${'/consultas/revisar/id/' + consultaId}">Volver</a>
 			</p>
 		</div>
 		
