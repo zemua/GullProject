@@ -1,16 +1,14 @@
 package devs.mrp.gullproject.repository;
 
-import java.util.Map;
-
 import devs.mrp.gullproject.domains.Consulta;
-import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
-import devs.mrp.gullproject.domains.PropuestaCliente;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface CustomConsultaRepo {
 
+	public Mono<Consulta> findByPropuestaId(String propuestaId);
+	
 	public Mono<Consulta> addPropuesta(String idConsulta, Propuesta propuesta);
 	
 	public Mono<Long> addVariasPropuestas(String idConsulta, Flux<Propuesta> propuestas);

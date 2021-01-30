@@ -19,8 +19,13 @@ public class Linea {
 	@Id
 	private String id;
 	
-	@NotBlank
 	private String nombre;
+	
+	/**
+	 * This is the id of the propuesta to which this one belongs
+	 */
+	@NotBlank
+	private String propuestaId;
 	
 	/**
 	 * When creating an updated snapshot, this will refer to the "old" line
@@ -33,6 +38,12 @@ public class Linea {
 	
 	private Integer order;
 	
+	/**
+	 * TODO
+	 * First create an ArrayList of Atributes that are allowed to have as columns, inside the proposals
+	 * Then the proposal will have an array of attributes, that can have repeated ones, for example 2 dimensions for in and out
+	 * Finally the line will have as many fields as attributes in the proposal, filled in a table, and controlled by javascript the type of data (and server side too)
+	 */
 	private List<Campo<?>> campos = new ArrayList<>();
 	
 	@JsonIgnore
@@ -42,6 +53,10 @@ public class Linea {
 	
 	public Campo<?> getCampoByIndex(int i){
 		return campos.get(i);
+	}
+	
+	public void addCampo(Campo<?> c) {
+		campos.add(c);
 	}
 	
 }

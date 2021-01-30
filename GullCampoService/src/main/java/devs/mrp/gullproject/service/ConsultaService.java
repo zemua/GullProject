@@ -43,9 +43,20 @@ public class ConsultaService {
 		return consultaRepo.removePropuesta(idConsulta, propuesta);
 	}
 	
-	public Mono<Consulta> removePropuestaById(String idConsulta, String idPropuesta){
-		Mono<Propuesta> p = findById(idConsulta).flatMap(cons -> Mono.just(cons.getPropuestaById(idPropuesta)));
+	public Mono<Integer> removePropuestaById(String idConsulta, String idPropuesta){
+		Mono<Consulta> original = findById(idConsulta);
+		Mono<Propuesta> p = original.flatMap(cons -> Mono.just(cons.getPropuestaById(idPropuesta)));
 		Mono<Consulta> c = p.flatMap(pro -> removePropuesta(idConsulta, pro));
-		return c;
+		Mono<Integer> deleted = c.zipWith(original, (item1, item2) -> item2.getCantidadPropuestas() - item1.getCantidadPropuestas());
+		return deleted;
+	}
+	
+	public Mono<Propuesta> findPropuestaByPropuestaId(String propuestaId) {
+		Mono<Propuesta> mono = consultaRepo.findByPropuestaId(propuestaId).flatMap(c -> Mono.just(c.getPropuestaById(propuestaId)));
+		return mono;
+	}
+	
+	public Mono<Consulta> findConsultaByPropuestaId(String propuestaId) {
+		return consultaRepo.findByPropuestaId(propuestaId);
 	}
 }

@@ -2,6 +2,7 @@ package devs.mrp.gullproject.domains;
 
 import javax.validation.constraints.NotBlank;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -12,7 +13,7 @@ import lombok.Data;
 public class Campo<T> {
 	
 	@Id
-	private String id;
+	private String id = new ObjectId().toString();
 	
 	@NotBlank
 	private String atributoId;

@@ -10,7 +10,7 @@ import devs.mrp.gullproject.service.CampoService;
 @RequestMapping(path = "/campos")
 public class CampoController {
 	
-	// TODO controller UI para modificar campos desde la web MVC
+	// TODO completas funcionalidad
 	
 	// creación de campo
 	// modificación de campo

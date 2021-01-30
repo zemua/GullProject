@@ -2,6 +2,9 @@ package devs.mrp.gullproject.Controller;
 
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,9 +25,11 @@ import org.springframework.web.reactive.function.BodyInserters;
 
 import devs.mrp.gullproject.controller.ConsultaController;
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaAbstracta;
 import devs.mrp.gullproject.service.ConsultaService;
+import devs.mrp.gullproject.service.LineaService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -38,6 +43,8 @@ class ConsultaControllerTest {
 	
 	@MockBean
 	ConsultaService consultaService;
+	@MockBean
+	LineaService lineaService;
 	
 	@Autowired
 	public ConsultaControllerTest(WebTestClient webTestClient, ConsultaController consultaController) {
@@ -47,13 +54,29 @@ class ConsultaControllerTest {
 	
 	PropuestaAbstracta prop1;
 	PropuestaAbstracta prop2;
+	PropuestaAbstracta prop3;
 	Consulta consulta1;
 	Consulta consulta2;
 	Mono<Consulta> mono1;
 	Mono<Consulta> mono2;
 	
+	Linea linea1;
+	Linea linea2;
+	Linea linea3;
+	Linea linea4;
+	
 	@BeforeEach
 	void init() {
+		
+		linea1 = new Linea();
+		linea1.setNombre("l1");
+		linea2 = new Linea();
+		linea2.setNombre("l2");
+		linea3 = new Linea();
+		linea3.setNombre("l3");
+		linea4 = new Linea();
+		linea4.setNombre("l4");
+		
 		prop1 = new PropuestaAbstracta() {};
 		prop1.addLineaId("linea1");
 		prop1.addLineaId("linea2");
@@ -70,11 +93,15 @@ class ConsultaControllerTest {
 		consulta1.addPropuesta(prop1);
 		consulta1.addPropuesta(prop2);
 		
+		prop3 = new PropuestaAbstracta() {};
+		prop3.addLineaId(linea4.getId());
+		prop3.setNombre("propuesta 3");
 		
 		consulta2 = new Consulta();
 		consulta2.setNombre("consulta 2");
 		consulta2.setStatus("estado 2");
 		consulta2.setId("idConsulta2");
+		consulta2.addPropuesta(prop3);
 		
 		mono1 = Mono.just(consulta1);
 		mono2 = Mono.just(consulta2);
@@ -395,6 +422,11 @@ class ConsultaControllerTest {
 		
 		when(consultaService.deleteById(ArgumentMatchers.anyString())).thenReturn(Mono.just(0L));
 		when(consultaService.deleteById(ArgumentMatchers.eq(consulta1.getId()))).thenReturn(Mono.just(1L)); // latest rules
+		when(consultaService.findById(ArgumentMatchers.eq(consulta1.getId()))).thenReturn(Mono.just(consulta1));
+		when(consultaService.findById(ArgumentMatchers.eq(consulta2.getId()))).thenReturn(Mono.just(consulta2));
+		
+		when(lineaService.deleteSeveralLineasFromSeveralPropuestas(ArgumentMatchers.eq(consulta1.getPropuestas()))).thenReturn(Mono.just(3L));
+		when(lineaService.deleteSeveralLineasFromSeveralPropuestas(ArgumentMatchers.eq(consulta2.getPropuestas()))).thenReturn(Mono.just(1L));
 		
 		webTestClient.post()
 		.uri("/consultas/delete/id/idConsulta1")
@@ -410,6 +442,8 @@ class ConsultaControllerTest {
 				Assertions.assertThat(response.getResponseBody()).asString()
 					.contains("Borrar Consulta")
 					.contains("Consulta borrada correctamente")
+					.contains("2 propuestas borradas")
+					.contains("3 lineas borradas")
 					.doesNotContain("Algo no ha ido correctamente")
 					.contains("Volver");
 		});
@@ -462,7 +496,9 @@ class ConsultaControllerTest {
 		Consulta consulta3 = consulta1;
 		consulta3.removePropuesta(prop1);
 		when(consultaService.removePropuesta(consulta1.getId(), prop1)).thenReturn(Mono.just(consulta3));
-		when(consultaService.removePropuestaById(consulta1.getId(), prop1.getId())).thenReturn(Mono.just(consulta3));
+		when(consultaService.removePropuestaById(consulta1.getId(), prop1.getId())).thenReturn(Mono.just(consulta3.getCantidadPropuestas()));
+		
+		when(lineaService.deleteSeveralLineasFromPropuestaId(ArgumentMatchers.eq(prop1.getId()))).thenReturn(Mono.just(2L));
 		
 		webTestClient.post()
 			.uri("/consultas/delete/id/"+consulta1.getId()+"/propuesta/"+prop1.getId())
@@ -475,7 +511,8 @@ class ConsultaControllerTest {
 			.consumeWith(response -> {
 					Assertions.assertThat(response.getResponseBody()).asString()
 						.contains("Borrar Propuesta")
-						.contains("Borrado procesado.")
+						.contains("1 propuesta borrada")
+						.contains("2 lineas borradas")
 						.contains("Volver");
 			});
 	}

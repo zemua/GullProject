@@ -53,7 +53,7 @@ public class AtributoController {
 		return "redirect:/atributos/nuevo?add=1";
 	}
 	
-	@GetMapping("/todos")
+	@GetMapping("/todos") // TODO como linkear aquí desde consultaController ?? -> Spring Gateway
 	public String mostrarAtributos(Model model) {
 		
 		Flux<Atributo> atributos = atributoService.findAll();

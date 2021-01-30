@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Nueva Linea en Propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Gull Project - Nueva Linea en Propuesta</title>
+</head>
+<body>
+
+<h1>Nueva Linea en Propuesta</h1>
+
+	<h3>No hay nada aquí todavía</h3>
+<!-- 
+	<form method="POST" th:action="${'/consultas/revisar/id/' + consultaId}" id="propuestaform" th:object="${propuestaCliente}">
+	
+		<div th:if="${#fields.hasErrors()}">
+     	   <span class="validationError">
+      	  Corrige los errores y reenvía.
+     	   </span>
+    	</div>
+    	
+    	<span class="validationError"
+      	th:if="${#fields.hasErrors('nombre')}"
+      	th:errors="*{nombre}">Selecciona un nombre</span>
+      
+		<div class="grid">
+			<div class="define-group" id="nombre">
+				<h3>Nombre:</h3>
+					<input name="nombre" type="text"
+						th:field="*{nombre}"/>
+			</div>
+			<input id="parentId" name="parentId" type="hidden" value="${consultaId}">
+		</div>
+
+		<div>
+			<p>
+				<button>Ok</button>
+			</p>
+		</div>
+		
+		<div>
+			<p>
+				<a th:href="${'/consultas/revisar/id/' + consultaId}">Volver</a>
+			</p>
+		</div>
+		
+	</form>
+	-->
+
+</body>
+</html>

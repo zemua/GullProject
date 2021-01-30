@@ -596,5 +596,17 @@ class CustomConsultaRepoImplTest {
 		.expectComplete()
 		.verify();
 	}
+	
+	@Test
+	void testFindByPropuestaId() {
+		Mono<Consulta> mono = repo.findByPropuestaId(propuesta1.getId());
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals(consulta, cons);
+		})
+		.expectComplete()
+		.verify();
+	}
 
 }

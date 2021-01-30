@@ -22,6 +22,12 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 	}
 	
 	@Override
+	public Mono<Consulta> findByPropuestaId(String propuestaId) {
+		Query query = new Query(Criteria.where("propuestas.id").is(propuestaId));
+		return mongoTemplate.findOne(query, Consulta.class);
+	}
+	
+	@Override
 	public Mono<Consulta> addPropuesta(String idConsulta, Propuesta propuesta) {
 		Query query = new Query(Criteria.where("id").is(idConsulta));
 		Update update = new Update().addToSet("propuestas", propuesta);

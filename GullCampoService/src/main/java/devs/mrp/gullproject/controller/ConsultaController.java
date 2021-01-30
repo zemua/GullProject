@@ -24,6 +24,7 @@ import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.domains.dto.ConsultaPropuestaBorrables;
 import devs.mrp.gullproject.domains.models.ConsultaRepresentationModel;
 import devs.mrp.gullproject.service.ConsultaService;
+import devs.mrp.gullproject.service.LineaService;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -36,10 +37,12 @@ public class ConsultaController {
 	// TODO completar todas las funcionalidades
 
 	ConsultaService consultaService;
+	LineaService lineaService;
 	
 	@Autowired
-	public ConsultaController(ConsultaService consultaService) {
+	public ConsultaController(ConsultaService consultaService, LineaService lineaService) {
 		this.consultaService = consultaService;
+		this.lineaService = lineaService;
 	}
 	
 	@GetMapping("/nuevo")
@@ -82,9 +85,10 @@ public class ConsultaController {
 	public String addPropuestaToId(Model model, @PathVariable(name= "id") String id) {
 		model.addAttribute("consultaId", id);
 		model.addAttribute("propuestaCliente", new PropuestaAbstracta() {});
-		/** here by default we add an inquiry from the customer first of all, when there are no any inquiry in the database
-		 * 	our proposals and the offers received from the suppliers, will be added from the customer's inquiry view
-		 *  with this we can automatically associate the customer inquiry with the propossals that refer to it and have everything well organized
+		/** 
+		 * here by default we add an inquiry from the customer first of all, when there are no any inquiry in the database
+		 * our proposals and the offers received from the suppliers, will be added from the customer's inquiry view
+		 * with this we can automatically associate the customer inquiry with the propossals that refer to it and have everything well organized
 		 */
 		return "addPropuestaToConsulta";
 	}
@@ -123,16 +127,28 @@ public class ConsultaController {
 	public String processDeleteConsultaById(Consulta consulta, Model model, @PathVariable(name ="id") String id) {
 		log.debug("processDeleteConsultaById, idConsulta = " + consulta.getId());
 		log.debug("processDeleteConsultaById, id = " + id);
+		
 		Mono<Long> c;
+		Mono<Long> remLineas;
+		Mono<Integer> numPropuestas;
 		if (consulta.getId().equals(id)) {
 			log.debug("idConsulta equals id");
-			c = consultaService.deleteById(consulta.getId());
-			// TODO borrar también las líneas que referencian a las propuestas de esta consulta
+			Mono<Consulta> cons = consultaService.findById(consulta.getId());
+			
+			c = cons.then(consultaService.deleteById(consulta.getId()));
+			
+			remLineas = cons.flatMap(cc -> lineaService.deleteSeveralLineasFromSeveralPropuestas(cc.getPropuestas()));
+			//remLineas.subscribe();
+			numPropuestas = cons.flatMap(cc -> Mono.just(cc.getCantidadPropuestas()));
 		} else {
 			log.debug("idConsulta does not equal id");
 			c = Mono.empty();
+			remLineas = Mono.empty();
+			numPropuestas = Mono.empty();
 		}
 		model.addAttribute("count", c);
+		model.addAttribute("numlineas", remLineas);
+		model.addAttribute("numpropuestas", numPropuestas);
 		model.addAttribute("consultaId", consulta.getId());
 		
 		return "processDeleteConsultaById";
@@ -141,7 +157,7 @@ public class ConsultaController {
 	@GetMapping("/delete/id/{consultaid}/propuesta/{propuestaid}")
 	public String deletePropuestaById(Model model, @PathVariable(name = "consultaid") String consultaid, @PathVariable(name = "propuestaid") String propuestaid) {
 		model.addAttribute("idConsulta", consultaid);
-		model.addAttribute("idPropuesta", propuestaid);
+		model.addAttribute("idPropuestaq", propuestaid);
 		Mono<Propuesta> p = consultaService.findById(consultaid).flatMap(cons -> Mono.just(cons.getPropuestaById(propuestaid)));
 		model.addAttribute("propuesta", p);
 		
@@ -150,9 +166,12 @@ public class ConsultaController {
 	
 	@PostMapping("/delete/id/{consultaid}/propuesta/{propuestaid}")
 	public String processDeletePropuestaById(ConsultaPropuestaBorrables data, Model model) {
-		Mono<Consulta> c = consultaService.removePropuestaById(data.getIdConsulta(), data.getIdPropuesta());
-		c.subscribe();
+		Mono<Integer> c = consultaService.removePropuestaById(data.getIdConsulta(), data.getIdPropuesta());
+		Mono<Long> lineas = lineaService.deleteSeveralLineasFromPropuestaId(data.getIdPropuesta());
+		
 		model.addAttribute("idConsulta", data.getIdConsulta());
+		model.addAttribute("propuestasBorradas", c);
+		model.addAttribute("lineasBorradas", lineas);
 		
 		return "processDeletePropuestaById";
 	}

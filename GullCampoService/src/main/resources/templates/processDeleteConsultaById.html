@@ -11,6 +11,8 @@
 
 	<div th:if="${count != null && count == 1}">
 		<span class="success">Consulta borrada correctamente</span>
+		<span class="success" th:if="${numpropuestas != null}" th:text="${numpropuestas + ' propuestas borradas'}"></span>
+		<span class="success" th:if="${numlineas != null}" th:text="${numlineas + ' lineas borradas'}"></span>
 	</div>
 
 	<div th:if="${count == null || count != 1}">

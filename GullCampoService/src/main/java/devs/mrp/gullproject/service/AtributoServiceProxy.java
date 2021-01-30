@@ -18,6 +18,8 @@ import reactor.core.publisher.Mono;
 @ReactiveFeignClient(name = "atributo-service")
 public interface AtributoServiceProxy {
 	
+	// TODO UTILIZAR WEBCLIENT EN LUGAR DE FEIGN!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	
 	// TODO load balancer
 	// TODO circuit breaker / hystrix
 	// TODO security

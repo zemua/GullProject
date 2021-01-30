@@ -62,12 +62,26 @@ class ConsultaServiceTest {
 	@Test
 	void testRemovePropuestaById() {
 		
-		consultaService.removePropuestaById(consulta.getId(), propuesta1.getId()).block();
+		Integer cant = consultaService.removePropuestaById(consulta.getId(), propuesta1.getId()).block();
 		
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals(1, cons.getCantidadPropuestas());
 			assertEquals(propuesta2.getId(), cons.getPropuestaByIndex(0).getId());
+			assertEquals(1, cant);
+		})
+		.expectComplete()
+		.verify();
+	}
+	
+	@Test
+	void testFindPropuestaByPropuestaId() {
+		
+		Mono<Propuesta> mono = consultaService.findPropuestaByPropuestaId(propuesta1.getId());
+		
+		StepVerifier.create(mono)
+		.assertNext(prop -> {
+			assertEquals(propuesta1, prop);
 		})
 		.expectComplete()
 		.verify();

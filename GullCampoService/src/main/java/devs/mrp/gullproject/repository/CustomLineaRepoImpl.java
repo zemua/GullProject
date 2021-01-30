@@ -1,11 +1,16 @@
 package devs.mrp.gullproject.repository;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+
+import com.mongodb.client.result.DeleteResult;
 
 import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Linea;
@@ -101,6 +106,18 @@ public class CustomLineaRepoImpl implements CustomLineaRepo {
 		Update update = new Update().set("counterLineId", counterLineId);
 		FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true);
 		return mongoTemplate.findAndModify(query, update, options, Linea.class);
+	}
+
+	@Override
+	public Mono<DeleteResult> deleteSeveralLineasByPropuestaId(String propuestaId) {
+		Query query = new Query(Criteria.where("propuestaId").is(propuestaId));
+		return mongoTemplate.remove(query, Linea.class);
+	}
+
+	@Override
+	public Mono<DeleteResult> deleteSeveralLineasBySeveralPropuestaIds(List<String> propuestaIds) {
+		Query query = new Query(Criteria.where("propuestaId").in(propuestaIds));
+		return mongoTemplate.remove(query, Linea.class);
 	}
 
 }

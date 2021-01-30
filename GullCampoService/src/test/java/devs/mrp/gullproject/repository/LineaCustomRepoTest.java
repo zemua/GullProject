@@ -3,6 +3,7 @@ package devs.mrp.gullproject.repository;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -42,6 +43,17 @@ class LineaCustomRepoTest {
 	Campo<String> campo3;
 	Linea linea;
 	Mono<Linea> mono;
+	Flux<Linea> flux;
+	
+	Linea l1;
+	Linea l2;
+	Linea l3;
+	Linea l4;
+	Linea l5;
+	Linea l6;
+	Linea l7;
+	Linea l8;
+	Linea l9;
 	
 	@BeforeEach
 	void setUp() {
@@ -72,6 +84,7 @@ class LineaCustomRepoTest {
 		
 		linea = new Linea();
 		linea.setCampos(campos);
+		linea.setPropuestaId("propA");
 		linea.setId(id);
 		linea.setNombre(name);
 		linea.setOrder(2);
@@ -95,6 +108,46 @@ class LineaCustomRepoTest {
 			})
 			.expectComplete()
 			.verify();
+		
+		l1 = new Linea();
+		l1.setPropuestaId("p1");
+		l2 = new Linea();
+		l2.setPropuestaId("p1");
+		l3 = new Linea();
+		l3.setPropuestaId("p2");
+		l4 = new Linea();
+		l4.setPropuestaId("p2");
+		l5 = new Linea();
+		l5.setPropuestaId("p3");
+		l6 = new Linea();
+		l6.setPropuestaId("p3");
+		l7 = new Linea();
+		l7.setPropuestaId("p4");
+		l8 = new Linea();
+		l8.setPropuestaId("p4");
+		l9 = new Linea();
+		l9.setPropuestaId("p5");
+		
+		List<Linea> list = Arrays.asList(l1, l2, l3, l4, l5, l6, l7, l8, l9);
+		repo.saveAll(list).blockLast();
+		
+		flux = repo.findAll();
+		
+		StepVerifier.create(flux)
+		.assertNext(line -> {
+			assertEquals(linea.getPropuestaId(), line.getPropuestaId());
+		})
+		.assertNext(l -> assertEquals(l1.getPropuestaId(), l.getPropuestaId()))
+		.assertNext(l -> assertEquals(l2.getPropuestaId(), l.getPropuestaId()))
+		.assertNext(l -> assertEquals(l3.getPropuestaId(), l.getPropuestaId()))
+		.assertNext(l -> assertEquals(l4.getPropuestaId(), l.getPropuestaId()))
+		.assertNext(l -> assertEquals(l5.getPropuestaId(), l.getPropuestaId()))
+		.assertNext(l -> assertEquals(l6.getPropuestaId(), l.getPropuestaId()))
+		.assertNext(l -> assertEquals(l7.getPropuestaId(), l.getPropuestaId()))
+		.assertNext(l -> assertEquals(l8.getPropuestaId(), l.getPropuestaId()))
+		.assertNext(l -> assertEquals(l9.getPropuestaId(), l.getPropuestaId()))
+		.expectComplete()
+		.verify();
 	}
 
 	@Test
@@ -608,6 +661,43 @@ class LineaCustomRepoTest {
 			assertEquals(3, resultado.getCantidadCampos());
 			assertEquals("new counter id", line.getCounterLineId());
 		})
+		.expectComplete()
+		.verify();
+	}
+	
+	@Test
+	void testDeleteSeveralLineasByPropuestaId() {
+		repo.deleteSeveralLineasByPropuestaId(l1.getPropuestaId()).block();
+		StepVerifier.create(flux)
+		.assertNext(line -> assertEquals(linea.getPropuestaId(), line.getPropuestaId()))
+		//.assertNext(l -> assertEquals(l1.getPropuestaId(), l.getPropuestaId()))
+		//.assertNext(l -> assertEquals(l2.getPropuestaId(), l.getPropuestaId()))
+		.assertNext(l -> assertEquals(l3.getPropuestaId(), l.getPropuestaId()))
+		.assertNext(l -> assertEquals(l4.getPropuestaId(), l.getPropuestaId()))
+		.assertNext(l -> assertEquals(l5.getPropuestaId(), l.getPropuestaId()))
+		.assertNext(l -> assertEquals(l6.getPropuestaId(), l.getPropuestaId()))
+		.assertNext(l -> assertEquals(l7.getPropuestaId(), l.getPropuestaId()))
+		.assertNext(l -> assertEquals(l8.getPropuestaId(), l.getPropuestaId()))
+		.assertNext(l -> assertEquals(l9.getPropuestaId(), l.getPropuestaId()))
+		.expectComplete()
+		.verify();
+	}
+	
+	@Test
+	void testDeleteSeveralLineasBySeveralPropuestaIds() {
+		// TODO
+		repo.deleteSeveralLineasBySeveralPropuestaIds(Arrays.asList(l1.getPropuestaId(), l3.getPropuestaId())).block();
+		StepVerifier.create(flux)
+		.assertNext(line -> assertEquals(linea.getPropuestaId(), line.getPropuestaId()))
+		//.assertNext(l -> assertEquals(l1.getPropuestaId(), l.getPropuestaId()))
+		//.assertNext(l -> assertEquals(l2.getPropuestaId(), l.getPropuestaId()))
+		//.assertNext(l -> assertEquals(l3.getPropuestaId(), l.getPropuestaId()))
+		//.assertNext(l -> assertEquals(l4.getPropuestaId(), l.getPropuestaId()))
+		.assertNext(l -> assertEquals(l5.getPropuestaId(), l.getPropuestaId()))
+		.assertNext(l -> assertEquals(l6.getPropuestaId(), l.getPropuestaId()))
+		.assertNext(l -> assertEquals(l7.getPropuestaId(), l.getPropuestaId()))
+		.assertNext(l -> assertEquals(l8.getPropuestaId(), l.getPropuestaId()))
+		.assertNext(l -> assertEquals(l9.getPropuestaId(), l.getPropuestaId()))
 		.expectComplete()
 		.verify();
 	}

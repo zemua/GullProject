@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Lineas de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Gull Project - Lineas de la propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1 th:text="${'Lineas de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Lineas de la propuesta</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/lineas/of/' + consulta.getPropuestaById(propuestaId).getId() + '/new'}">Crear nueva linea</a> - 
+			<a th:href="${'/consultas/revisar/id/' + consulta.id}">Volver</a>
+		</p>
+	</div>
+	
+	<div id="lineas-spreadsheet"></div>
+	
+	<div>
+		<table>
+			<tr>
+				<th>Nombre</th>
+				<th>Campos</th>
+				<th>Enlace</th>
+			</tr>
+			<tr th:each="a : ${lineas}">
+				<td th:text="${a.nombre}"></td>
+				<td th:text="${a.getCantidadCampos()}"></td>
+				<td><a th:href="@{'/lineas/revisar/id/' + ${a.id}}">revisar</a></td>
+			</tr>
+		</table>
+	</div>
+
+</body>
+</html>
