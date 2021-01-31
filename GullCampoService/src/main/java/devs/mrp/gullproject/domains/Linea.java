@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotBlank;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -17,8 +18,9 @@ import lombok.Data;
 public class Linea {
 
 	@Id
-	private String id;
+	private String id = new ObjectId().toString();
 	
+	@NotBlank(message = "Selecciona un nombre")
 	private String nombre;
 	
 	/**

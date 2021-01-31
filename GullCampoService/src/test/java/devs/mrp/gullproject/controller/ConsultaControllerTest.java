@@ -1,4 +1,4 @@
-package devs.mrp.gullproject.Controller;
+package devs.mrp.gullproject.controller;
 
 import static org.mockito.Mockito.when;
 
