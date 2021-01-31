@@ -685,7 +685,6 @@ class LineaCustomRepoTest {
 	
 	@Test
 	void testDeleteSeveralLineasBySeveralPropuestaIds() {
-		// TODO
 		repo.deleteSeveralLineasBySeveralPropuestaIds(Arrays.asList(l1.getPropuestaId(), l3.getPropuestaId())).block();
 		StepVerifier.create(flux)
 		.assertNext(line -> assertEquals(linea.getPropuestaId(), line.getPropuestaId()))

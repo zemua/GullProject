@@ -10,8 +10,6 @@ import devs.mrp.gullproject.service.CampoService;
 @RequestMapping(path = "/campos")
 public class CampoController {
 	
-	// TODO completas funcionalidad
-	
 	// creación de campo
 	// modificación de campo
 	// borrar campo

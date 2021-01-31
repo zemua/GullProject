@@ -57,7 +57,6 @@ public class LineaController {
 	
 	@PostMapping("/of/{propuestaId}/new")
 	public String processAddLineaToPropuesta(@Valid Linea linea, BindingResult bindingResult, Model model, @PathVariable(name ="propuestaId") String propuestaId) {
-		// TODO test
 		if(bindingResult.hasErrors()) {
 			model.addAttribute("propuesta", consultaService.findPropuestaByPropuestaId(propuestaId));
 			model.addAttribute("propuestaId", propuestaId);

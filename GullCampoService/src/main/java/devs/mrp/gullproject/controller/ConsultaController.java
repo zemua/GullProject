@@ -1,7 +1,5 @@
 package devs.mrp.gullproject.controller;
 
-import java.util.Arrays;
-
 import javax.validation.Valid;
 
 import org.bson.types.ObjectId;
@@ -11,7 +9,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +19,6 @@ import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaAbstracta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.domains.dto.ConsultaPropuestaBorrables;
-import devs.mrp.gullproject.domains.models.ConsultaRepresentationModel;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaService;
 import lombok.extern.slf4j.Slf4j;
@@ -33,8 +29,6 @@ import reactor.core.publisher.Mono;
 @Controller
 @RequestMapping(path = "/consultas")
 public class ConsultaController {
-	
-	// TODO completar todas las funcionalidades
 
 	ConsultaService consultaService;
 	LineaService lineaService;

@@ -1,6 +1,5 @@
 package devs.mrp.gullproject.controller;
 
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
 import org.assertj.core.api.Assertions;
@@ -21,7 +20,6 @@ import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
-import devs.mrp.gullproject.domains.PropuestaAbstracta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaService;
