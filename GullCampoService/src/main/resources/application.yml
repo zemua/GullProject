@@ -4,13 +4,11 @@ spring:
       base-path: /api
   application:
     name: campo-service
-  cloud:
-    loadbalancer:
-      ribbon:
-        enabled: false
 server:
   port: 0
 eureka:
+  instance:
+    hostname: localhost
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/

@@ -20,11 +20,6 @@ public interface AtributoServiceProxy {
 	
 	// TODO UTILIZAR WEBCLIENT EN LUGAR DE FEIGN!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	
-	// TODO load balancer
-	// TODO circuit breaker / hystrix
-	// TODO security
-	// TODO contract
-	
 	// añadir wrapper reactivo
 	// https://github.com/OpenFeign/feign/tree/master/reactive
 	
