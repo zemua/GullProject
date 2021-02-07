@@ -45,12 +45,33 @@ class AtributoServiceProxyWebClientTest {
 
 	@Test
 	void testValidateDataFormat() throws Exception {
-		String type = "STRING";
-		String data = "exampleData";
-		String wrongType = "INTEGER";
+		String type = "DESCRIPCION";
+		String data = "correct dataaaaaa";
 		Mono<Boolean> response;
 		
 		clientProperties.setAtributoServiceUrl("localhost:" + producerPort + "/");
+		
+		response = service.validateDataFormat(type, data);
+		StepVerifier.create(response)
+			.assertNext(cons -> {
+				assertEquals(true, cons);
+			})
+			.expectComplete()
+			.verify();
+		
+		type = "CANTIDAD";
+		data = "8569742";
+		
+		response = service.validateDataFormat(type, data);
+		StepVerifier.create(response)
+			.assertNext(cons -> {
+				assertEquals(true, cons);
+			})
+			.expectComplete()
+			.verify();
+		
+		type = "CANTIDAD";
+		data = "asdqwe";
 		
 		response = service.validateDataFormat(type, data);
 		StepVerifier.create(response)

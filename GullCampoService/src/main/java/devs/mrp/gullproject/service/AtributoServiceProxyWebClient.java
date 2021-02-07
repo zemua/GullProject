@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
 
 public class AtributoServiceProxyWebClient {
 	
-	// TODO test y contract
+	// TODO complete & test with contract
 	
 	WebClient.Builder webClientBuilder;
 	ClientProperties clientProperties;

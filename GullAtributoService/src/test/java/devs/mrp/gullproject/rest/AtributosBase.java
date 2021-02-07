@@ -24,8 +24,8 @@ import io.restassured.module.mockmvc.RestAssuredMockMvc;
 @AutoConfigureMessageVerifier
 public abstract class AtributosBase {
 
-	@Autowired
-	AtributoRestController atributoRestController;
+	/*@Autowired
+	AtributoRestController atributoRestController;*/
 	@LocalServerPort int port;
 	
 	@BeforeEach
