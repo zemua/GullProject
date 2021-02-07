@@ -15,12 +15,12 @@ import org.springframework.cloud.contract.spec.Contract
 		 method 'GET'
 		 urlPath('/api/atributos/data-validator') {
 		 	queryParameters{
-		 		parameter 'type': $(c(containing("[a-zA-Z]+")), p('abcd'))
+		 		parameter 'type': $(c(regex("[a-zA-Z]+")), p('abcd'))
 		 		parameter 'data': $(c(regex(nonBlank())), p('abcd123, asdfg.'))
 		 	}
 		 }
 		 headers {
-			 contentType('application/json')
+			 contentType('text/html')
 		 }
 	 }
 	 response {

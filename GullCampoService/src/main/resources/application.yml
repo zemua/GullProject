@@ -18,3 +18,4 @@ logging:
     devs.mrp.gullproject: DEBUG
     org.springframework.web: DEBUG
     org.springframework.test: DEBUG
+

@@ -14,12 +14,10 @@ import reactor.core.publisher.Mono;
 public class CampoService {	
 	
 	private CampoRepo campoRepo;
-	private AtributoServiceProxy atributoServiceProxy;
 	
 	@Autowired
-	public CampoService(CampoRepo campoRepo, AtributoServiceProxy atributoServiceProxy) {
+	public CampoService(CampoRepo campoRepo) {
 		this.campoRepo = campoRepo;
-		this.atributoServiceProxy = atributoServiceProxy;
 	}
 	
 	public Mono<Campo<?>> findById(String id) {
