@@ -1,42 +1,5 @@
 package devs.mrp.gullproject.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.reactive.ReactiveUserDetailsServiceAutoConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import devs.mrp.gullproject.domains.AtributoForCampo;
-import devs.mrp.gullproject.domains.StringWrapper;
-import reactivefeign.ReactiveOptions;
-import reactivefeign.spring.config.EnableReactiveFeignClients;
-import reactivefeign.spring.config.ReactiveFeignClient;
-import reactivefeign.webclient.WebReactiveOptions;
-import reactor.core.publisher.Flux;
-import reactor.test.StepVerifier;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.github.tomakehurst.wiremock.WireMockServer;
-
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-
 //import com.netflix.loadbalancer.Server;
 //import com.netflix.loadbalancer.ServerList;
 
@@ -50,10 +13,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
  * Siguiendo el test de ejemplo en:
  * https://github.com/Playtika/feign-reactive/blob/develop/feign-reactor-test/feign-reactor-spring-mvc-test/src/test/java/reactivefeign/spring/mvc/allfeatures/AllFeaturesMvcTest.java
  */
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = {AtributoServiceProxyTest.Application.class, AtributoServiceProxyTest.MockAtributoServiceProxy.class}, webEnvironment = WebEnvironment.NONE)
-@DirtiesContext
-@EnableAutoConfiguration(exclude = {ReactiveSecurityAutoConfiguration.class, ReactiveUserDetailsServiceAutoConfiguration.class})
+//@ExtendWith(SpringExtension.class)
+//@SpringBootTest(classes = {AtributoServiceProxyTest.Application.class, AtributoServiceProxyTest.MockAtributoServiceProxy.class}, webEnvironment = WebEnvironment.NONE)
+//@DirtiesContext
+//@EnableAutoConfiguration(exclude = {ReactiveSecurityAutoConfiguration.class, ReactiveUserDetailsServiceAutoConfiguration.class})
 class AtributoServiceProxyTest {
 	
 	/**
@@ -92,7 +55,7 @@ class AtributoServiceProxyTest {
 	 * https://github.com/Playtika/feign-reactive/blob/develop/feign-reactor-test/feign-reactor-spring-configuration-test/src/test/java/reactivefeign/spring/config/ReactiveFeignClientUsingConfigurationsTests.java
 	 */
 	
-	static final String MOCK_SERVER_PORT_PROPERTY = "mock.server.port";
+	/*static final String MOCK_SERVER_PORT_PROPERTY = "mock.server.port";
 	private static WireMockServer mockHttpServer = new WireMockServer(wireMockConfig().dynamicPort());
 	
 	@ReactiveFeignClient(name = "foo", url = "http://localhost:${" + MOCK_SERVER_PORT_PROPERTY + "}")
@@ -209,6 +172,6 @@ class AtributoServiceProxyTest {
 					.setConnectTimeoutMillis(5000)
 					.build();
 		}
-	}
+	}*/
 
 }

@@ -86,7 +86,7 @@
   			<artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
   			<version>2.2.6.RELEASE</version>
 		</dependency> -->
-		<dependency>
+		<!-- <dependency>
             <groupId>com.playtika.reactivefeign</groupId>
             <artifactId>feign-reactor-core</artifactId>
             <version>2.0.25</version>
@@ -116,17 +116,17 @@
     		<groupId>com.playtika.reactivefeign</groupId>
     		<artifactId>feign-reactor-spring-mvc-test</artifactId>
     		<version>2.0.25</version>
-		</dependency>
+		</dependency> -->
 		<!-- <dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-loadbalancer</artifactId>
 		</dependency> -->
-		<dependency>
+		<!-- <dependency>
     		<groupId>com.github.tomakehurst</groupId>
     		<artifactId>wiremock</artifactId>
     		<version>2.27.2</version>
     		<scope>test</scope>
-		</dependency>
+		</dependency> -->
 		
 		<!-- <dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -143,6 +143,36 @@
 			<artifactId>jackson-databind</artifactId>
 		</dependency> -->
 		
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-loadbalancer</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-contract-verifier</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-contract-dependencies -->
+		<dependency>
+    		<groupId>org.springframework.cloud</groupId>
+    		<artifactId>spring-cloud-contract-dependencies</artifactId>
+    		<version>3.0.1</version>
+    		<type>pom</type>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-contract-stub-runner</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+    		<groupId>org.springframework.cloud</groupId>
+    		<artifactId>spring-cloud-contract-wiremock</artifactId>
+    		<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<dependencyManagement>

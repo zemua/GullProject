@@ -1,5 +1,6 @@
 package devs.mrp.gullproject.rest;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import org.hamcrest.BaseMatcher;
@@ -76,20 +77,12 @@ class AtributoRestControllerByIdTest {
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody(String.class)
-			.value(new BaseMatcher<String>() {
-				
-				@Override
-				public boolean matches(Object actual) {
-					String s = actual.toString();
-					return s.contains("seal") &&
-							s.contains("idaleatoria") &&
-							s.contains("ATRIBUTO_TEXTO") &&
-							s.contains("/api/esto/es/un/link");
-				}
-
-				@Override
-				public void describeTo(Description description) {
-				}
+			.consumeWith(consumer -> {
+				String s = consumer.getResponseBody();
+				assertTrue(s.contains("seal"));
+				assertTrue(s.contains("idaleatoria"));
+				assertTrue(s.contains("DESCRIPCION"));
+				assertTrue(s.contains("/api/esto/es/un/link"));
 			});
 		
 	}

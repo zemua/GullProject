@@ -10,9 +10,9 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ActiveProfiles;
 //import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-@Configuration
-@SpringBootTest
-@ActiveProfiles("hackteoas")
+//@Configuration
+//@SpringBootTest
+//@ActiveProfiles("hackteoas")
 public class AtributoModelTestConfig {
 	
 	/**
@@ -21,10 +21,10 @@ public class AtributoModelTestConfig {
 	 * da problemas, por el momento, con reactor
 	 */
 
-	@Bean
+	/* @Bean
 	public AtributoRepresentationModelAssembler atributoRepresentationModelAssembler() {
 		return new AtributoRepresentationModelAssembler();
-	}
+	} */
 	
 	/*@Bean
 	public ServletUriComponentsBuilder servletUriComponentsBuilder() {

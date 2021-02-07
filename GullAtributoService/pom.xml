@@ -17,6 +17,7 @@
 	<properties>
 		<java.version>11</java.version>
 		<spring-cloud.version>2020.0.0-M5</spring-cloud.version>
+		<spring-cloud-contract.version>3.0.1</spring-cloud-contract.version>
 	</properties>
 
 	<dependencies>
@@ -105,6 +106,13 @@
     		<artifactId>spring-cloud-contract-maven-plugin</artifactId>
     		<scope>test</scope>
 		</dependency> -->
+		<!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-contract-dependencies -->
+		<!-- <dependency>
+    		<groupId>org.springframework.cloud</groupId>
+    		<artifactId>spring-cloud-contract-dependencies</artifactId>
+    		<version>3.0.1</version>
+    		<type>pom</type>
+		</dependency> -->
 	</dependencies>
 
 	<dependencyManagement>
@@ -138,16 +146,17 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
-			<!-- <plugin>
+			<plugin>
     			<groupId>org.springframework.cloud</groupId>
     			<artifactId>spring-cloud-contract-maven-plugin</artifactId>
+    			<version>${spring-cloud-contract.version}</version>
     			<extensions>true</extensions>
     			<configuration>
-        			<baseClassForTests>
-            			devs.mrp.gullproject.BaseTestClass
-        			</baseClassForTests>
+    				<testFramework>JUNIT5</testFramework>
+    				<testMode>EXPLICIT</testMode>
+        			<baseClassForTests>devs.mrp.gullproject.rest.AtributosBase</baseClassForTests>
     			</configuration>
-			</plugin> -->
+			</plugin>
 		</plugins>
 	</build>
 

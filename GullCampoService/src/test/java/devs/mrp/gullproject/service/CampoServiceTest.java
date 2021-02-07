@@ -43,14 +43,15 @@ class CampoServiceTest {
 		otro.setName("otroName");
 		otro.setTipo("otroTipo");
 		
-		when(asp.getAtributoForCampoById(ArgumentMatchers.anyString())).thenReturn(Mono.just(otro));
-		when(asp.getAtributoForCampoById(ArgumentMatchers.eq("idAtributo"))).thenReturn(Mono.just(afc));
+		// TODO implementar una vez hayamos pasado de reactiveFeign a WebClient
+		//when(asp.getAtributoForCampoById(ArgumentMatchers.anyString())).thenReturn(Mono.just(otro));
+		//when(asp.getAtributoForCampoById(ArgumentMatchers.eq("idAtributo"))).thenReturn(Mono.just(afc));
 		
 		Boolean t = true;
 		Boolean f = false;
 		
-		when(asp.validateDataFormat(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(Mono.just(f));
-		when(asp.validateDataFormat(ArgumentMatchers.eq("tipoAtributo"), ArgumentMatchers.eq("datos"))).thenReturn(Mono.just(t));
+		//when(asp.validateDataFormat(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(Mono.just(f));
+		//when(asp.validateDataFormat(ArgumentMatchers.eq("tipoAtributo"), ArgumentMatchers.eq("datos"))).thenReturn(Mono.just(t));
 		
 		Campo<String> campo = new Campo<>();
 		campo.setAtributoId("idAtributo");

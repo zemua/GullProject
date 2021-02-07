@@ -19,11 +19,11 @@ import devs.mrp.gullproject.domains.DataFormat;
 import devs.mrp.gullproject.domains.Tipo;
 import reactor.core.publisher.Flux;
 
-@ExtendWith(SpringExtension.class)
+/*@ExtendWith(SpringExtension.class)
 @EnableHypermediaSupport(type = { HypermediaType.HAL, HypermediaType.HAL_FORMS })
 @SpringBootTest
 @ContextConfiguration(classes = {AtributoModelTestConfig.class})
-@ActiveProfiles("hackteoas")
+@ActiveProfiles("hackteoas") */
 class AtributoRepresentationModelAssemblerTest {
 	
 	// cuando haces @Mock para insertarlo en la instancia a testear
@@ -31,7 +31,7 @@ class AtributoRepresentationModelAssemblerTest {
 	//MaterialRepresentationModelAssembler mrma;
 	
 	// cuando no tiene dependencias
-	@Autowired
+	/*@Autowired
 	AtributoRepresentationModelAssembler arma;
 	
 
@@ -57,7 +57,7 @@ class AtributoRepresentationModelAssemblerTest {
 		assertThat(mrm.getTipo()).isSameAs(m.getTipo());
 		assertThat(mrm.getLink("self").toString()).contains("/api/atributos/id/" + m.getId());
 
-	}
+	}*/
 
 }
                  
