@@ -31,7 +31,7 @@ public class Atributo {
 	 * se deben escoger de un dropdown
 	 * o si deben ser escritos por el usuario
 	 */
-	private boolean valoresFijos;
+	private boolean valoresFijos = false;
 	
 	List<String> valoresPredefinidos = new ArrayList<>();
 

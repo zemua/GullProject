@@ -37,7 +37,6 @@ public class AtributoRestController {
 	public Flux<AtributoRepresentationModel> getAllAtributos() {
 		Flux<Atributo> atributos = atributoService.findAll();
 		Flux<AtributoRepresentationModel> arm = atributos.map(e -> arma.toModel(e));
-		
 		return arm;
 	}
 	
@@ -55,5 +54,7 @@ public class AtributoRestController {
 			.map(df -> new StringWrapper(df.toString()));
 		return flux;
 	}
+	
+	// TODO make endpoint and test for getting the data type of a given format
 	
 }

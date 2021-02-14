@@ -2,9 +2,11 @@ package devs.mrp.gullproject.domains;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class StringWrapper {
 	/**
 	 * Para evitar marshalling y demarhsalling los String de JSON manualmente
