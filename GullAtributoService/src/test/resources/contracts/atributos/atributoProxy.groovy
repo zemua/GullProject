@@ -193,7 +193,7 @@ import org.springframework.cloud.contract.spec.Contract
 	 }
  },
      Contract.make {
-	 name("should get all format types")
+	 name("should get all formats")
 	 // You can give a description of the use case that the contract represents
 	 description('''
 		 given:
@@ -201,7 +201,7 @@ import org.springframework.cloud.contract.spec.Contract
 		 when:
 		 A request is made
 		 then:
-		 All are returned in a Flux
+		 All are returned in a list of strings
 	 ''')
 	 request {
 		 method 'GET'
@@ -220,6 +220,64 @@ import org.springframework.cloud.contract.spec.Contract
 		 	[string: 'PVP'],
 		 	[string: 'PLAZO']
 		 ])
+		 headers {
+			 contentType('application/json')
+		 }
+	 }
+ },
+     Contract.make {
+	 name("should get string class type of description format")
+	 // You can give a description of the use case that the contract represents
+	 description('''
+		 given:
+		 The formats specified in DataFormat
+		 when:
+		 A request is made against an existing DataFormat
+		 then:
+		 Class type is returned
+	 ''')
+	 request {
+		 method 'GET'
+		 //urlPath $(c(regex('/api/atributos/typeofformat/([A-Z]+)')), p('/api/atributos/typeofformat/DESCRIPCION'))
+		 urlPath ('/api/atributos/typeofformat/DESCRIPCION')
+		 headers {
+			 contentType('text/html')
+		 }
+	 }
+	 response {
+		 status 200
+		 body (
+		 	$(p('String'))
+		 )
+		 headers {
+			 contentType('application/json')
+		 }
+	 }
+ },
+     Contract.make {
+	 name("should get integer class type of cantidad format")
+	 // You can give a description of the use case that the contract represents
+	 description('''
+		 given:
+		 The formats specified in DataFormat
+		 when:
+		 A request is made against an existing DataFormat
+		 then:
+		 Class type is returned
+	 ''')
+	 request {
+		 method 'GET'
+		 //urlPath $(c(regex('/api/atributos/typeofformat/([A-Z]+)')), p('/api/atributos/typeofformat/CANTIDAD'))
+		 urlPath ('/api/atributos/typeofformat/CANTIDAD')
+		 headers {
+			 contentType('text/html')
+		 }
+	 }
+	 response {
+		 status 200
+		 body (
+		 	$(p('Integer'))
+		 )
 		 headers {
 			 contentType('application/json')
 		 }

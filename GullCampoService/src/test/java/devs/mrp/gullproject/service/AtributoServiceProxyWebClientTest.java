@@ -141,5 +141,22 @@ class AtributoServiceProxyWebClientTest {
 			.expectComplete()
 			.verify();
 	}
+	
+	@Test
+	void testGetClassTypeOfFormat() {
+		Mono <String> response;
+		
+		response = service.getClassTypeOfFormat("DESCRIPCION");
+		StepVerifier.create(response)
+			.assertNext(r -> assertEquals("String", r))
+			.expectComplete()
+			.verify();
+		
+		response = service.getClassTypeOfFormat("CANTIDAD");
+		StepVerifier.create(response)
+			.assertNext(r -> assertEquals("Integer", r))
+			.expectComplete()
+			.verify();
+	}
 
 }

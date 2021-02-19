@@ -57,6 +57,11 @@ public class AtributoServiceProxyWebClient {
 				.retrieve().bodyToFlux(StringWrapper.class);
 	}
 	
-	// TODO call to get the data type that needs to be used for a DataFormat
+	public Mono<String> getClassTypeOfFormat(String format){
+		return webClientBuilder.build().get()
+				.uri(clientProperties.getAtributoServiceUrl().concat("api/atributos/typeofformat/").concat(format))
+				.header("Content-Type", "text/html")
+				.retrieve().bodyToMono(String.class);
+	}
 	
 }

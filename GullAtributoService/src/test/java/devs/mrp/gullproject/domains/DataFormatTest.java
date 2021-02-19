@@ -10,22 +10,22 @@ class DataFormatTest {
 	void testGetTipo() {
 		
 		DataFormat df = DataFormat.CANTIDAD;
-		assertEquals(Integer.class, df.getTipo());
+		assertEquals("Integer", df.getTipo());
 		
 		df = DataFormat.COSTE;
-		assertEquals(Double.class, df.getTipo());
+		assertEquals("Double", df.getTipo());
 		
 		df = DataFormat.DESCRIPCION;
-		assertEquals(String.class, df.getTipo());
+		assertEquals("String", df.getTipo());
 		
 		df = DataFormat.MARGEN;
-		assertEquals(Float.class, df.getTipo());
+		assertEquals("Float", df.getTipo());
 		
 		df = DataFormat.PLAZO;
-		assertEquals(Long.class, df.getTipo());
+		assertEquals("Long", df.getTipo());
 		
 		df = DataFormat.PVP;
-		assertEquals(Double.class, df.getTipo());
+		assertEquals("Double", df.getTipo());
 		
 	}
 	

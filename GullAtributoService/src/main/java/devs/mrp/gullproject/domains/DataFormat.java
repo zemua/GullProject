@@ -13,8 +13,8 @@ public enum DataFormat {
 		this.clase = clase;
 	}
 	
-	public Class<?> getTipo() {
-		return this.clase;
+	public String getTipo() {
+		return this.clase.getSimpleName();
 	}
 	
 	public boolean checkIfValidValue(String s) {
@@ -28,6 +28,8 @@ public enum DataFormat {
 			return checkIfDouble(s);
 		} else if (clase.equals(Float.class)) {
 			return checkIfFloat(s);
+		} else if (clase.equals(Boolean.class)) {
+			return checkIfBoolean(s);
 		}
 		return false;
 	}
@@ -39,7 +41,7 @@ public enum DataFormat {
 			b = true;
 		}
 		 catch (Exception e) {
-			log.debug("se ha pasado un valor incorrecto cuando debía ser un int");
+			log.debug("Incorrect value passed when it should be an integer");
 			e.printStackTrace();
 			b = false;
 		}
@@ -53,7 +55,7 @@ public enum DataFormat {
 			b = true;
 		}
 		 catch (Exception e) {
-			log.debug("se ha pasado un valor incorrecto cuando debía ser un long");
+			log.debug("Incorrect value passed when it should be a long");
 			e.printStackTrace();
 			b = false;
 		}
@@ -67,7 +69,7 @@ public enum DataFormat {
 			b = true;
 		}
 		catch (Exception e) {
-			log.debug("Se ha pasado un valor incorrecto cuando debía ser un double");
+			log.debug("Incorrect value passed when it should be a double");
 			e.printStackTrace();
 			b = false;
 		}
@@ -81,7 +83,21 @@ public enum DataFormat {
 			b = true;
 		}
 		catch (Exception e) {
-			log.debug("Se ha pasado un valor incorrecto cuando debía ser un float");
+			log.debug("Incorrect value passed when it should be a float");
+			e.printStackTrace();
+			b = false;
+		}
+		return b;
+	}
+	
+	private boolean checkIfBoolean(String s) {
+		boolean b = false;
+		try {
+			Boolean d = Boolean.parseBoolean(s);
+			b = true;
+		}
+		catch (Exception e) {
+			log.debug("Incorrect value passed when it should be a boolean");
 			e.printStackTrace();
 			b = false;
 		}
