@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
+import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaAbstracta;
@@ -29,6 +30,8 @@ import reactor.core.publisher.Mono;
 @Controller
 @RequestMapping(path = "/consultas")
 public class ConsultaController {
+	
+	// TODO add/remove/order attribute columns into proposal
 
 	ConsultaService consultaService;
 	LineaService lineaService;
@@ -78,7 +81,7 @@ public class ConsultaController {
 	@GetMapping("/revisar/id/{id}/addpropuesta")
 	public String addPropuestaToId(Model model, @PathVariable(name= "id") String id) {
 		model.addAttribute("consultaId", id);
-		model.addAttribute("propuestaCliente", new PropuestaAbstracta() {});
+		model.addAttribute("propuestaCliente", new PropuestaCliente() {});
 		/** 
 		 * here by default we add an inquiry from the customer first of all, when there are no any inquiry in the database
 		 * our proposals and the offers received from the suppliers, will be added from the customer's inquiry view
@@ -168,6 +171,16 @@ public class ConsultaController {
 		model.addAttribute("lineasBorradas", lineas);
 		
 		return "processDeletePropuestaById";
+	}
+	
+	@GetMapping("/attof/propid/{id}")
+	public String showAttributesOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
+		model.addAttribute("propuestaId", proposalId);
+		Flux<AtributoForCampo> afc = consultaService.findAttributesByPropuestaId(proposalId);
+		model.addAttribute("attributes", new ReactiveDataDriverContextVariable(afc, 1));
+		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(proposalId);
+		model.addAttribute("consulta", consulta);
+		return "showAttributesOfProposal";
 	}
 	
 }

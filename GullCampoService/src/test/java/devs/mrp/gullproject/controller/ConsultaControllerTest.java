@@ -24,10 +24,12 @@ import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 
 import devs.mrp.gullproject.controller.ConsultaController;
+import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaAbstracta;
+import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaService;
 import reactor.core.publisher.Flux;
@@ -65,8 +67,27 @@ class ConsultaControllerTest {
 	Linea linea3;
 	Linea linea4;
 	
+	AtributoForCampo att1;
+	AtributoForCampo att2;
+	AtributoForCampo att3;
+	
 	@BeforeEach
 	void init() {
+		
+		att1 = new AtributoForCampo();
+		att1.setId("idAtt1");
+		att1.setName("nameAtt1");
+		att1.setTipo("tipoAtt1");
+		
+		att2 = new AtributoForCampo();
+		att2.setId("idAtt2");
+		att2.setName("nameAtt2");
+		att2.setTipo("tipoAtt2");
+		
+		att3 = new AtributoForCampo();
+		att3.setId("idAtt3");
+		att3.setName("nameAtt3");
+		att3.setTipo("tipoAtt3");
 		
 		linea1 = new Linea();
 		linea1.setNombre("l1");
@@ -77,12 +98,14 @@ class ConsultaControllerTest {
 		linea4 = new Linea();
 		linea4.setNombre("l4");
 		
-		prop1 = new PropuestaAbstracta() {};
+		prop1 = new PropuestaCliente() {};
 		prop1.addLineaId("linea1");
 		prop1.addLineaId("linea2");
+		prop1.addAttribute(att1);
+		prop1.addAttribute(att2);
 		prop1.setNombre("propuesta 1");
 		
-		prop2 = new PropuestaAbstracta() {};
+		prop2 = new PropuestaCliente() {};
 		prop2.addLineaId("linea3");
 		prop2.setNombre("propuesta 2");
 		
@@ -93,7 +116,7 @@ class ConsultaControllerTest {
 		consulta1.addPropuesta(prop1);
 		consulta1.addPropuesta(prop2);
 		
-		prop3 = new PropuestaAbstracta() {};
+		prop3 = new PropuestaCliente() {};
 		prop3.addLineaId(linea4.getId());
 		prop3.setNombre("propuesta 3");
 		
@@ -260,11 +283,11 @@ class ConsultaControllerTest {
 	@Test
 	void testReviewConsultaById() throws Exception {
 		
-		PropuestaAbstracta prop1 = new PropuestaAbstracta() {};
+		PropuestaAbstracta prop1 = new PropuestaCliente() {};
 		prop1.addLineaId("linea1");
 		prop1.addLineaId("linea2");
 		prop1.setNombre("propuesta 1");
-		PropuestaAbstracta prop2 = new PropuestaAbstracta() {};
+		PropuestaAbstracta prop2 = new PropuestaCliente() {};
 		prop2.addLineaId("linea3");
 		prop2.setNombre("propuesta 2");
 		
@@ -299,7 +322,8 @@ class ConsultaControllerTest {
 						.contains("Creado")
 						.contains("Editado")
 						.contains("Nombre Propuesta")
-						.contains("Cantidad de Lineas")
+						.contains("Lineas")
+						.contains("Atributos")
 						.contains("consulta 1")
 						.contains("estado 1")
 						.contains("propuesta 1")
@@ -320,7 +344,7 @@ class ConsultaControllerTest {
 					.contains("Creado")
 					.contains("Editado")
 					.contains("Nombre Propuesta")
-					.contains("Cantidad de Lineas")
+					.contains("Lineas")
 					.contains("consulta 2")
 					.contains("estado 2")
 					.doesNotContain("propuesta 1")
@@ -515,6 +539,35 @@ class ConsultaControllerTest {
 						.contains("2 lineas borradas")
 						.contains("Volver");
 			});
+	}
+	
+	@Test
+	void testShowAttributesOfProposal() {
+		
+		when(consultaService.findConsultaByPropuestaId(prop1.getId())).thenReturn(Mono.just(consulta1));
+		when(consultaService.findAttributesByPropuestaId(prop1.getId())).thenReturn(Flux.fromIterable(consulta1.getPropuestaById(prop1.getId()).getAttributeColumns()));
+		
+		webTestClient.get()
+		.uri("/consultas/attof/propid/"+consulta1.getPropuestaById(prop1.getId()).getId())
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Atributos de la propuesta")
+					.contains("Añadir atributo")
+					.contains("Nombre")
+					.contains("Tipo")
+					.contains("Eliminar")
+					.contains(prop1.getNombre())
+					.contains(prop1.getAttributeColumns().get(0).getName())
+					.contains(prop1.getAttributeColumns().get(0).getTipo())
+					.contains(prop1.getAttributeColumns().get(1).getName())
+					.contains(prop1.getAttributeColumns().get(1).getTipo())
+					.contains("Volver");
+		});
+		
 	}
 
 }

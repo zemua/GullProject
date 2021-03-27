@@ -3,6 +3,7 @@ package devs.mrp.gullproject.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.repository.ConsultaRepo;
@@ -58,5 +59,10 @@ public class ConsultaService {
 	
 	public Mono<Consulta> findConsultaByPropuestaId(String propuestaId) {
 		return consultaRepo.findByPropuestaId(propuestaId);
+	}
+	
+	public Flux<AtributoForCampo> findAttributesByPropuestaId(String propuestaId) {
+		Flux<AtributoForCampo> flux = findPropuestaByPropuestaId(propuestaId).flatMapMany(prop -> Flux.fromIterable(prop.getAttributeColumns()));
+		return flux;
 	}
 }

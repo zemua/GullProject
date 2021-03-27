@@ -9,11 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.repository.ConsultaRepo;
 import devs.mrp.gullproject.repository.CustomConsultaRepo;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -37,12 +39,27 @@ class ConsultaServiceTest {
 	Propuesta propuesta1;
 	Propuesta propuesta2;
 	Mono<Consulta> mono;
+	AtributoForCampo att1;
+	AtributoForCampo att2;
 	
 	@BeforeEach
 	void init() {
 		consulta = new Consulta();
 		propuesta1 = new PropuestaCliente();
 		propuesta2 = new PropuestaCliente();
+		
+		att1 = new AtributoForCampo();
+		att1.setId("id1");
+		att1.setName("name1");
+		att1.setTipo("tipo1");
+		
+		att2 = new AtributoForCampo();
+		att2.setId("id2");
+		att2.setName("name2");
+		att2.setTipo("tipo2");
+		
+		propuesta1.addAttribute(att1);
+		propuesta1.addAttribute(att2);
 		
 		consulta.addPropuesta(propuesta1);
 		consulta.addPropuesta(propuesta2);
@@ -54,6 +71,7 @@ class ConsultaServiceTest {
 		StepVerifier.create(mono)
 			.assertNext(cons -> {
 				assertEquals(2, cons.getCantidadPropuestas());
+				assertEquals(2, cons.getPropuestaByIndex(0).getAttributeColumns().size());
 			})
 			.expectComplete()
 			.verify();
@@ -85,6 +103,23 @@ class ConsultaServiceTest {
 		})
 		.expectComplete()
 		.verify();
+	}
+	
+	@Test
+	void testFindAttributesByPropuestaId() {
+		
+		Flux<AtributoForCampo> flux = consultaService.findAttributesByPropuestaId(propuesta1.getId());
+		
+		StepVerifier.create(flux)
+		.assertNext(att -> {
+			assertEquals(att, att1);
+		})
+		.assertNext(att -> {
+			assertEquals(att, att2);
+		})
+		.expectComplete()
+		.verify();
+		
 	}
 
 }

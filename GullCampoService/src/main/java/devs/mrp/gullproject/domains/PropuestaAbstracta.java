@@ -22,10 +22,14 @@ public abstract class PropuestaAbstracta implements Propuesta {
 	@NotBlank(message = "Selecciona un nombre")
 	String nombre;
 	
+	/**
+	 * parentId refers to the "previous version" of this proposal
+	 */
 	String parentId;
 	
 	List<String> lineaIds = new ArrayList<>();
-	List<String> atributoIds = new ArrayList<>();
+	//List<String> atributoIds = new ArrayList<>();
+	List<AtributoForCampo> attributeColumns = new ArrayList<>();
 	
 	/*public enum TipoPropuesta {
 		Client("Consulta de cliente"), Supplier ("Oferta de un proveedor"), Ours ("Nuestra propuesta para el cliente");
@@ -40,20 +44,10 @@ public abstract class PropuestaAbstracta implements Propuesta {
 	}*/
 
 	@Override
-	public boolean isRoot() {
-		/*if (tipoPropuesta.equals(TipoPropuesta.Client)) {
-			return true;
-		}*/
-		return false;
-	};
+	public abstract boolean isRoot();
 
 	@Override
-	public boolean isForBid() {
-		/*if (tipoPropuesta.equals(TipoPropuesta.Ours)) {
-			return true;
-		}*/
-		return false;
-	};
+	public abstract boolean isForBid();
 
 	@Override
 	public void addLineaId(String lineaId) {
@@ -108,5 +102,35 @@ public abstract class PropuestaAbstracta implements Propuesta {
 	@Override
 	public boolean updateLineaIdByIndex(int index, String lineaId) {
 		return lineaIds.set(index, lineaId) != null;
+	}
+	
+	public void setAttributeColumns(List<AtributoForCampo> attributes) {
+		attributeColumns = attributes;
+	}
+	
+	public List<AtributoForCampo> getAttributeColumns(){
+		return attributeColumns;
+	}
+	
+	@Override
+	public void addAttribute(AtributoForCampo att) {
+		attributeColumns.add(att);
+	}
+	
+	@Override
+	public void removeAttribute(AtributoForCampo att) {
+		attributeColumns.remove(att);
+	}
+	
+	@Override
+	public void removeAttributeById(String id) {
+		ListIterator<AtributoForCampo> it = attributeColumns.listIterator();
+		while (it.hasNext()) {
+			AtributoForCampo at = it.next();
+			if (at.getId().equals(id)) {
+				it.remove();
+				break;
+			}
+		}
 	}
 }

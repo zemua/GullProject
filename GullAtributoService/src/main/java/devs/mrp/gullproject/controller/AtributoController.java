@@ -23,6 +23,8 @@ import reactor.core.publisher.Mono;
 public class AtributoController {
 	
 	// falta añadir handler para situaciones de error como cuando el "id" de la url no existe en db
+	
+	// TODO create value maps for atributes that will have defined values, like the DN or the rating of the valves
 
 	AtributoService atributoService;
 	
@@ -63,6 +65,7 @@ public class AtributoController {
 		return "mostrarAtributos";
 	}
 	
+	// TODO no permitir modificar el class type de los atributos, por datos existentes
 	@GetMapping("/editar/id/{id}")
 	public String editarAtributo(Model model, @PathVariable(name = "id") String id) {
 		

@@ -1,5 +1,8 @@
 package devs.mrp.gullproject.repository;
 
+import java.util.List;
+
+import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Propuesta;
 import reactor.core.publisher.Flux;
@@ -34,5 +37,11 @@ public interface CustomConsultaRepo {
 	public Mono<Consulta> removeLineaEnPropuesta(String idConsulta, String idPropuesta, String idLinea);
 	
 	public Mono<Consulta> updateStatus(String idConsulta, String status);
+	
+	public Mono<Consulta> addAttributeToList(String idPropuesta, AtributoForCampo attribute);
+	
+	public Mono<Consulta> removeAttributeFromList(String idPropuesta, AtributoForCampo attribute);
+	
+	public Mono<Consulta> updateAttributesOfPropuesta(String idPropuesta, List<AtributoForCampo> attributes);
 	
 }

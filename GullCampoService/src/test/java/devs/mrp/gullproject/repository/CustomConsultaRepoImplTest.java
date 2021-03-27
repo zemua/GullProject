@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
@@ -43,6 +44,9 @@ class CustomConsultaRepoImplTest {
 	Consulta consulta;
 	Propuesta propuesta1;
 	Propuesta propuesta2;
+	AtributoForCampo atributo1;
+	AtributoForCampo atributo2;
+	AtributoForCampo atributo3;
 	Linea linea1;
 	Linea linea2;
 	Linea linea3;
@@ -61,6 +65,21 @@ class CustomConsultaRepoImplTest {
 	void inicializacion() {
 		
 		repo.deleteAll().block();
+		
+		atributo1 = new AtributoForCampo();
+		atributo1.setId("atributo1id");
+		atributo1.setName("atributo1name");
+		atributo1.setTipo("atributo1tipo");
+		
+		atributo2 = new AtributoForCampo();
+		atributo2.setId("atributo2id");
+		atributo2.setName("atributo2name");
+		atributo2.setTipo("atributo2tipo");
+		
+		atributo3 = new AtributoForCampo();
+		atributo3.setId("atributo3id");
+		atributo3.setName("atributo3name");
+		atributo3.setTipo("atributo3tipo");
 		
 		
 		List<Campo<?>> campos1 = new ArrayList<>();
@@ -105,6 +124,8 @@ class CustomConsultaRepoImplTest {
 		propuesta1.setNombre("nombre propuesta 1");
 		propuesta1.addLineaId(linea1.getId());
 		propuesta1.addLineaId(linea2.getId());
+		propuesta1.addAttribute(atributo1);
+		propuesta1.addAttribute(atributo2);
 		
 		
 		/**
@@ -153,6 +174,8 @@ class CustomConsultaRepoImplTest {
 		propuesta2.setNombre("nombre propuesta 2");
 		propuesta2.addLineaId(linea3.getId());
 		propuesta2.addLineaId(linea4.getId());
+		propuesta2.addAttribute(atributo2);
+		propuesta2.addAttribute(atributo3);
 		
 		/**
 		 * Arrejuntando todo
@@ -185,10 +208,16 @@ class CustomConsultaRepoImplTest {
 			assertEquals("nombre propuesta 1", cons.getPropuestaByIndex(0).getNombre());
 			assertEquals("linea 1 id", cons.getPropuestaByIndex(0).getLineaIdByIndex(0));
 			assertEquals("linea 2 id", cons.getPropuestaByIndex(0).getLineaIdByIndex(1));
+			assertEquals(atributo1, cons.getPropuestaByIndex(0).getAttributeColumns().get(0));
+			assertEquals(atributo2, cons.getPropuestaByIndex(0).getAttributeColumns().get(1));
+			assertEquals(2, cons.getPropuestaByIndex(0).getAttributeColumns().size());
 			assertEquals(propuesta2, cons.getPropuestaByIndex(1));
 			assertEquals("nombre propuesta 2", cons.getPropuestaByIndex(1).getNombre());
 			assertEquals("linea 3 id", cons.getPropuestaByIndex(1).getLineaIdByIndex(0));
 			assertEquals("linea 4 id", cons.getPropuestaByIndex(1).getLineaIdByIndex(1));
+			assertEquals(atributo2, cons.getPropuestaByIndex(1).getAttributeColumns().get(0));
+			assertEquals(atributo3, cons.getPropuestaByIndex(1).getAttributeColumns().get(1));
+			assertEquals(2, cons.getPropuestaByIndex(1).getAttributeColumns().size());
 		})
 		.expectComplete()
 		.verify();
@@ -607,6 +636,44 @@ class CustomConsultaRepoImplTest {
 		})
 		.expectComplete()
 		.verify();
+	}
+	
+	@Test
+	void testAddAttributeToList() {
+		repo.addAttributeToList(propuesta1.getId(), atributo3).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals(3, cons.getPropuestaById(propuesta1.getId()).getAttributeColumns().size());
+			assertEquals(atributo3, cons.getPropuestaById(propuesta1.getId()).getAttributeColumns().get(2));
+		});
+	}
+	
+	@Test
+	void testRemoveAttributeFromList() {
+		repo.removeAttributeFromList(propuesta1.getId(), atributo1).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals(1, cons.getPropuestaById(propuesta1.getId()).getAttributeColumns().size());
+			assertEquals(atributo2, cons.getPropuestaById(propuesta1.getId()).getAttributeColumns().get(0));
+		});
+	}
+	
+	@Test
+	void testUpdateAttributesOfPropuesta() {
+		List<AtributoForCampo> nlist = new ArrayList<>();
+		nlist.add(atributo2);
+		nlist.add(atributo3);
+		
+		repo.updateAttributesOfPropuesta(propuesta1.getId(), nlist).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals(2, cons.getPropuestaById(propuesta1.getId()).getAttributeColumns().size());
+			assertEquals(atributo2, cons.getPropuestaById(propuesta1.getId()).getAttributeColumns().get(0));
+			assertEquals(atributo3, cons.getPropuestaById(propuesta1.getId()).getAttributeColumns().get(1));
+		});
 	}
 
 }

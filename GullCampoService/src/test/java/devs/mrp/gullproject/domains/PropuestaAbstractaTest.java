@@ -29,13 +29,24 @@ class PropuestaAbstractaTest {
 	
 	PropuestaAbstracta propuesta;
 	
+	Campo<String> c1;
+	Campo<Integer> c2;
+	Campo<String> c3;
+	Campo<Integer> c4;
+	Campo<String> c5;
+	Campo<Integer> c6;
+	
+	AtributoForCampo att1;
+	AtributoForCampo att2;
+	AtributoForCampo att3;
+	
 	@BeforeEach
 	void inicializar() {
-		Campo<String> c1 = new Campo<>();
+		c1 = new Campo<>();
 		c1.setAtributoId("a1");
 		c1.setDatos("datos1");
 		c1.setId(new ObjectId().toString());
-		Campo<Integer> c2 = new Campo<>();
+		c2 = new Campo<>();
 		c2.setAtributoId("a2");
 		c2.setDatos(123);
 		c2.setId(new ObjectId().toString());
@@ -47,11 +58,11 @@ class PropuestaAbstractaTest {
 		l1.setId("l1id");
 		l1.setNombre("nombre linea 1");
 		
-		Campo<String> c3 = new Campo<>();
+		c3 = new Campo<>();
 		c3.setAtributoId("a1");
 		c3.setDatos("datos1");
 		c3.setId(new ObjectId().toString());
-		Campo<Integer> c4 = new Campo<>();
+		c4 = new Campo<>();
 		c4.setAtributoId("a2");
 		c4.setDatos(123);
 		c4.setId(new ObjectId().toString());
@@ -70,11 +81,11 @@ class PropuestaAbstractaTest {
 		propuesta = new PropuestaCliente();
 		propuesta.setLineaIds(lineas);
 		
-		Campo<String> c5 = new Campo<>();
+		c5 = new Campo<>();
 		c5.setAtributoId("a1");
 		c5.setDatos("datos2");
 		c5.setId(new ObjectId().toString());
-		Campo<Integer> c6 = new Campo<>();
+		c6 = new Campo<>();
 		c6.setAtributoId("a2");
 		c6.setDatos(321);
 		c6.setId(new ObjectId().toString());
@@ -93,6 +104,30 @@ class PropuestaAbstractaTest {
 		l4.setCampos(campos4);
 		l4.setId("l4id");
 		l4.setNombre("nombre linea 4");
+		
+		att1 = new AtributoForCampo();
+		att1.setId("a1");
+		att1.setName("nameAtt1");
+		att1.setTipo("DESCRIPCION");
+		
+		att2 = new AtributoForCampo();
+		att2.setId("a2");
+		att2.setName("nameAtt2");
+		att2.setTipo("CANTIDAD");
+		
+		att3 = new AtributoForCampo();
+		att3.setId("a3");
+		att3.setName("nameAtt3");
+		att3.setTipo("RANDOM");
+		
+		assertEquals(2, propuesta.getCantidadLineaIds());
+		assertEquals(0, propuesta.getAttributeColumns().size());
+		propuesta.addAttribute(att1);
+		assertEquals(1, propuesta.getAttributeColumns().size());
+		propuesta.addAttribute(att2);
+		assertEquals(2, propuesta.getAttributeColumns().size());
+		assertEquals(att1, propuesta.getAttributeColumns().get(0));
+		assertEquals(att2, propuesta.getAttributeColumns().get(1));
 	}
 
 	@Test
@@ -204,6 +239,27 @@ class PropuestaAbstractaTest {
 		
 		assertFalse(Propuesta.assertMatchesCamposEstricto(l1, map));
 		assertFalse(Propuesta.assertMatchesCamposEstricto(l2, map));
+	}
+	
+	@Test
+	void testAddAttribute() {
+		propuesta.addAttribute(att3);
+		assertEquals(3, propuesta.getAttributeColumns().size());
+		assertEquals(att3, propuesta.getAttributeColumns().get(2));
+	}
+	
+	@Test
+	void testRemoveAttribute() {
+		propuesta.removeAttribute(att2);
+		assertEquals(1, propuesta.getAttributeColumns().size());
+		assertEquals(att1, propuesta.getAttributeColumns().get(0));
+	}
+	
+	@Test
+	void testRemoveAttributeById() {
+		propuesta.removeAttributeById(att1.getId());
+		assertEquals(1, propuesta.getAttributeColumns().size());
+		assertEquals(att2, propuesta.getAttributeColumns().get(0));
 	}
 
 }

@@ -14,10 +14,12 @@ import reactor.core.publisher.Mono;
 public class CampoService {	
 	
 	private CampoRepo campoRepo;
+	private AtributoServiceProxyWebClient proxy;
 	
 	@Autowired
-	public CampoService(CampoRepo campoRepo) {
+	public CampoService(CampoRepo campoRepo, AtributoServiceProxyWebClient proxy) {
 		this.campoRepo = campoRepo;
+		this.proxy = proxy;
 	}
 	
 	public Mono<Campo<?>> findById(String id) {
@@ -29,11 +31,9 @@ public class CampoService {
 	}
 	
 	public Mono<Boolean> validateDataFormat(Campo<?> campo) {
-		// TODO implementar una vez hayamos cambiado a WebClient en lugar de reactiveFeign
-		/*Mono<Boolean> afc = atributoServiceProxy
+		Mono<Boolean> afc = proxy
 				.getAtributoForCampoById(campo.getAtributoId())
-				.flatMap(m -> atributoServiceProxy.validateDataFormat(m.getTipo(), campo.getDatos().toString()));*/
-				Mono<Boolean> afc = Mono.just(false);
+				.flatMap(m -> proxy.validateDataFormat(m.getTipo(), campo.getDatos().toString()));
 		return afc;
 	}
 	

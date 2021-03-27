@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Atributos de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Gull Project - Atributos de la propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1 th:text="${'Atributos de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Atributos de la propuesta</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/attof/propid/' + consulta.getPropuestaById(propuestaId).getId() + '/new'}">Añadir atributo</a> - 
+			<a th:href="${'/consultas/revisar/id/' + consulta.id}">Volver</a>
+		</p>
+	</div>
+	
+	<div id="attributes-spreadsheet"></div>
+	
+	<div>
+		<table>
+			<tr>
+				<th>Nombre</th>
+				<th>Tipo</th>
+				<th>Eliminar</th>
+			</tr>
+			<tr th:each="a : ${attributes}">
+				<td th:text="${a.name}"></td>
+				<td th:text="${a.tipo}"></td>
+				<td><a th:href="@{'/attof/propid/' + ${propuestaId} + '/delattid/' + ${a.localIdentifier}}">eliminar</a></td>
+			</tr>
+		</table>
+	</div>
+
+</body>
+</html>

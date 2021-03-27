@@ -55,7 +55,6 @@ public class AtributoRestController {
 		return flux;
 	}
 	
-	// TODO test
 	@GetMapping(path = "/typeofformat/{format}")
 	public Mono<String> getTypeOfGivenFormat(@PathVariable(value = "format") String format){
 		// beware of exceptions being thrown here if the String is not a valid value for the enum
@@ -64,7 +63,7 @@ public class AtributoRestController {
 			return Mono.just(c);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return Mono.empty();
+			return Mono.just("");
 		}
 	}
 	

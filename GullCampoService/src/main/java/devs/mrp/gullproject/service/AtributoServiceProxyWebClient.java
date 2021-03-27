@@ -13,8 +13,6 @@ import reactor.core.publisher.Mono;
 @Service
 public class AtributoServiceProxyWebClient {
 	
-	// TODO complete & test with contract
-	
 	WebClient.Builder webClientBuilder;
 	ClientProperties clientProperties;
 	
@@ -26,7 +24,6 @@ public class AtributoServiceProxyWebClient {
 	
 	public Mono<Boolean> validateDataFormat(String type, String data){
 		return webClientBuilder.build().get().uri(uriBuilder -> uriBuilder
-				//.path("/atributo-service/api/atributos/data-validator")
 				.path(clientProperties.getAtributoServiceUrl().concat("api/atributos/data-validator"))
 				.queryParam("type", type)
 				.queryParam("data", data)
@@ -36,7 +33,6 @@ public class AtributoServiceProxyWebClient {
 	}
 	
 	public Mono<AtributoForCampo> getAtributoForCampoById(String id) {
-		// /api/atributos/idforcampo/{id}
 		return webClientBuilder.build().get()
 				.uri(clientProperties.getAtributoServiceUrl().concat("api/atributos/idforcampo/").concat(id))
 				.header("Content-Type", "text/html")

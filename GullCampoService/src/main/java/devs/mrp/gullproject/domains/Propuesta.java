@@ -28,6 +28,11 @@ public interface Propuesta {
 	public String getLineaIdByIndex(int index);
 	public boolean updateLineaId(String idOriginal, String idDeseado);
 	public boolean updateLineaIdByIndex(int index, String lineaId);
+	public void addAttribute(AtributoForCampo att);
+	public void removeAttribute(AtributoForCampo att);
+	public void removeAttributeById(String id);
+	public void setAttributeColumns(List<AtributoForCampo> attributes);
+	public List<AtributoForCampo> getAttributeColumns();
 	//public boolean saveOrder(Map<String, Integer> idlineaVSposicion); // Integer = posición-de-la-línea, String = id-de-linea
 	
 	public static boolean confirmaIguales(Linea linea1, Linea linea2) {

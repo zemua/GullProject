@@ -41,10 +41,10 @@ public class Linea {
 	private Integer order;
 	
 	/**
-	 * TODO
-	 * First create an ArrayList of Atributes that are allowed to have as columns, inside the proposals
-	 * Then the proposal will have an array of attributes, that can have repeated ones, for example 2 dimensions for in and out
-	 * Finally the line will have as many fields as attributes in the proposal, filled in a table, and controlled by javascript the type of data (and server side too)
+	 * Then the proposal will have an ArrayList of attributes, that can have repeated ones, for example 2 dimensions for inlet and outlet
+	 * Finally the line will have attribute fields, filled in a table, and controlled by javascript the type of data (and server side too)
+	 * if the proposal has an attribute that the line doesn't, then it shows blank
+	 * if the line has an attribute that the proposal doesn't, then it doesn't show
 	 */
 	private List<Campo<?>> campos = new ArrayList<>();
 	
@@ -59,6 +59,10 @@ public class Linea {
 	
 	public void addCampo(Campo<?> c) {
 		campos.add(c);
+	}
+	
+	public void removeCampo(Campo<?> c) {
+		campos.remove(c);
 	}
 	
 }

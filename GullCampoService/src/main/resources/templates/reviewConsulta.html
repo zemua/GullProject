@@ -40,13 +40,13 @@
 		<table>
 			<tr>
 				<th>Nombre Propuesta</th>
-				<th>Cantidad de Lineas</th>
-				<th>Enlace</th>
+				<th>Lineas</th>
+				<th>Atributos</th>
 			</tr>
 			<tr th:each="a : ${consulta.propuestas}">
 				<td th:text="${a.nombre}"></td>
-				<td th:text="${a.lineaIds.size}"></td>
-				<td><a th:href="${'/lineas/allof/propid/' + a.id}">revisar</a></td>
+				<td><a th:href="${'/lineas/allof/propid/' + a.id}"><span th:text="${a.lineaIds.size}">revisar lineas</span></a></td>
+				<td><a th:href="${'/consultas/attof/propid/' + a.id}"><span th:text="${a.attributeColumns.size}">revisar atributos</span></a></td>
 				<td><a th:href="${'/consultas/delete/id/' + consulta.id + '/propuesta/' + a.id}">Borrar esta propuesta</a></td>
 			</tr>
 		</table>
