@@ -31,7 +31,9 @@ import reactor.core.publisher.Mono;
 @RequestMapping(path = "/consultas")
 public class ConsultaController {
 	
-	// TODO add/remove/order attribute columns into proposal
+	// TODO add attribute columns into proposal
+	// TODO remove attribute columns into proposal
+	// TODO re-order attribute columns into proposal
 
 	ConsultaService consultaService;
 	LineaService lineaService;

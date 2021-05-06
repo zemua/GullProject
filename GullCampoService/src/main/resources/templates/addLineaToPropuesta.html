@@ -27,8 +27,8 @@
 					<input name="nombre" type="text"
 						th:field="*{nombre}"/>
 			</div>
-			<input name="id" type="hidden" value="*{id}">
-			<input id="propuestaId" name="propuestaId" type="hidden" value="${propuestaId}">
+			<input name="id" type="hidden" th:value="*{id}">
+			<input id="propuestaId" name="propuestaId" type="hidden" th:value="${propuestaId}">
 		</div>
 
 		<div>
