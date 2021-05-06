@@ -20,7 +20,6 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import devs.mrp.gullproject.domains.Atributo;
 import devs.mrp.gullproject.domains.DataFormat;
 import devs.mrp.gullproject.domains.StringWrapper;
-import devs.mrp.gullproject.domains.Tipo;
 import devs.mrp.gullproject.domains.DTO.AtributoDTO;
 import devs.mrp.gullproject.domains.representationmodels.AtributoRepresentationModel;
 import devs.mrp.gullproject.domains.representationmodels.AtributoRepresentationModelAssembler;
@@ -54,10 +53,6 @@ class AtributoRestControllerTest {
 		
 		// Create a WebTestClient by binding to the controller and applying the hypermedia configurer.
 		WebTestClient client = WebTestClient.bindToController(atributoRestController).build().mutateWith(configurer);
-		
-		Tipo tipo = new Tipo();
-		tipo.setNombre("type name");
-		tipo.setDataFormat(DataFormat.DESCRIPCION);
 		
 		Atributo m = new Atributo();
 		m.setName("bonnet");

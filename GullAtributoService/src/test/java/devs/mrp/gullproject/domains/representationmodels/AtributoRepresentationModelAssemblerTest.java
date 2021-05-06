@@ -16,7 +16,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import devs.mrp.gullproject.domains.Atributo;
 import devs.mrp.gullproject.domains.DataFormat;
-import devs.mrp.gullproject.domains.Tipo;
 import reactor.core.publisher.Flux;
 
 /*@ExtendWith(SpringExtension.class)

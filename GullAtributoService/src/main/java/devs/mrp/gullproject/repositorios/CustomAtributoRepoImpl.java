@@ -10,7 +10,6 @@ import org.springframework.data.mongodb.core.query.Update;
 import com.mongodb.BasicDBObject;
 
 import devs.mrp.gullproject.domains.Atributo;
-import devs.mrp.gullproject.domains.Tipo;
 import reactor.core.publisher.Mono;
 
 public class CustomAtributoRepoImpl implements CustomAtributoRepo {
