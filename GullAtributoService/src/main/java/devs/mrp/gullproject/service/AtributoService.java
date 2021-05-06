@@ -37,5 +37,9 @@ public class AtributoService {
 	public Mono<Long> getCount() {
 		return atributoRepo.count();
 	}
+	
+	public Mono<Atributo> updateName(String id, String name) {
+		return atributoRepo.updateNameOfAtributo(id, name);
+	}
 
 }

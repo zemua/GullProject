@@ -24,7 +24,7 @@ public class CustomAtributoRepoImpl implements CustomAtributoRepo {
 		this.mongoTemplate = mongoTemplate;
 	}
 	
-	@Override // TODO test
+	@Override
 	public Mono<Atributo> updateNameOfAtributo(String id, String name) {
 		Query query = new Query(Criteria.where("id").is(id));
 		Update update = new Update().set("name", name);
