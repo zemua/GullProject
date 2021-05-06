@@ -8,6 +8,8 @@ import org.springframework.hateoas.config.EnableHypermediaSupport.HypermediaType
 @SpringBootApplication
 @EnableHypermediaSupport(type = { HypermediaType.HAL, HypermediaType.HAL_FORMS })
 public class GullValveServiceApplication {
+	
+	// TODO remove this microservice from the project
 
 	public static void main(String[] args) {
 		SpringApplication.run(GullValveServiceApplication.class, args);

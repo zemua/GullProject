@@ -34,9 +34,11 @@
 			
 			<div class="define-group" id="tipo-group">
 				<h3>Tipo:</h3>
-					<select name="tipo" id="tipo" form="atributoform">
+					<!-- <select name="tipo" id="tipo" form="atributoform">
 						<option th:each="t : ${tipos}" th:value="${t}" th:text="${t}" th:selected="${t} == *{tipo}"></option>
-					</select>
+					</select> -->
+					<span th:text="*{tipo}">Tipo del atributo</span>
+					<input type="hidden" id="tipo-group-input" name="tipo" th:value="*{tipo}">
 			</div>
 		</div>
 

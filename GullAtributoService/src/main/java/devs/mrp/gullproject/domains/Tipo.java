@@ -6,6 +6,7 @@ import lombok.Data;
 public class Tipo {
 	
 	// no se usa, dejamos como referencia
+	// TODO delete
 	
 	String nombre;
 	
