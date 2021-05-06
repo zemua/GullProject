@@ -73,7 +73,7 @@ public class ConsultaController {
 		return "showAllConsultas";
 	}
 	
-	@GetMapping("/revisar/id/{id}")
+	@GetMapping("/revisar/id/{id}") // TODO show number of lines in the proposal... these are not added to the proposal on line save
 	public String reviewConsultaById(Model model, @PathVariable(name = "id") String id) {
 		Mono<Consulta> consulta = consultaService.findById(id);
 		model.addAttribute("consulta", consulta);

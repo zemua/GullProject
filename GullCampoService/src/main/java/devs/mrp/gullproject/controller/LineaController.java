@@ -26,6 +26,8 @@ import reactor.core.publisher.Mono;
 @Controller
 @RequestMapping(path = "/lineas")
 public class LineaController {
+	
+	// TODO make method for /revisar/id/{lineaid}
 
 	private LineaService lineaService;
 	private ConsultaService consultaService;
@@ -55,7 +57,7 @@ public class LineaController {
 		return "addLineaToPropuesta";
 	}
 	
-	@PostMapping("/of/{propuestaId}/new") // TODO solve error
+	@PostMapping("/of/{propuestaId}/new")
 	public String processAddLineaToPropuesta(@Valid Linea linea, BindingResult bindingResult, Model model, @PathVariable(name ="propuestaId") String propuestaId) {
 		if(bindingResult.hasErrors()) {
 			model.addAttribute("propuesta", consultaService.findPropuestaByPropuestaId(propuestaId));
