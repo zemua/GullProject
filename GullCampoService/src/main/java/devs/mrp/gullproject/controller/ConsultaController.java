@@ -163,7 +163,7 @@ public class ConsultaController {
 		return "deletePropuestaById";
 	}
 	
-	@PostMapping("/delete/id/{consultaid}/propuesta/{propuestaid}")
+	@PostMapping("/delete/id/{consultaid}/propuesta/{propuestaid}") // TODO solve error on processing detele, there is a Mono on null object?
 	public String processDeletePropuestaById(ConsultaPropuestaBorrables data, Model model) {
 		Mono<Integer> c = consultaService.removePropuestaById(data.getIdConsulta(), data.getIdPropuesta());
 		Mono<Long> lineas = lineaService.deleteSeveralLineasFromPropuestaId(data.getIdPropuesta());

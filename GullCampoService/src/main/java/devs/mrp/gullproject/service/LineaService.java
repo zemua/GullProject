@@ -59,8 +59,10 @@ public class LineaService {
 	}
 	
 	public Mono<Linea> addLinea(Linea linea) {
-		// TODO add also to proposal
-		
+		// TODO test
+		String nPropuestaId = linea.getPropuestaId();
+		Mono<String> nConsultaId = consultaRepo.findByPropuestaId(nPropuestaId).map(consulta -> consulta.getId());
+		nConsultaId.flatMap(bConsultaId -> consultaRepo.addLineaEnPropuesta(bConsultaId, nPropuestaId, linea.getId())).subscribe();
 		return lineaRepo.insert(linea);
 	}
 	
