@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,13 @@ class CustomAtributoRepoTest {
 
 	AtributoRepo repo;
 	
+	String id;
+	String name;
+	DataFormat tipo;
+	boolean valoresFijos;
+	Atributo atributo;
+	Mono<Atributo> mono;
+	
 	@Autowired
 	public CustomAtributoRepoTest(AtributoRepo atributoRepo) {
 		this.repo = atributoRepo;
@@ -32,120 +40,45 @@ class CustomAtributoRepoTest {
 		}
 	}
 	
-	/*
-	@Test
-	void testRemoveAtributo() {
+	@BeforeEach
+	void initialization() {
+		id = "attid";
+		name = "att name";
+		tipo = DataFormat.DESCRIPCION;
+		valoresFijos = true;
 		
-		String id = "attid";
-		String name = "att name";
-		List<Tipo> tipos = new ArrayList<>();
-		boolean valoresFijos = true;
-		Tipo tipo1 = new Tipo();
-		tipo1.setNombre("tipo1");
-		tipo1.setDataFormat(DataFormat.atributoTexto);
-		Tipo tipo2 = new Tipo();
-		tipo2.setNombre("tipo2");
-		tipo2.setDataFormat(DataFormat.cantidad);
-		
-		Atributo atributo = new Atributo();
+		atributo = new Atributo();
 		atributo.setId(id);
 		atributo.setName(name);
-		atributo.addTipo(tipo1);
-		atributo.addTipo(tipo2);
+		atributo.setTipo(tipo);
 		atributo.setValoresFijos(valoresFijos);
 		
 		repo.save(atributo).block();
 		
-		Mono<Atributo> mono = repo.findById(id);
+		mono = repo.findById(id);
 		
 		StepVerifier.create(mono)
 			.assertNext(attr -> {
 				assertEquals(name, attr.getName());
-				assertEquals(2, attr.getCantidadTipos());
-				assertEquals(tipo1, attr.getTipo(0));
-				assertEquals(tipo2, attr.getTipo(1));
+				assertEquals(id, attr.getId());
+				assertEquals(tipo, attr.getTipo());
 			})
 			.expectComplete()
 			.verify();
+	}
+	
+	@Test
+	void testUpdateNameOfAtributo() {
 		
-		repo.removeAtributo(id, tipo1).block();
+		repo.updateNameOfAtributo(id, "updatedName").block();
 		
-		Mono<Atributo> mono2 = repo.findById(id);
-		
-		StepVerifier.create(mono2)
+		StepVerifier.create(mono)
 			.assertNext(attr -> {
-				assertEquals(name, attr.getName());
-				assertEquals(1, attr.getCantidadTipos());
-				assertEquals(tipo2, attr.getTipo(0));
+				assertEquals("updatedName", attr.getName());
+				assertEquals(DataFormat.DESCRIPCION, attr.getTipo());
 			})
 			.expectComplete()
 			.verify();
 		
 	}
-
-	@Test
-	void testAddAtributo() {
-		
-		String id = "attid";
-		String name = "att name";
-		List<Tipo> tipos = new ArrayList<>();
-		boolean valoresFijos = true;
-		Tipo tipo1 = new Tipo();
-		tipo1.setNombre("tipo1");
-		tipo1.setDataFormat(DataFormat.atributoTexto);
-		Tipo tipo2 = new Tipo();
-		tipo2.setNombre("tipo2");
-		tipo2.setDataFormat(DataFormat.cantidad);
-		
-		Atributo atributo = new Atributo();
-		atributo.setId(id);
-		atributo.setName(name);
-		atributo.addTipo(tipo1);
-		atributo.setValoresFijos(valoresFijos);
-		
-		repo.save(atributo).block();
-		
-		Mono<Atributo> mono = repo.findById(id);
-		
-		StepVerifier.create(mono)
-			.assertNext(attr -> {
-				assertEquals(name, attr.getName());
-				assertEquals(1, attr.getCantidadTipos());
-				assertEquals(tipo1, attr.getTipo(0));
-			})
-			.expectComplete()
-			.verify();
-		
-		repo.addAtributo(id, tipo2).block();
-		
-		Mono<Atributo> mono2 = repo.findById(id);
-		
-		StepVerifier.create(mono2)
-			.assertNext(attr -> {
-				assertEquals(name, attr.getName());
-				assertEquals(2, attr.getCantidadTipos());
-				assertEquals(tipo1, attr.getTipo(0));
-				assertEquals(tipo2, attr.getTipo(1));
-			})
-			.expectComplete()
-			.verify();
-		
-		// comprobar que no hace duplicados al ser "add to set" en lugar de "push"
-		repo.addAtributo(id, tipo2).block();
-		
-		Mono<Atributo> mono3 = repo.findById(id);
-		
-		StepVerifier.create(mono3)
-			.assertNext(attr -> {
-				assertEquals(name, attr.getName());
-				assertEquals(2, attr.getCantidadTipos());
-				assertEquals(tipo1, attr.getTipo(0));
-				assertEquals(tipo2, attr.getTipo(1));
-			})
-			.expectComplete()
-			.verify();
-		
-	}
-	*/
-
 }

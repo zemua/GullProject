@@ -65,7 +65,6 @@ public class AtributoController {
 		return "mostrarAtributos";
 	}
 	
-	// TODO no permitir modificar el class type de los atributos, por datos existentes
 	@GetMapping("/editar/id/{id}")
 	public String editarAtributo(Model model, @PathVariable(name = "id") String id) {
 		
@@ -84,7 +83,7 @@ public class AtributoController {
 			return "editarAtributo";
 		}
 		
-		Mono<Atributo> a = atributoService.save(atributo);
+		Mono<Atributo> a = atributoService.save(atributo); // TODO only change name, don't change the object type
 		model.addAttribute("atributo", a);
 		
 		return "actualizarAtributo";
