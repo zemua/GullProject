@@ -201,4 +201,12 @@ public class ConsultaController {
 		return "addAttributeToProposal";
 	}
 	
+	@PostMapping("/attof/propid/{id}/new")
+	public String processAddAttributeToProposal(Model model, @PathVariable(name = "id") String propuestaId) {
+		// TODO test
+		
+		
+		return "processAddAttributeToProposal"; // TODO ammend template, just copied from "processAddLineaToProposal"
+	}
+	
 }
