@@ -191,11 +191,13 @@ public class ConsultaController {
 	}
 	
 	@GetMapping("/attof/propid/{id}/new")
-	public String addAttributeToProposal(Model model, @PathVariable(name = "id") String proposalId) { // TODO test
+	public String addAttributeToProposal(Model model, @PathVariable(name = "id") String proposalId) {
+		// TODO test
 		model.addAttribute("proposalId", proposalId);
 		Flux<AtributoForCampo> atributos = atributoService.getAllAtributos();
 		model.addAttribute("attributes", new ReactiveDataDriverContextVariable(atributos, 1));
-		model.addAttribute("newatributoid", new String());
+		model.addAttribute("newatributoid", new AtributoForCampo());
+		atributos.subscribe(a -> log.debug("atributo: " + a.getName()));
 		return "addAttributeToProposal";
 	}
 	

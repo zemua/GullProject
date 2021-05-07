@@ -22,9 +22,9 @@
       	>Escoge un tipo correcto</span>
       
 		<div class="grid">			
-			<div class="define-group" id="name">
+			<div class="define-group">
 				<h3>Tipo:</h3>
-					<select th:field="*{name}" name="name" form="atributoform">
+					<select th:field="*{id}" name="id" form="atributoform">
 						<option th:each="t : ${attributes}" th:value="${t.id}" th:text="${t.name}"></option>
 					</select>
 			</div>

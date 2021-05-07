@@ -10,7 +10,7 @@ public class ClientProperties {
 	String atributoServiceUrl;
 	
 	public ClientProperties(){
-		this.atributoServiceUrl = "/atributo-service/";
+		this.atributoServiceUrl = "http://atributo-service/";
 	}
 	
 }
