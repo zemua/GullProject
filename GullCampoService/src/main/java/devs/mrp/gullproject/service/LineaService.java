@@ -108,14 +108,17 @@ public class LineaService {
 	}
 	
 	public Mono<Long> deleteSeveralLineasFromPropuestaId(String propuestaId){
+		// TODO delete also from propuesta/consulta repo
 		return lineaRepo.deleteSeveralLineasByPropuestaId(propuestaId).map(r -> Long.valueOf(r.getDeletedCount()));
 	}
 	
 	public Mono<Long> deleteSeveralLineasFromSeveralPropuestaIds(List<String> propuestaIds) {
+		// TODO delete also from propuesta/consulta repo
 		return lineaRepo.deleteSeveralLineasBySeveralPropuestaIds(propuestaIds).map(r-> Long.valueOf(r.getDeletedCount()));
 	}
 	
 	public Mono<Long> deleteSeveralLineasFromSeveralPropuestas(List<Propuesta> propuestas) {
+		// TODO delete also from propuesta/consulta repo
 		List<String> ids = propuestas.stream().map(arg0 -> arg0.getId()).collect(Collectors.toList());
 		return lineaRepo.deleteSeveralLineasBySeveralPropuestaIds(ids).map(r-> Long.valueOf(r.getDeletedCount()));
 	}

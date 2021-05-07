@@ -73,7 +73,7 @@ public class ConsultaController {
 		return "showAllConsultas";
 	}
 	
-	@GetMapping("/revisar/id/{id}") // TODO show number of lines in the proposal... these are not added to the proposal on line save
+	@GetMapping("/revisar/id/{id}")
 	public String reviewConsultaById(Model model, @PathVariable(name = "id") String id) {
 		Mono<Consulta> consulta = consultaService.findById(id);
 		model.addAttribute("consulta", consulta);
@@ -156,15 +156,17 @@ public class ConsultaController {
 	@GetMapping("/delete/id/{consultaid}/propuesta/{propuestaid}")
 	public String deletePropuestaById(Model model, @PathVariable(name = "consultaid") String consultaid, @PathVariable(name = "propuestaid") String propuestaid) {
 		model.addAttribute("idConsulta", consultaid);
-		model.addAttribute("idPropuestaq", propuestaid);
+		model.addAttribute("idPropuesta", propuestaid);
 		Mono<Propuesta> p = consultaService.findById(consultaid).flatMap(cons -> Mono.just(cons.getPropuestaById(propuestaid)));
 		model.addAttribute("propuesta", p);
 		
 		return "deletePropuestaById";
 	}
 	
-	@PostMapping("/delete/id/{consultaid}/propuesta/{propuestaid}") // TODO solve error on processing detele, there is a Mono on null object?
+	@PostMapping("/delete/id/{consultaid}/propuesta/{propuestaid}")
 	public String processDeletePropuestaById(ConsultaPropuestaBorrables data, Model model) {
+		log.debug("id consulta: " + data.getIdConsulta());
+		log.debug("id propuesta: " + data.getIdPropuesta());
 		Mono<Integer> c = consultaService.removePropuestaById(data.getIdConsulta(), data.getIdPropuesta());
 		Mono<Long> lineas = lineaService.deleteSeveralLineasFromPropuestaId(data.getIdPropuesta());
 		
