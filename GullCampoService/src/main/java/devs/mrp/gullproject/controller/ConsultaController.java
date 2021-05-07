@@ -20,6 +20,7 @@ import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaAbstracta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.domains.dto.ConsultaPropuestaBorrables;
+import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaService;
 import lombok.extern.slf4j.Slf4j;
@@ -37,11 +38,13 @@ public class ConsultaController {
 
 	ConsultaService consultaService;
 	LineaService lineaService;
+	AtributoServiceProxyWebClient atributoService;
 	
 	@Autowired
-	public ConsultaController(ConsultaService consultaService, LineaService lineaService) {
+	public ConsultaController(ConsultaService consultaService, LineaService lineaService, AtributoServiceProxyWebClient atributoService) {
 		this.consultaService = consultaService;
 		this.lineaService = lineaService;
+		this.atributoService = atributoService;
 	}
 	
 	@GetMapping("/nuevo")
@@ -185,6 +188,15 @@ public class ConsultaController {
 		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(proposalId);
 		model.addAttribute("consulta", consulta);
 		return "showAttributesOfProposal";
+	}
+	
+	@GetMapping("/attof/propid/{id}/new")
+	public String addAttributeToProposal(Model model, @PathVariable(name = "id") String proposalId) { // TODO test
+		model.addAttribute("proposalId", proposalId);
+		Flux<AtributoForCampo> atributos = atributoService.getAllAtributos();
+		model.addAttribute("attributes", new ReactiveDataDriverContextVariable(atributos, 1));
+		model.addAttribute("newatributoid", new String());
+		return "addAttributeToProposal";
 	}
 	
 }
