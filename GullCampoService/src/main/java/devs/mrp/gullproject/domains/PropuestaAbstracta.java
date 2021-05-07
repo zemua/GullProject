@@ -30,18 +30,6 @@ public abstract class PropuestaAbstracta implements Propuesta {
 	List<String> lineaIds = new ArrayList<>();
 	//List<String> atributoIds = new ArrayList<>();
 	List<AtributoForCampo> attributeColumns = new ArrayList<>();
-	
-	/*public enum TipoPropuesta {
-		Client("Consulta de cliente"), Supplier ("Oferta de un proveedor"), Ours ("Nuestra propuesta para el cliente");
-		
-		String description;
-		private TipoPropuesta(String description) {
-			this.description = description;
-		}
-		public String getDescription() {
-			return this.description;
-		}
-	}*/
 
 	@Override
 	public abstract boolean isRoot();
