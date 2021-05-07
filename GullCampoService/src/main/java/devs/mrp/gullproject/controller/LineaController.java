@@ -26,6 +26,8 @@ import reactor.core.publisher.Mono;
 @Controller
 @RequestMapping(path = "/lineas")
 public class LineaController {
+	
+	// TODO make method for /revisar/id/{lineaid}
 
 	private LineaService lineaService;
 	private ConsultaService consultaService;

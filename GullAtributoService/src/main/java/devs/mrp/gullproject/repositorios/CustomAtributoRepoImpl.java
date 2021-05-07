@@ -10,7 +10,6 @@ import org.springframework.data.mongodb.core.query.Update;
 import com.mongodb.BasicDBObject;
 
 import devs.mrp.gullproject.domains.Atributo;
-import devs.mrp.gullproject.domains.Tipo;
 import reactor.core.publisher.Mono;
 
 public class CustomAtributoRepoImpl implements CustomAtributoRepo {
@@ -24,7 +23,7 @@ public class CustomAtributoRepoImpl implements CustomAtributoRepo {
 		this.mongoTemplate = mongoTemplate;
 	}
 	
-	@Override // TODO test
+	@Override
 	public Mono<Atributo> updateNameOfAtributo(String id, String name) {
 		Query query = new Query(Criteria.where("id").is(id));
 		Update update = new Update().set("name", name);

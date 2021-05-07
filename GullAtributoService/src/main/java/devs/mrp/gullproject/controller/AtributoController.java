@@ -79,11 +79,10 @@ public class AtributoController {
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("atributo", atributo);
 			model.addAttribute("tipos", DataFormat.values());
-			//return "redirect:/atributos/editar/id/" + id;
 			return "editarAtributo";
 		}
 		
-		Mono<Atributo> a = atributoService.save(atributo); // TODO only change name, don't change the object type
+		Mono<Atributo> a = atributoService.updateName(atributo.getId(), atributo.getName());
 		model.addAttribute("atributo", a);
 		
 		return "actualizarAtributo";

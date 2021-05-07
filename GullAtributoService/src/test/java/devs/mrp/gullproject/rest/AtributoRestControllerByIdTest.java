@@ -21,7 +21,6 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import devs.mrp.gullproject.domains.Atributo;
 import devs.mrp.gullproject.domains.DataFormat;
-import devs.mrp.gullproject.domains.Tipo;
 import devs.mrp.gullproject.domains.representationmodels.AtributoRepresentationModel;
 import devs.mrp.gullproject.domains.representationmodels.AtributoRepresentationModelAssembler;
 import devs.mrp.gullproject.repositorios.AtributoRepo;
@@ -51,10 +50,6 @@ class AtributoRestControllerByIdTest {
 		
 		//WebTestClient client = webTestClient.mutateWith(configurer);
 		WebTestClient client = WebTestClient.bindToController(arc).build().mutateWith(configurer);
-		
-		Tipo tipo = new Tipo();
-		tipo.setNombre("type name");
-		tipo.setDataFormat(DataFormat.DESCRIPCION);
 
 		Atributo m = new Atributo();
 		m.setName("seal");

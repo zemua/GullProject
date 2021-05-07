@@ -31,7 +31,9 @@ import reactor.core.publisher.Mono;
 @RequestMapping(path = "/consultas")
 public class ConsultaController {
 	
-	// TODO add/remove/order attribute columns into proposal
+	// TODO add attribute columns into proposal
+	// TODO remove attribute columns into proposal
+	// TODO re-order attribute columns into proposal
 
 	ConsultaService consultaService;
 	LineaService lineaService;
@@ -154,7 +156,7 @@ public class ConsultaController {
 	@GetMapping("/delete/id/{consultaid}/propuesta/{propuestaid}")
 	public String deletePropuestaById(Model model, @PathVariable(name = "consultaid") String consultaid, @PathVariable(name = "propuestaid") String propuestaid) {
 		model.addAttribute("idConsulta", consultaid);
-		model.addAttribute("idPropuestaq", propuestaid);
+		model.addAttribute("idPropuesta", propuestaid);
 		Mono<Propuesta> p = consultaService.findById(consultaid).flatMap(cons -> Mono.just(cons.getPropuestaById(propuestaid)));
 		model.addAttribute("propuesta", p);
 		
@@ -163,6 +165,8 @@ public class ConsultaController {
 	
 	@PostMapping("/delete/id/{consultaid}/propuesta/{propuestaid}")
 	public String processDeletePropuestaById(ConsultaPropuestaBorrables data, Model model) {
+		log.debug("id consulta: " + data.getIdConsulta());
+		log.debug("id propuesta: " + data.getIdPropuesta());
 		Mono<Integer> c = consultaService.removePropuestaById(data.getIdConsulta(), data.getIdPropuesta());
 		Mono<Long> lineas = lineaService.deleteSeveralLineasFromPropuestaId(data.getIdPropuesta());
 		
