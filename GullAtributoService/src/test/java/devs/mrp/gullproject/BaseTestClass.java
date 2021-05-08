@@ -11,8 +11,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @DirtiesContext
 @AutoConfigureMessageVerifier
 public class BaseTestClass {
-	
-	// https://www.baeldung.com/spring-cloud-contract
 
 	/*@Autowired
 	private AtributoRestController atributoRestController;

@@ -3,27 +3,27 @@
 	xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="utf-8">
-<title>Gull Project - Linea Guardada</title>
+<title>Gull Project - Atributo Guardado</title>
 </head>
 <body>
 
-<h1>Linea Guardada</h1>
+<h1>Atributo Guardado</h1>
 
 	<div>
-		<span class="success" th:if="${linea != null && propuesta != null}">Linea Guardada Como...</span>
-		<span class="success" th:if="${linea == null || propuesta == null}">Algo no ha ido bien...</span>
+		<span class="success" th:if="${atributos != null && propuesta != null}">Atributo...</span>
+		<span class="failure" th:unless="${atributos != null && propuesta != null}">Algo no ha ido bien...</span>
 	</div>
 
-	<div th:if="${linea != null && propuesta != null}">
-		<div class="grid" th:object="${linea}">
-			<div class="define-group" id="nombrelinea">
+	<div th:if="${atributo != null && propuesta != null}">
+		<div class="grid" th:object="${atributos}">
+			<div class="define-group" id="nombreatributo">
 				<h3>Nombre:</h3>
-				<span th:text="*{nombre}"> ... </span>
+				<span th:text="*{name}"> ... </span>
 			</div>
 		</div>
 
 		<div>
-			<span class="success">En la propuesta...</span>
+			<span class="success">Añadido en la propuesta...</span>
 		</div>
 
 		<div class="grid" th:object="${propuesta}">
@@ -35,7 +35,7 @@
 
 		<div>
 			<p>
-				<a th:href="${'/lineas/allof/propid/' + propuesta.getId()}">Volver a la propuesta</a>
+				<a th:href="${'/consultas/attof/propid/' + propuesta.getId()}">Volver a la propuesta</a>
 			</p>
 		</div>
 	</div>

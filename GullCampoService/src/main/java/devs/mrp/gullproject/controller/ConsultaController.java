@@ -1,5 +1,8 @@
 package devs.mrp.gullproject.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.validation.Valid;
 
 import org.bson.types.ObjectId;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
 import devs.mrp.gullproject.domains.AtributoForCampo;
@@ -202,11 +206,12 @@ public class ConsultaController {
 	}
 	
 	@PostMapping("/attof/propid/{id}/new")
-	public String processAddAttributeToProposal(Model model, @PathVariable(name = "id") String propuestaId) {
+	public String processAddAttributeToProposal(@RequestParam(value = "atts", required = true) String[] atts, BindingResult bindingResult, Model model, @PathVariable(name = "id") String propuestaId) {
 		// TODO test
+		List<AtributoForCampo> atributos = new ArrayList<>();
 		
 		
-		return "processAddAttributeToProposal"; // TODO ammend template, just copied from "processAddLineaToProposal"
+		return "processAddAttributeToProposal"; // TODO ammend template
 	}
 	
 }

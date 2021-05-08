@@ -1,5 +1,7 @@
 package devs.mrp.gullproject.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,6 +42,10 @@ public class AtributoService {
 	
 	public Mono<Atributo> updateName(String id, String name) {
 		return atributoRepo.updateNameOfAtributo(id, name);
+	}
+	
+	public Flux<Atributo> findAtributoByIdIn(List<String> ids) {
+		return atributoRepo.findAtributosByIdIn(ids);
 	}
 
 }

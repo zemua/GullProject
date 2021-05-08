@@ -1,5 +1,7 @@
 package devs.mrp.gullproject.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -64,5 +66,9 @@ public class ConsultaService {
 	public Flux<AtributoForCampo> findAttributesByPropuestaId(String propuestaId) {
 		Flux<AtributoForCampo> flux = findPropuestaByPropuestaId(propuestaId).flatMapMany(prop -> Flux.fromIterable(prop.getAttributeColumns()));
 		return flux;
+	}
+	
+	public Mono<Consulta> updateAttributesOfPropuesta(String idPropuesta, List<AtributoForCampo> attributes) {
+		return consultaRepo.updateAttributesOfPropuesta(idPropuesta, attributes);
 	}
 }

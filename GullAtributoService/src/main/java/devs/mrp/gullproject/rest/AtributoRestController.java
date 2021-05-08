@@ -1,11 +1,14 @@
 package devs.mrp.gullproject.rest;
 
+import java.util.List;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import devs.mrp.gullproject.domains.Atributo;
@@ -65,6 +68,14 @@ public class AtributoRestController {
 			e.printStackTrace();
 			return Mono.just("");
 		}
+	}
+	
+	@GetMapping(path = "/arrayofcampos/byids") // TODO contract
+	public Flux<AtributoDTO> getAtributosByArrayOfIds(@RequestParam List<String> ids) {
+		//Flux<Atributo> atributos = atributoService.findAtributoByIdIn(ids);
+		//Flux<AtributoDTO> dtos = atributos.map(a -> modelMapper.map(a, AtributoDTO.class));
+		//return dtos;
+		return Flux.just(new AtributoDTO());
 	}
 	
 }

@@ -3,11 +3,11 @@
 	xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="utf-8">
-<title>Gull Project - Nuevo Atributo</title>
+<title>Gull Project - Seleccionar Atributos</title>
 </head>
 <body>
 
-<h1>Nuevo Atributo</h1>
+<h1>Seleccionar Atributos</h1>
 
 	<form method="POST" th:object="${newatributoid}" id="atributoform">
 	
@@ -23,10 +23,10 @@
       
 		<div class="grid">			
 			<div class="define-group">
-				<h3>Tipo:</h3>
-					<select th:field="*{id}" name="id" form="atributoform">
-						<option th:each="t : ${attributes}" th:value="${t.id}" th:text="${t.name}"></option>
-					</select>
+				<h3>Selecciona los atributos que corresponden a esta propuesta:</h3>
+					<div th:each="t : ${attributes}">
+						<input type="checkbox" name="atts" th:value="${t.id}" th:text="${t.name}"/>
+					</div>
 			</div>
 		</div>
 

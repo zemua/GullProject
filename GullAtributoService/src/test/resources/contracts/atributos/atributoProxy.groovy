@@ -282,5 +282,52 @@ import org.springframework.cloud.contract.spec.Contract
 			 contentType('application/json')
 		 }
 	 }
+ },
+     Contract.make {
+	 name("should get a flux of all the attributes corresponding to the list of ids")
+	 // You can give a description of the use case that the contract represents
+	 description('''
+		 given:
+		 The list of ids provided
+		 when:
+		 Some ids exist in the database
+		 then:
+		 A flux is returned with those
+	 ''')
+	 request {
+		 method 'GET'
+		 urlPath $(c(regex('/api/atributos/arrayofcampos/byids\\?ids=([\\w+]?)([\\,\\w+]*)')), p('/api/atributos/arrayofcampos/byids?ids=pr1m3r0,s3g7nd0,t3rc3r0'))
+		 headers {
+			 contentType('text/html')
+		 }
+	 }
+	 response {
+		 status 200
+		 body ([
+		 	[
+				id: $(c('s3g7nd0'), p(regex('[a-zA-Z0-9]+'))),
+				name: $(c('response name two'), p(regex(nonBlank()))),
+				tipo: $(c('RESPONSETYPETWO'), p(regex('[A-Z]+'))),
+				valoresFijos: $(c('false'), p(regex(anyBoolean()))),
+				links: [
+					rel: "self",
+					href: $(c("/api/esto/es/un/link"), p(regex('^[a-zA-Z0-9/-]+$')))
+				]
+			],
+			[
+				id: $(c('t3rc3r0'), p(regex('[a-zA-Z0-9]+'))),
+				name: $(c('response name three'), p(regex(nonBlank()))),
+				tipo: $(c('RESPONSETYPETHREE'), p(regex('[A-Z]+'))),
+				valoresFijos: $(c('true'), p(regex(anyBoolean()))),
+				links: [
+					rel: "self",
+					href: $(c("/api/esto/es/dos/link"), p(regex('^[a-zA-Z0-9/-]+$')))
+				]
+			]
+		 ])
+		 headers {
+			 contentType('application/json')
+		 }
+	 }
  }
 ]

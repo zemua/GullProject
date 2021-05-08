@@ -181,7 +181,7 @@ class AtributoControllerTest {
 		a.setId("idDelMoNoA");
 		
 		Mono<Atributo> mono = Mono.just(a);
-		when(atributoService.save(ArgumentMatchers.eq(a))).thenReturn(mono);
+		when(atributoService.updateName(ArgumentMatchers.eq(a.getId()), ArgumentMatchers.eq(a.getName()))).thenReturn(mono);
 		
 		webTestClient.post()
 		.uri("/atributos/actualizar/id/"+a.getId())
