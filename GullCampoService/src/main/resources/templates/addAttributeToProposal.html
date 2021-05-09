@@ -9,14 +9,14 @@
 
 <h1>Seleccionar Atributos</h1>
 
-	<form method="POST" id="atributoform">
+	<form method="POST" id="atributoform" th:object="${atts}">
       
 		<div class="grid">			
 			<div class="define-group">
 				<h3>Selecciona los atributos que corresponden a esta propuesta:</h3>
-					<div th:each="t : ${attributes}">
-						<input type="checkbox" name="atts" th:value="${t.getId()}"/>
-						<label th:text="${t.getName()}"></label>
+					<div th:each="t, stat : *{attributes}">
+						<input type="checkbox" th:name="*{attributes[__${stat.index}__].name}" th:value="*{attributes[__${stat.index}__].localIdentifier}" th:checked="*{attributes[__${stat.index}__].selected}"/>
+						<label th:text="*{attributes[__${stat.index}__].name}"></label>
 					</div>
 			</div>
 		</div>

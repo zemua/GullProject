@@ -6,6 +6,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.bson.types.ObjectId;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -24,6 +25,8 @@ import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaAbstracta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
+import devs.mrp.gullproject.domains.dto.AttributesListDto;
 import devs.mrp.gullproject.domains.dto.ConsultaPropuestaBorrables;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.ConsultaService;
@@ -44,12 +47,14 @@ public class ConsultaController {
 	ConsultaService consultaService;
 	LineaService lineaService;
 	AtributoServiceProxyWebClient atributoService;
+	private final ModelMapper modelMapper;
 	
 	@Autowired
-	public ConsultaController(ConsultaService consultaService, LineaService lineaService, AtributoServiceProxyWebClient atributoService) {
+	public ConsultaController(ConsultaService consultaService, LineaService lineaService, AtributoServiceProxyWebClient atributoService, ModelMapper modelMapper) {
 		this.consultaService = consultaService;
 		this.lineaService = lineaService;
 		this.atributoService = atributoService;
+		this.modelMapper = modelMapper;
 	}
 	
 	@GetMapping("/nuevo")
@@ -199,23 +204,31 @@ public class ConsultaController {
 	public String addAttributeToProposal(Model model, @PathVariable(name = "id") String proposalId) {
 		// TODO test
 		model.addAttribute("proposalId", proposalId);
-		Flux<AtributoForCampo> atributos = atributoService.getAllAtributos();
-		model.addAttribute("attributes", new ReactiveDataDriverContextVariable(atributos, 1));
-		ArrayList<String> atts = new ArrayList<>();
-		model.addAttribute("atts", atts);
+		Mono<AttributesListDto> atributos = atributoService.getAllAtributos() // flux<atributoforcampo>
+				.map(a -> modelMapper.map(a, AtributoForFormDto.class)) // flux<atributoforformdto>
+				.collectList() //mono<list<atributoforformdto>>
+				.flatMap(l -> Mono.just(new AttributesListDto(l))); // mono<atributeslistdto>
+		model.addAttribute("atts", atributos);
+		atributos.subscribe(a -> {
+			log.debug("contenido de la primera posición");
+			log.debug(a.getAttributes().get(0).getId());
+			log.debug(a.getAttributes().get(0).getLocalIdentifier());
+			log.debug(a.getAttributes().get(0).getName());
+			log.debug(a.getAttributes().get(0).getSelected().toString());
+			log.debug(a.getAttributes().get(0).getTipo());
+		});
 		return "addAttributeToProposal";
 	}
 	
 	@PostMapping("/attof/propid/{id}/new")
-	public String processAddAttributeToProposal(ArrayList<String> atts, BindingResult bindingResult, Model model, @PathVariable(name = "id") String propuestaId) {
+	public String processAddAttributeToProposal(AttributesListDto atts, BindingResult bindingResult, Model model, @PathVariable(name = "id") String propuestaId) {
 		// TODO test
-		if (atts == null) {
-			log.debug("atts is null");
-			atts = new ArrayList<>();
-		} else if (atts.size() == 0) {
+		if (atts.getAttributes() == null) {
+			log.debug("atts es nulo");
+		} else if (atts.getAttributes().size() == 0) {
 			log.debug("atts tiene 0 elementos");
 		}
-		Flux<AtributoForCampo> attributes = atributoService.getAtributosByArrayOfIds(atts);
+		Flux<AtributoForCampo> attributes = Flux.fromIterable(atts.getAttributes()).map(a -> modelMapper.map(a, AtributoForCampo.class));
 		Mono<Consulta> consulta = attributes.collectList().flatMap(latts -> consultaService.updateAttributesOfPropuesta(propuestaId, latts));
 		Mono<Propuesta> propuesta = consulta.map(c -> c.getPropuestaById(propuestaId));
 		
