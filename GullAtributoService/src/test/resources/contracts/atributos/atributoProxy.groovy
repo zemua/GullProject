@@ -296,7 +296,7 @@ import org.springframework.cloud.contract.spec.Contract
 	 ''')
 	 request {
 		 method 'GET'
-		 urlPath $(c(regex('/api/atributos/arrayofcampos/byids\\?ids=([\\w+]?)([\\,\\w+]*)')), p('/api/atributos/arrayofcampos/byids?ids=pr1m3r0,s3g7nd0,t3rc3r0'))
+		 urlPath $(c(regex('/api/atributos/arrayofcampos/byids\\?ids=((\\w+(\\,\\w+)*)?$)')), p('/api/atributos/arrayofcampos/byids?ids=5fd52181c3bd1d49e616e3be,5fd5ec64916371511cdd7c0e,pr1m3r0,s3g7nd0,t3rc3r0'))
 		 headers {
 			 contentType('text/html')
 		 }
@@ -308,21 +308,11 @@ import org.springframework.cloud.contract.spec.Contract
 				id: $(c('s3g7nd0'), p(regex('[a-zA-Z0-9]+'))),
 				name: $(c('response name two'), p(regex(nonBlank()))),
 				tipo: $(c('RESPONSETYPETWO'), p(regex('[A-Z]+'))),
-				valoresFijos: $(c('false'), p(regex(anyBoolean()))),
-				links: [
-					rel: "self",
-					href: $(c("/api/esto/es/un/link"), p(regex('^[a-zA-Z0-9/-]+$')))
-				]
 			],
 			[
 				id: $(c('t3rc3r0'), p(regex('[a-zA-Z0-9]+'))),
 				name: $(c('response name three'), p(regex(nonBlank()))),
 				tipo: $(c('RESPONSETYPETHREE'), p(regex('[A-Z]+'))),
-				valoresFijos: $(c('true'), p(regex(anyBoolean()))),
-				links: [
-					rel: "self",
-					href: $(c("/api/esto/es/dos/link"), p(regex('^[a-zA-Z0-9/-]+$')))
-				]
 			]
 		 ])
 		 headers {

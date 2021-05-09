@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -39,6 +40,7 @@ public abstract class AtributosBase {
 	Atributo atributo2;
 	Mono<Atributo> mAtributo;
 	Flux<Atributo> fAtributo;
+	Flux<Atributo> idAtributo;
 	AtributoRepresentationModel atributoModel;
 	AtributoRepresentationModel atributoModel2;
 	
@@ -74,6 +76,10 @@ public abstract class AtributosBase {
 		atributoModel2.setValoresFijos(atributo2.isValoresFijos());
 		atributoModel2.add(Link.of("/api/otro/link"));
 		when(arma.toModel(atributo2)).thenReturn(atributoModel2);
+		
+		
+		idAtributo = Flux.just(atributo, atributo2);
+		when(atributoService.findAtributoByIdIn(ArgumentMatchers.anyList())).thenReturn(idAtributo);
 	}
 	
 	@BeforeEach
