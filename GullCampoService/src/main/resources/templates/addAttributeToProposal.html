@@ -9,23 +9,14 @@
 
 <h1>Seleccionar Atributos</h1>
 
-	<form method="POST" th:object="${newatributoid}" id="atributoform">
-	
-		<div th:if="${#fields.hasErrors()}">
-     	   <span class="validationError">
-      	  Corrige los errores y reenvía.
-     	   </span>
-    	</div>
-      	
-      	<span class="validationError"
-      	th:if="${#fields.hasErrors('name')}"
-      	>Escoge un tipo correcto</span>
+	<form method="POST" id="atributoform">
       
 		<div class="grid">			
 			<div class="define-group">
 				<h3>Selecciona los atributos que corresponden a esta propuesta:</h3>
 					<div th:each="t : ${attributes}">
-						<input type="checkbox" name="atts" th:value="${t.id}" th:text="${t.name}"/>
+						<input type="checkbox" name="atts" th:value="${t.getId()}"/>
+						<label th:text="${t.getName()}"></label>
 					</div>
 			</div>
 		</div>

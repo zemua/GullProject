@@ -10,28 +10,17 @@
 <h1>Atributo Guardado</h1>
 
 	<div>
-		<span class="success" th:if="${atributos != null && propuesta != null}">Atributo...</span>
+		<span class="success" th:if="${atributos != null && propuesta != null}">Los siguientes atributos...</span>
 		<span class="failure" th:unless="${atributos != null && propuesta != null}">Algo no ha ido bien...</span>
 	</div>
 
-	<div th:if="${atributo != null && propuesta != null}">
-		<div class="grid" th:object="${atributos}">
-			<div class="define-group" id="nombreatributo">
-				<h3>Nombre:</h3>
-				<span th:text="*{name}"> ... </span>
-			</div>
+	<div th:if="${atributos != null && propuesta != null}">
+		<div class="grid" th:each="t : ${attributes}">
+			<span th:text="${t.name}"></span>
 		</div>
-
-		<div>
-			<span class="success">Añadido en la propuesta...</span>
-		</div>
-
-		<div class="grid" th:object="${propuesta}">
-			<div class="define-group" id="nombrepropuesta">
-				<h3>Nombre:</h3>
-				<span th:text="*{nombre}"> ... </span>
-			</div>
-		</div>
+		
+		<div><span>Constituyen ahora la propuesta </span> <span th:text="propuesta.getNombre()"></span></div>
+		
 
 		<div>
 			<p>

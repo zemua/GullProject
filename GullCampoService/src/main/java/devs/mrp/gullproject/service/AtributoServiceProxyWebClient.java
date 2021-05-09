@@ -10,10 +10,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 import devs.mrp.gullproject.configuration.ClientProperties;
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.StringWrapper;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
+@Slf4j
 public class AtributoServiceProxyWebClient {
 	
 	WebClient.Builder webClientBuilder;
@@ -64,11 +66,10 @@ public class AtributoServiceProxyWebClient {
 	}
 	
 	public Flux<AtributoForCampo> getAtributosByArrayOfIds(List<String> ids) { // TODO test
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("api/atributos/arrayofcampos/byids");
-		if (ids.size()>0) {
-			stringBuilder.append("?ids=");
+		if (ids.size() == 0) {
+			return Flux.empty();
 		}
+		StringBuilder stringBuilder = new StringBuilder();
 		ListIterator<String> iterator = ids.listIterator();
 		if (iterator.hasNext()) {
 			stringBuilder.append(iterator.next());
@@ -78,7 +79,8 @@ public class AtributoServiceProxyWebClient {
 			stringBuilder.append(iterator.next());
 		}
 		return webClientBuilder.build().get()
-				.uri(clientProperties.getAtributoServiceUrl().concat(stringBuilder.toString()))
+				.uri(clientProperties.getAtributoServiceUrl().concat("api/atributos/arrayofcampos/byids"))
+				.attribute("ids", stringBuilder.toString())
 				.header("Content-Type", "text/html")
 				.retrieve().bodyToFlux(AtributoForCampo.class);
 	}

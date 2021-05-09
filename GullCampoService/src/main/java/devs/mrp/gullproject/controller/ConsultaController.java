@@ -14,6 +14,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
@@ -200,18 +201,29 @@ public class ConsultaController {
 		model.addAttribute("proposalId", proposalId);
 		Flux<AtributoForCampo> atributos = atributoService.getAllAtributos();
 		model.addAttribute("attributes", new ReactiveDataDriverContextVariable(atributos, 1));
-		model.addAttribute("newatributoid", new AtributoForCampo());
-		atributos.subscribe(a -> log.debug("atributo: " + a.getName()));
+		ArrayList<String> atts = new ArrayList<>();
+		model.addAttribute("atts", atts);
 		return "addAttributeToProposal";
 	}
 	
 	@PostMapping("/attof/propid/{id}/new")
-	public String processAddAttributeToProposal(@RequestParam(value = "atts", required = true) String[] atts, BindingResult bindingResult, Model model, @PathVariable(name = "id") String propuestaId) {
+	public String processAddAttributeToProposal(ArrayList<String> atts, BindingResult bindingResult, Model model, @PathVariable(name = "id") String propuestaId) {
 		// TODO test
-		List<AtributoForCampo> atributos = new ArrayList<>();
+		if (atts == null) {
+			log.debug("atts is null");
+			atts = new ArrayList<>();
+		} else if (atts.size() == 0) {
+			log.debug("atts tiene 0 elementos");
+		}
+		Flux<AtributoForCampo> attributes = atributoService.getAtributosByArrayOfIds(atts);
+		Mono<Consulta> consulta = attributes.collectList().flatMap(latts -> consultaService.updateAttributesOfPropuesta(propuestaId, latts));
+		Mono<Propuesta> propuesta = consulta.map(c -> c.getPropuestaById(propuestaId));
 		
+		model.addAttribute("atributos", new ReactiveDataDriverContextVariable(attributes, 1));
+		model.addAttribute("propuesta", propuesta);
+		model.addAttribute("consulta", consulta);
 		
-		return "processAddAttributeToProposal"; // TODO ammend template
+		return "processAddAttributeToProposal";
 	}
 	
 }
