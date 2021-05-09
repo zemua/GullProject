@@ -296,7 +296,11 @@ import org.springframework.cloud.contract.spec.Contract
 	 ''')
 	 request {
 		 method 'GET'
-		 urlPath $(c(regex('/api/atributos/arrayofcampos/byids\\?ids=((\\w+(\\,\\w+)*)?$)')), p('/api/atributos/arrayofcampos/byids?ids=5fd52181c3bd1d49e616e3be,5fd5ec64916371511cdd7c0e,pr1m3r0,s3g7nd0,t3rc3r0'))
+		 urlPath('/api/atributos/arrayofcampos/byids') {
+		 	queryParameters{
+		 		parameter 'ids': $(c(regex('((\\w+(\\,\\w+)*)?$)')), p('5fd52181c3bd1d49e616e3be,5fd5ec64916371511cdd7c0e,pr1m3r0,s3g7nd0,t3rc3r0'))
+		 	}
+		 }
 		 headers {
 			 contentType('text/html')
 		 }

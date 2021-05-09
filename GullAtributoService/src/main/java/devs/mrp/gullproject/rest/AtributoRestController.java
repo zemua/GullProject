@@ -70,7 +70,7 @@ public class AtributoRestController {
 		}
 	}
 	
-	@GetMapping(path = "/arrayofcampos/byids") // TODO contract
+	@GetMapping(path = "/arrayofcampos/byids")
 	public Flux<AtributoDTO> getAtributosByArrayOfIds(@RequestParam List<String> ids) {
 		Flux<Atributo> atributos = atributoService.findAtributoByIdIn(ids);
 		Flux<AtributoDTO> dtos = atributos.map(a -> modelMapper.map(a, AtributoDTO.class));

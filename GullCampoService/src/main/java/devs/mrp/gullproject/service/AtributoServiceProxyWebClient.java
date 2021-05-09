@@ -1,5 +1,8 @@
 package devs.mrp.gullproject.service;
 
+import java.util.List;
+import java.util.ListIterator;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -58,6 +61,26 @@ public class AtributoServiceProxyWebClient {
 				.uri(clientProperties.getAtributoServiceUrl().concat("api/atributos/typeofformat/").concat(format))
 				.header("Content-Type", "text/html")
 				.retrieve().bodyToMono(String.class);
+	}
+	
+	public Flux<AtributoForCampo> getAtributosByArrayOfIds(List<String> ids) { // TODO test
+		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append("api/atributos/arrayofcampos/byids");
+		if (ids.size()>0) {
+			stringBuilder.append("?ids=");
+		}
+		ListIterator<String> iterator = ids.listIterator();
+		if (iterator.hasNext()) {
+			stringBuilder.append(iterator.next());
+		}
+		while (iterator.hasNext()) {
+			stringBuilder.append(",");
+			stringBuilder.append(iterator.next());
+		}
+		return webClientBuilder.build().get()
+				.uri(clientProperties.getAtributoServiceUrl().concat(stringBuilder.toString()))
+				.header("Content-Type", "text/html")
+				.retrieve().bodyToFlux(AtributoForCampo.class);
 	}
 	
 }
