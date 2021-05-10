@@ -1,7 +1,6 @@
 package devs.mrp.gullproject.controller;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.validation.Valid;
 
@@ -16,15 +15,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Propuesta;
-import devs.mrp.gullproject.domains.PropuestaAbstracta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AttributesListDto;
@@ -41,8 +37,6 @@ import reactor.core.publisher.Mono;
 @RequestMapping(path = "/consultas")
 public class ConsultaController {
 	
-	// TODO add attribute columns into proposal
-	// TODO remove attribute columns into proposal
 	// TODO re-order attribute columns into proposal
 
 	ConsultaService consultaService;
@@ -219,27 +213,20 @@ public class ConsultaController {
 		// TODO test
 		// TODO make case for when no atts are received
 		
-		Flux<AtributoForCampo> attributes = Flux.fromIterable(atts.getAttributes())
-				.map(a -> modelMapper.map(a, AtributoForCampo.class));
+		Flux<AtributoForCampo> attributes;
+		
+		if (atts.getAttributes() == null || atts.getAttributes().size() == 0) {
+			attributes = Flux.fromIterable(new ArrayList<AtributoForCampo>());
+		} else {
+			attributes = Flux.fromIterable(atts.getAttributes())
+					.filter(a -> a.getSelected())
+					.map(a -> modelMapper.map(a, AtributoForCampo.class));
+		}
+		
 		Mono<Consulta> consulta = attributes.collectList()
-				.flatMap(latts -> {
-					log.debug("listado de atributos...");
-					log.debug(String.valueOf(latts.size()));
-					log.debug(latts.get(0).getId());
-					log.debug(latts.get(0).getLocalIdentifier());
-					log.debug(latts.get(0).getName());
-					log.debug(latts.get(0).getTipo());
-					Mono<Consulta> c = consultaService.updateAttributesOfPropuesta(propuestaId, latts);
-					return c;
-				});
-		Mono<Propuesta> propuesta = consulta.map(c -> {
-			log.debug("recogiendo la propuesta desde la consulta...");
-			Propuesta prop = c.getPropuestaById(propuestaId);
-			log.debug(prop.getId());
-			log.debug(prop.getNombre());
-			log.debug(String.valueOf(prop.getAttributeColumns().size()));
-			return c.getPropuestaById(propuestaId);
-		});
+				.flatMap(latts -> consultaService.updateAttributesOfPropuesta(propuestaId, latts));
+		
+		Mono<Propuesta> propuesta = consulta.map(c -> c.getPropuestaById(propuestaId));
 
 		model.addAttribute("atributos", new ReactiveDataDriverContextVariable(attributes, 1));
 		model.addAttribute("propuesta", propuesta);
