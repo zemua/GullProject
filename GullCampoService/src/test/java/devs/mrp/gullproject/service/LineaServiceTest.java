@@ -19,7 +19,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import devs.mrp.gullproject.domains.Campo;
+import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
+import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.repository.ConsultaRepo;
 import devs.mrp.gullproject.repository.CustomLineaRepo;
 import devs.mrp.gullproject.repository.LineaRepo;
 import reactor.core.publisher.Flux;
@@ -32,17 +35,19 @@ class LineaServiceTest {
 	
 	LineaService lineaService;
 	LineaRepo lineaRepo;
+	ConsultaRepo consultaRepo;
 	
 	@MockBean
 	CampoService campoService;
 	
 	@Autowired
-	public LineaServiceTest(LineaService lineaService, LineaRepo lineaRepo) {
+	public LineaServiceTest(LineaService lineaService, LineaRepo lineaRepo, ConsultaRepo consultaRepo) {
 		this.lineaService = lineaService;
 		this.lineaRepo = lineaRepo;
 		if (!(lineaRepo instanceof CustomLineaRepo)) {
 			fail("LineaRepo no extiende CustomLineaRepo");
 		}
+		this.consultaRepo = consultaRepo;
 	}
 	
 	Campo<Integer> campo1;
@@ -52,6 +57,10 @@ class LineaServiceTest {
 	Linea linea2;
 	Mono<Linea> mono;
 	Flux<Linea> flux;
+	
+	Consulta consulta;
+	PropuestaCliente propuesta;
+	Mono<Consulta> monoConsulta;
 	
 	@BeforeEach
 	void setUp() {
@@ -89,6 +98,23 @@ class LineaServiceTest {
 			})
 			.expectComplete()
 			.verify();
+		
+		consultaRepo.deleteAll().block();
+		
+		consulta = new Consulta();
+		propuesta = new PropuestaCliente();
+		consulta.addPropuesta(propuesta);
+		consultaRepo.save(consulta).block();
+		
+		monoConsulta = consultaRepo.findById(consulta.getId());
+		StepVerifier.create(monoConsulta)
+			.assertNext(c -> {
+				assertEquals(consulta.getId(), c.getId());
+				assertEquals(1, c.getCantidadPropuestas());
+				assertEquals(propuesta.getId(), c.getPropuestaByIndex(0).getId());
+			})
+			.expectComplete()
+			.verify();
 	}
 	
 	@Test
@@ -112,6 +138,29 @@ class LineaServiceTest {
 		})
 		.expectComplete()
 		.verify();
+	}
+	
+	@Test
+	void testAddLinea() {
+		Linea lineaz = new Linea();
+		lineaz.setPropuestaId(propuesta.getId());
+		lineaService.addLinea(lineaz).block();
+		
+		Mono<Linea> monoLinea = lineaService.findById(lineaz.getId());
+		StepVerifier.create(monoLinea)
+			.assertNext(line -> {
+				assertEquals(lineaz.getId(), line.getId());
+			})
+			.expectComplete()
+			.verify();
+		
+		StepVerifier.create(monoConsulta)
+			.assertNext(cons -> {
+				assertEquals(1, cons.getPropuestaByIndex(0).getCantidadLineaIds());
+				assertEquals(lineaz.getId(), cons.getPropuestaByIndex(0).getLineaIdByIndex(0));
+			})
+			.expectComplete()
+			.verify();
 	}
 
 }
