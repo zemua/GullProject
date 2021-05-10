@@ -15,8 +15,12 @@
 			<div class="define-group">
 				<h3>Selecciona los atributos que corresponden a esta propuesta:</h3>
 					<div th:each="t, stat : *{attributes}">
-						<input type="checkbox" th:name="*{attributes[__${stat.index}__].name}" th:value="*{attributes[__${stat.index}__].localIdentifier}" th:checked="*{attributes[__${stat.index}__].selected}"/>
-						<label th:text="*{attributes[__${stat.index}__].name}"></label>
+						<input type="checkbox" th:field="*{attributes[__${stat.index}__].selected}"/>
+						<input type="hidden" th:field="*{attributes[__${stat.index}__].localIdentifier}"/>
+						<input type="hidden" th:field="*{attributes[__${stat.index}__].id}"/>
+						<input type="hidden" th:field="*{attributes[__${stat.index}__].name}"/>
+						<input type="hidden" th:field="*{attributes[__${stat.index}__].tipo}"/>
+						<label th:text="${t.name}"></label>
 					</div>
 			</div>
 		</div>

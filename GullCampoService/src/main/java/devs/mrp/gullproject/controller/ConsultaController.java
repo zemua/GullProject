@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -206,6 +207,7 @@ public class ConsultaController {
 		model.addAttribute("proposalId", proposalId);
 		Mono<AttributesListDto> atributos = atributoService.getAllAtributos() // flux<atributoforcampo>
 				.map(a -> modelMapper.map(a, AtributoForFormDto.class)) // flux<atributoforformdto>
+				.map(a -> {a.setSelected(false); return a;}) // flux<atributoforformdto> with selected false
 				.collectList() //mono<list<atributoforformdto>>
 				.flatMap(l -> Mono.just(new AttributesListDto(l))); // mono<atributeslistdto>
 		model.addAttribute("atts", atributos);
@@ -221,7 +223,7 @@ public class ConsultaController {
 	}
 	
 	@PostMapping("/attof/propid/{id}/new")
-	public String processAddAttributeToProposal(AttributesListDto atts, BindingResult bindingResult, Model model, @PathVariable(name = "id") String propuestaId) {
+	public String processAddAttributeToProposal(@ModelAttribute AttributesListDto atts, BindingResult bindingResult, Model model, @PathVariable(name = "id") String propuestaId) {
 		// TODO test
 		if (atts.getAttributes() == null) {
 			log.debug("atts es nulo");
