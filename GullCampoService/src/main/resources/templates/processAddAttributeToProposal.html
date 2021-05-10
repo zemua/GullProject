@@ -9,17 +9,15 @@
 
 <h1>Atributo Guardado</h1>
 
-	<div>
-		<span class="success" th:if="${atributos != null && propuesta != null}">Los siguientes atributos...</span>
-		<span class="failure" th:unless="${atributos != null && propuesta != null}">Algo no ha ido bien...</span>
-	</div>
-
 	<div th:if="${atributos != null && propuesta != null}">
-		<div class="grid" th:each="t : ${attributes}">
-			<span th:text="${t.name}"></span>
+		<p><span class="success">Los siguientes atributos...</span></p>
+		<div class="grid" th:each="t : ${atributos}">
+			<span th:text="${t.name}">Att name</span>
 		</div>
 		
-		<div><span>Constituyen ahora la propuesta </span> <span th:text="propuesta.getNombre()"></span></div>
+		<div><p><span>Constituyen ahora la propuesta: </span> <span th:text="${propuesta.getNombre()}"></span></p></div>
+		
+		<div><p><span>num elementos: </span> <span th:text="${propuesta.getAttributeColumns().size()}"></span></p></div>
 		
 
 		<div>
@@ -27,6 +25,10 @@
 				<a th:href="${'/consultas/attof/propid/' + propuesta.getId()}">Volver a la propuesta</a>
 			</p>
 		</div>
+	</div>
+	
+	<div th:unless="${atributos != null && propuesta != null}">
+		<span class="failure">Algo no ha ido bien...</span>
 	</div>
 
 </body>

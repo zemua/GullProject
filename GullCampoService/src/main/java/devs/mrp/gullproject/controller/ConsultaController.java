@@ -211,32 +211,38 @@ public class ConsultaController {
 				.collectList() //mono<list<atributoforformdto>>
 				.flatMap(l -> Mono.just(new AttributesListDto(l))); // mono<atributeslistdto>
 		model.addAttribute("atts", atributos);
-		atributos.subscribe(a -> {
-			log.debug("contenido de la primera posición");
-			log.debug(a.getAttributes().get(0).getId());
-			log.debug(a.getAttributes().get(0).getLocalIdentifier());
-			log.debug(a.getAttributes().get(0).getName());
-			log.debug(a.getAttributes().get(0).getSelected().toString());
-			log.debug(a.getAttributes().get(0).getTipo());
-		});
 		return "addAttributeToProposal";
 	}
 	
 	@PostMapping("/attof/propid/{id}/new")
 	public String processAddAttributeToProposal(@ModelAttribute AttributesListDto atts, BindingResult bindingResult, Model model, @PathVariable(name = "id") String propuestaId) {
 		// TODO test
-		if (atts.getAttributes() == null) {
-			log.debug("atts es nulo");
-		} else if (atts.getAttributes().size() == 0) {
-			log.debug("atts tiene 0 elementos");
-		}
-		Flux<AtributoForCampo> attributes = Flux.fromIterable(atts.getAttributes()).map(a -> modelMapper.map(a, AtributoForCampo.class));
-		Mono<Consulta> consulta = attributes.collectList().flatMap(latts -> consultaService.updateAttributesOfPropuesta(propuestaId, latts));
-		Mono<Propuesta> propuesta = consulta.map(c -> c.getPropuestaById(propuestaId));
+		// TODO make case for when no atts are received
 		
+		Flux<AtributoForCampo> attributes = Flux.fromIterable(atts.getAttributes())
+				.map(a -> modelMapper.map(a, AtributoForCampo.class));
+		Mono<Consulta> consulta = attributes.collectList()
+				.flatMap(latts -> {
+					log.debug("listado de atributos...");
+					log.debug(String.valueOf(latts.size()));
+					log.debug(latts.get(0).getId());
+					log.debug(latts.get(0).getLocalIdentifier());
+					log.debug(latts.get(0).getName());
+					log.debug(latts.get(0).getTipo());
+					Mono<Consulta> c = consultaService.updateAttributesOfPropuesta(propuestaId, latts);
+					return c;
+				});
+		Mono<Propuesta> propuesta = consulta.map(c -> {
+			log.debug("recogiendo la propuesta desde la consulta...");
+			Propuesta prop = c.getPropuestaById(propuestaId);
+			log.debug(prop.getId());
+			log.debug(prop.getNombre());
+			log.debug(String.valueOf(prop.getAttributeColumns().size()));
+			return c.getPropuestaById(propuestaId);
+		});
+
 		model.addAttribute("atributos", new ReactiveDataDriverContextVariable(attributes, 1));
 		model.addAttribute("propuesta", propuesta);
-		model.addAttribute("consulta", consulta);
 		
 		return "processAddAttributeToProposal";
 	}

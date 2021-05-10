@@ -142,7 +142,7 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 	@Override
 	public Mono<Consulta> addAttributeToList(String idPropuesta, AtributoForCampo attribute){
 		Query query = new Query(Criteria.where("propuestas.id").is(idPropuesta));
-		Update update = new Update().addToSet("propuestas.$.atributeColumns", attribute);
+		Update update = new Update().addToSet("propuestas.$.attributeColumns", attribute);
 		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
 		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
 	}
@@ -150,7 +150,7 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 	@Override
 	public Mono<Consulta> removeAttributeFromList(String idPropuesta, AtributoForCampo attribute) {
 		Query query = new Query(Criteria.where("propuestas.id").is(idPropuesta));
-		Update update = new Update().pull("propuestas.$.atributeColumns", attribute);
+		Update update = new Update().pull("propuestas.$.attributeColumns", attribute);
 		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
 		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
 	}
@@ -158,7 +158,7 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 	@Override
 	public Mono<Consulta> updateAttributesOfPropuesta(String idPropuesta, List<AtributoForCampo> attributes) {
 		Query query = new Query(Criteria.where("propuestas.id").is(idPropuesta));
-		Update update = new Update().set("propuestas.$.atributeColumns", attributes);
+		Update update = new Update().set("propuestas.$.attributeColumns", attributes);
 		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
 		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
 	}
