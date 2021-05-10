@@ -65,7 +65,7 @@ public class AtributoServiceProxyWebClient {
 				.retrieve().bodyToMono(String.class);
 	}
 	
-	public Flux<AtributoForCampo> getAtributosByArrayOfIds(List<String> ids) { // TODO test
+	public Flux<AtributoForCampo> getAtributosByArrayOfIds(List<String> ids) {
 		if (ids.size() == 0) {
 			return Flux.empty();
 		}
