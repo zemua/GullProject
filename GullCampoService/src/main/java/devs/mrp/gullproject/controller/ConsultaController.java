@@ -197,7 +197,6 @@ public class ConsultaController {
 	
 	@GetMapping("/attof/propid/{id}/new")
 	public String addAttributeToProposal(Model model, @PathVariable(name = "id") String proposalId) {
-		// TODO test
 		model.addAttribute("proposalId", proposalId);
 		
 		Mono<AttributesListDto> atributos = consultaService.findPropuestaByPropuestaId(proposalId)
@@ -221,7 +220,6 @@ public class ConsultaController {
 	
 	@PostMapping("/attof/propid/{id}/new")
 	public String processAddAttributeToProposal(@ModelAttribute AttributesListDto atts, BindingResult bindingResult, Model model, @PathVariable(name = "id") String propuestaId) {
-		// TODO test
 		
 		Flux<AtributoForCampo> attributes;
 		
