@@ -199,11 +199,22 @@ public class ConsultaController {
 	public String addAttributeToProposal(Model model, @PathVariable(name = "id") String proposalId) {
 		// TODO test
 		model.addAttribute("proposalId", proposalId);
-		Mono<AttributesListDto> atributos = atributoService.getAllAtributos() // flux<atributoforcampo>
-				.map(a -> modelMapper.map(a, AtributoForFormDto.class)) // flux<atributoforformdto>
-				.map(a -> {a.setSelected(false); return a;}) // flux<atributoforformdto> with selected false
-				.collectList() //mono<list<atributoforformdto>>
-				.flatMap(l -> Mono.just(new AttributesListDto(l))); // mono<atributeslistdto>
+		
+		Mono<AttributesListDto> atributos = consultaService.findPropuestaByPropuestaId(proposalId)
+				.flatMapMany(rPropuesta -> Flux.fromIterable(rPropuesta.getAttributeColumns()))
+				.map(rAtt -> rAtt.getId()).collectList()
+				.flatMap(rAttList -> {
+					return atributoService.getAllAtributos()
+							.map(rAttProp -> modelMapper.map(rAttProp, AtributoForFormDto.class))
+							.map(rAttForm -> {
+								if (rAttList.contains(rAttForm.getId())) {
+									rAttForm.setSelected(true);
+								} else {rAttForm.setSelected(false);}
+								return rAttForm;
+								})
+							.collectList().flatMap(rAttForm -> Mono.just(new AttributesListDto(rAttForm)));
+				});
+		
 		model.addAttribute("atts", atributos);
 		return "addAttributeToProposal";
 	}
@@ -211,7 +222,6 @@ public class ConsultaController {
 	@PostMapping("/attof/propid/{id}/new")
 	public String processAddAttributeToProposal(@ModelAttribute AttributesListDto atts, BindingResult bindingResult, Model model, @PathVariable(name = "id") String propuestaId) {
 		// TODO test
-		// TODO make case for when no atts are received
 		
 		Flux<AtributoForCampo> attributes;
 		
