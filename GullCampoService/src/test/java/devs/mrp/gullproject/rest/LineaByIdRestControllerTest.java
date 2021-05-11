@@ -22,7 +22,6 @@ import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.models.LineaRepresentationModel;
 import devs.mrp.gullproject.domains.models.LineaRepresentationModelAssembler;
-import devs.mrp.gullproject.repository.CampoRepo;
 import devs.mrp.gullproject.repository.LineaRepo;
 import reactor.core.publisher.Mono;
 
@@ -37,8 +36,6 @@ class LineaByIdRestControllerTest {
 	
 	@MockBean
 	LineaRepo lineaRepo;
-	@MockBean
-	CampoRepo campoRepo;
 	@MockBean
 	LineaRepresentationModelAssembler lrma;
 	

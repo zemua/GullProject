@@ -16,7 +16,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Linea;
-import devs.mrp.gullproject.service.CampoService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -26,9 +25,6 @@ import reactor.test.StepVerifier;
 class LineaCustomRepoTest {
 	
 	LineaRepo repo;
-	
-	@MockBean
-	CampoService campoService;
 	
 	@Autowired
 	public LineaCustomRepoTest(LineaRepo lineaRepo) {

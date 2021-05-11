@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.LinkedMultiValueMap;
@@ -42,6 +43,7 @@ import reactor.core.publisher.Mono;
 @WebFluxTest(controllers = ConsultaController.class)
 @AutoConfigureWebTestClient
 @Import(MapperConfig.class)
+@ActiveProfiles("default")
 class ConsultaControllerTestB {
 	
 	WebTestClient webTestClient;
@@ -275,6 +277,8 @@ class ConsultaControllerTestB {
 			.consumeWith(response -> {
 					Assertions.assertThat(response.getResponseBody()).asString()
 						.contains("Todas Las Consultas")
+						.contains(a.getNombre())
+						.contains(b.getNombre())
 						.contains("Crear nueva consulta");
 			});
 	}

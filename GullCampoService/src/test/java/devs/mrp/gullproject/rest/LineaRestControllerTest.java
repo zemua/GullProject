@@ -24,7 +24,6 @@ import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.models.LineaRepresentationModel;
 import devs.mrp.gullproject.domains.models.LineaRepresentationModelAssembler;
-import devs.mrp.gullproject.repository.CampoRepo;
 import devs.mrp.gullproject.repository.LineaRepo;
 import devs.mrp.gullproject.service.AtributoServiceProxy;
 import reactor.core.publisher.Flux;
@@ -39,8 +38,6 @@ class LineaRestControllerTest {
 	@Autowired
 	LineaRestController lineaRestController;
 	
-	@MockBean
-	CampoRepo campoRepo; // evita problemas en el contexto del test con configuracion auto @SpringBootTest en lugar de @WebFluxTest
 	@MockBean
 	LineaRepo lineaRepo;
 	@MockBean

@@ -38,9 +38,6 @@ class LineaServiceTest {
 	LineaRepo lineaRepo;
 	ConsultaRepo consultaRepo;
 	
-	@MockBean
-	CampoService campoService;
-	
 	@Autowired
 	public LineaServiceTest(LineaService lineaService, LineaRepo lineaRepo, ConsultaRepo consultaRepo) {
 		this.lineaService = lineaService;

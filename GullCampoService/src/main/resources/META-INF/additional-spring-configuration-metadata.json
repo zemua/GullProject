@@ -13,5 +13,10 @@
     "name": "gull-project.service.atributo-service",
     "type": "java.lang.String",
     "description": "A description for 'gull-project.service.atributo-service'"
+  },
+  {
+    "name": "devs.mrp.gull.webartifact",
+    "type": "java.lang.String",
+    "description": "A description for 'devs.mrp.gull.webartifact'"
   }
 ]}
