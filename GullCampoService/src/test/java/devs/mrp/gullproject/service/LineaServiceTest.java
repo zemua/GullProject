@@ -1,6 +1,7 @@
 package devs.mrp.gullproject.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
@@ -141,10 +142,15 @@ class LineaServiceTest {
 	}
 	
 	@Test
-	void testAddLinea() {
+	void testAddLinea_And_DeleteLineaById() {
 		Linea lineaz = new Linea();
 		lineaz.setPropuestaId(propuesta.getId());
 		lineaService.addLinea(lineaz).block();
+		try {
+			Thread.sleep(100); // because in the background the linea.id is added to the proposal in consultaRepo
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		
 		Mono<Linea> monoLinea = lineaService.findById(lineaz.getId());
 		StepVerifier.create(monoLinea)
@@ -158,6 +164,25 @@ class LineaServiceTest {
 			.assertNext(cons -> {
 				assertEquals(1, cons.getPropuestaByIndex(0).getCantidadLineaIds());
 				assertEquals(lineaz.getId(), cons.getPropuestaByIndex(0).getLineaIdByIndex(0));
+			})
+			.expectComplete()
+			.verify();
+		
+		lineaService.deleteLineaById(lineaz.getId()).block();
+		try {
+			Thread.sleep(100); // because in the background the linea.id is removed from the proposal in consultaRepo
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		StepVerifier.create(monoLinea)
+			// no onNext because there are no lines with this id after delete
+			.expectComplete()
+			.verify();
+		
+		StepVerifier.create(monoConsulta)
+			.assertNext(cons -> {
+				assertEquals(0, cons.getPropuestaByIndex(0).getCantidadLineaIds());
 			})
 			.expectComplete()
 			.verify();

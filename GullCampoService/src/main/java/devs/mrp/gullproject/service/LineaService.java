@@ -59,7 +59,6 @@ public class LineaService {
 	}
 	
 	public Mono<Linea> addLinea(Linea linea) {
-		// TODO test
 		String nPropuestaId = linea.getPropuestaId();
 		Mono<String> nConsultaId = consultaRepo.findByPropuestaId(nPropuestaId).map(consulta -> consulta.getId());
 		nConsultaId.flatMap(bConsultaId -> consultaRepo.addLineaEnPropuesta(bConsultaId, nPropuestaId, linea.getId())).subscribe();
@@ -80,7 +79,6 @@ public class LineaService {
 	}
 	
 	public Mono<Long> deleteLineaById(String id) {
-		// TODO test
 		Mono<Linea> nlinea = lineaRepo.findById(id);
 		Mono<String> nPropuestaId = nlinea.map(linea -> linea.getPropuestaId());
 		Mono<String> consultaId = nlinea.flatMap(linea -> consultaRepo.findByPropuestaId(linea.getPropuestaId()).map(consulta -> consulta.getId()));
