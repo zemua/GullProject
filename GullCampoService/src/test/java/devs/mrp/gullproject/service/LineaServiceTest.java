@@ -190,7 +190,7 @@ class LineaServiceTest {
 	}
 	
 	@Test
-	void testAddVariasLineas() {
+	void testAddVariasLineas_And_DeleteVariasLineas_And_DeleteVariasLineasById() {
 		lineaService.addVariasLineas(Flux.just(linea4, linea5)).blockLast();
 		
 		StepVerifier.create(lineaService.findById(linea4.getId()))
@@ -215,6 +215,31 @@ class LineaServiceTest {
 		})
 		.expectComplete()
 		.verify();
+		
+		lineaService.deleteVariasLineas(Flux.just(linea4, linea5)).block();
+		
+		StepVerifier.create(lineaService.findById(linea4.getId()))
+		.expectComplete()
+		.verify();
+	
+		StepVerifier.create(lineaService.findById(linea5.getId()))
+		.expectComplete()
+		.verify();
+
+		StepVerifier.create(monoConsulta).assertNext(cons -> {
+			assertEquals(1, cons.getPropuestaByIndex(0).getCantidadLineaIds());
+			assertEquals(linea3.getId(), cons.getPropuestaByIndex(0).getLineaIdByIndex(0));
+		}).expectComplete().verify();
+		
+		lineaService.deleteVariasLineasById(Flux.just(linea3.getId())).block();
+		
+		StepVerifier.create(lineaService.findById(linea3.getId()))
+		.expectComplete()
+		.verify();
+		
+		StepVerifier.create(monoConsulta).assertNext(cons -> {
+			assertEquals(0, cons.getPropuestaByIndex(0).getCantidadLineaIds());
+		}).expectComplete().verify();
 	}
 
 }

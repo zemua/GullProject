@@ -1,5 +1,7 @@
 package devs.mrp.gullproject.repository;
 
+import java.util.List;
+
 import org.springframework.data.mongodb.repository.DeleteQuery;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
@@ -18,5 +20,7 @@ public interface LineaRepo extends ReactiveMongoRepository<Linea, String>, Custo
 	Mono<Long> deleteByPropuestaIdReturningDeletedCount(String propuestaId);
 	
 	Flux<Linea> findAllByPropuestaId(String propuestaId);
+	
+	Flux<Linea> findLineasByIdIn(List<String> ids);
 	
 }

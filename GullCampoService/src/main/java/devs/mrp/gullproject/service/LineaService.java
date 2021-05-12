@@ -66,7 +66,6 @@ public class LineaService {
 	}
 	
 	public Flux<Linea> addVariasLineas(Flux<Linea> lineas) {
-		// TODO add also ids to proposal and test
 		return lineas.flatMap(rLinea -> consultaRepo.findByPropuestaId(rLinea.getPropuestaId())
 										.flatMap(rConsulta -> consultaRepo.addLineaEnPropuesta(rConsulta.getId(), rLinea.getPropuestaId(), rLinea.getId())))
 				.thenMany(lineaRepo.insert(lineas));
@@ -88,15 +87,15 @@ public class LineaService {
 				.then(lineaRepo.deleteByIdReturningDeletedCount(id));		
 	}
 	
-	public Mono<Long> deleteVariasLineasById(Flux<String> ids){
-		// TODO remove also from proposal
-		return ids.flatMap(id -> lineaRepo.deleteById(id))
-				.count();
+	public Mono<Void> deleteVariasLineasById(Flux<String> ids){
+		return deleteVariasLineas(ids.collectList().flatMapMany(rIdsList -> lineaRepo.findLineasByIdIn(rIdsList)));
 	}
 	
 	public Mono<Void> deleteVariasLineas(Flux<Linea> lineas) {
-		// TODO delete also from proposal
-		return lineaRepo.deleteAll(lineas);
+		// TODO delete also from proposal and test
+		return lineas.flatMap(rLinea -> consultaRepo.findByPropuestaId(rLinea.getPropuestaId())
+														.flatMap(rConsulta -> consultaRepo.removeLineaEnPropuesta(rConsulta.getId(), rLinea.getPropuestaId(), rLinea.getId())))
+				.then(lineaRepo.deleteAll(lineas));
 	}
 	
 	public Mono<Void> updateOrderOfSeveralLineas(Map<String, Integer> idlineaVSposicion) {
