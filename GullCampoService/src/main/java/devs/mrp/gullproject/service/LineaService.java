@@ -106,22 +106,27 @@ public class LineaService {
 		return Mono.empty();
 	}
 	
-	public Mono<Long> deleteSeveralLineasFromPropuestaId(String propuestaId){
+	private Mono<Consulta> deleteAllLineasFromPropuesta(String propuestaId) {
 		return consultaRepo.findByPropuestaId(propuestaId).flatMap(rConsulta -> {
 			Propuesta prop = rConsulta.getPropuestaById(propuestaId);
 			prop.setLineaIds(new ArrayList<>());
 			return consultaRepo.updateLineasDeUnaPropuesta(rConsulta.getId(), prop);
-		}).then(lineaRepo.deleteSeveralLineasByPropuestaId(propuestaId).map(r -> Long.valueOf(r.getDeletedCount())));
+		});
+	}
+	
+	public Mono<Long> deleteSeveralLineasFromPropuestaId(String propuestaId){
+		return deleteAllLineasFromPropuesta(propuestaId)
+				.then(lineaRepo.deleteSeveralLineasByPropuestaId(propuestaId).map(r -> Long.valueOf(r.getDeletedCount())));
 	}
 	
 	public Mono<Long> deleteSeveralLineasFromSeveralPropuestaIds(List<String> propuestaIds) {
-		// TODO delete also from propuesta/consulta repo and test
-		return lineaRepo.deleteSeveralLineasBySeveralPropuestaIds(propuestaIds).map(r-> Long.valueOf(r.getDeletedCount()));
+		return Flux.fromIterable(propuestaIds).flatMap(rPropuestaId -> deleteAllLineasFromPropuesta(rPropuestaId))
+			.then(lineaRepo.deleteSeveralLineasBySeveralPropuestaIds(propuestaIds).map(r-> Long.valueOf(r.getDeletedCount())));
 	}
 	
 	public Mono<Long> deleteSeveralLineasFromSeveralPropuestas(List<Propuesta> propuestas) {
 		List<String> ids = propuestas.stream().map(arg0 -> arg0.getId()).collect(Collectors.toList());
-		return lineaRepo.deleteSeveralLineasBySeveralPropuestaIds(ids).map(r-> Long.valueOf(r.getDeletedCount()));
+		return deleteSeveralLineasFromSeveralPropuestaIds(ids);
 	}
 	
 }

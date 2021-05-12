@@ -22,6 +22,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
+import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.repository.ConsultaRepo;
 import devs.mrp.gullproject.repository.CustomLineaRepo;
@@ -56,11 +57,14 @@ class LineaServiceTest {
 	Linea linea3;
 	Linea linea4;
 	Linea linea5;
+	Linea linea6;
+	Linea linea7;
 	Mono<Linea> mono;
 	Flux<Linea> flux;
 	
 	Consulta consulta;
 	PropuestaCliente propuesta;
+	PropuestaCliente propuesta2;
 	Mono<Consulta> monoConsulta;
 	
 	@BeforeEach
@@ -104,12 +108,16 @@ class LineaServiceTest {
 		
 		consulta = new Consulta();
 		propuesta = new PropuestaCliente();
+		propuesta2 = new PropuestaCliente();
 		consulta.addPropuesta(propuesta);
+		consulta.addPropuesta(propuesta2);
 		consultaRepo.save(consulta).block();
 		
 		linea3 = new Linea(); linea3.setNombre("linea3"); linea3.setPropuestaId(propuesta.getId());
 		linea4 = new Linea(); linea4.setNombre("linea4"); linea4.setPropuestaId(propuesta.getId());
 		linea5 = new Linea(); linea5.setNombre("linea5"); linea5.setPropuestaId(propuesta.getId());
+		linea6 = new Linea(); linea6.setNombre("linea6"); linea6.setPropuestaId(propuesta2.getId());
+		linea7 = new Linea(); linea7.setNombre("linea7"); linea7.setPropuestaId(propuesta2.getId());
 		
 		lineaService.addLinea(linea3).block();
 		
@@ -117,7 +125,7 @@ class LineaServiceTest {
 		StepVerifier.create(monoConsulta)
 			.assertNext(c -> {
 				assertEquals(consulta.getId(), c.getId());
-				assertEquals(1, c.getCantidadPropuestas());
+				assertEquals(2, c.getCantidadPropuestas());
 				assertEquals(propuesta.getId(), c.getPropuestaByIndex(0).getId());
 				assertEquals(1, c.getPropuestaByIndex(0).getCantidadLineaIds());
 				assertEquals(linea3.getId(),c.getPropuestaByIndex(0).getLineaIdByIndex(0));
@@ -264,6 +272,72 @@ class LineaServiceTest {
 			assertEquals(3, deletecount);
 		}).expectComplete().verify();
 		
+	}
+	
+	@Test
+	void testDeleteSeveralLineasFromSeveralPropuestas() {
+		lineaService.addVariasLineas(Flux.just(linea4, linea5, linea6, linea7)).blockLast();
+		
+		StepVerifier.create(lineaService.findById(linea3.getId()))
+		.assertNext(assertionConsumer -> {})
+		.expectComplete()
+		.verify();
+		
+		StepVerifier.create(lineaService.findById(linea4.getId()))
+		.assertNext(assertionConsumer -> {})
+		.expectComplete()
+		.verify();
+	
+		StepVerifier.create(lineaService.findById(linea5.getId()))
+		.assertNext(assertionConsumer -> {})
+		.expectComplete()
+		.verify();
+		
+		StepVerifier.create(lineaService.findById(linea6.getId()))
+		.assertNext(assertionConsumer -> {})
+		.expectComplete()
+		.verify();
+	
+		StepVerifier.create(lineaService.findById(linea7.getId()))
+		.assertNext(assertionConsumer -> {})
+		.expectComplete()
+		.verify();
+		
+		StepVerifier.create(monoConsulta).assertNext(cons -> {
+			assertEquals(3, cons.getPropuestaByIndex(0).getCantidadLineaIds());
+			assertEquals(2, cons.getPropuestaByIndex(1).getCantidadLineaIds());
+		}).expectComplete().verify();
+		
+		List<Propuesta> list = new ArrayList<>();
+		list.add(propuesta);
+		list.add(propuesta2);
+		Long deleteCount = lineaService.deleteSeveralLineasFromSeveralPropuestas(list).block();
+		
+		StepVerifier.create(monoConsulta).assertNext(cons -> {
+			assertEquals(0, cons.getPropuestaByIndex(0).getCantidadLineaIds());
+			assertEquals(0, cons.getPropuestaByIndex(1).getCantidadLineaIds());
+			assertEquals(5, deleteCount);
+		}).expectComplete().verify();
+		
+		StepVerifier.create(lineaService.findById(linea3.getId()))
+		.expectComplete()
+		.verify();
+		
+		StepVerifier.create(lineaService.findById(linea4.getId()))
+		.expectComplete()
+		.verify();
+	
+		StepVerifier.create(lineaService.findById(linea5.getId()))
+		.expectComplete()
+		.verify();
+		
+		StepVerifier.create(lineaService.findById(linea6.getId()))
+		.expectComplete()
+		.verify();
+	
+		StepVerifier.create(lineaService.findById(linea7.getId()))
+		.expectComplete()
+		.verify();
 	}
 
 }
