@@ -53,6 +53,9 @@ class LineaServiceTest {
 	Campo<String> campo3;
 	Linea linea1;
 	Linea linea2;
+	Linea linea3;
+	Linea linea4;
+	Linea linea5;
 	Mono<Linea> mono;
 	Flux<Linea> flux;
 	
@@ -104,12 +107,20 @@ class LineaServiceTest {
 		consulta.addPropuesta(propuesta);
 		consultaRepo.save(consulta).block();
 		
+		linea3 = new Linea(); linea3.setNombre("linea3"); linea3.setPropuestaId(propuesta.getId());
+		linea4 = new Linea(); linea4.setNombre("linea4"); linea4.setPropuestaId(propuesta.getId());
+		linea5 = new Linea(); linea5.setNombre("linea5"); linea5.setPropuestaId(propuesta.getId());
+		
+		lineaService.addLinea(linea3).block();
+		
 		monoConsulta = consultaRepo.findById(consulta.getId());
 		StepVerifier.create(monoConsulta)
 			.assertNext(c -> {
 				assertEquals(consulta.getId(), c.getId());
 				assertEquals(1, c.getCantidadPropuestas());
 				assertEquals(propuesta.getId(), c.getPropuestaByIndex(0).getId());
+				assertEquals(1, c.getPropuestaByIndex(0).getCantidadLineaIds());
+				assertEquals(linea3.getId(),c.getPropuestaByIndex(0).getLineaIdByIndex(0));
 			})
 			.expectComplete()
 			.verify();
@@ -134,6 +145,9 @@ class LineaServiceTest {
 			assertEquals("id2", line.getId());
 			assertEquals(0, line.getOrder());
 		})
+		.assertNext(line -> {
+			assertEquals(linea3.getId(), line.getId());
+		})
 		.expectComplete()
 		.verify();
 	}
@@ -143,11 +157,6 @@ class LineaServiceTest {
 		Linea lineaz = new Linea();
 		lineaz.setPropuestaId(propuesta.getId());
 		lineaService.addLinea(lineaz).block();
-		try {
-			Thread.sleep(100); // because in the background the linea.id is added to the proposal in consultaRepo
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 		
 		Mono<Linea> monoLinea = lineaService.findById(lineaz.getId());
 		StepVerifier.create(monoLinea)
@@ -159,18 +168,13 @@ class LineaServiceTest {
 		
 		StepVerifier.create(monoConsulta)
 			.assertNext(cons -> {
-				assertEquals(1, cons.getPropuestaByIndex(0).getCantidadLineaIds());
-				assertEquals(lineaz.getId(), cons.getPropuestaByIndex(0).getLineaIdByIndex(0));
+				assertEquals(2, cons.getPropuestaByIndex(0).getCantidadLineaIds());
+				assertEquals(lineaz.getId(), cons.getPropuestaByIndex(0).getLineaIdByIndex(1));
 			})
 			.expectComplete()
 			.verify();
 		
 		lineaService.deleteLineaById(lineaz.getId()).block();
-		try {
-			Thread.sleep(100); // because in the background the linea.id is removed from the proposal in consultaRepo
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 		
 		StepVerifier.create(monoLinea)
 			// no onNext because there are no lines with this id after delete
@@ -179,10 +183,15 @@ class LineaServiceTest {
 		
 		StepVerifier.create(monoConsulta)
 			.assertNext(cons -> {
-				assertEquals(0, cons.getPropuestaByIndex(0).getCantidadLineaIds());
+				assertEquals(1, cons.getPropuestaByIndex(0).getCantidadLineaIds());
 			})
 			.expectComplete()
 			.verify();
+	}
+	
+	@Test
+	void testAddVariasLineas() {
+		lineaService.addVariasLineas(Flux.just(linea4, linea5)).blockLast();
 	}
 
 }

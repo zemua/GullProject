@@ -61,13 +61,18 @@ public class LineaService {
 	public Mono<Linea> addLinea(Linea linea) {
 		String nPropuestaId = linea.getPropuestaId();
 		Mono<String> nConsultaId = consultaRepo.findByPropuestaId(nPropuestaId).map(consulta -> consulta.getId());
-		nConsultaId.flatMap(bConsultaId -> consultaRepo.addLineaEnPropuesta(bConsultaId, nPropuestaId, linea.getId())).subscribe();
-		return lineaRepo.insert(linea);
+		return nConsultaId.flatMap(bConsultaId -> consultaRepo.addLineaEnPropuesta(bConsultaId, nPropuestaId, linea.getId()))
+				.then(lineaRepo.insert(linea));
 	}
 	
 	public Flux<Linea> addVariasLineas(Flux<Linea> lineas) {
-		// TODO add also ids to proposal
-		return lineaRepo.insert(lineas);
+		// TODO add also ids to proposal and test
+		return lineas.map(rLinea -> {
+			return consultaRepo.findByPropuestaId(rLinea.getPropuestaId())
+				.map(rConsulta -> {
+					return consultaRepo.addLineaEnPropuesta(rConsulta.getId(), rLinea.getPropuestaId(), rLinea.getId());
+				});
+		}).thenMany(lineaRepo.insert(lineas));
 	}
 	
 	public Mono<Linea> updateLinea(Linea linea) {
@@ -82,8 +87,8 @@ public class LineaService {
 		Mono<Linea> nlinea = lineaRepo.findById(id);
 		Mono<String> nPropuestaId = nlinea.map(linea -> linea.getPropuestaId());
 		Mono<String> consultaId = nlinea.flatMap(linea -> consultaRepo.findByPropuestaId(linea.getPropuestaId()).map(consulta -> consulta.getId()));
-		Mono.zip(consultaId, nPropuestaId).flatMap(t -> consultaRepo.removeLineaEnPropuesta(t.getT1(), t.getT2(), id)).subscribe();		
-		return lineaRepo.deleteByIdReturningDeletedCount(id);
+		return Mono.zip(consultaId, nPropuestaId).flatMap(t -> consultaRepo.removeLineaEnPropuesta(t.getT1(), t.getT2(), id))
+				.then(lineaRepo.deleteByIdReturningDeletedCount(id));		
 	}
 	
 	public Mono<Long> deleteVariasLineasById(Flux<String> ids){

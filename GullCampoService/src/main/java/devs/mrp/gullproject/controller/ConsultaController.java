@@ -145,7 +145,6 @@ public class ConsultaController {
 			c = cons.then(consultaService.deleteById(consulta.getId()));
 			
 			remLineas = cons.flatMap(cc -> lineaService.deleteSeveralLineasFromSeveralPropuestas(cc.getPropuestas()));
-			//remLineas.subscribe();
 			numPropuestas = cons.flatMap(cc -> Mono.just(cc.getCantidadPropuestas()));
 		} else {
 			log.debug("idConsulta does not equal id");
