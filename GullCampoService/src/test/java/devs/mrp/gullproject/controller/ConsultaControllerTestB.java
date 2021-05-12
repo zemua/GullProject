@@ -209,7 +209,7 @@ class ConsultaControllerTestB {
 					.contains("Consulta Guardada Como...");
 		});
 		
-		/*webTestClient.post()
+		webTestClient.post()
 		.uri("/consultas/nuevo")
 		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 		.accept(MediaType.TEXT_HTML)
@@ -249,7 +249,7 @@ class ConsultaControllerTestB {
 					.doesNotContain("Guardada. ¿Añadir otra?")
 					.doesNotContain("Consulta Guardada")
 					.contains("este es incorrecto");
-		}); */
+		});
 	}
 	
 	@Test
