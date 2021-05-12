@@ -241,5 +241,29 @@ class LineaServiceTest {
 			assertEquals(0, cons.getPropuestaByIndex(0).getCantidadLineaIds());
 		}).expectComplete().verify();
 	}
+	
+	@Test
+	void testDeleteSeveralLineasFromPropuestaId() {
+		lineaService.addVariasLineas(Flux.just(linea4, linea5)).blockLast();
+		Long deletecount = lineaService.deleteSeveralLineasFromPropuestaId(propuesta.getId()).block();
+		
+		StepVerifier.create(lineaService.findById(linea3.getId()))
+		.expectComplete()
+		.verify();
+		
+		StepVerifier.create(lineaService.findById(linea4.getId()))
+		.expectComplete()
+		.verify();
+	
+		StepVerifier.create(lineaService.findById(linea5.getId()))
+		.expectComplete()
+		.verify();
+		
+		StepVerifier.create(monoConsulta).assertNext(cons -> {
+			assertEquals(0, cons.getPropuestaByIndex(0).getCantidadLineaIds());
+			assertEquals(3, deletecount);
+		}).expectComplete().verify();
+		
+	}
 
 }

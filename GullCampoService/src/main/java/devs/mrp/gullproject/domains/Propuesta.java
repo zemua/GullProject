@@ -19,6 +19,7 @@ public interface Propuesta {
 	public boolean isRoot(); // si es o no consulta "original" (del cliente) o falso si es otro caso
 	public boolean isForBid(); // verdadero si es "nuestra oferta" para enviar al cliente
 	
+	public void setLineaIds(List<String> ids);
 	public void addLineaId(String lineaId);
 	public void addLineaIds(List<String> lineaIds);
 	public int getCantidadLineaIds();

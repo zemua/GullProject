@@ -13,6 +13,7 @@ import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
+import devs.mrp.gullproject.domains.PropuestaAbstracta;
 import devs.mrp.gullproject.repository.ConsultaRepo;
 import devs.mrp.gullproject.repository.LineaRepo;
 import reactor.core.publisher.Flux;
@@ -92,7 +93,6 @@ public class LineaService {
 	}
 	
 	public Mono<Void> deleteVariasLineas(Flux<Linea> lineas) {
-		// TODO delete also from proposal and test
 		return lineas.flatMap(rLinea -> consultaRepo.findByPropuestaId(rLinea.getPropuestaId())
 														.flatMap(rConsulta -> consultaRepo.removeLineaEnPropuesta(rConsulta.getId(), rLinea.getPropuestaId(), rLinea.getId())))
 				.then(lineaRepo.deleteAll(lineas));
@@ -107,17 +107,19 @@ public class LineaService {
 	}
 	
 	public Mono<Long> deleteSeveralLineasFromPropuestaId(String propuestaId){
-		// TODO delete also from propuesta/consulta repo
-		return lineaRepo.deleteSeveralLineasByPropuestaId(propuestaId).map(r -> Long.valueOf(r.getDeletedCount()));
+		return consultaRepo.findByPropuestaId(propuestaId).flatMap(rConsulta -> {
+			Propuesta prop = rConsulta.getPropuestaById(propuestaId);
+			prop.setLineaIds(new ArrayList<>());
+			return consultaRepo.updateLineasDeUnaPropuesta(rConsulta.getId(), prop);
+		}).then(lineaRepo.deleteSeveralLineasByPropuestaId(propuestaId).map(r -> Long.valueOf(r.getDeletedCount())));
 	}
 	
 	public Mono<Long> deleteSeveralLineasFromSeveralPropuestaIds(List<String> propuestaIds) {
-		// TODO delete also from propuesta/consulta repo
+		// TODO delete also from propuesta/consulta repo and test
 		return lineaRepo.deleteSeveralLineasBySeveralPropuestaIds(propuestaIds).map(r-> Long.valueOf(r.getDeletedCount()));
 	}
 	
 	public Mono<Long> deleteSeveralLineasFromSeveralPropuestas(List<Propuesta> propuestas) {
-		// TODO delete also from propuesta/consulta repo
 		List<String> ids = propuestas.stream().map(arg0 -> arg0.getId()).collect(Collectors.toList());
 		return lineaRepo.deleteSeveralLineasBySeveralPropuestaIds(ids).map(r-> Long.valueOf(r.getDeletedCount()));
 	}
