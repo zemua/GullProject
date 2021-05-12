@@ -192,6 +192,29 @@ class LineaServiceTest {
 	@Test
 	void testAddVariasLineas() {
 		lineaService.addVariasLineas(Flux.just(linea4, linea5)).blockLast();
+		
+		StepVerifier.create(lineaService.findById(linea4.getId()))
+			.assertNext(line -> {
+				assertEquals(linea4.getId(), line.getId());
+			})
+			.expectComplete()
+			.verify();
+		
+		StepVerifier.create(lineaService.findById(linea5.getId()))
+			.assertNext(line -> {
+				assertEquals(linea5.getId(), line.getId());
+			})
+			.expectComplete()
+			.verify();
+		
+		StepVerifier.create(monoConsulta)
+		.assertNext(cons -> {
+			assertEquals(3, cons.getPropuestaByIndex(0).getCantidadLineaIds());
+			assertEquals(linea4.getId(), cons.getPropuestaByIndex(0).getLineaIdByIndex(1));
+			assertEquals(linea5.getId(), cons.getPropuestaByIndex(0).getLineaIdByIndex(2));
+		})
+		.expectComplete()
+		.verify();
 	}
 
 }

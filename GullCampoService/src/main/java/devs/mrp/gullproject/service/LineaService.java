@@ -67,12 +67,9 @@ public class LineaService {
 	
 	public Flux<Linea> addVariasLineas(Flux<Linea> lineas) {
 		// TODO add also ids to proposal and test
-		return lineas.map(rLinea -> {
-			return consultaRepo.findByPropuestaId(rLinea.getPropuestaId())
-				.map(rConsulta -> {
-					return consultaRepo.addLineaEnPropuesta(rConsulta.getId(), rLinea.getPropuestaId(), rLinea.getId());
-				});
-		}).thenMany(lineaRepo.insert(lineas));
+		return lineas.flatMap(rLinea -> consultaRepo.findByPropuestaId(rLinea.getPropuestaId())
+										.flatMap(rConsulta -> consultaRepo.addLineaEnPropuesta(rConsulta.getId(), rLinea.getPropuestaId(), rLinea.getId())))
+				.thenMany(lineaRepo.insert(lineas));
 	}
 	
 	public Mono<Linea> updateLinea(Linea linea) {
