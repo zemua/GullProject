@@ -29,6 +29,7 @@
 			<div class="atribute-group" th:each="t, stat : *{attributes}">
 				<h3 th:text="${t.name}">Atributo:</h3>
 					<input type="text" th:field="*{attributes[__${stat.index}__].value}"/>
+					<span class="help-block" th:if="${#fields.hasErrors('*{attributes[__${stat.index}__].id}')}" th:errors="${t.id}"></span>
 					<input type="hidden" th:field="*{attributes[__${stat.index}__].localIdentifier}"/>
 					<input type="hidden" th:field="*{attributes[__${stat.index}__].id}"/>
 					<input type="hidden" th:field="*{attributes[__${stat.index}__].name}"/>

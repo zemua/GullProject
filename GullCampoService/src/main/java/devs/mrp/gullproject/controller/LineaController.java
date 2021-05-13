@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
+import devs.mrp.gullproject.configuration.ClientProperties;
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
@@ -44,7 +45,7 @@ public class LineaController {
 	private LineaService lineaService;
 	private ConsultaService consultaService;
 	private ModelMapper modelMapper;
-	private AtributoServiceProxyWebClient atributoService;
+	AtributoServiceProxyWebClient atributoService;
 	
 	@Autowired
 	public LineaController(LineaService lineaService, ConsultaService consultaService, ModelMapper modelMapper, AtributoServiceProxyWebClient atributoService) {
@@ -83,44 +84,50 @@ public class LineaController {
 	public Mono<String> processAddLineaToPropuesta(@Valid LineaWithAttListDto lineaDto, BindingResult bindingResult, Model model, @PathVariable(name ="propuestaId") String propuestaId) {
 		
 		/**
-		 * BindingResult checks out of the box if there is any error in the line, but not in the attributes
+		 * BindingResult checks out of the box if there is any error in the line, but not in the attributes (we removed the validation)
 		 * To check if the attributes are correct we need to call the attribute repository, which returns a Reactor object
-		 * The class AttributeValueValidator.class can check for that but it needs to block the reactor object in a flux thread
-		 * So we need to add errors manually to the binding result and return a Mono to avoid blocking
+		 * The class AttributeValueValidator.class can check that, but it needs to block the reactor object in a flux thread
+		 * So we need to add errors manually to the bindingResult in a flow and return a Mono to avoid blocking
 		 */
 		
-		Flux.fromIterable(lineaDto.getAttributes());
-		
-		// TODO check for errors in atributes and add to bindingResult
-		lineaDto.getAttributes().stream().forEach(att -> {
-			if (att.getValue() != "" && !atributoService.validateDataFormat(att.getTipo(), att.getValue()).block()) {
-				bindingResult.rejectValue(att.getId(), "type.value.pair", "El valor no es correcto para este atributo.");
-			}
-		});
-		
-		if(bindingResult.hasErrors()) {
-			model.addAttribute("propuesta", consultaService.findPropuestaByPropuestaId(propuestaId));
-			model.addAttribute("propuestaId", propuestaId);
-			model.addAttribute("lineaDto", lineaDto);
-			return Mono.just("addLineaToPropuesta");
-		}
-		
-		// TODO add the attributes to the line before saving
-		
-		Mono<Linea> l1;
-		Mono<Propuesta> p1;
-		if (lineaDto.getLinea().getPropuestaId().equals(propuestaId)){
-			log.debug("propuestaId's equal");
-			l1 = lineaService.addLinea(lineaDto.getLinea());
-			p1 = consultaService.findPropuestaByPropuestaId(propuestaId);
-		} else {
-			log.debug("propuestaId's are NOT equal");
-			l1 = Mono.empty();
-			p1 = Mono.empty();
-		}
-		model.addAttribute("linea", l1);
-		model.addAttribute("propuesta", p1);
-		return Mono.just("processAddLineaToPropuesta");
+		return Flux.fromIterable(lineaDto.getAttributes())
+			.flatMap(rAtt -> { // we don't use doOnNext() just because we need the operation to complete before we continue
+				if (rAtt.getValue() != "") {
+					return atributoService.validateDataFormat(rAtt.getTipo(), rAtt.getValue())
+							.map(rBol -> {
+								if (!rBol) { // TODO need to rejectValue on name="attributes[0].id" -> change to iterator
+									bindingResult.rejectValue(rAtt.getId(), "type.value.pair", "El valor no es correcto para este atributo.");
+								}
+								return rBol;
+							});
+				} else {
+					return Mono.just(true);
+				}
+			}).then(Mono.just(bindingResult)).flatMap(rBindingResult -> {
+				if(rBindingResult.hasErrors()) {
+					model.addAttribute("propuesta", consultaService.findPropuestaByPropuestaId(propuestaId));
+					model.addAttribute("propuestaId", propuestaId);
+					model.addAttribute("lineaDto", lineaDto);
+					return Mono.just("addLineaToPropuesta");
+				} else {
+					// TODO add the attributes to the line before saving
+					
+					Mono<Linea> l1;
+					Mono<Propuesta> p1;
+					if (lineaDto.getLinea().getPropuestaId().equals(propuestaId)){
+						log.debug("propuestaId's equal");
+						l1 = lineaService.addLinea(lineaDto.getLinea());
+						p1 = consultaService.findPropuestaByPropuestaId(propuestaId);
+					} else {
+						log.debug("propuestaId's are NOT equal");
+						l1 = Mono.empty();
+						p1 = Mono.empty();
+					}
+					model.addAttribute("linea", l1);
+					model.addAttribute("propuesta", p1);
+					return Mono.just("processAddLineaToPropuesta");
+				}
+			});
 	}
 	
 }

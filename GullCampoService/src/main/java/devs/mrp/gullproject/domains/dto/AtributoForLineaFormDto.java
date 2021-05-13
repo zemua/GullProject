@@ -13,6 +13,5 @@ public class AtributoForLineaFormDto {
 	String name;
 	String tipo;
 	String value;
-	Boolean correct = true;
 	
 }

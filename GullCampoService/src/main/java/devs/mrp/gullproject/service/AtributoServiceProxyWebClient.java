@@ -29,7 +29,8 @@ public class AtributoServiceProxyWebClient {
 	
 	public Mono<Boolean> validateDataFormat(String type, String data){
 		return webClientBuilder.build().get().uri(uriBuilder -> uriBuilder
-				.path(clientProperties.getAtributoServiceUrl().concat("api/atributos/data-validator"))
+				.host(clientProperties.getAtributoServiceHost())
+				.path("api/atributos/data-validator")
 				.queryParam("type", type)
 				.queryParam("data", data)
 				.build())
