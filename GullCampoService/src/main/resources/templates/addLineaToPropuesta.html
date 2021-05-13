@@ -26,8 +26,8 @@
 				<h3>Nombre:</h3>
 					<input name="nombre" type="text" th:field="*{linea.nombre}"/>
 			</div>
-			<div class="atribute-group" th:each="t, stat : ${atributos}">
-				<h3 th:text="t.name">Atributo:</h3>
+			<div class="atribute-group" th:each="t, stat : *{attributes}">
+				<h3 th:text="${t.name}">Atributo:</h3>
 					<input type="text" th:field="*{attributes[__${stat.index}__].value}"/>
 					<input type="hidden" th:field="*{attributes[__${stat.index}__].localIdentifier}"/>
 					<input type="hidden" th:field="*{attributes[__${stat.index}__].id}"/>

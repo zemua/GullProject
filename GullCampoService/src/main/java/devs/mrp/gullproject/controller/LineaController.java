@@ -56,7 +56,7 @@ public class LineaController {
 		return "showAllLineasOfPropuesta";
 	}
 	
-	@GetMapping("/of/{propuestaId}/new") // TODO mostrar campos para añadir de los atributos escogidos
+	@GetMapping("/of/{propuestaId}/new") // TODO mostrar error cuando datos no coinciden
 	public String addLineToPropuesta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
 		Linea lLinea = new Linea();
