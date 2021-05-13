@@ -90,7 +90,6 @@
 			<artifactId>spring-cloud-starter-contract-verifier</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-contract-dependencies -->
 		<dependency>
     		<groupId>org.springframework.cloud</groupId>
     		<artifactId>spring-cloud-contract-dependencies</artifactId>
@@ -120,6 +119,11 @@
     		<artifactId>spring-boot-configuration-processor</artifactId>
     		<optional>true</optional>
     	</dependency>
+    	<!-- END OF PRODUCER STUB -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
 	</dependencies>
 	
 	<profiles>

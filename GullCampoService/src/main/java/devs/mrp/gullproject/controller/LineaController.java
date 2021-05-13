@@ -10,7 +10,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
 import devs.mrp.gullproject.domains.AtributoForCampo;
@@ -20,10 +22,14 @@ import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AttributesListDto;
+import devs.mrp.gullproject.domains.dto.BooleanWrapper;
 import devs.mrp.gullproject.domains.dto.AtributoForLineaFormDto;
 import devs.mrp.gullproject.domains.dto.LineaWithAttListDto;
+import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaService;
+import devs.mrp.gullproject.validator.AttributeValueValidator;
+import devs.mrp.gullproject.validator.ValidList;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -38,12 +44,14 @@ public class LineaController {
 	private LineaService lineaService;
 	private ConsultaService consultaService;
 	private ModelMapper modelMapper;
+	private AtributoServiceProxyWebClient atributoService;
 	
 	@Autowired
-	public LineaController(LineaService lineaService, ConsultaService consultaService, ModelMapper modelMapper) {
+	public LineaController(LineaService lineaService, ConsultaService consultaService, ModelMapper modelMapper, AtributoServiceProxyWebClient atributoService) {
 		this.lineaService = lineaService;
 		this.consultaService = consultaService;
 		this.modelMapper = modelMapper;
+		this.atributoService = atributoService;
 	}
 	
 	@GetMapping("/allof/propid/{propuestaId}")
@@ -64,26 +72,37 @@ public class LineaController {
 		Mono<LineaWithAttListDto> atributosDePropuesta = consultaService.findAttributesByPropuestaId(propuestaId)
 														.map(rAttProp -> modelMapper.map(rAttProp, AtributoForLineaFormDto.class))
 														.collectList()
-														.flatMap(rAttFormList -> Mono.just(new LineaWithAttListDto(lLinea, rAttFormList)));
+														.flatMap(rAttFormList -> Mono.just(new LineaWithAttListDto(lLinea, new ValidList<AtributoForLineaFormDto>(rAttFormList))));
 		model.addAttribute("propuesta", propuesta);
 		model.addAttribute("propuestaId",propuestaId);
 		model.addAttribute("atributosDeLinea", atributosDePropuesta); // TODO test
 		return "addLineaToPropuesta";
 	}
 	
-	@PostMapping("/of/{propuestaId}/new")
-	public String processAddLineaToPropuesta(@Valid Linea linea, BindingResult bindingResult, Model model, @PathVariable(name ="propuestaId") String propuestaId) {
+	@PostMapping("/of/{propuestaId}/new") // TODO save the attributes received with the linea
+	public String processAddLineaToPropuesta(@Valid LineaWithAttListDto lineaDto, BindingResult bindingResult, Model model, @PathVariable(name ="propuestaId") String propuestaId) {
+		
+		/**
+		 * BindingResult checks out of the box if there is any error in the line, but not in the attributes
+		 * To check if the attributes are correct we need to call the attribute repository, which returns a Reactor object
+		 * The class AttributeValueValidator.class can check for that but it needs to block the reactor object
+		 * So we need to make an artisaned solution to make this work out and add errors manually to the binding result
+		 */
+		
+		// TODO check for errors in atributes and add to bindingResult
+		
 		if(bindingResult.hasErrors()) {
 			model.addAttribute("propuesta", consultaService.findPropuestaByPropuestaId(propuestaId));
 			model.addAttribute("propuestaId", propuestaId);
-			model.addAttribute("linea", linea);
+			model.addAttribute("lineaDto", lineaDto);
 			return "addLineaToPropuesta";
 		}
+		
 		Mono<Linea> l1;
 		Mono<Propuesta> p1;
-		if (linea.getPropuestaId().equals(propuestaId)){
+		if (lineaDto.getLinea().getPropuestaId().equals(propuestaId)){
 			log.debug("propuestaId's equal");
-			l1 = lineaService.addLinea(linea);
+			l1 = lineaService.addLinea(lineaDto.getLinea());
 			p1 = consultaService.findPropuestaByPropuestaId(propuestaId);
 		} else {
 			log.debug("propuestaId's are NOT equal");

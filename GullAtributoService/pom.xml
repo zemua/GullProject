@@ -120,6 +120,9 @@
 		</profile>
 		<profile>
 			<id>hackteoasv</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
             <properties>
                 <spring.profile.from.maven>hackteoas</spring.profile.from.maven>
             </properties>
@@ -127,6 +130,7 @@
 				<dependency>
 					<groupId>org.springframework.boot</groupId>
 					<artifactId>spring-boot-starter-web</artifactId>
+					<scope>test</scope>
 				</dependency>
 			</dependencies>
 		</profile>
