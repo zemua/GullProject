@@ -80,23 +80,32 @@ public class LineaController {
 	}
 	
 	@PostMapping("/of/{propuestaId}/new") // TODO save the attributes received with the linea
-	public String processAddLineaToPropuesta(@Valid LineaWithAttListDto lineaDto, BindingResult bindingResult, Model model, @PathVariable(name ="propuestaId") String propuestaId) {
+	public Mono<String> processAddLineaToPropuesta(@Valid LineaWithAttListDto lineaDto, BindingResult bindingResult, Model model, @PathVariable(name ="propuestaId") String propuestaId) {
 		
 		/**
 		 * BindingResult checks out of the box if there is any error in the line, but not in the attributes
 		 * To check if the attributes are correct we need to call the attribute repository, which returns a Reactor object
-		 * The class AttributeValueValidator.class can check for that but it needs to block the reactor object
-		 * So we need to make an artisaned solution to make this work out and add errors manually to the binding result
+		 * The class AttributeValueValidator.class can check for that but it needs to block the reactor object in a flux thread
+		 * So we need to add errors manually to the binding result and return a Mono to avoid blocking
 		 */
 		
+		Flux.fromIterable(lineaDto.getAttributes());
+		
 		// TODO check for errors in atributes and add to bindingResult
+		lineaDto.getAttributes().stream().forEach(att -> {
+			if (att.getValue() != "" && !atributoService.validateDataFormat(att.getTipo(), att.getValue()).block()) {
+				bindingResult.rejectValue(att.getId(), "type.value.pair", "El valor no es correcto para este atributo.");
+			}
+		});
 		
 		if(bindingResult.hasErrors()) {
 			model.addAttribute("propuesta", consultaService.findPropuestaByPropuestaId(propuestaId));
 			model.addAttribute("propuestaId", propuestaId);
 			model.addAttribute("lineaDto", lineaDto);
-			return "addLineaToPropuesta";
+			return Mono.just("addLineaToPropuesta");
 		}
+		
+		// TODO add the attributes to the line before saving
 		
 		Mono<Linea> l1;
 		Mono<Propuesta> p1;
@@ -111,7 +120,7 @@ public class LineaController {
 		}
 		model.addAttribute("linea", l1);
 		model.addAttribute("propuesta", p1);
-		return "processAddLineaToPropuesta";
+		return Mono.just("processAddLineaToPropuesta");
 	}
 	
 }
