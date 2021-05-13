@@ -2,6 +2,7 @@ package devs.mrp.gullproject.controller;
 
 import javax.validation.Valid;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,10 +13,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
+import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
+import devs.mrp.gullproject.domains.dto.AttributesListDto;
+import devs.mrp.gullproject.domains.dto.AtributoForLineaFormDto;
+import devs.mrp.gullproject.domains.dto.LineaWithAttListDto;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaService;
 import lombok.extern.slf4j.Slf4j;
@@ -31,11 +37,13 @@ public class LineaController {
 
 	private LineaService lineaService;
 	private ConsultaService consultaService;
+	private ModelMapper modelMapper;
 	
 	@Autowired
-	public LineaController(LineaService lineaService, ConsultaService consultaService) {
+	public LineaController(LineaService lineaService, ConsultaService consultaService, ModelMapper modelMapper) {
 		this.lineaService = lineaService;
 		this.consultaService = consultaService;
+		this.modelMapper = modelMapper;
 	}
 	
 	@GetMapping("/allof/propid/{propuestaId}")
@@ -48,12 +56,18 @@ public class LineaController {
 		return "showAllLineasOfPropuesta";
 	}
 	
-	@GetMapping("/of/{propuestaId}/new")
+	@GetMapping("/of/{propuestaId}/new") // TODO mostrar campos para añadir de los atributos escogidos
 	public String addLineToPropuesta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
+		Linea lLinea = new Linea();
+		lLinea.setPropuestaId(propuestaId);
+		Mono<LineaWithAttListDto> atributosDePropuesta = consultaService.findAttributesByPropuestaId(propuestaId)
+														.map(rAttProp -> modelMapper.map(rAttProp, AtributoForLineaFormDto.class))
+														.collectList()
+														.flatMap(rAttFormList -> Mono.just(new LineaWithAttListDto(lLinea, rAttFormList)));
 		model.addAttribute("propuesta", propuesta);
 		model.addAttribute("propuestaId",propuestaId);
-		model.addAttribute("linea", new Linea());
+		model.addAttribute("atributosDeLinea", atributosDePropuesta); // TODO test
 		return "addLineaToPropuesta";
 	}
 	

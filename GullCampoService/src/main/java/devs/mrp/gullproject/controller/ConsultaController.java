@@ -81,7 +81,7 @@ public class ConsultaController {
 		return "showAllConsultas";
 	}
 	
-	@GetMapping("/revisar/id/{id}")
+	@GetMapping("/revisar/id/{id}") // TODO make possible to edit the status of the inquiry
 	public String reviewConsultaById(Model model, @PathVariable(name = "id") String id) {
 		Mono<Consulta> consulta = consultaService.findById(id);
 		model.addAttribute("consulta", consulta);

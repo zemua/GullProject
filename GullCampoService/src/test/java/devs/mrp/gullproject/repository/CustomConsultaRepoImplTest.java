@@ -19,7 +19,6 @@ import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
-import devs.mrp.gullproject.service.AtributoServiceProxy;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -31,9 +30,6 @@ import reactor.test.StepVerifier;
 class CustomConsultaRepoImplTest {
 	
 	ConsultaRepo repo;
-	
-	@MockBean
-	AtributoServiceProxy atributoServiceProxy;
 	
 	@Autowired
 	public CustomConsultaRepoImplTest(ConsultaRepo repo) {

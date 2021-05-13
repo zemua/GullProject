@@ -25,7 +25,6 @@ import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.models.LineaRepresentationModel;
 import devs.mrp.gullproject.domains.models.LineaRepresentationModelAssembler;
 import devs.mrp.gullproject.repository.LineaRepo;
-import devs.mrp.gullproject.service.AtributoServiceProxy;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -42,8 +41,6 @@ class LineaRestControllerTest {
 	LineaRepo lineaRepo;
 	@MockBean
 	LineaRepresentationModelAssembler lrma;
-	@MockBean
-	AtributoServiceProxy asp;
 
 	@Test
 	void testGetAllLineas() {
