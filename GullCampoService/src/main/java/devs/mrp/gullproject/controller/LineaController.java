@@ -1,5 +1,10 @@
 package devs.mrp.gullproject.controller;
 
+import java.util.HashMap;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import javax.validation.Valid;
 
 import org.modelmapper.ModelMapper;
@@ -89,21 +94,24 @@ public class LineaController {
 		 * The class AttributeValueValidator.class can check that, but it needs to block the reactor object in a flux thread
 		 * So we need to add errors manually to the bindingResult in a flow and return a Mono to avoid blocking
 		 */
-		
-		return Flux.fromIterable(lineaDto.getAttributes())
-			.flatMap(rAtt -> { // we don't use doOnNext() just because we need the operation to complete before we continue
-				if (rAtt.getValue() != "") {
-					return atributoService.validateDataFormat(rAtt.getTipo(), rAtt.getValue())
-							.map(rBol -> {
-								if (!rBol) { // TODO need to rejectValue on name="attributes[0].id" -> change to iterator
-									bindingResult.rejectValue(rAtt.getId(), "type.value.pair", "El valor no es correcto para este atributo.");
-								}
-								return rBol;
-							});
-				} else {
-					return Mono.just(true);
+		Map<AtributoForLineaFormDto, Integer> map = new HashMap<>();
+		//bindingResult.rejectValue(rAtt.getId(), "type.value.pair", "El valor no es correcto para este atributo.");
+		return Mono.just(lineaDto.getAttributes())
+			.map(rAttList -> {
+				for (int i = 0; i<rAttList.size(); i++) {
+					map.put(rAttList.get(i), i);
 				}
-			}).then(Mono.just(bindingResult)).flatMap(rBindingResult -> {
+				return rAttList;
+			}).flatMapMany(rAttList -> Flux.fromIterable(rAttList))
+			.map(rAtt -> {
+				if (rAtt.getValue() != null && rAtt.getValue() != "") {
+					// TODO evaluate pair
+					return false;
+				} else {
+					return true;
+				}
+			})
+			.then(Mono.just(bindingResult)).flatMap(rBindingResult -> {
 				if(rBindingResult.hasErrors()) {
 					model.addAttribute("propuesta", consultaService.findPropuestaByPropuestaId(propuestaId));
 					model.addAttribute("propuestaId", propuestaId);
