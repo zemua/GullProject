@@ -23,16 +23,17 @@ import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
 import devs.mrp.gullproject.configuration.ClientProperties;
 import devs.mrp.gullproject.domains.AtributoForCampo;
+import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AttributesListDto;
-import devs.mrp.gullproject.domains.dto.BooleanWrapper;
 import devs.mrp.gullproject.domains.dto.AtributoForLineaFormDto;
 import devs.mrp.gullproject.domains.dto.LineaWithAttListDto;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
+import devs.mrp.gullproject.service.ClassDestringfier;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaService;
 import devs.mrp.gullproject.validator.AttributeValueValidator;
@@ -71,7 +72,7 @@ public class LineaController {
 		return "showAllLineasOfPropuesta";
 	}
 	
-	@GetMapping("/of/{propuestaId}/new") // TODO mostrar error cuando datos no coinciden
+	@GetMapping("/of/{propuestaId}/new")
 	public String addLineToPropuesta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
 		Linea lLinea = new Linea();
@@ -86,13 +87,13 @@ public class LineaController {
 		return "addLineaToPropuesta";
 	}
 	
-	@PostMapping("/of/{propuestaId}/new") // TODO save the attributes received with the linea
+	@PostMapping("/of/{propuestaId}/new") // TODO test
 	public Mono<String> processAddLineaToPropuesta(@Valid LineaWithAttListDto lineaWithAttListDto, BindingResult bindingResult, Model model, @PathVariable(name ="propuestaId") String propuestaId) {
 		
 		/**
-		 * BindingResult checks out of the box if there is any error in the line, but not in the attributes (we removed the validation)
+		 * BindingResult checks out of the box if there is any error in the line, but not in the attributes (we removed the validation in that class)
 		 * To check if the attributes are correct we need to call the attribute repository, which returns a Reactor object
-		 * The class AttributeValueValidator.class can check that, but it needs to block the reactor object in a flux thread
+		 * The class AttributeValueValidator.class can validate the result, but it needs to block the reactor object in a flux thread
 		 * So we need to add errors manually to the bindingResult in a flow and return a Mono to avoid blocking
 		 */
 		Map<AtributoForLineaFormDto, Integer> map = new HashMap<>();
@@ -106,7 +107,7 @@ public class LineaController {
 			.flatMap(rAtt -> {
 				if (!rAtt.getValue().isBlank()) {
 					log.debug(rAtt.getValue());
-					return atributoService.validateDataFormat(rAtt.getTipo(), rAtt.getValue())
+					return atributoService.validateDataFormat(rAtt.getTipo(), rAtt.getValue().replace(",", ".")) // we replace , with . in case it is a decimal number, as in Europe "," is used
 							.map(rBool -> {
 								if(!rBool) {
 									Integer pos = map.get(rAtt);
@@ -131,7 +132,13 @@ public class LineaController {
 					Mono<Propuesta> p1;
 					if (lineaWithAttListDto.getLinea().getPropuestaId().equals(propuestaId)){
 						log.debug("propuestaId's equal");
-						l1 = lineaService.addLinea(lineaWithAttListDto.getLinea());
+						Mono<Linea> llinea = Flux.fromIterable(lineaWithAttListDto.getAttributes())
+								.map(rAtt -> new Campo(rAtt.getId(), ClassDestringfier.toObject(rAtt.getValue())))
+								.collectList().map(rCampoList -> {
+									lineaWithAttListDto.getLinea().setCampos(rCampoList);
+									return lineaWithAttListDto.getLinea();
+								});
+						l1 = lineaService.addLinea(llinea);
 						p1 = consultaService.findPropuestaByPropuestaId(propuestaId);
 					} else {
 						log.debug("propuestaId's are NOT equal");

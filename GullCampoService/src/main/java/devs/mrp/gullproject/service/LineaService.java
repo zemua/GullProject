@@ -66,6 +66,10 @@ public class LineaService {
 				.then(lineaRepo.insert(linea));
 	}
 	
+	public Mono<Linea> addLinea(Mono<Linea> linea) {
+		return linea.flatMap(l -> addLinea(l));
+	}
+	
 	public Flux<Linea> addVariasLineas(Flux<Linea> lineas) {
 		return lineas.flatMap(rLinea -> consultaRepo.findByPropuestaId(rLinea.getPropuestaId())
 										.flatMap(rConsulta -> consultaRepo.addLineaEnPropuesta(rConsulta.getId(), rLinea.getPropuestaId(), rLinea.getId())))

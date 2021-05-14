@@ -46,22 +46,22 @@ public class Linea {
 	 * if the proposal has an attribute that the line doesn't, then it shows blank
 	 * if the line has an attribute that the proposal doesn't, then it doesn't show
 	 */
-	private List<Campo<?>> campos = new ArrayList<>();
+	private List<Campo> campos = new ArrayList<>();
 	
 	@JsonIgnore
 	public int getCantidadCampos() {
 		return campos.size();
 	}
 	
-	public Campo<?> getCampoByIndex(int i){
+	public Campo getCampoByIndex(int i){
 		return campos.get(i);
 	}
 	
-	public void addCampo(Campo<?> c) {
+	public void addCampo(Campo c) {
 		campos.add(c);
 	}
 	
-	public void removeCampo(Campo<?> c) {
+	public void removeCampo(Campo c) {
 		campos.remove(c);
 	}
 	
