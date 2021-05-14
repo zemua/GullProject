@@ -9,7 +9,7 @@
 
 <h1>Nueva Linea en Propuesta</h1>
 
-	<form method="POST" th:object="${atributosDeLinea}">
+	<form method="POST" th:object="${lineaWithAttListDto}">
 	
 		<div th:if="${#fields.hasErrors()}">
      	   <span class="validationError">
@@ -17,19 +17,20 @@
      	   </span>
     	</div>
     	
-    	<span class="validationError"
-      	th:if="${#fields.hasErrors('${atributosDeLinea.linea.nombre}')}"
-      	th:errors="*{linea.nombre}">Selecciona un nombre</span>
-      
 		<div class="grid">
 			<div class="define-group" id="nombre-linea">
 				<h3>Nombre:</h3>
 					<input type="text" th:field="*{linea.nombre}"/>
+						<span class="validationError"
+      							th:if="${#fields.hasErrors('${lineaWithAttListDto.linea.nombre}')}"
+      							th:errors="*{linea.nombre}">Selecciona un nombre</span>
 			</div>
 			<div class="atribute-group" th:each="t, stat : *{attributes}">
 				<h3 th:text="${t.name}">Atributo:</h3>
 					<input type="text" th:field="*{attributes[__${stat.index}__].value}"/>
-					<span class="help-block" th:if="${#fields.hasErrors('*{attributes[__${stat.index}__].id}')}" th:errors="${t.id}"></span>
+						<span class="validationError"
+      							th:if="${#fields.hasErrors('*{attributes[__${stat.index}__].id}')}"
+      							th:errors="*{attributes[__${stat.index}__].id}">Valor no válido para este campo</span>
 					<input type="hidden" th:field="*{attributes[__${stat.index}__].localIdentifier}"/>
 					<input type="hidden" th:field="*{attributes[__${stat.index}__].id}"/>
 					<input type="hidden" th:field="*{attributes[__${stat.index}__].name}"/>

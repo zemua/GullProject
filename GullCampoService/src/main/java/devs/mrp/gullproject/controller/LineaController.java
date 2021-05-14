@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -81,12 +82,12 @@ public class LineaController {
 														.flatMap(rAttFormList -> Mono.just(new LineaWithAttListDto(lLinea, new ValidList<AtributoForLineaFormDto>(rAttFormList))));
 		model.addAttribute("propuesta", propuesta);
 		model.addAttribute("propuestaId",propuestaId);
-		model.addAttribute("atributosDeLinea", atributosDePropuesta); // TODO test
+		model.addAttribute("lineaWithAttListDto", atributosDePropuesta); // TODO test
 		return "addLineaToPropuesta";
 	}
 	
 	@PostMapping("/of/{propuestaId}/new") // TODO save the attributes received with the linea
-	public Mono<String> processAddLineaToPropuesta(@Valid LineaWithAttListDto lineaDto, BindingResult bindingResult, Model model, @PathVariable(name ="propuestaId") String propuestaId) {
+	public Mono<String> processAddLineaToPropuesta(@Valid LineaWithAttListDto lineaWithAttListDto, BindingResult bindingResult, Model model, @PathVariable(name ="propuestaId") String propuestaId) {
 		
 		/**
 		 * BindingResult checks out of the box if there is any error in the line, but not in the attributes (we removed the validation)
@@ -95,36 +96,42 @@ public class LineaController {
 		 * So we need to add errors manually to the bindingResult in a flow and return a Mono to avoid blocking
 		 */
 		Map<AtributoForLineaFormDto, Integer> map = new HashMap<>();
-		//bindingResult.rejectValue(rAtt.getId(), "type.value.pair", "El valor no es correcto para este atributo.");
-		return Mono.just(lineaDto.getAttributes())
+		return Mono.just(lineaWithAttListDto.getAttributes())
 			.map(rAttList -> {
 				for (int i = 0; i<rAttList.size(); i++) {
 					map.put(rAttList.get(i), i);
 				}
 				return rAttList;
 			}).flatMapMany(rAttList -> Flux.fromIterable(rAttList))
-			.map(rAtt -> {
-				if (rAtt.getValue() != null && rAtt.getValue() != "") {
-					// TODO evaluate pair
-					return false;
+			.flatMap(rAtt -> {
+				if (!rAtt.getValue().isBlank()) {
+					log.debug(rAtt.getValue());
+					return atributoService.validateDataFormat(rAtt.getTipo(), rAtt.getValue())
+							.map(rBool -> {
+								if(!rBool) {
+									Integer pos = map.get(rAtt);
+									bindingResult.rejectValue("attributes[" + pos + "].id", "error.atributosDeLinea.attributes[" + pos + "]", "El valor no es correcto para este atributo.");
+								}
+								return rBool;
+							});
 				} else {
-					return true;
+					return Mono.just(true);
 				}
 			})
 			.then(Mono.just(bindingResult)).flatMap(rBindingResult -> {
 				if(rBindingResult.hasErrors()) {
 					model.addAttribute("propuesta", consultaService.findPropuestaByPropuestaId(propuestaId));
 					model.addAttribute("propuestaId", propuestaId);
-					model.addAttribute("lineaDto", lineaDto);
+					model.addAttribute("lineaWithAttListDto", lineaWithAttListDto);
 					return Mono.just("addLineaToPropuesta");
 				} else {
 					// TODO add the attributes to the line before saving
 					
 					Mono<Linea> l1;
 					Mono<Propuesta> p1;
-					if (lineaDto.getLinea().getPropuestaId().equals(propuestaId)){
+					if (lineaWithAttListDto.getLinea().getPropuestaId().equals(propuestaId)){
 						log.debug("propuestaId's equal");
-						l1 = lineaService.addLinea(lineaDto.getLinea());
+						l1 = lineaService.addLinea(lineaWithAttListDto.getLinea());
 						p1 = consultaService.findPropuestaByPropuestaId(propuestaId);
 					} else {
 						log.debug("propuestaId's are NOT equal");
