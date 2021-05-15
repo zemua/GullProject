@@ -22,6 +22,16 @@ public class ClassDestringfier {
 	    return value;
 	}
 	
+	public static Object toObject(String clazz, String value) {
+		if (clazz.equals("Boolean")) return Boolean.parseBoolean(value);
+		if (clazz.equals("Integer")) return Boolean.parseBoolean(value);
+		if (clazz.equals("Long")) return Long.parseLong(value);
+		if (clazz.equals("Float")) return Float.parseFloat(value);
+		if (clazz.equals("Double")) return Double.parseDouble(value);
+		if (clazz.equals("String")) return value;
+		return toObject(value);
+	}
+	
 	public static Object toObject(String value) {
 		if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")) {return Boolean.parseBoolean(value);}
 		if (value.matches("^-?\\d{1,9}$")) {return Integer.parseInt(value);}

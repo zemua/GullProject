@@ -24,5 +24,7 @@ public class Campo<T> {
 		this.atributoId = atributoId;
 		this.datos = datos;
 	}
+	
+	public Campo() {}
 
 }

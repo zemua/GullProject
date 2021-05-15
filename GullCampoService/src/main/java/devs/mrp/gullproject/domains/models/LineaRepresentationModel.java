@@ -15,4 +15,9 @@ public class LineaRepresentationModel extends RepresentationModel<LineaRepresent
 	private String nombre;
 	private List<Campo<?>> campos = new ArrayList<>();
 	
+	public void resetCampos(List<Campo<Object>> campos) {
+		this.campos.clear();
+		this.campos.addAll(campos);
+	}
+	
 }

@@ -126,16 +126,14 @@ public class LineaController {
 					model.addAttribute("lineaWithAttListDto", lineaWithAttListDto);
 					return Mono.just("addLineaToPropuesta");
 				} else {
-					// TODO add the attributes to the line before saving
-					
 					Mono<Linea> l1;
 					Mono<Propuesta> p1;
 					if (lineaWithAttListDto.getLinea().getPropuestaId().equals(propuestaId)){
 						log.debug("propuestaId's equal");
 						Mono<Linea> llinea = Flux.fromIterable(lineaWithAttListDto.getAttributes())
-								.map(rAtt -> new Campo(rAtt.getId(), ClassDestringfier.toObject(rAtt.getValue())))
+								.map(rAtt -> new Campo<Object>(rAtt.getId(), ClassDestringfier.toObject(rAtt.getValue())))
 								.collectList().map(rCampoList -> {
-									lineaWithAttListDto.getLinea().setCampos(rCampoList);
+									lineaWithAttListDto.getLinea().resetCampos(rCampoList);
 									return lineaWithAttListDto.getLinea();
 								});
 						l1 = lineaService.addLinea(llinea);
