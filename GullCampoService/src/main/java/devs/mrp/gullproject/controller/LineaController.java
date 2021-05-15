@@ -131,7 +131,8 @@ public class LineaController {
 					if (lineaWithAttListDto.getLinea().getPropuestaId().equals(propuestaId)){
 						log.debug("propuestaId's equal");
 						Mono<Linea> llinea = Flux.fromIterable(lineaWithAttListDto.getAttributes())
-								.map(rAtt -> new Campo<Object>(rAtt.getId(), ClassDestringfier.toObject(rAtt.getValue())))
+								.flatMap(rAtt -> atributoService.getClassTypeOfFormat(rAtt.getTipo())
+										.map(rClass -> new Campo<Object>(rAtt.getId(), ClassDestringfier.toObject(rClass, rAtt.getValue()))))
 								.collectList().map(rCampoList -> {
 									lineaWithAttListDto.getLinea().resetCampos(rCampoList);
 									return lineaWithAttListDto.getLinea();
