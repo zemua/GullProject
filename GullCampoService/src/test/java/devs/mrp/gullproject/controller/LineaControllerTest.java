@@ -11,16 +11,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
+import devs.mrp.gullproject.configuration.MapperConfig;
+import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaService;
 import reactor.core.publisher.Flux;
@@ -29,6 +33,7 @@ import reactor.core.publisher.Mono;
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = LineaController.class)
 @AutoConfigureWebTestClient
+@Import({MapperConfig.class})
 class LineaControllerTest {
 	
 	WebTestClient webTestClient;
@@ -38,6 +43,8 @@ class LineaControllerTest {
 	LineaService lineaService;
 	@MockBean
 	ConsultaService consultaService;
+	@MockBean
+	AtributoServiceProxyWebClient atributoService;
 	
 	@Autowired
 	public LineaControllerTest(WebTestClient webTestClient, LineaController lineaController) {
@@ -56,6 +63,12 @@ class LineaControllerTest {
 	Mono<Linea> mono1;
 	Mono<Linea> mono2;
 	Flux<Linea> flux;
+	
+	AtributoForCampo atributo1;
+	AtributoForCampo atributo2;
+	AtributoForCampo atributo3;
+	AtributoForCampo atributo4;
+	Flux<AtributoForCampo> fluxAttsPropuesta;
 	
 	Propuesta propuesta;
 	Consulta consulta;
@@ -93,6 +106,16 @@ class LineaControllerTest {
 		mono1 = Mono.just(linea1);
 		mono2 = Mono.just(linea2);
 		flux = Flux.just(linea1, linea2);
+		
+		atributo1 = new AtributoForCampo();
+		atributo1.setName("atributo1");
+		atributo2 = new AtributoForCampo();
+		atributo2.setName("atributo2");
+		atributo3 = new AtributoForCampo();
+		atributo3.setName("atributo3");
+		atributo4 = new AtributoForCampo();
+		atributo4.setName("atributo4");
+		fluxAttsPropuesta = Flux.just(atributo1, atributo2, atributo3, atributo4);
 	}
 
 	@Test
@@ -121,6 +144,7 @@ class LineaControllerTest {
 	@Test
 	void testAddLineaToPropuesta() {
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
+		when(consultaService.findAttributesByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(fluxAttsPropuesta);
 		
 		webTestClient.get()
 		.uri("/lineas/of/" + propuesta.getId() + "/new")
@@ -134,6 +158,10 @@ class LineaControllerTest {
 					.contains("Nombre")
 					.contains("Ok")
 					.contains("Volver")
+					.contains("atributo1")
+					.contains("atributo2")
+					.contains("atributo3")
+					.contains("atributo4")
 					.contains(propuesta.getNombre());
 		});
 	}
@@ -143,15 +171,22 @@ class LineaControllerTest {
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
 		when(lineaService.addLinea(ArgumentMatchers.refEq(linea1, "id", "campos"))).thenReturn(Mono.just(linea1));
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
+		when(atributoService.getClassTypeOfFormat(ArgumentMatchers.anyString())).thenReturn(Mono.just("String"));
 		
 		// all fine
 		webTestClient.post()
 		.uri("/lineas/of/" + propuesta.getId() + "/new")
 		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 		.accept(MediaType.TEXT_HTML)
-		.body(BodyInserters.fromFormData("nombre", linea1.getNombre())
-				.with("id", linea1.getId())
-				.with("propuestaId", propuesta.getId()))
+		.body(BodyInserters.fromFormData("linea.nombre", linea1.getNombre())
+				.with("linea.id", linea1.getId())
+				.with("linea.propuestaId", propuesta.getId())
+				.with("attributes[0].id", atributo1.getId())
+				.with("attributes[0].value", "valor de att 1")
+				.with("attributes[0].localIdentifier", "localIdentifier")
+				.with("attributes[0].name", atributo1.getName())
+				.with("attributes[0].tipo", "tipo")
+				)
 		.exchange()
 		.expectStatus().isOk()
 		.expectBody()
@@ -173,7 +208,13 @@ class LineaControllerTest {
 		.accept(MediaType.TEXT_HTML)
 		.body(BodyInserters.fromFormData("nombre", linea1.getNombre())
 				.with("id", linea1.getId())
-				.with("propuestaId", propuesta.getId()))
+				.with("propuestaId", propuesta.getId())
+				.with("attributes[0].id", atributo1.getId())
+				.with("attributes[0].value", "valor de att 1")
+				.with("attributes[0].localIdentifier", "localIdentifier")
+				.with("attributes[0].name", atributo1.getName())
+				.with("attributes[0].tipo", "tipo")
+				)
 		.exchange()
 		.expectStatus().isOk()
 		.expectBody()
@@ -197,7 +238,13 @@ class LineaControllerTest {
 		.accept(MediaType.TEXT_HTML)
 		.body(BodyInserters.fromFormData("nombre", linea1.getNombre())
 				.with("id", linea1.getId())
-				.with("propuestaId", propuesta.getId()))
+				.with("propuestaId", propuesta.getId())
+				.with("attributes[0].id", atributo1.getId())
+				.with("attributes[0].value", "valor de att 1")
+				.with("attributes[0].localIdentifier", "localIdentifier")
+				.with("attributes[0].name", atributo1.getName())
+				.with("attributes[0].tipo", "tipo")
+				)
 		.exchange()
 		.expectStatus().isOk()
 		.expectBody()

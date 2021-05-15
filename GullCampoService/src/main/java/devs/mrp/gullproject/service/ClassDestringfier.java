@@ -11,7 +11,7 @@ public class ClassDestringfier {
 	    return editor.getValue();
 	}
 	
-	public static Object toObject( Class clazz, String value ) {
+	public static Object toObject( Class<?> clazz, String value ) {
 	    if( Boolean.class == clazz ) return Boolean.parseBoolean( value );
 	    if( Byte.class == clazz ) return Byte.parseByte( value );
 	    if( Short.class == clazz ) return Short.parseShort( value );
@@ -19,7 +19,8 @@ public class ClassDestringfier {
 	    if( Long.class == clazz ) return Long.parseLong( value );
 	    if( Float.class == clazz ) return Float.parseFloat( value );
 	    if( Double.class == clazz ) return Double.parseDouble( value );
-	    return value;
+	    if( String.class == clazz ) return value;
+	    return toObject(value);
 	}
 	
 	public static Object toObject(String clazz, String value) {
