@@ -13,6 +13,11 @@
 		<span class="success" th:if="${linea != null && propuesta != null}">Linea Guardada Como...</span>
 		<span class="failure" th:unless="${linea != null && propuesta != null}">Algo no ha ido bien...</span>
 	</div>
+	
+	<div>
+		<span class="success" th:if="${linea == null}">Problema en la linea</span>
+		<span class="success" th:if="${propuesta == null}">Problema en la propuesta</span>
+	</div>
 
 	<div th:if="${linea != null && propuesta != null}">
 		<div class="grid" th:object="${linea}">

@@ -167,17 +167,19 @@ class LineaControllerTest {
 	}
 	
 	@Test
-	void testProcessAddLineaToPropuesta() {
+	void testProcessAddLineaToPropuesta() { // TODO hacer correr el test
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
 		when(lineaService.addLinea(ArgumentMatchers.refEq(linea1, "id", "campos"))).thenReturn(Mono.just(linea1));
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
 		when(atributoService.getClassTypeOfFormat(ArgumentMatchers.anyString())).thenReturn(Mono.just("String"));
+		when(atributoService.validateDataFormat(ArgumentMatchers.eq("DESCRIPCION"), ArgumentMatchers.eq("valor de att 1"))).thenReturn(Mono.just(true));
 		
 		// all fine
 		webTestClient.post()
 		.uri("/lineas/of/" + propuesta.getId() + "/new")
 		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 		.accept(MediaType.TEXT_HTML)
+		.attribute("propuesta", propuesta)
 		.body(BodyInserters.fromFormData("linea.nombre", linea1.getNombre())
 				.with("linea.id", linea1.getId())
 				.with("linea.propuestaId", propuesta.getId())
@@ -185,7 +187,7 @@ class LineaControllerTest {
 				.with("attributes[0].value", "valor de att 1")
 				.with("attributes[0].localIdentifier", "localIdentifier")
 				.with("attributes[0].name", atributo1.getName())
-				.with("attributes[0].tipo", "tipo")
+				.with("attributes[0].tipo", "DESCRIPCION")
 				)
 		.exchange()
 		.expectStatus().isOk()
