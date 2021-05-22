@@ -4,7 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +25,7 @@ import reactor.test.StepVerifier;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-class LineaCustomRepoTest {
+class LineaCustomRepoTest { // TODO fix tests after refractoring
 	
 	LineaRepo repo;
 	
@@ -57,26 +60,26 @@ class LineaCustomRepoTest {
 		
 		String id = "linea_id";
 		String name = "linea_nombre";
-		List<Campo<?>> campos = new ArrayList<>();
+		Map<String, Campo<?>> campos = new LinkedHashMap<>();
 		boolean valoresFijos = true;
 		
 		campo1 = new Campo<>();
 		campo1.setId("campo_1_id");
 		campo1.setDatos(24702);
 		campo1.setAtributoId("atributo_id_1");
-		campos.add(campo1);
+		campos.put(campo1.getAtributoId(), campo1);
 		
 		campo2 = new Campo<>();
 		campo2.setId("campo_2_id");
 		campo2.setDatos("datos_en_campo_2");
 		campo2.setAtributoId("atributo_id_2");
-		campos.add(campo2);
+		campos.put(campo2.getAtributoId(), campo2);
 		
 		campo3 = new Campo<>();
 		campo3.setId("campo_3_id");
 		campo3.setDatos("datos_en_campo_3");
 		campo3.setAtributoId("atributo_id_3");
-		campos.add(campo3);
+		campos.put(campo3.getAtributoId(), campo3);
 		
 		linea = new Linea();
 		linea.setCampos(campos);
@@ -153,17 +156,17 @@ class LineaCustomRepoTest {
 		
 		String id = "linea_id";
 		String name = "linea_nombre";
-		List<Campo<?>> campos = new ArrayList<>();
+		Map<String, Campo<?>> campos = new LinkedHashMap<>();
 		boolean valoresFijos = true;
 		Campo<Integer> campo1 = new Campo<>();
 		campo1.setId("campo_1_id");
 		campo1.setDatos(24702);
 		campo1.setAtributoId("atributo_id_1");
-		campos.add(campo1);
+		campos.put(campo1.getAtributoId(), campo1);
 		Campo<String> campo2 = new Campo<>();
 		campo2.setId("campo_2_id");
 		campo2.setDatos("datos_en_campo_2");
-		campos.add(campo2);
+		campos.put(campo2.getAtributoId(), campo2);
 		
 		Linea linea = new Linea();
 		linea.setCampos(campos);
@@ -206,12 +209,12 @@ class LineaCustomRepoTest {
 		
 		String id = "id_linea";
 		String name = "nombre_linea";
-		List<Campo<?>> campos = new ArrayList<>();
+		Map<String, Campo<?>> campos = new LinkedHashMap<>();
 		Campo<Double> campo1 = new Campo<>();
 		campo1.setId("campo_1_id");
 		campo1.setAtributoId("campo_1_atributo_id");
 		campo1.setDatos(45.67);
-		campos.add(campo1);
+		campos.put(campo1.getAtributoId(), campo1);
 		Campo<Long> campo2 = new Campo<>();
 		campo2.setAtributoId("campo_2_atributo_id");
 		campo2.setDatos(562398L);
@@ -274,17 +277,17 @@ class LineaCustomRepoTest {
 		
 		String id = "id_linea";
 		String name = "nombre_linea";
-		List<Campo<?>> campos = new ArrayList<>();
+		Map<String, Campo<?>> campos = new LinkedHashMap<>();
 		Campo<Double> campo1 = new Campo<>();
 		campo1.setId("campo_1_id");
 		campo1.setAtributoId("campo_1_atributo_id");
 		campo1.setDatos(45.67);
-		campos.add(campo1);
+		campos.put(campo1.getAtributoId(), campo1);
 		Campo<Long> campo2 = new Campo<>();
 		campo2.setAtributoId("campo_2_atributo_id");
 		campo2.setDatos(562398L);
 		campo2.setId("campo_2_id");
-		campos.add(campo2);
+		campos.put(campo2.getAtributoId(), campo2);
 		
 		Linea linea = new Linea();
 		linea.setCampos(campos);
@@ -367,14 +370,14 @@ class LineaCustomRepoTest {
 		repo.deleteAll().block();
 		
 		Linea linea1 = new Linea();
-		linea1.setCampos(new ArrayList<Campo<?>>());
+		linea1.setCampos(new HashMap<String, Campo<?>>());
 		linea1.setId("id_linea_1");
 		linea1.setNombre("nombre_linea_1");
 		
 		repo.save(linea1).block();
 		
 		Linea linea2 = new Linea();
-		linea2.setCampos(new ArrayList<Campo<?>>());
+		linea2.setCampos(new HashMap<String, Campo<?>>());
 		linea2.setId("id_linea_2");
 		linea2.setNombre("nombre_linea_2");
 		
@@ -415,23 +418,23 @@ class LineaCustomRepoTest {
 		
 		String id = "linea_id";
 		String name = "linea_nombre";
-		List<Campo<?>> campos = new ArrayList<>();
+		Map<String, Campo<?>> campos = new LinkedHashMap<>();
 		boolean valoresFijos = true;
 		Campo<Integer> campo1 = new Campo<>();
 		campo1.setId("campo_1_id");
 		campo1.setDatos(24702);
 		campo1.setAtributoId("atributo_id_1");
-		campos.add(campo1);
+		campos.put(campo1.getAtributoId(), campo1);
 		Campo<String> campo2 = new Campo<>();
 		campo2.setId("campo_2_id");
 		campo2.setDatos("datos_en_campo_2");
 		campo2.setAtributoId("atributo_id_2");
-		campos.add(campo2);
+		campos.put(campo2.getAtributoId(), campo2);
 		Campo<String> campo3 = new Campo<>();
 		campo3.setId("campo_3_id");
 		campo3.setDatos("datos_en_campo_3");
 		campo3.setAtributoId("atributo_id_3");
-		campos.add(campo3);
+		campos.put(campo3.getAtributoId(), campo3);
 		
 		Linea linea = new Linea();
 		linea.setCampos(campos);
@@ -475,13 +478,13 @@ class LineaCustomRepoTest {
 		
 		String id = "linea_id";
 		String name = "linea_nombre";
-		List<Campo<?>> campos = new ArrayList<>();
+		Map<String, Campo<?>> campos = new LinkedHashMap<>();
 		boolean valoresFijos = true;
 		Campo<Integer> campo1 = new Campo<>();
 		campo1.setId("campo_1_id");
 		campo1.setDatos(24702);
 		campo1.setAtributoId("atributo_id_1");
-		campos.add(campo1);
+		campos.put(campo1.getAtributoId(), campo1);
 		Campo<String> campo2 = new Campo<>();
 		campo2.setId("campo_2_id");
 		campo2.setDatos("datos_en_campo_2");
@@ -538,23 +541,23 @@ class LineaCustomRepoTest {
 		
 		String id = "linea_id";
 		String name = "linea_nombre";
-		List<Campo<?>> campos = new ArrayList<>();
+		Map<String, Campo<?>> campos = new LinkedHashMap<>();
 		boolean valoresFijos = true;
 		Campo<Integer> campo1 = new Campo<>();
 		campo1.setId("campo_1_id");
 		campo1.setDatos(24702);
 		campo1.setAtributoId("atributo_id_1");
-		campos.add(campo1);
+		campos.put(campo1.getAtributoId(), campo1);
 		Campo<String> campo2 = new Campo<>();
 		campo2.setId("campo_2_id");
 		campo2.setDatos("datos_en_campo_2");
 		campo2.setAtributoId("atributo_id_2");
-		campos.add(campo2);
+		campos.put(campo2.getAtributoId(), campo2);
 		Campo<String> campo3 = new Campo<>();
 		campo3.setId("campo_3_id");
 		campo3.setDatos("datos_en_campo_3");
 		campo3.setAtributoId("atributo_id_3");
-		campos.add(campo3);
+		campos.put(campo3.getAtributoId(), campo3);
 		
 		Linea linea = new Linea();
 		linea.setCampos(campos);

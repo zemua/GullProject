@@ -3,7 +3,9 @@ package devs.mrp.gullproject.rest;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -50,8 +52,8 @@ class LineaByIdRestControllerTest {
 		m.setAtributoId("id_del_campo");
 		m.setDatos(235);
 		m.setId("id_aleatoria");
-		List<Campo<?>> campos = new ArrayList<>();
-		campos.add(m);
+		Map<String, Campo<?>> campos = new LinkedHashMap<>();
+		campos.put(m.getAtributoId(), m);
 		
 		Linea l = new Linea();
 		l.setNombre("nombre_linea");

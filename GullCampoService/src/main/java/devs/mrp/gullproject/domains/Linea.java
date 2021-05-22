@@ -1,7 +1,12 @@
 package devs.mrp.gullproject.domains;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotBlank;
 
@@ -50,7 +55,7 @@ public class Linea {
 	
 	public void resetCampos(List<Campo<Object>> campos) {
 		this.campos.clear();
-		this.campos.addAll(campos);
+		campos.addAll(campos);
 	}
 	
 	@JsonIgnore
@@ -66,8 +71,14 @@ public class Linea {
 		campos.add(c);
 	}
 	
-	public void removeCampo(Campo<?> c) {
-		campos.remove(c);
+	public void removeCampo(String atributoId) {
+		Iterator<Campo<?>> it = campos.iterator();
+		while (it.hasNext()) {
+			Campo<?> campo = it.next();
+			if (campo.getAtributoId().equals(atributoId)) {
+				it.remove();
+			}
+		}
 	}
 	
 }

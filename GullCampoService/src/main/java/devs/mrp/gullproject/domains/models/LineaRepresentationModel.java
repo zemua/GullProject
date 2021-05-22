@@ -1,7 +1,9 @@
 package devs.mrp.gullproject.domains.models;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.hateoas.RepresentationModel;
 
@@ -15,9 +17,9 @@ public class LineaRepresentationModel extends RepresentationModel<LineaRepresent
 	private String nombre;
 	private List<Campo<?>> campos = new ArrayList<>();
 	
-	public void resetCampos(List<Campo<Object>> campos) {
+	public void resetCampos(List<Campo<?>> campos) {
 		this.campos.clear();
-		this.campos.addAll(campos);
+		this.campos = campos;
 	}
 	
 }

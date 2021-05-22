@@ -151,21 +151,12 @@ public class LineaController {
 	
 	@GetMapping("/revisar/id/{lineaid}") // TODO test
 	public String revisarLinea(Model model, @PathVariable(name ="lineaid") String lineaId) {
-		Mono<Linea> linea = lineaService.findById(lineaId); // TODO change Linea and LineaWithAttListDto to have Map of atts, instead of list
+		Mono<Linea> linea = lineaService.findById(lineaId); // TODO change LineaWithAttListDto to have Map of atts, instead of list
 		
-		Mono<LineaWithAttListDto> lineaPlusAtts = getAttributesOfProposal(linea);
-		Mono<Map<String, String>> lineaAttsMap;
-		lineaAttsMap = lineaPlusAtts.map(dto -> {
-			Map<String, String> map = new HashMap<>();
-			// generate all keys to avoid null references to attributes not set
-			dto.getAttributes().stream().forEach(att -> map.put(att.getId(), att.getValue()));
-			// replace the attributes set with the value that corresponds
-			dto.getLinea().getCampos().stream().forEach(campo -> map.replace(campo.getAtributoId(), String.valueOf(campo.getDatos())));
-			return map;
-		});
+		Mono<LineaWithAttListDto> lineaDto = getAttributesOfProposal(linea);
 		
 		model.addAttribute("linea", linea);
-		model.addAttribute("values", lineaAttsMap);
+		model.addAttribute("values", lineaDto);
 		
 		return "reviewLinea"; // TODO review and adjust to this method
 	}

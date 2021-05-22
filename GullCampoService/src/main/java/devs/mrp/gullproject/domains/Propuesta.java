@@ -42,8 +42,8 @@ public interface Propuesta {
 			return false;
 		}
 		
-		Map<String, Object> map1 = linea1.getCampos().stream().collect(Collectors.toMap(Campo::getAtributoId, Campo::getDatos));
-		Map<String, Object> map2 = linea2.getCampos().stream().collect(Collectors.toMap(Campo::getAtributoId, Campo::getDatos));
+		Map<String, Campo<?>> map1 = linea1.getCampos();
+		Map<String, Campo<?>> map2 = linea2.getCampos();
 		
 		if(map1.size() != map2.size()) { // Si algún atributoId está repetido por error...
 			return false;
@@ -58,7 +58,7 @@ public interface Propuesta {
 		Iterator<String> it = set1.iterator();
 		while(it.hasNext()) {
 			String s = it.next();
-			if (!map1.get(s).equals(map2.get(s))) {
+			if (!map1.get(s).getDatos().equals(map2.get(s).getDatos())) {
 				return false;
 			}
 		}
@@ -66,16 +66,16 @@ public interface Propuesta {
 		return true;
 	}
 	public static boolean confirmaIgualesSegunCampos(Linea linea1, Linea linea2, List<AtributoForCampo> atributos) {
-				Map<String, Object> map1 = linea1.getCampos().stream().collect(Collectors.toMap(Campo::getAtributoId, Campo::getDatos));
-				Map<String, Object> map2 = linea2.getCampos().stream().collect(Collectors.toMap(Campo::getAtributoId, Campo::getDatos));
+				Map<String, Campo<?>> map1 = linea1.getCampos();
+				Map<String, Campo<?>> map2 = linea2.getCampos();
 				
 				Iterator<AtributoForCampo> it = atributos.iterator();
 				while (it.hasNext()) {
 					AtributoForCampo a = it.next();
-					Object b = map1.get(a.getId());
-					Object c = map2.get(a.getId());
+					Campo<?> b = map1.get(a.getId());
+					Campo<?> c = map2.get(a.getId());
 					if(!b.getClass().equals(c.getClass())
-							|| !b.equals(c)) {
+							|| !b.getDatos().equals(c.getDatos())) {
 						return false;
 					}
 				}
@@ -87,7 +87,7 @@ public interface Propuesta {
 		 * When values to compare don't exist, it takes the default (empy, zero, false...)
 		 */
 		
-		Map<String, Object> mapLinea = l.getCampos().stream().collect(Collectors.toMap(Campo::getAtributoId, Campo::getDatos));
+		Map<String, Campo<?>> mapLinea = l.getCampos();
 
 		Set<String> atributoIds = atributoidVSvalue.keySet();
 
@@ -95,7 +95,7 @@ public interface Propuesta {
 		while(iterator.hasNext()) {
 			String key = iterator.next();
 
-			if(mapLinea.containsKey(key) && (!mapLinea.get(key).equals(atributoidVSvalue.get(key)))) {
+			if(mapLinea.containsKey(key) && (!mapLinea.get(key).getDatos().equals(atributoidVSvalue.get(key)))) {
 				return false;
 			} else if (!mapLinea.containsKey(key)) {
 				if (atributoidVSvalue.get(key).getClass().equals(String.class)
@@ -129,7 +129,7 @@ public interface Propuesta {
 		 */
 		
 		
-		Map<String, Object> mapLinea = l.getCampos().stream().collect(Collectors.toMap(Campo::getAtributoId, Campo::getDatos));
+		Map<String, Campo<?>> mapLinea = l.getCampos();
 
 		Set<String> atributoIds = atributoidVSvalue.keySet();
 		Set<String> lineaKeys = mapLinea.keySet();
@@ -143,8 +143,8 @@ public interface Propuesta {
 			String key = iterator.next();
 			
 			if (!mapLinea.containsKey(key)
-					|| !atributoidVSvalue.get(key).getClass().equals(mapLinea.get(key).getClass())
-					|| !atributoidVSvalue.get(key).equals(mapLinea.get(key))) {
+					|| !atributoidVSvalue.get(key).getClass().equals(mapLinea.get(key).getDatos().getClass())
+					|| !atributoidVSvalue.get(key).equals(mapLinea.get(key).getDatos())) {
 				return false;
 			}
 		}

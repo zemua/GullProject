@@ -2,7 +2,9 @@ package devs.mrp.gullproject.domains.models;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,8 +60,8 @@ class LineaRepresentationModelAssemblerTest {
 		campo.setDatos(2345);
 		campo.setId("campo_id");
 		
-		List<Campo<?>> campos = new ArrayList<>();
-		campos.add(campo);
+		Map<String, Campo<?>> campos = new HashMap<>();
+		campos.put(campo.getAtributoId(), campo);
 		
 		Linea linea = new Linea();
 		linea.setId("id_linea");
