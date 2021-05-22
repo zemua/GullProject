@@ -77,17 +77,14 @@ public class LineaController {
 		Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
 		Linea lLinea = new Linea();
 		lLinea.setPropuestaId(propuestaId);
-		Mono<LineaWithAttListDto> atributosDePropuesta = consultaService.findAttributesByPropuestaId(propuestaId)
-														.map(rAttProp -> modelMapper.map(rAttProp, AtributoForLineaFormDto.class))
-														.collectList()
-														.flatMap(rAttFormList -> Mono.just(new LineaWithAttListDto(lLinea, new ValidList<AtributoForLineaFormDto>(rAttFormList))));
+		Mono<LineaWithAttListDto> atributosDePropuesta = getAttributesOfProposal(lLinea, propuestaId);
 		model.addAttribute("propuesta", propuesta);
 		model.addAttribute("propuestaId",propuestaId);
-		model.addAttribute("lineaWithAttListDto", atributosDePropuesta); // TODO test
+		model.addAttribute("lineaWithAttListDto", atributosDePropuesta);
 		return "addLineaToPropuesta";
 	}
 	
-	@PostMapping("/of/{propuestaId}/new") // TODO test
+	@PostMapping("/of/{propuestaId}/new")
 	public Mono<String> processAddLineaToPropuesta(@Valid LineaWithAttListDto lineaWithAttListDto, BindingResult bindingResult, Model model, @PathVariable(name ="propuestaId") String propuestaId) {
 		
 		/**
@@ -150,6 +147,38 @@ public class LineaController {
 					return Mono.just("processAddLineaToPropuesta");
 				}
 			});
+	}
+	
+	@GetMapping("/revisar/id/{lineaid}") // TODO test
+	public String revisarLinea(Model model, @PathVariable(name ="lineaid") String lineaId) {
+		Mono<Linea> linea = lineaService.findById(lineaId); // TODO change Linea and LineaWithAttListDto to have Map of atts, instead of list
+		
+		Mono<LineaWithAttListDto> lineaPlusAtts = getAttributesOfProposal(linea);
+		Mono<Map<String, String>> lineaAttsMap;
+		lineaAttsMap = lineaPlusAtts.map(dto -> {
+			Map<String, String> map = new HashMap<>();
+			// generate all keys to avoid null references to attributes not set
+			dto.getAttributes().stream().forEach(att -> map.put(att.getId(), att.getValue()));
+			// replace the attributes set with the value that corresponds
+			dto.getLinea().getCampos().stream().forEach(campo -> map.replace(campo.getAtributoId(), String.valueOf(campo.getDatos())));
+			return map;
+		});
+		
+		model.addAttribute("linea", linea);
+		model.addAttribute("values", lineaAttsMap);
+		
+		return "reviewLinea"; // TODO review and adjust to this method
+	}
+	
+	private Mono<LineaWithAttListDto> getAttributesOfProposal(Linea lLinea, String propuestaId){
+		return consultaService.findAttributesByPropuestaId(propuestaId)
+				.map(rAttProp -> modelMapper.map(rAttProp, AtributoForLineaFormDto.class))
+				.collectList()
+				.flatMap(rAttFormList -> Mono.just(new LineaWithAttListDto(lLinea, new ValidList<AtributoForLineaFormDto>(rAttFormList))));
+	}
+	
+	private Mono<LineaWithAttListDto> getAttributesOfProposal(Mono<Linea> lLinea){
+		return lLinea.flatMap(linea -> getAttributesOfProposal(linea, linea.getPropuestaId()));
 	}
 	
 }

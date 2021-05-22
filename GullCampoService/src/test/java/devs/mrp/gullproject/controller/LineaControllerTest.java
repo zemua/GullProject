@@ -169,7 +169,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
-	void testProcessAddLineaToPropuesta() { // TODO hacer correr el test
+	void testProcessAddLineaToPropuesta() {
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
 		when(lineaService.addLinea(ArgumentMatchers.any(Mono.class))).thenReturn(Mono.just(linea1));
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
