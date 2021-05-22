@@ -30,7 +30,7 @@
 					<input type="text" th:field="*{attributes[__${stat.index}__].value}"/>
 						<span class="validationError"
       							th:if="${#fields.hasErrors('*{attributes[__${stat.index}__].id}')}"
-      							th:errors="*{attributes[__${stat.index}__].id}">Valor no válido para este campo</span>
+      							th:errors="*{attributes[__${stat.index}__].id}">El valor no es correcto para este atributo</span>
 					<input type="hidden" th:field="*{attributes[__${stat.index}__].localIdentifier}"/>
 					<input type="hidden" th:field="*{attributes[__${stat.index}__].id}"/>
 					<input type="hidden" th:field="*{attributes[__${stat.index}__].name}"/>

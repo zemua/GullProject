@@ -106,7 +106,8 @@ public class LineaController {
 			}).flatMapMany(rAttList -> Flux.fromIterable(rAttList))
 			.flatMap(rAtt -> {
 				if (!rAtt.getValue().isBlank()) {
-					//log.debug(rAtt.getValue());
+					log.debug("att type: " + rAtt.getTipo());
+					log.debug("at value: " + rAtt.getValue());
 					return atributoService.validateDataFormat(rAtt.getTipo(), rAtt.getValue().replace(",", ".")) // we replace , with . in case it is a decimal number, as in Europe "," is used
 							.map(rBool -> {
 								if(!rBool) {
@@ -129,7 +130,7 @@ public class LineaController {
 					Mono<Linea> l1;
 					Mono<Propuesta> p1;
 					if (lineaWithAttListDto.getLinea().getPropuestaId().equals(propuestaId)){
-						//log.debug("propuestaId's equal");
+						log.debug("propuestaId's equal");
 						Mono<Linea> llinea = Flux.fromIterable(lineaWithAttListDto.getAttributes())
 								.flatMap(rAtt -> atributoService.getClassTypeOfFormat(rAtt.getTipo())
 										.map(rClass -> new Campo<Object>(rAtt.getId(), ClassDestringfier.toObject(rClass, rAtt.getValue()))))
@@ -140,7 +141,7 @@ public class LineaController {
 						l1 = lineaService.addLinea(llinea);
 						p1 = consultaService.findPropuestaByPropuestaId(propuestaId);
 					} else {
-						//log.debug("propuestaId's are NOT equal");
+						log.debug("propuestaId's are NOT equal");
 						l1 = Mono.empty();
 						p1 = Mono.empty();
 					}
