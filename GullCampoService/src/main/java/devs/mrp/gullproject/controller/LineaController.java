@@ -126,14 +126,17 @@ public class LineaController {
 				} else {
 					Mono<Linea> l1;
 					Mono<Propuesta> p1;
-					if (lineaWithAttListDto.getLinea().getPropuestaId().equals(propuestaId)){
+					Linea nLinea = lineaWithAttListDto.getLinea();
+					if (nLinea.getPropuestaId().equals(propuestaId)){
 						log.debug("propuestaId's equal");
 						Mono<Linea> llinea = Flux.fromIterable(lineaWithAttListDto.getAttributes())
 								.flatMap(rAtt -> atributoService.getClassTypeOfFormat(rAtt.getTipo())
 										.map(rClass -> new Campo<Object>(rAtt.getId(), ClassDestringfier.toObject(rClass, rAtt.getValue()))))
 								.collectList().map(rCampoList -> {
-									lineaWithAttListDto.getLinea().resetCampos(rCampoList);
-									return lineaWithAttListDto.getLinea();
+									log.debug("cantidad de rCampoList: " + rCampoList.size());
+									nLinea.resetCampos(rCampoList);
+									log.debug("cantidad de campos nLinea: " + nLinea.getCantidadCampos());
+									return nLinea;
 								});
 						l1 = lineaService.addLinea(llinea);
 						p1 = consultaService.findPropuestaByPropuestaId(propuestaId);
@@ -151,7 +154,7 @@ public class LineaController {
 	
 	@GetMapping("/revisar/id/{lineaid}") // TODO test
 	public String revisarLinea(Model model, @PathVariable(name ="lineaid") String lineaId) {
-		Mono<Linea> linea = lineaService.findById(lineaId); // TODO change LineaWithAttListDto to have Map of atts, instead of list
+		Mono<Linea> linea = lineaService.findById(lineaId);
 		
 		Mono<LineaWithAttListDto> lineaDto = getAttributesOfProposal(linea);
 		

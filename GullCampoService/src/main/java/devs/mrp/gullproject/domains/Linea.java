@@ -55,7 +55,7 @@ public class Linea {
 	
 	public void resetCampos(List<Campo<Object>> campos) {
 		this.campos.clear();
-		campos.addAll(campos);
+		this.campos.addAll(campos);
 	}
 	
 	@JsonIgnore
