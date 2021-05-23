@@ -42,8 +42,8 @@ public interface Propuesta {
 			return false;
 		}
 		
-		Map<String, Campo<?>> map1 = linea1.getCampos();
-		Map<String, Campo<?>> map2 = linea2.getCampos();
+		Map<String, Campo<?>> map1 = linea1.getCampos().stream().collect(Collectors.toMap((c)->c.getAtributoId(), (c)->c));
+		Map<String, Campo<?>> map2 = linea2.getCampos().stream().collect(Collectors.toMap((c)->c.getAtributoId(), (c)->c));
 		
 		if(map1.size() != map2.size()) { // Si algún atributoId está repetido por error...
 			return false;
@@ -66,8 +66,8 @@ public interface Propuesta {
 		return true;
 	}
 	public static boolean confirmaIgualesSegunCampos(Linea linea1, Linea linea2, List<AtributoForCampo> atributos) {
-				Map<String, Campo<?>> map1 = linea1.getCampos();
-				Map<String, Campo<?>> map2 = linea2.getCampos();
+				Map<String, Campo<?>> map1 = linea1.getCampos().stream().collect(Collectors.toMap((c)->c.getAtributoId(), (c)->c));
+				Map<String, Campo<?>> map2 = linea2.getCampos().stream().collect(Collectors.toMap((c)->c.getAtributoId(), (c)->c));
 				
 				Iterator<AtributoForCampo> it = atributos.iterator();
 				while (it.hasNext()) {
@@ -87,7 +87,7 @@ public interface Propuesta {
 		 * When values to compare don't exist, it takes the default (empy, zero, false...)
 		 */
 		
-		Map<String, Campo<?>> mapLinea = l.getCampos();
+		Map<String, Campo<?>> mapLinea = l.getCampos().stream().collect(Collectors.toMap((c)->c.getAtributoId(), (c)->c));
 
 		Set<String> atributoIds = atributoidVSvalue.keySet();
 
@@ -129,7 +129,7 @@ public interface Propuesta {
 		 */
 		
 		
-		Map<String, Campo<?>> mapLinea = l.getCampos();
+		Map<String, Campo<?>> mapLinea = l.getCampos().stream().collect(Collectors.toMap((c)->c.getAtributoId(), (c)->c));
 
 		Set<String> atributoIds = atributoidVSvalue.keySet();
 		Set<String> lineaKeys = mapLinea.keySet();

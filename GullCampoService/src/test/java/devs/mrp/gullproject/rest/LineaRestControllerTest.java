@@ -226,6 +226,7 @@ class LineaRestControllerTest { // TODO fix testing after refractoring
 		l.setNombre("linea_name");
 		l.setCampos(campos);
 		
+		when(lineaRepo.findById(ArgumentMatchers.eq(l.getId()))).thenReturn(Mono.just(l));
 		when(lineaRepo.deleteByIdReturningDeletedCount(l.getId())).thenReturn(Mono.just(1L));
 		
 		client.delete()

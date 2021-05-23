@@ -20,6 +20,9 @@
 				<h3>Nombre:</h3>
 				<span th:text="*{nombre}"> ... </span>
 			</div>
+			<div>
+				<span th:each="t : *{campos}" th:text="t.getDatos()"></span>
+			</div>
 		</div>
 
 		<div>

@@ -84,17 +84,17 @@ class CustomConsultaRepoImplTest {
 		atributo3.setTipo("atributo3tipo");
 		
 		
-		Map<String, Campo<?>> campos1 = new LinkedHashMap<>();
+		List<Campo<?>> campos1 = new ArrayList<>();
 		campo1 = new Campo<>();
 		campo1.setId("campo_1_id");
 		campo1.setAtributoId("atributo_id_1");
 		campo1.setDatos("datos campo 1");
-		campos1.put(campo1.getAtributoId(), campo1);
+		campos1.add(campo1);
 		campo2 = new Campo<>();
 		campo2.setAtributoId("atributo_id_2");
 		campo2.setDatos("datos campo 2");
 		campo2.setId("campo_2_id");
-		campos1.put(campo2.getAtributoId(), campo2);
+		campos1.add(campo2);
 		
 		linea1 = new Linea();
 		linea1.setCampos(campos1);
@@ -103,17 +103,17 @@ class CustomConsultaRepoImplTest {
 		
 		
 		
-		Map<String, Campo<?>> campos2 = new LinkedHashMap<>();
+		List<Campo<?>> campos2 = new ArrayList<>();
 		campo3 = new Campo<>();
 		campo3.setId("campo_3_id");
 		campo3.setAtributoId("atributo_id_1");
 		campo3.setDatos("datos campo 3");
-		campos2.put(campo3.getAtributoId(), campo3);
+		campos2.add(campo3);
 		campo4 = new Campo<>();
 		campo4.setAtributoId("atributo_id_2");
 		campo4.setDatos("datos campo 4");
 		campo4.setId("campo_4_id");
-		campos2.put(campo4.getAtributoId(), campo4);
+		campos2.add(campo4);
 		
 		linea2 = new Linea();
 		linea2.setCampos(campos2);
@@ -134,17 +134,17 @@ class CustomConsultaRepoImplTest {
 		 * Segunda propuesta
 		 */
 		
-		Map<String, Campo<?>> campos3 = new LinkedHashMap<>();
+		List<Campo<?>> campos3 = new ArrayList<>();
 		campo5 = new Campo<>();
 		campo5.setId("campo_5_id");
 		campo5.setAtributoId("atributo id 1");
 		campo5.setDatos("datos campo 5");
-		campos3.put(campo5.getAtributoId(), campo5);
+		campos3.add(campo5);
 		campo6 = new Campo<>();
 		campo6.setAtributoId("atributo id 2");
 		campo6.setDatos("datos campo 6");
 		campo6.setId("campo_6_id");
-		campos3.put(campo6.getAtributoId(), campo6);
+		campos3.add(campo6);
 		
 		linea3 = new Linea();
 		linea3.setCampos(campos3);
@@ -153,17 +153,17 @@ class CustomConsultaRepoImplTest {
 		
 		
 		
-		Map<String, Campo<?>> campos4 = new LinkedHashMap<>();
+		List<Campo<?>> campos4 = new ArrayList<>();
 		campo7 = new Campo<>();
 		campo7.setId("campo_7_id");
 		campo7.setAtributoId("atributo id 1");
 		campo7.setDatos("datos campo 7");
-		campos4.put(campo7.getAtributoId(), campo7);
+		campos4.add(campo7);
 		campo8 = new Campo<>();
 		campo8.setAtributoId("atributo id 2");
 		campo8.setDatos("datos campo 8");
 		campo8.setId("campo_8_id");
-		campos4.put(campo8.getAtributoId(), campo8);
+		campos4.add(campo8);
 		
 		linea4 = new Linea();
 		linea4.setCampos(campos4);

@@ -52,8 +52,8 @@ class LineaByIdRestControllerTest {
 		m.setAtributoId("id_del_campo");
 		m.setDatos(235);
 		m.setId("id_aleatoria");
-		Map<String, Campo<?>> campos = new LinkedHashMap<>();
-		campos.put(m.getAtributoId(), m);
+		List<Campo<?>> campos = new ArrayList<>();
+		campos.add(m);
 		
 		Linea l = new Linea();
 		l.setNombre("nombre_linea");

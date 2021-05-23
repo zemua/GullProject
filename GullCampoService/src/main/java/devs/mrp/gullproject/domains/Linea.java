@@ -67,6 +67,18 @@ public class Linea {
 		return campos.get(i);
 	}
 	
+	public boolean replaceCampo(String atributoId, Campo<?> c) {
+		Iterator<Campo<?>> it = campos.iterator();
+		while (it.hasNext()) {
+			Campo<?> campo = it.next();
+			if (campo.getAtributoId().equals(atributoId)) {
+				campo = c;
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public void addCampo(Campo<?> c) {
 		campos.add(c);
 	}

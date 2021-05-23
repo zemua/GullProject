@@ -60,8 +60,8 @@ class LineaRepresentationModelAssemblerTest {
 		campo.setDatos(2345);
 		campo.setId("campo_id");
 		
-		Map<String, Campo<?>> campos = new HashMap<>();
-		campos.put(campo.getAtributoId(), campo);
+		List<Campo<?>> campos = new ArrayList<>();
+		campos.add(campo);
 		
 		Linea linea = new Linea();
 		linea.setId("id_linea");
