@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>Gull Project - Linea Actualizada</title>
+</head>
+<body>
+
+<h1>Linea Actualizada</h1>
+
+	<div>
+		<span class="success" th:if="${linea != null}">Linea Guardada Como...</span>
+		<span class="failure" th:unless="${linea != null}">Algo no ha ido bien...</span>
+	</div>
+
+	<div th:if="${linea != null && propuesta != null}">
+		<div class="grid" th:object="${linea}">
+			<div class="define-group" id="nombrelinea">
+				<h3>Nombre:</h3>
+				<span th:text="*{nombre}"> ... </span>
+			</div>
+			<div>
+				<div th:if="*{campos.size() > 0}"><span>Campos...</span></div>
+				<span th:each="t : *{campos}" th:text="${t.getDatos() + '  '}"></span>
+			</div>
+		</div>
+
+		<div class="grid" th:object="${propuesta}">
+			<div class="define-group" id="nombrepropuesta">
+				<h3>En la propuesta...</h3>
+				<span th:text="*{nombre}"> ... </span>
+			</div>
+		</div>
+
+		<div>
+			<p>
+				<a th:href="${'/lineas/allof/propid/' + propuesta.getId()}">Volver a la propuesta</a>
+			</p>
+		</div>
+	</div>
+
+</body>
+</html>

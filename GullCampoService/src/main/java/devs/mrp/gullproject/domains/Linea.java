@@ -20,7 +20,7 @@ import lombok.Data;
 
 @Data
 @Document (collection = "lineas")
-public class Linea {
+public class Linea { // TODO test methods
 
 	@Id
 	private String id = new ObjectId().toString();
@@ -67,6 +67,26 @@ public class Linea {
 		return campos.get(i);
 	}
 	
+	public Campo<?> getCampoByAttId(String attId) {
+		Iterator<Campo<?>> it = campos.iterator();
+		while (it.hasNext()) {
+			Campo<?> campo = it.next();
+			if (campo.getAtributoId().equals(attId)) {
+				return campo;
+			}
+		}
+		return null;
+	}
+	
+	public String getValueByAttId(String attId) {
+		Campo<?> c = getCampoByAttId(attId);
+		if (c == null || c.getDatos() == null) {
+			return "";
+		} else {
+			return String.valueOf(c.getDatos());
+		}
+	}
+	
 	public boolean replaceCampo(String atributoId, Campo<?> c) {
 		Iterator<Campo<?>> it = campos.iterator();
 		while (it.hasNext()) {
@@ -79,11 +99,21 @@ public class Linea {
 		return false;
 	}
 	
+	public void replaceOrElseAddCampo(String atributoId, Campo<?> c) {
+		if (!replaceCampo(atributoId, c)) {
+			this.campos.add(c);
+		}
+	}
+	
+	public void replaceOrElseAddCampos(List<Campo<?>> campos) {
+		campos.stream().forEach(c -> replaceOrElseAddCampo(c.getAtributoId(), c));
+	}
+	
 	public void addCampo(Campo<?> c) {
 		campos.add(c);
 	}
 	
-	public void removeCampo(String atributoId) {
+	public void removeCampoByAttId(String atributoId) {
 		Iterator<Campo<?>> it = campos.iterator();
 		while (it.hasNext()) {
 			Campo<?> campo = it.next();
@@ -91,6 +121,10 @@ public class Linea {
 				it.remove();
 			}
 		}
+	}
+	
+	public void removeCamposByAttId(List<String> attIds) {
+		attIds.stream().forEach(att -> removeCampoByAttId(att));
 	}
 	
 }

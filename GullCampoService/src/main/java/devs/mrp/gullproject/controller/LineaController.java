@@ -86,7 +86,88 @@ public class LineaController {
 	
 	@PostMapping("/of/{propuestaId}/new")
 	public Mono<String> processAddLineaToPropuesta(@Valid LineaWithAttListDto lineaWithAttListDto, BindingResult bindingResult, Model model, @PathVariable(name ="propuestaId") String propuestaId) {
+		return assertBindingResultOfListDto(lineaWithAttListDto, bindingResult)
+			.then(Mono.just(bindingResult)).flatMap(rBindingResult -> {
+				if(rBindingResult.hasErrors()) {
+					model.addAttribute("propuesta", consultaService.findPropuestaByPropuestaId(propuestaId));
+					model.addAttribute("propuestaId", propuestaId);
+					model.addAttribute("lineaWithAttListDto", lineaWithAttListDto);
+					return Mono.just("addLineaToPropuesta");
+				} else {
+					Mono<Linea> l1;
+					Mono<Propuesta> p1;
+					if (lineaWithAttListDto.getLinea().getPropuestaId().equals(propuestaId)){
+						log.debug("propuestaId's equal");
+						Mono<Linea> llinea = reconstructLine(lineaWithAttListDto);
+						l1 = lineaService.addLinea(llinea);
+						p1 = consultaService.findPropuestaByPropuestaId(propuestaId);
+					} else {
+						log.debug("propuestaId's are NOT equal");
+						l1 = Mono.empty();
+						p1 = Mono.empty();
+					}
+					model.addAttribute("linea", l1);
+					model.addAttribute("propuesta", p1);
+					return Mono.just("processAddLineaToPropuesta");
+				}
+			});
+	}
+	
+	@GetMapping("/revisar/id/{lineaid}") // TODO test
+	public String revisarLinea(Model model, @PathVariable(name ="lineaid") String lineaId) {
+		Mono<Linea> linea = lineaService.findById(lineaId);
+		Mono<LineaWithAttListDto> lineaDto = getAttributesOfProposal(linea);
 		
+		model.addAttribute("lineaWithAttListDto", lineaDto);
+		
+		return "reviewLinea";
+	}
+	
+	@PostMapping("/revisar/id/{lineaid}")
+	public Mono<String> processRevisarLinea(@Valid LineaWithAttListDto lineaWithAttListDto, BindingResult bindingResult, Model model, @PathVariable(name="lineaId") String lineaId) { // TODO test
+		return assertBindingResultOfListDto(lineaWithAttListDto, bindingResult)
+				.then(Mono.just(bindingResult)).flatMap(rBindingResult -> {
+					if (rBindingResult.hasErrors()) {
+						model.addAttribute("lineaWithAttListDto",lineaWithAttListDto);
+						return Mono.just("reviewLinea");
+					} else {
+						Mono<Linea> l1;
+						if (lineaWithAttListDto.getLinea().getId().equals(lineaId)){
+							log.debug("propuestaId's equal");
+							Mono<Linea> llinea = reconstructLine(lineaWithAttListDto);
+							l1 = llinea.flatMap(rLlinea -> lineaService.updateLinea(rLlinea));
+						} else {
+							log.debug("propuestaId's are NOT equal");
+							l1 = Mono.empty();
+						}
+						model.addAttribute("linea", l1);
+						return Mono.just("processReviewLinea"); // TODO make the template
+					}
+				});
+	}
+	
+	
+	
+	/**
+	 * Functional operations
+	 */
+	
+	private Mono<LineaWithAttListDto> getAttributesOfProposal(Linea lLinea, String propuestaId){
+		return consultaService.findAttributesByPropuestaId(propuestaId)
+				.map(rAttProp -> modelMapper.map(rAttProp, AtributoForLineaFormDto.class))
+				.map(rAttForForm -> {
+					rAttForForm.setValue(lLinea.getValueByAttId(rAttForForm.getId()));
+					return rAttForForm;
+				})
+				.collectList()
+				.flatMap(rAttFormList -> Mono.just(new LineaWithAttListDto(lLinea, new ValidList<AtributoForLineaFormDto>(rAttFormList))));
+	}
+	
+	private Mono<LineaWithAttListDto> getAttributesOfProposal(Mono<Linea> lLinea){
+		return lLinea.flatMap(linea -> getAttributesOfProposal(linea, linea.getPropuestaId()));
+	}
+	
+	private Flux<Boolean> assertBindingResultOfListDto(LineaWithAttListDto lineaWithAttListDto, BindingResult bindingResult) {
 		/**
 		 * BindingResult checks out of the box if there is any error in the line, but not in the attributes (we removed the validation in that class)
 		 * To check if the attributes are correct we need to call the attribute repository, which returns a Reactor object
@@ -116,63 +197,18 @@ public class LineaController {
 				} else {
 					return Mono.just(true);
 				}
-			})
-			.then(Mono.just(bindingResult)).flatMap(rBindingResult -> {
-				if(rBindingResult.hasErrors()) {
-					model.addAttribute("propuesta", consultaService.findPropuestaByPropuestaId(propuestaId));
-					model.addAttribute("propuestaId", propuestaId);
-					model.addAttribute("lineaWithAttListDto", lineaWithAttListDto);
-					return Mono.just("addLineaToPropuesta");
-				} else {
-					Mono<Linea> l1;
-					Mono<Propuesta> p1;
-					Linea nLinea = lineaWithAttListDto.getLinea();
-					if (nLinea.getPropuestaId().equals(propuestaId)){
-						log.debug("propuestaId's equal");
-						Mono<Linea> llinea = Flux.fromIterable(lineaWithAttListDto.getAttributes())
-								.flatMap(rAtt -> atributoService.getClassTypeOfFormat(rAtt.getTipo())
-										.map(rClass -> new Campo<Object>(rAtt.getId(), ClassDestringfier.toObject(rClass, rAtt.getValue()))))
-								.collectList().map(rCampoList -> {
-									log.debug("cantidad de rCampoList: " + rCampoList.size());
-									nLinea.resetCampos(rCampoList);
-									log.debug("cantidad de campos nLinea: " + nLinea.getCantidadCampos());
-									return nLinea;
-								});
-						l1 = lineaService.addLinea(llinea);
-						p1 = consultaService.findPropuestaByPropuestaId(propuestaId);
-					} else {
-						log.debug("propuestaId's are NOT equal");
-						l1 = Mono.empty();
-						p1 = Mono.empty();
-					}
-					model.addAttribute("linea", l1);
-					model.addAttribute("propuesta", p1);
-					return Mono.just("processAddLineaToPropuesta");
-				}
 			});
 	}
 	
-	@GetMapping("/revisar/id/{lineaid}") // TODO test
-	public String revisarLinea(Model model, @PathVariable(name ="lineaid") String lineaId) {
-		Mono<Linea> linea = lineaService.findById(lineaId);
-		
-		Mono<LineaWithAttListDto> lineaDto = getAttributesOfProposal(linea);
-		
-		model.addAttribute("linea", linea);
-		model.addAttribute("values", lineaDto);
-		
-		return "reviewLinea"; // TODO review and adjust to this method
-	}
-	
-	private Mono<LineaWithAttListDto> getAttributesOfProposal(Linea lLinea, String propuestaId){
-		return consultaService.findAttributesByPropuestaId(propuestaId)
-				.map(rAttProp -> modelMapper.map(rAttProp, AtributoForLineaFormDto.class))
-				.collectList()
-				.flatMap(rAttFormList -> Mono.just(new LineaWithAttListDto(lLinea, new ValidList<AtributoForLineaFormDto>(rAttFormList))));
-	}
-	
-	private Mono<LineaWithAttListDto> getAttributesOfProposal(Mono<Linea> lLinea){
-		return lLinea.flatMap(linea -> getAttributesOfProposal(linea, linea.getPropuestaId()));
+	private Mono<Linea> reconstructLine(LineaWithAttListDto lineaWithAttListDto) {
+		Linea nLinea = lineaWithAttListDto.getLinea();
+		return Flux.fromIterable(lineaWithAttListDto.getAttributes())
+				.flatMap(rAtt -> atributoService.getClassTypeOfFormat(rAtt.getTipo()).map(
+						rClass -> new Campo<Object>(rAtt.getId(), ClassDestringfier.toObject(rClass, rAtt.getValue()))))
+				.collectList().map(rCampoList -> {
+					nLinea.resetCampos(rCampoList);
+					return nLinea;
+				});
 	}
 	
 }

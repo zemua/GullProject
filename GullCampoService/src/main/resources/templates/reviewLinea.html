@@ -3,11 +3,11 @@
 	xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="utf-8">
-<title th:text="${'Gull Project - Nueva Linea en Propuesta: ' + propuesta.getNombre()}">Gull Project - Nueva Linea en Propuesta</title>
+<title th:text="${'Gull Project - Editar Linea: ' + lineaWithAttListDto.linea.getNombre()}">Gull Project - Editar Linea</title>
 </head>
 <body>
 
-<h1>Nueva Linea en Propuesta</h1>
+<h1>Editar Linea</h1>
 
 	<form method="POST" th:object="${lineaWithAttListDto}">
 	
@@ -24,6 +24,11 @@
 						<span class="validationError"
       							th:if="${#fields.hasErrors('${lineaWithAttListDto.linea.nombre}')}"
       							th:errors="*{linea.nombre}">Selecciona un nombre</span>
+      				<div th:each="y , ystat : *{linea.campos}">
+      					<input type="hidden" th:field="*{linea.campos[__${ystat.index}__].id}"/>
+      					<input type="hidden" th:field="*{linea.campos[__${ystat.index}__].atributoId}"/>
+      					<input type="hidden" th:field="*{linea.campos[__${ystat.index}__].datos}"/>
+      				</div>
 			</div>
 			<div class="atribute-group" th:each="t, stat : *{attributes}">
 				<h3 th:text="${t.name}">Atributo:</h3>
@@ -48,7 +53,7 @@
 		
 		<div>
 			<p>
-				<a th:href="${'/lineas/allof/propid/' + propuestaId}">Volver</a>
+				<a th:href="${'/lineas/allof/propid/' + lineaWithAttListDto.linea.propuestaId}">Volver</a>
 			</p>
 		</div>
 		
