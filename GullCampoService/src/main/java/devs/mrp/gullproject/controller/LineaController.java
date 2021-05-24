@@ -123,7 +123,7 @@ public class LineaController {
 		return "reviewLinea";
 	}
 	
-	@PostMapping("/revisar/id/{lineaid}") // TODO test
+	@PostMapping("/revisar/id/{lineaid}")
 	public Mono<String> processRevisarLinea(@Valid LineaWithAttListDto lineaWithAttListDto, BindingResult bindingResult, Model model, @PathVariable(name="lineaid") String lineaId) { // TODO test
 		return assertBindingResultOfListDto(lineaWithAttListDto, bindingResult)
 				.then(Mono.just(bindingResult)).flatMap(rBindingResult -> {
@@ -135,7 +135,9 @@ public class LineaController {
 						if (lineaWithAttListDto.getLinea().getId().equals(lineaId)){
 							log.debug("propuestaId's equal");
 							Mono<Linea> llinea = reconstructLine(lineaWithAttListDto);
-							l1 = llinea.flatMap(rLlinea -> lineaService.updateLinea(rLlinea));
+							l1 = llinea.flatMap(rLlinea -> {
+								return lineaService.updateLinea(rLlinea);
+							});
 						} else {
 							log.debug("propuestaId's are NOT equal");
 							l1 = Mono.empty();

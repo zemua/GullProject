@@ -25,7 +25,7 @@ public class ClassDestringfier {
 	
 	public static Object toObject(String clazz, String value) {
 		if (clazz.equals("Boolean")) return Boolean.parseBoolean(value);
-		if (clazz.equals("Integer")) return Boolean.parseBoolean(value);
+		if (clazz.equals("Integer")) return Integer.parseInt(value);
 		if (clazz.equals("Long")) return Long.parseLong(value);
 		if (clazz.equals("Float")) return Float.parseFloat(value);
 		if (clazz.equals("Double")) return Double.parseDouble(value);

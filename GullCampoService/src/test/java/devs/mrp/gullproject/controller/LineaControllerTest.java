@@ -24,6 +24,8 @@ import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
+import devs.mrp.gullproject.domains.dto.AtributoForLineaFormDto;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaService;
@@ -80,12 +82,15 @@ class LineaControllerTest {
 		atributo1 = new AtributoForCampo();
 		atributo1.setId("id1");
 		atributo1.setName("atributo1");
+		atributo1.setTipo("DESCRIPCION");
 		atributo2 = new AtributoForCampo();
 		atributo2.setId("id2");
 		atributo2.setName("atributo2");
+		atributo2.setTipo("NUMERO");
 		atributo3 = new AtributoForCampo();
 		atributo3.setId("id3");
 		atributo3.setName("atributo3");
+		atributo3.setTipo("NUMERO");
 		atributo4 = new AtributoForCampo();
 		atributo4.setId("id4");
 		atributo4.setName("atributo4");
@@ -109,10 +114,10 @@ class LineaControllerTest {
 		linea1.setPropuestaId(propuesta.getId());
 		
 		campo2a = new Campo<>();
-		campo2a.setAtributoId(atributo1.getId());
+		campo2a.setAtributoId(atributo2.getId());
 		campo2a.setDatos("datos2");
 		campo2b = new Campo<>();
-		campo2b.setAtributoId(atributo2.getId());
+		campo2b.setAtributoId(atributo3.getId());
 		campo2b.setDatos(321);
 		linea2 = new Linea();
 		linea2.addCampo(campo2a);
@@ -319,6 +324,82 @@ class LineaControllerTest {
 		});
 	}
 	
-	
+	@Test
+	void testProcessRevisarLinea() {
+		propuesta.addAttribute(atributo2);
+		propuesta.addAttribute(atributo3);
+		
+		AtributoForLineaFormDto att1 = new AtributoForLineaFormDto();
+		att1.setId(atributo1.getId());
+		att1.setName(atributo1.getName());
+		att1.setTipo(atributo1.getTipo());
+		att1.setValue(String.valueOf(linea1.getCampoByIndex(0).getDatos()));
+		AtributoForLineaFormDto att2 = new AtributoForLineaFormDto();
+		att2.setId(atributo2.getId());
+		att2.setName(atributo2.getName());
+		att2.setTipo(atributo2.getTipo());
+		att2.setValue("85214");
+		campo2a.setDatos(att2.getValue());
+		AtributoForLineaFormDto att3 = new AtributoForLineaFormDto();
+		att3.setId(atributo3.getId());
+		att3.setName(atributo3.getName());
+		att3.setTipo(atributo3.getTipo());
+		att3.setValue("45789");
+		campo2b.setDatos(Integer.parseInt(att3.getValue()));
+		
+		linea1.replaceOrElseAddCampo(atributo2.getId(), campo2a);
+		linea1.replaceOrElseAddCampo(atributo3.getId(), campo2b);
+		when(lineaService.updateLinea(ArgumentMatchers.any(Linea.class))).thenReturn(Mono.just(linea1));
+		
+		log.debug("response when all correct");
+		when(atributoService.validateDataFormat(att1.getTipo(), att1.getValue())).thenReturn(Mono.just(true));
+		when(atributoService.validateDataFormat(att2.getTipo(), att2.getValue())).thenReturn(Mono.just(true));
+		when(atributoService.validateDataFormat(att3.getTipo(), att3.getValue())).thenReturn(Mono.just(true));
+		when(atributoService.getClassTypeOfFormat(att1.getTipo())).thenReturn(Mono.just("String"));
+		when(atributoService.getClassTypeOfFormat(att2.getTipo())).thenReturn(Mono.just("Integer"));
+		when(atributoService.getClassTypeOfFormat(att3.getTipo())).thenReturn(Mono.just("Integer"));
+		
+		webTestClient.post()
+		.uri("/lineas/revisar/id/" + linea1.getId())
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("linea.nombre", linea1.getNombre())
+				.with("linea.id", linea1.getId())
+				.with("linea.propuestaId", linea1.getPropuestaId())
+				
+				.with("linea.campos[0].id", campo1a.getId())
+				.with("linea.campos[0].atributoId", campo1a.getAtributoId())
+				.with("linea.campos[0].datos", campo1a.getDatos())
+				
+				.with("linea.campos[1].id", campo1b.getId())
+				.with("linea.campos[1].atributoId", campo1b.getAtributoId())
+				.with("linea.campos[1].datos", String.valueOf(campo1b.getDatos()))
+				
+				.with("attributes[0].id", att2.getId())
+				.with("attributes[0].value", att2.getValue())
+				.with("attributes[0].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[0].name", att2.getName())
+				.with("attributes[0].tipo", att2.getTipo())
+				
+				.with("attributes[1].id", att3.getId())
+				.with("attributes[1].value", att3.getValue())
+				.with("attributes[1].localIdentifier", att3.getLocalIdentifier())
+				.with("attributes[1].name", att3.getName())
+				.with("attributes[1].tipo", att3.getTipo())
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Linea Actualizada")
+					.contains("Linea Guardada Como...")
+					.contains(linea1.getNombre())
+					.contains(String.valueOf(linea1.getCampoByIndex(0).getDatos()))
+					.contains(String.valueOf(linea1.getCampoByIndex(1).getDatos()))
+					.contains(String.valueOf(linea1.getCampoByIndex(2).getDatos()))
+					;
+		});
+	}
 
 }

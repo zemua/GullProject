@@ -133,4 +133,21 @@ public class Linea { // TODO test methods
 		attIds.stream().forEach(att -> removeCampoByAttId(att));
 	}
 	
+	public boolean equals(Linea linea) {
+		if (!this.nombre.equals(linea.getNombre())) {return false;}
+		if (!this.propuestaId.equals(linea.getPropuestaId())) {return false;}
+		if (!this.parentId.equals(linea.getParentId())) {return false;}
+		if (!this.counterLineId.equals(linea.getCounterLineId())) {return false;}
+		if (!this.order.equals(linea.getOrder())) {return false;}
+		if (this.campos.size() != linea.getCampos().size()) {return false;}
+		for (int i = 0; i<campos.size(); i++) {
+			Campo<?> c = campos.get(i);
+			Campo<?> d = linea.getCampos().get(i);
+			if (!c.getAtributoId().equals(d.getAtributoId())) {return false;}
+			if (!c.getDatos().equals(d.getDatos())) {return false;}
+			// don't compare individual ids of each campo
+		}
+		return true;
+	}
+	
 }
