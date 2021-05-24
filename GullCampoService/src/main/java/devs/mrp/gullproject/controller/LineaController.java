@@ -123,8 +123,8 @@ public class LineaController {
 		return "reviewLinea";
 	}
 	
-	@PostMapping("/revisar/id/{lineaid}")
-	public Mono<String> processRevisarLinea(@Valid LineaWithAttListDto lineaWithAttListDto, BindingResult bindingResult, Model model, @PathVariable(name="lineaId") String lineaId) { // TODO test
+	@PostMapping("/revisar/id/{lineaid}") // TODO test
+	public Mono<String> processRevisarLinea(@Valid LineaWithAttListDto lineaWithAttListDto, BindingResult bindingResult, Model model, @PathVariable(name="lineaid") String lineaId) { // TODO test
 		return assertBindingResultOfListDto(lineaWithAttListDto, bindingResult)
 				.then(Mono.just(bindingResult)).flatMap(rBindingResult -> {
 					if (rBindingResult.hasErrors()) {
@@ -141,7 +141,7 @@ public class LineaController {
 							l1 = Mono.empty();
 						}
 						model.addAttribute("linea", l1);
-						return Mono.just("processReviewLinea"); // TODO make the template
+						return Mono.just("processReviewLine");
 					}
 				});
 	}
@@ -206,7 +206,7 @@ public class LineaController {
 				.flatMap(rAtt -> atributoService.getClassTypeOfFormat(rAtt.getTipo()).map(
 						rClass -> new Campo<Object>(rAtt.getId(), ClassDestringfier.toObject(rClass, rAtt.getValue()))))
 				.collectList().map(rCampoList -> {
-					nLinea.resetCampos(rCampoList);
+					nLinea.replaceOrAddCamposObj(rCampoList);
 					return nLinea;
 				});
 	}

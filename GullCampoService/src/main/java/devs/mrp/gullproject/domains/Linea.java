@@ -109,6 +109,12 @@ public class Linea { // TODO test methods
 		campos.stream().forEach(c -> replaceOrElseAddCampo(c.getAtributoId(), c));
 	}
 	
+	public void replaceOrAddCamposObj(List<Campo<Object>> campos) {
+		List<Campo<?>> cs = new ArrayList<>();
+		cs.addAll(campos);
+		replaceOrElseAddCampos(cs);
+	}
+	
 	public void addCampo(Campo<?> c) {
 		campos.add(c);
 	}

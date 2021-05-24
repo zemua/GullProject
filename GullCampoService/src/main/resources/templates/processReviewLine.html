@@ -14,7 +14,7 @@
 		<span class="failure" th:unless="${linea != null}">Algo no ha ido bien...</span>
 	</div>
 
-	<div th:if="${linea != null && propuesta != null}">
+	<div th:if="${linea != null}">
 		<div class="grid" th:object="${linea}">
 			<div class="define-group" id="nombrelinea">
 				<h3>Nombre:</h3>
@@ -26,16 +26,9 @@
 			</div>
 		</div>
 
-		<div class="grid" th:object="${propuesta}">
-			<div class="define-group" id="nombrepropuesta">
-				<h3>En la propuesta...</h3>
-				<span th:text="*{nombre}"> ... </span>
-			</div>
-		</div>
-
 		<div>
 			<p>
-				<a th:href="${'/lineas/allof/propid/' + propuesta.getId()}">Volver a la propuesta</a>
+				<a th:href="${'/lineas/allof/propid/' + linea.getPropuestaId()}">Volver a la propuesta</a>
 			</p>
 		</div>
 	</div>
