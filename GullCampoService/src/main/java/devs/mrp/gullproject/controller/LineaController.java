@@ -113,7 +113,7 @@ public class LineaController {
 			});
 	}
 	
-	@GetMapping("/revisar/id/{lineaid}") // TODO test
+	@GetMapping("/revisar/id/{lineaid}")
 	public String revisarLinea(Model model, @PathVariable(name ="lineaid") String lineaId) {
 		Mono<Linea> linea = lineaService.findById(lineaId);
 		Mono<LineaWithAttListDto> lineaDto = getAttributesOfProposal(linea);

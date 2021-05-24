@@ -77,16 +77,30 @@ class LineaControllerTest {
 	
 	@BeforeEach
 	void init() {
+		atributo1 = new AtributoForCampo();
+		atributo1.setId("id1");
+		atributo1.setName("atributo1");
+		atributo2 = new AtributoForCampo();
+		atributo2.setId("id2");
+		atributo2.setName("atributo2");
+		atributo3 = new AtributoForCampo();
+		atributo3.setId("id3");
+		atributo3.setName("atributo3");
+		atributo4 = new AtributoForCampo();
+		atributo4.setId("id4");
+		atributo4.setName("atributo4");
+		fluxAttsPropuesta = Flux.just(atributo1, atributo2, atributo3, atributo4);
+		
 		propuesta = new PropuestaCliente();
 		propuesta.setNombre("propuestaName");
 		consulta = new Consulta();
 		consulta.addPropuesta(propuesta);
 		
 		campo1a = new Campo<>();
-		campo1a.setAtributoId("atributo1");
+		campo1a.setAtributoId(atributo1.getId());
 		campo1a.setDatos("datos1");
 		campo1b = new Campo<>();
-		campo1b.setAtributoId("atributo2");
+		campo1b.setAtributoId(atributo2.getId());
 		campo1b.setDatos(123);
 		linea1 = new Linea();
 		linea1.addCampo(campo1a);
@@ -95,10 +109,10 @@ class LineaControllerTest {
 		linea1.setPropuestaId(propuesta.getId());
 		
 		campo2a = new Campo<>();
-		campo2a.setAtributoId("atributo1");
+		campo2a.setAtributoId(atributo1.getId());
 		campo2a.setDatos("datos2");
 		campo2b = new Campo<>();
-		campo2b.setAtributoId("atributo2");
+		campo2b.setAtributoId(atributo2.getId());
 		campo2b.setDatos(321);
 		linea2 = new Linea();
 		linea2.addCampo(campo2a);
@@ -108,16 +122,6 @@ class LineaControllerTest {
 		mono1 = Mono.just(linea1);
 		mono2 = Mono.just(linea2);
 		flux = Flux.just(linea1, linea2);
-		
-		atributo1 = new AtributoForCampo();
-		atributo1.setName("atributo1");
-		atributo2 = new AtributoForCampo();
-		atributo2.setName("atributo2");
-		atributo3 = new AtributoForCampo();
-		atributo3.setName("atributo3");
-		atributo4 = new AtributoForCampo();
-		atributo4.setName("atributo4");
-		fluxAttsPropuesta = Flux.just(atributo1, atributo2, atributo3, atributo4);
 	}
 
 	@Test
@@ -287,5 +291,34 @@ class LineaControllerTest {
 							.doesNotContain("Volver a la propuesta");
 				});
 	}
+	
+	@Test
+	void testRevisarLinea() {
+		when(lineaService.findById(ArgumentMatchers.eq(linea1.getId()))).thenReturn(Mono.just(linea1));
+		propuesta.addAttribute(atributo2);
+		propuesta.addAttribute(atributo3);
+		when(consultaService.findAttributesByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.fromIterable(propuesta.getAttributeColumns()));
+		
+		// it shows atributo2 and atributo3 from propuesta, value of atributo2 from linea, and hidden value of atributo1 from linea
+		webTestClient.get()
+		.uri("/lineas/revisar/id/" + linea1.getId())
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+			.contains("Editar Linea")
+			.doesNotContain("Corrige los errores y reenvía")
+			.contains(linea1.getNombre())
+			.doesNotContain(atributo1.getName())
+			.contains(propuesta.getAttributeColumns().get(0).getName())
+			.contains(propuesta.getAttributeColumns().get(1).getName())
+			.contains(String.valueOf(linea1.getCampoByIndex(0).getDatos()))
+			.contains(String.valueOf(linea1.getCampoByIndex(1).getDatos()));
+		});
+	}
+	
+	
 
 }
