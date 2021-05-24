@@ -424,6 +424,7 @@ class LineaControllerTest {
 	
 	@Test
 	void testProcessDeleteLinea() {
+		when(lineaService.deleteLineaById(linea1.getId())).thenReturn(Mono.just(1L));
 		
 	}
 
