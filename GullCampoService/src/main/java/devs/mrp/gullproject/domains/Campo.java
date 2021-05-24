@@ -26,5 +26,9 @@ public class Campo<T> {
 	}
 	
 	public Campo() {}
+	
+	public String getDatosText() {
+		return String.valueOf(datos);
+	}
 
 }

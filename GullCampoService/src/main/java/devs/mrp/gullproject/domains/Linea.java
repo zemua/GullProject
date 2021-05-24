@@ -63,6 +63,10 @@ public class Linea { // TODO test methods
 		return campos.size();
 	}
 	
+	public Map<String, Campo<?>> getMapOfCamposByAtributoId() {
+		return this.campos.stream().collect(Collectors.toMap((c)->c.getAtributoId(), (c)->c));
+	}
+	
 	public Campo<?> getCampoByIndex(int i){
 		return campos.get(i);
 	}
