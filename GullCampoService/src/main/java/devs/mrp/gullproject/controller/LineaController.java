@@ -47,7 +47,9 @@ import reactor.core.publisher.Mono;
 @RequestMapping(path = "/lineas")
 public class LineaController {
 	
-	// TODO make method for /revisar/id/{lineaid}
+	// TODO delete linea inside review
+	// TODO delete lineas like in allof with checkboxes allof->deleteof
+	// TODO ordenar lineas arrastrando... Ô.ô
 
 	private LineaService lineaService;
 	private ConsultaService consultaService;
@@ -123,7 +125,7 @@ public class LineaController {
 		return "reviewLinea";
 	}
 	
-	@PostMapping("/revisar/id/{lineaid}") // TODO retest
+	@PostMapping("/revisar/id/{lineaid}")
 	public Mono<String> processRevisarLinea(@Valid LineaWithAttListDto lineaWithAttListDto, BindingResult bindingResult, Model model, @PathVariable(name="lineaid") String lineaId) { // TODO test
 		return assertBindingResultOfListDto(lineaWithAttListDto, bindingResult)
 				.then(Mono.just(bindingResult)).flatMap(rBindingResult -> {
@@ -149,9 +151,39 @@ public class LineaController {
 	}
 	
 	
+	@GetMapping("/delete/id/{lineaid}")
+	public String deleteLinea(Model model, @PathVariable(name ="lineaid") String lineaId) {
+		Mono<Linea> linea = lineaService.findById(lineaId);
+		model.addAttribute("linea", linea);
+		return "deleteLinea";
+	}
+	
+	@PostMapping("/delete/id/{lineaid}") // TODO test
+	public String processDeleteLinea(Linea linea, BindingResult bindingResult, Model model, @PathVariable(name="lineaid") String lineaId) {
+		Mono<Long> deleteCount;
+		if (linea.getId().equals(lineaId)) {
+			deleteCount = lineaService.deleteLineaById(lineaId);
+		} else {
+			deleteCount = Mono.just(0L);
+		}
+		model.addAttribute("deleteCount", deleteCount);
+		model.addAttribute("idPropuesta", linea.getPropuestaId());
+		return "processDeleteLinea";
+	}
+	
+	
 	
 	/**
+	 * 
+	 * 
+	 * 
+	 * 
 	 * Functional operations
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
 	 */
 	
 	private Mono<LineaWithAttListDto> getAttributesOfProposal(Linea lLinea, String propuestaId){

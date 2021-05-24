@@ -401,5 +401,30 @@ class LineaControllerTest {
 					;
 		});
 	}
+	
+	@Test
+	void testDeleteLinea() {
+		when(lineaService.findById(linea1.getId())).thenReturn(Mono.just(linea1));
+		
+		webTestClient.get()
+		.uri("/lineas/delete/id/" + linea1.getId())
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+			.contains(linea1.getNombre())
+			.contains(linea1.getId())
+			.contains(linea1.getCampoByIndex(0).getDatosText())
+			.contains("Borrar Linea");
+		});
+		
+	}
+	
+	@Test
+	void testProcessDeleteLinea() {
+		
+	}
 
 }
