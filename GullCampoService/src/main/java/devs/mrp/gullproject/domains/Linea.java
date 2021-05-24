@@ -88,15 +88,18 @@ public class Linea { // TODO test methods
 	}
 	
 	public boolean replaceCampo(String atributoId, Campo<?> c) {
-		Iterator<Campo<?>> it = campos.iterator();
+		boolean removed = false;
+		Iterator<Campo<?>> it = this.campos.iterator();
 		while (it.hasNext()) {
 			Campo<?> campo = it.next();
 			if (campo.getAtributoId().equals(atributoId)) {
-				campo = c;
-				return true;
+				it.remove();
+				removed = true;
+				break;
 			}
 		}
-		return false;
+		if (removed) { campos.add(c); }
+		return removed;
 	}
 	
 	public void replaceOrElseAddCampo(String atributoId, Campo<?> c) {
