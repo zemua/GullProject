@@ -425,7 +425,14 @@ class LineaControllerTest {
 	@Test
 	void testProcessDeleteLinea() {
 		when(lineaService.deleteLineaById(linea1.getId())).thenReturn(Mono.just(1L));
+		webTestClient.post()
+		.uri("/lineas/delete/id/" + linea1.getId())
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("id", linea1.getId()))
+		.body(BodyInserters.fromFormData("name", linea1.getNombre()))
 		
+		;
 	}
 
 }
