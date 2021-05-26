@@ -429,10 +429,18 @@ class LineaControllerTest {
 		.uri("/lineas/delete/id/" + linea1.getId())
 		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 		.accept(MediaType.TEXT_HTML)
-		.body(BodyInserters.fromFormData("id", linea1.getId()))
-		.body(BodyInserters.fromFormData("name", linea1.getNombre()))
-		
-		;
+		.body(BodyInserters.fromFormData("id", linea1.getId())
+			.with("name", linea1.getNombre())
+			.with("propuestaId", linea1.getPropuestaId())
+					)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+			.contains("Borrar Linea")
+			.contains("1 lineas borradas");
+		});
 	}
 
 }

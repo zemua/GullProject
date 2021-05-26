@@ -158,7 +158,7 @@ public class LineaController {
 		return "deleteLinea";
 	}
 	
-	@PostMapping("/delete/id/{lineaid}") // TODO test
+	@PostMapping("/delete/id/{lineaid}")
 	public String processDeleteLinea(Linea linea, BindingResult bindingResult, Model model, @PathVariable(name="lineaid") String lineaId) {
 		Mono<Long> deleteCount;
 		if (linea.getId().equals(lineaId)) {
