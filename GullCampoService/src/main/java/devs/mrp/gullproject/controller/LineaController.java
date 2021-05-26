@@ -32,6 +32,7 @@ import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AttributesListDto;
 import devs.mrp.gullproject.domains.dto.AtributoForLineaFormDto;
 import devs.mrp.gullproject.domains.dto.LineaWithAttListDto;
+import devs.mrp.gullproject.domains.dto.LineaWithSelectorDto;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.ClassDestringfier;
 import devs.mrp.gullproject.service.ConsultaService;
@@ -47,7 +48,6 @@ import reactor.core.publisher.Mono;
 @RequestMapping(path = "/lineas")
 public class LineaController {
 	
-	// TODO delete linea inside review
 	// TODO delete lineas like in allof with checkboxes allof->deleteof
 	// TODO ordenar lineas arrastrando... Ô.ô
 
@@ -126,7 +126,7 @@ public class LineaController {
 	}
 	
 	@PostMapping("/revisar/id/{lineaid}")
-	public Mono<String> processRevisarLinea(@Valid LineaWithAttListDto lineaWithAttListDto, BindingResult bindingResult, Model model, @PathVariable(name="lineaid") String lineaId) { // TODO test
+	public Mono<String> processRevisarLinea(@Valid LineaWithAttListDto lineaWithAttListDto, BindingResult bindingResult, Model model, @PathVariable(name="lineaid") String lineaId) {
 		return assertBindingResultOfListDto(lineaWithAttListDto, bindingResult)
 				.then(Mono.just(bindingResult)).flatMap(rBindingResult -> {
 					if (rBindingResult.hasErrors()) {
@@ -169,6 +169,21 @@ public class LineaController {
 		model.addAttribute("deleteCount", deleteCount);
 		model.addAttribute("idPropuesta", linea.getPropuestaId());
 		return "processDeleteLinea";
+	}
+	
+	@GetMapping("/deleteof/propid/{propuestaId}") // TODO test
+	public String deleteLinesOf(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+		Flux<LineaWithSelectorDto> lineas = lineaService.findByPropuestaId(propuestaId)
+				.map(rl -> {
+					LineaWithSelectorDto dto = modelMapper.map(rl, LineaWithSelectorDto.class);
+					dto.setSelected(false);
+					return dto;
+				});
+		model.addAttribute("lineas", new ReactiveDataDriverContextVariable(lineas, 1));
+		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+		model.addAttribute("consulta", consulta);
+		model.addAttribute("propuestaId", propuestaId);
+		return "deleteLinesOf"; // TODO make template
 	}
 	
 	
