@@ -524,5 +524,27 @@ class LineaControllerTest {
 				;
 		});
 	}
+	
+	@Test
+	void testProcessConfirmDeleteLinesOf() {
+		when(lineaService.deleteVariasLineas(ArgumentMatchers.any(Flux.class))).thenReturn(Mono.empty());
+		webTestClient.post()
+			.uri("/lineas/deleteof/propid/" + propuesta.getId() + "/confirmed")
+			.contentType(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("lineas[0].selected", "true")
+					.with("lineas[0].id", linea1.getId())
+					.with("lineas[0].nombre", linea1.getNombre())
+					.with("lineas[0].propuestaId", linea1.getPropuestaId())
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response ->  {
+				Assertions.assertThat(response.getResponseBody()).asString()
+				.contains("Borrar Líneas")
+				.contains("Borrado procesado")
+				;
+			});
+	}
 
 }

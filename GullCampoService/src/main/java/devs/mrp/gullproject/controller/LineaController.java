@@ -217,7 +217,7 @@ public class LineaController {
 		return "processDeleteLinesOf";
 	}
 
-	@PostMapping("/deleteof/propid/{propuestaId}/confirmed") // TODO test
+	@PostMapping("/deleteof/propid/{propuestaId}/confirmed")
 	public String processConfirmDeleteLinesOf(WrapLineasWithSelectorDto wrapLineasWithSelectorDto, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		Mono<Void> delete = lineaService
 				.deleteVariasLineas(Flux.fromIterable(wrapLineasWithSelectorDto.getLineas()).map(rLineaDto -> {
