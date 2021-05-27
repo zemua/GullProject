@@ -177,7 +177,7 @@ public class LineaController {
 		return "processDeleteLinea";
 	}
 
-	@GetMapping("/deleteof/propid/{propuestaId}") // TODO test
+	@GetMapping("/deleteof/propid/{propuestaId}")
 	public String deleteLinesOf(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		Mono<WrapLineasWithSelectorDto> lineas = lineaService.findByPropuestaId(propuestaId).map(rl -> {
 			LineaWithSelectorDto dto = modelMapper.map(rl, LineaWithSelectorDto.class);
@@ -275,21 +275,7 @@ public class LineaController {
 			if (!rAtt.getValue().isBlank()) {
 				log.debug("att type: " + rAtt.getTipo());
 				log.debug("at value: " + rAtt.getValue());
-				return atributoService.validateDataFormat(rAtt.getTipo(), rAtt.getValue().replace(",", ".")) // we
-																												// replace
-																												// ,
-																												// with
-																												// . in
-																												// case
-																												// it is
-																												// a
-																												// decimal
-																												// number,
-																												// as in
-																												// Europe
-																												// ","
-																												// is
-																												// used
+				return atributoService.validateDataFormat(rAtt.getTipo(), rAtt.getValue().replace(",", ".")) // we replace "," with "." in case it is a decimal number, as in Europe "," is used
 						.map(rBool -> {
 							if (!rBool) {
 								Integer pos = map.get(rAtt);

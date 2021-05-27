@@ -2,11 +2,15 @@ package devs.mrp.gullproject.controller;
 
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -26,6 +30,8 @@ import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AtributoForLineaFormDto;
+import devs.mrp.gullproject.domains.dto.LineaWithSelectorDto;
+import devs.mrp.gullproject.domains.dto.WrapLineasWithSelectorDto;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaService;
@@ -42,6 +48,7 @@ class LineaControllerTest {
 	
 	WebTestClient webTestClient;
 	LineaController lineaController;
+	ModelMapper modelMapper;
 	
 	@MockBean
 	LineaService lineaService;
@@ -51,9 +58,10 @@ class LineaControllerTest {
 	AtributoServiceProxyWebClient atributoService;
 	
 	@Autowired
-	public LineaControllerTest(WebTestClient webTestClient, LineaController lineaController) {
+	public LineaControllerTest(WebTestClient webTestClient, LineaController lineaController, ModelMapper modelMapper) {
 		this.webTestClient = webTestClient;
 		this.lineaController = lineaController;
+		this.modelMapper = modelMapper;
 	}
 	
 	Linea linea1;
@@ -122,7 +130,11 @@ class LineaControllerTest {
 		linea2 = new Linea();
 		linea2.addCampo(campo2a);
 		linea2.addCampo(campo2b);
+		linea2.setNombre("nombre linea 2");
 		linea2.setPropuestaId(propuesta.getId());
+		
+		propuesta.addLineaId(linea1.getId());
+		propuesta.addLineaId(linea2.getId());
 		
 		mono1 = Mono.just(linea1);
 		mono2 = Mono.just(linea2);
@@ -440,6 +452,30 @@ class LineaControllerTest {
 			Assertions.assertThat(response.getResponseBody()).asString()
 			.contains("Borrar Linea")
 			.contains("1 lineas borradas");
+		});
+	}
+	
+	@Test
+	void testDeleteLineasOf() {
+		when(lineaService.findByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(flux);
+		when(consultaService.findConsultaByPropuestaId(propuesta.getId())).thenReturn(Mono.just(consulta));
+		webTestClient.get()
+		.uri("/lineas/deleteof/propid/" + propuesta.getId())
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+			.contains(propuesta.getNombre())
+			.contains("Lineas de la propuesta")
+			.contains("Borrar")
+			.contains(linea1.getNombre())
+			.contains(linea1.getCampoByIndex(0).getDatosText())
+			.contains(linea1.getCampoByIndex(1).getDatosText())
+			.contains(linea2.getNombre())
+			.contains(linea2.getCampoByIndex(0).getDatosText())
+			.contains(linea2.getCampoByIndex(1).getDatosText());
 		});
 	}
 
