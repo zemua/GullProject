@@ -51,8 +51,8 @@ import reactor.core.publisher.Mono;
 @RequestMapping(path = "/lineas")
 public class LineaController {
 
-	// TODO delete lineas like in allof with checkboxes allof->deleteof
-	// TODO ordenar lineas arrastrando... Ô.ô
+	// TODO ordenar lineas arrastrando... Ô.ô https://github.com/sindu12jun/table-dragger
+	// TODO Data editing, soring, filtering... https://dhtmlx.com/docs/products/dhtmlxGrid/
 
 	private LineaService lineaService;
 	private ConsultaService consultaService;

@@ -17,8 +17,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
+@Slf4j
 @Document (collection = "lineas")
 public class Linea { // TODO test methods
 
@@ -106,6 +108,10 @@ public class Linea { // TODO test methods
 		return removed;
 	}
 	
+	public boolean replaceCampo(Campo<?> c) {
+		return replaceCampo(c.getAtributoId(), c);
+	}
+	
 	public void replaceOrElseAddCampo(String atributoId, Campo<?> c) {
 		if (!replaceCampo(atributoId, c)) {
 			this.campos.add(c);
@@ -141,17 +147,37 @@ public class Linea { // TODO test methods
 	}
 	
 	public boolean equals(Linea linea) {
-		if (!this.nombre.equals(linea.getNombre())) {return false;}
-		if (!this.propuestaId.equals(linea.getPropuestaId())) {return false;}
-		if (!this.parentId.equals(linea.getParentId())) {return false;}
-		if (!this.counterLineId.equals(linea.getCounterLineId())) {return false;}
-		if (!this.order.equals(linea.getOrder())) {return false;}
-		if (this.campos.size() != linea.getCampos().size()) {return false;}
+		if (!this.nombre.equals(linea.getNombre())) {
+			log.debug("line name not equal");
+			return false;
+			}
+		if (!this.propuestaId.equals(linea.getPropuestaId())) {
+			log.debug("propuestaId not equal");
+			return false;
+			}
+		if (!this.parentId.equals(linea.getParentId())) {
+			log.debug("parentId not equal");
+			return false;
+			}
+		if (!this.counterLineId.equals(linea.getCounterLineId())) {
+			log.debug("counterLineId not equal");
+			return false;
+			}
+		if (this.campos.size() != linea.getCampos().size()) {
+			log.debug("campos.size not equal");
+			return false;
+			}
 		for (int i = 0; i<campos.size(); i++) {
 			Campo<?> c = campos.get(i);
 			Campo<?> d = linea.getCampos().get(i);
-			if (!c.getAtributoId().equals(d.getAtributoId())) {return false;}
-			if (!c.getDatos().equals(d.getDatos())) {return false;}
+			if (!c.getAtributoId().equals(d.getAtributoId())) {
+				log.debug("atribute " + c.getAtributoId() + "not equal");
+				return false;
+				}
+			if (!c.getDatos().equals(d.getDatos())) {
+				log.debug("datos not equals for " + c.getDatosText() + " and " + d.getDatosText());
+				return false;
+				}
 			// don't compare individual ids of each campo
 		}
 		return true;
