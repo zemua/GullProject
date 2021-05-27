@@ -8,5 +8,6 @@ import lombok.Data;
 public class WrapLineasWithSelectorDto {
 
 	List<LineaWithSelectorDto> lineas;
+	Boolean confirmDelete = false;
 	
 }

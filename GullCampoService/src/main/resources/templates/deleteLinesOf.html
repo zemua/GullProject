@@ -34,6 +34,11 @@
 						<input type="hidden" th:field="*{lineas[__${stat.index}__].id}" />
 						<input type="hidden" th:field="*{lineas[__${stat.index}__].nombre}" />
 						<input type="hidden" th:field="*{lineas[__${stat.index}__].propuestaId}" />
+						<div th:each="b, btat : ${a.campos}">
+							<input type="hidden" th:field="*{lineas[__${stat.index}__].campos[__${btat.index}__].id}" />
+							<input type="hidden" th:field="*{lineas[__${stat.index}__].campos[__${btat.index}__].atributoId}" />
+							<input type="hidden" th:field="*{lineas[__${stat.index}__].campos[__${btat.index}__].datos}" />
+						</div>
 					</td>
 				</tr>
 			</table>
