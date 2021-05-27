@@ -33,6 +33,7 @@ import devs.mrp.gullproject.domains.dto.AttributesListDto;
 import devs.mrp.gullproject.domains.dto.AtributoForLineaFormDto;
 import devs.mrp.gullproject.domains.dto.LineaWithAttListDto;
 import devs.mrp.gullproject.domains.dto.LineaWithSelectorDto;
+import devs.mrp.gullproject.domains.dto.WrapLineasWithSelectorDto;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.ClassDestringfier;
 import devs.mrp.gullproject.service.ConsultaService;
@@ -173,13 +174,17 @@ public class LineaController {
 	
 	@GetMapping("/deleteof/propid/{propuestaId}") // TODO test
 	public String deleteLinesOf(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
-		Flux<LineaWithSelectorDto> lineas = lineaService.findByPropuestaId(propuestaId)
+		Mono<WrapLineasWithSelectorDto> lineas = lineaService.findByPropuestaId(propuestaId)
 				.map(rl -> {
 					LineaWithSelectorDto dto = modelMapper.map(rl, LineaWithSelectorDto.class);
 					dto.setSelected(false);
 					return dto;
+				}).collectList().flatMap(rList -> {
+					WrapLineasWithSelectorDto wrap = new WrapLineasWithSelectorDto();
+					wrap.setLineas(rList);
+					return Mono.just(wrap);
 				});
-		model.addAttribute("lineas", new ReactiveDataDriverContextVariable(lineas, 1));
+		model.addAttribute("wrapLineasWithSelectorDto", lineas);
 		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
 		model.addAttribute("consulta", consulta);
 		model.addAttribute("propuestaId", propuestaId);
