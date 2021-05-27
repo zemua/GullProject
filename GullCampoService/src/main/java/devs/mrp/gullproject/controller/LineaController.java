@@ -195,7 +195,7 @@ public class LineaController {
 		return "deleteLinesOf";
 	}
 
-	@PostMapping("/deleteof/propid/{propuestaId}") // TODO test
+	@PostMapping("/deleteof/propid/{propuestaId}")
 	public String processDeleteLinesOf(WrapLineasWithSelectorDto wrapLineasWithSelectorDto, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("wrapLineasWithSelectorDto", wrapLineasWithSelectorDto);

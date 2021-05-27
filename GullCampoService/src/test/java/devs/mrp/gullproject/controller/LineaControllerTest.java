@@ -478,5 +478,51 @@ class LineaControllerTest {
 			.contains(linea2.getCampoByIndex(1).getDatosText());
 		});
 	}
+	
+	@Test
+	void testProcessDeleteLinesOf() {
+		when(consultaService.findConsultaByPropuestaId(propuesta.getId())).thenReturn(Mono.just(consulta));
+		webTestClient.post()
+		.uri("/lineas/deleteof/propid/" + propuesta.getId())
+		.contentType(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("lineas[0].selected", "true")
+				.with("lineas[0].id", linea1.getId())
+				.with("lineas[0].nombre", linea1.getNombre())
+				.with("lineas[0].propuestaId", linea1.getPropuestaId())
+				
+				.with("lineas[0].campos[0].id", linea1.getCampos().get(0).getId())
+				.with("lineas[0].campos[0].atributoId", linea1.getCampos().get(0).getAtributoId())
+				.with("lineas[0].campos[0].datos", linea1.getCampos().get(0).getDatosText())
+				
+				.with("lineas[0].campos[0].id", linea1.getCampos().get(1).getId())
+				.with("lineas[0].campos[0].atributoId", linea1.getCampos().get(1).getAtributoId())
+				.with("lineas[0].campos[0].datos", linea1.getCampos().get(1).getDatosText())
+				
+				.with("lineas[1].selected", "false")
+				.with("lineas[1].id", linea2.getId())
+				.with("lineas[1].nombre", linea2.getNombre())
+				.with("lineas[1].propuestaId", linea2.getPropuestaId())
+				
+				.with("lineas[1].campos[0].id", linea2.getCampos().get(0).getId())
+				.with("lineas[1].campos[0].atributoId", linea2.getCampos().get(0).getAtributoId())
+				.with("lineas[1].campos[0].datos", linea2.getCampos().get(0).getDatosText())
+				
+				.with("lineas[1].campos[0].id", linea2.getCampos().get(1).getId())
+				.with("lineas[1].campos[0].atributoId", linea2.getCampos().get(1).getAtributoId())
+				.with("lineas[1].campos[0].datos", linea2.getCampos().get(1).getDatosText())
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+				.contains("Borrar Líneas")
+				.contains(linea1.getNombre())
+				.contains(String.valueOf(linea1.getCampos().size()))
+				.doesNotContain(linea2.getNombre())
+				.doesNotContain(linea1.getCampos().get(0).getDatosText())
+				;
+		});
+	}
 
 }
