@@ -26,14 +26,13 @@
 					<th>Campos</th>
 					<th>Borrar</th>
 				</tr>
-				<tr th:each="a : ${lineas}">
+				<tr th:each="a, stat : ${lineas}">
 					<td th:text="${a.nombre}"></td>
 					<td th:text="${a.campos.size()}"></td>
-					<td><input type="checkbox"
-						th:field="*{lineas[__${stat.index}__].selected}" /> <input
-						type="hidden" th:field="*{lineas[__${stat.index}__].id}" /> <input
-						type="hidden" th:field="*{lineas[__${stat.index}__].nombre}" /> <input
-						type="hidden" th:field="*{lineas[__${stat.index}__].propuestaId}" />
+					<td><input type="checkbox" th:field="${lineas[__${stat.index}__].selected}" />
+					<input type="hidden" th:field="${lineas[__${stat.index}__].id}" />
+					<input type="hidden" th:field="${lineas[__${stat.index}__].nombre}" />
+					<input type="hidden" th:field="${lineas[__${stat.index}__].propuestaId}" />
 					</td>
 				</tr>
 			</table>
