@@ -30,6 +30,7 @@ import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.domains.WrapLineasDto;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AttributesListDto;
 import devs.mrp.gullproject.domains.dto.AtributoForLineaFormDto;
@@ -76,6 +77,21 @@ public class LineaController {
 		model.addAttribute("consulta", consulta);
 		model.addAttribute("propuestaId", propuestaId);
 		return "showAllLineasOfPropuesta";
+	}
+	
+	@GetMapping("/allof/propid/{propuestaId}/order") // TODO test
+	public String orderAllLinesOf(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+		Mono<WrapLineasDto> lineas = lineaService.findByPropuestaId(propuestaId)
+				.collectList().flatMap(rList -> {
+					WrapLineasDto wrap = new WrapLineasDto();
+					wrap.setLineas(rList);
+					return Mono.just(wrap);
+				});
+		model.addAttribute("wrapLineasDto", lineas);
+		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+		model.addAttribute("consulta", consulta);
+		model.addAttribute("propuestaId", propuestaId);
+		return "orderLineasOfPropuesta";
 	}
 
 	@GetMapping("/of/{propuestaId}/new")
