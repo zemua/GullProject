@@ -189,6 +189,8 @@ public class LineaTest {
 	@Test
 	void testEquals() {
 		Linea linea2 = new Linea();
+		linea2.setNombre(linea.getNombre());
+		linea2.setPropuestaId(linea.getPropuestaId());
 		linea2.addCampo(campo1);
 		linea2.addCampo(campo2);
 		linea2.addCampo(campo3);

@@ -147,7 +147,7 @@ public class Linea { // TODO test methods
 	}
 	
 	public boolean equals(Linea linea) {
-		if (!this.nombre.equals(linea.getNombre())) {
+		if (!checkEquality(this.nombre, linea.getNombre())) {
 			log.debug("line name not equal");
 			return false;
 			}
@@ -181,6 +181,22 @@ public class Linea { // TODO test methods
 			// don't compare individual ids of each campo
 		}
 		return true;
+	}
+	
+	private boolean checkEquality(Object a, Object b) {
+		if (a == null && b != null) {
+			return false;
+		}
+		if (a != null && b == null) {
+			return false;
+		}
+		if (a == null && b == null) {
+			return true;
+		}
+		if (a != null && b != null) {
+			return a.equals(b);
+		}
+		return false;
 	}
 	
 }
