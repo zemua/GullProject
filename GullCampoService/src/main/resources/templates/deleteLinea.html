@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Borrar Linea: ' + linea.getNombre()}">Gull Project - Borrar Linea</title>
+</head>
+<body>
+
+<h1>Borrar Linea</h1>
+
+	<form method="POST" th:object="${linea}" id="myForm">
+    	
+		<div class="grid">
+			<div class="define-group" id="nombre-linea">
+				<h3>Nombre:</h3>
+					<span th:text="*{nombre}"></span>
+				<h3 th:if="*{campos.size() > 0}">Campos:</h3>
+      				<div th:each="y : *{campos}">
+      					<span th:text="${y.datos}"></span>
+      				</div>
+			</div>
+			<input type="hidden" th:value="*{id}" th:field="*{id}">
+			<input type="hidden" th:value="*{nombre}" th:field="*{nombre}">
+			<input type="hidden" th:value="*{propuestaId}" th:field="*{propuestaId}">
+		</div>
+
+		<div>
+			<p>
+				<span>Introduce "borrar" en el siguiente campo y pulsa el botón</span>
+				<br />
+				<input id="confirmaBorrar" type="text"/>
+				<button id="botonBorrar">Borrar</button>
+			</p>
+		</div>
+		
+		<div>
+			<p>
+				<a th:href="${'/lineas/allof/propid/' + linea.propuestaId}">Volver</a>
+			</p>
+		</div>
+		
+	</form>
+	
+	<script type="text/javascript" th:src="@{/js/scripts/confirmDelete.js}"></script>
+
+</body>
+</html>

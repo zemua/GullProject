@@ -2,6 +2,9 @@ package devs.mrp.gullproject.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -157,6 +160,31 @@ class AtributoServiceProxyWebClientTest {
 			.assertNext(r -> assertEquals("Integer", r))
 			.expectComplete()
 			.verify();
+	}
+	
+	@Test
+	void testGetAtributosByArrayOfIds() {
+		Flux<AtributoForCampo> response;
+		
+		List<String> arrayList = new ArrayList<>();
+		arrayList.add("pr1m3r0");
+		arrayList.add("s3g7nd0");
+		arrayList.add("t3rc3r0");
+		
+		response = service.getAtributosByArrayOfIds(arrayList);
+		StepVerifier.create(response)
+		.assertNext(st -> {
+			assertEquals("s3g7nd0", st.getId());
+			assertEquals("response name two", st.getName());
+			assertEquals("RESPONSETYPETWO", st.getTipo());
+		})
+		.assertNext(st -> {
+			assertEquals("t3rc3r0", st.getId());
+			assertEquals("response name three", st.getName());
+			assertEquals("RESPONSETYPETHREE", st.getTipo());
+		})
+		.expectComplete()
+		.verify();
 	}
 
 }

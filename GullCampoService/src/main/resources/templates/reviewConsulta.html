@@ -31,7 +31,7 @@
 				<td th:text="${consulta.status}"></td>
 				<td th:text="${consulta.createdTime} ? ${#dates.format(new java.util.Date(consulta.createdTime), 'dd/MM/yyyy - HH:mm')} : '-'"></td>
 				<!-- <td th:text="${consulta.editedTime} ? ${#dates.format(new java.util.Date(consulta.editedTime), 'dd/MM/yyyy - HH:mm')} : '-'"></td> -->
-				<td><a th:href="${'/consultas/delete/id/' + consulta.id}">Borrar esta consulta</a></td>
+				<td><a th:href="${'/consultas/revisar/id/' + consulta.id + '/edit'}">Editar detalles</a></td>
 			</tr>
 		</table>
 		

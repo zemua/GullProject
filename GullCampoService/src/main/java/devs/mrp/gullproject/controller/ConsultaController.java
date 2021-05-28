@@ -1,14 +1,18 @@
 package devs.mrp.gullproject.controller;
 
+import java.util.ArrayList;
+
 import javax.validation.Valid;
 
 import org.bson.types.ObjectId;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,9 +21,11 @@ import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Propuesta;
-import devs.mrp.gullproject.domains.PropuestaAbstracta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
+import devs.mrp.gullproject.domains.dto.AttributesListDto;
 import devs.mrp.gullproject.domains.dto.ConsultaPropuestaBorrables;
+import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaService;
 import lombok.extern.slf4j.Slf4j;
@@ -31,17 +37,19 @@ import reactor.core.publisher.Mono;
 @RequestMapping(path = "/consultas")
 public class ConsultaController {
 	
-	// TODO add attribute columns into proposal
-	// TODO remove attribute columns into proposal
 	// TODO re-order attribute columns into proposal
 
 	ConsultaService consultaService;
 	LineaService lineaService;
+	AtributoServiceProxyWebClient atributoService;
+	private final ModelMapper modelMapper;
 	
 	@Autowired
-	public ConsultaController(ConsultaService consultaService, LineaService lineaService) {
+	public ConsultaController(ConsultaService consultaService, LineaService lineaService, AtributoServiceProxyWebClient atributoService, ModelMapper modelMapper) {
 		this.consultaService = consultaService;
 		this.lineaService = lineaService;
+		this.atributoService = atributoService;
+		this.modelMapper = modelMapper;
 	}
 	
 	@GetMapping("/nuevo")
@@ -78,6 +86,24 @@ public class ConsultaController {
 		Mono<Consulta> consulta = consultaService.findById(id);
 		model.addAttribute("consulta", consulta);
 		return "reviewConsulta";
+	}
+	
+	@GetMapping("/revisar/id/{id}/edit") // TODO test
+	public String editConsultaDetails(Model model, @PathVariable(name = "id") String id) {
+		Mono<Consulta> consulta = consultaService.findById(id);
+		model.addAttribute("consulta", consulta);
+		return "reviewConsultaEdit";
+	}
+	
+	@PostMapping("/revisar/id/{id}/edit") // TODO test
+	public String processEditConsultaDetails(@Valid Consulta consulta, BindingResult bindingResult, Model model, @PathVariable(name = "id") String id) {
+		if (bindingResult.hasErrors()) {
+			model.addAttribute("consulta", consulta);
+			return "reviewConsultaEdit";
+		}
+		Mono<Consulta> nConsulta = consultaService.updateNameAndStatus(consulta.getId(), consulta.getNombre(), consulta.getStatus());
+		model.addAttribute("consulta", nConsulta);
+		return "processReviewConsultaEdit";
 	}
 	
 	@GetMapping("/revisar/id/{id}/addpropuesta")
@@ -137,7 +163,6 @@ public class ConsultaController {
 			c = cons.then(consultaService.deleteById(consulta.getId()));
 			
 			remLineas = cons.flatMap(cc -> lineaService.deleteSeveralLineasFromSeveralPropuestas(cc.getPropuestas()));
-			//remLineas.subscribe();
 			numPropuestas = cons.flatMap(cc -> Mono.just(cc.getCantidadPropuestas()));
 		} else {
 			log.debug("idConsulta does not equal id");
@@ -185,6 +210,53 @@ public class ConsultaController {
 		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(proposalId);
 		model.addAttribute("consulta", consulta);
 		return "showAttributesOfProposal";
+	}
+	
+	@GetMapping("/attof/propid/{id}/new")
+	public String addAttributeToProposal(Model model, @PathVariable(name = "id") String proposalId) {
+		model.addAttribute("proposalId", proposalId);
+		
+		Mono<AttributesListDto> atributos = consultaService.findPropuestaByPropuestaId(proposalId)
+				.flatMapMany(rPropuesta -> Flux.fromIterable(rPropuesta.getAttributeColumns()))
+				.map(rAtt -> rAtt.getId()).collectList()
+				.flatMap(rAttList -> {
+					return atributoService.getAllAtributos()
+							.map(rAttProp -> modelMapper.map(rAttProp, AtributoForFormDto.class))
+							.map(rAttForm -> {
+								if (rAttList.contains(rAttForm.getId())) {
+									rAttForm.setSelected(true);
+								} else {rAttForm.setSelected(false);}
+								return rAttForm;
+								})
+							.collectList().flatMap(rAttForm -> Mono.just(new AttributesListDto(rAttForm)));
+				});
+		
+		model.addAttribute("atts", atributos);
+		return "addAttributeToProposal";
+	}
+	
+	@PostMapping("/attof/propid/{id}/new")
+	public String processAddAttributeToProposal(@ModelAttribute AttributesListDto atts, BindingResult bindingResult, Model model, @PathVariable(name = "id") String propuestaId) {
+		
+		Flux<AtributoForCampo> attributes;
+		
+		if (atts.getAttributes() == null || atts.getAttributes().size() == 0) {
+			attributes = Flux.fromIterable(new ArrayList<AtributoForCampo>());
+		} else {
+			attributes = Flux.fromIterable(atts.getAttributes())
+					.filter(a -> a.getSelected())
+					.map(a -> modelMapper.map(a, AtributoForCampo.class));
+		}
+		
+		Mono<Consulta> consulta = attributes.collectList()
+				.flatMap(latts -> consultaService.updateAttributesOfPropuesta(propuestaId, latts));
+		
+		Mono<Propuesta> propuesta = consulta.map(c -> c.getPropuestaById(propuestaId));
+
+		model.addAttribute("atributos", new ReactiveDataDriverContextVariable(attributes, 1));
+		model.addAttribute("propuesta", propuesta);
+		
+		return "processAddAttributeToProposal";
 	}
 	
 }

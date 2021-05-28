@@ -23,7 +23,6 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Propuesta;
-import devs.mrp.gullproject.domains.models.CampoRepresentationModel;
 import devs.mrp.gullproject.domains.models.ConsultaRepresentationModel;
 import devs.mrp.gullproject.domains.models.ConsultaRepresentationModelAssembler;
 import devs.mrp.gullproject.repository.ConsultaRepo;

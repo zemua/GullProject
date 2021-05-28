@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>Gull Project - Seleccionar Atributos</title>
+</head>
+<body>
+
+<h1>Seleccionar Atributos</h1>
+
+	<form method="POST" id="atributoform" th:object="${atts}">
+      
+		<div class="grid">			
+			<div class="define-group">
+				<h3>Selecciona los atributos que corresponden a esta propuesta:</h3>
+					<div th:each="t, stat : *{attributes}">
+						<input type="checkbox" th:field="*{attributes[__${stat.index}__].selected}"/>
+						<input type="hidden" th:field="*{attributes[__${stat.index}__].localIdentifier}"/>
+						<input type="hidden" th:field="*{attributes[__${stat.index}__].id}"/>
+						<input type="hidden" th:field="*{attributes[__${stat.index}__].name}"/>
+						<input type="hidden" th:field="*{attributes[__${stat.index}__].tipo}"/>
+						<label th:text="${t.name}"></label>
+					</div>
+			</div>
+		</div>
+
+		<div>
+			<p>
+				<button>Ok</button>
+			</p>
+		</div>
+		
+		<div>
+			<p>
+				<a th:href="@{/consultas/attof/propid/{id}(id=${proposalId})}">Volver a la propuesta</a>
+			</p>
+		</div>
+		
+	</form>
+
+</body>
+</html>

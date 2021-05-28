@@ -9,7 +9,7 @@
 
 <h1>Nueva Linea en Propuesta</h1>
 
-	<form method="POST" id="propuestaform" th:object="${linea}">
+	<form method="POST" th:object="${lineaWithAttListDto}">
 	
 		<div th:if="${#fields.hasErrors()}">
      	   <span class="validationError">
@@ -17,18 +17,27 @@
      	   </span>
     	</div>
     	
-    	<span class="validationError"
-      	th:if="${#fields.hasErrors('nombre')}"
-      	th:errors="*{nombre}">Selecciona un nombre</span>
-      
 		<div class="grid">
-			<div class="define-group" id="nombre">
+			<div class="define-group" id="nombre-linea">
 				<h3>Nombre:</h3>
-					<input name="nombre" type="text"
-						th:field="*{nombre}"/>
+					<input type="text" th:field="*{linea.nombre}"/>
+						<span class="validationError"
+      							th:if="${#fields.hasErrors('${lineaWithAttListDto.linea.nombre}')}"
+      							th:errors="*{linea.nombre}">Selecciona un nombre</span>
 			</div>
-			<input name="id" type="hidden" th:value="*{id}">
-			<input id="propuestaId" name="propuestaId" type="hidden" th:value="${propuestaId}">
+			<div class="atribute-group" th:each="t, stat : *{attributes}">
+				<h3 th:text="${t.name}">Atributo:</h3>
+					<input type="text" th:field="*{attributes[__${stat.index}__].value}"/>
+						<span class="validationError"
+      							th:if="${#fields.hasErrors('*{attributes[__${stat.index}__].id}')}"
+      							th:errors="*{attributes[__${stat.index}__].id}">El valor no es correcto para este atributo</span>
+					<input type="hidden" th:field="*{attributes[__${stat.index}__].localIdentifier}"/>
+					<input type="hidden" th:field="*{attributes[__${stat.index}__].id}"/>
+					<input type="hidden" th:field="*{attributes[__${stat.index}__].name}"/>
+					<input type="hidden" th:field="*{attributes[__${stat.index}__].tipo}"/>
+			</div>
+			<input type="hidden" th:value="*{linea.id}" th:field="*{linea.id}">
+			<input type="hidden" th:value="*{linea.propuestaId}" th:field="*{linea.propuestaId}">
 		</div>
 
 		<div>

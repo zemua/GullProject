@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Editar Linea: ' + lineaWithAttListDto.linea.getNombre()}">Gull Project - Editar Linea</title>
+</head>
+<body>
+
+<h1>Editar Linea</h1>
+
+	<form method="POST" th:object="${lineaWithAttListDto}">
+	
+		<div th:if="${#fields.hasErrors()}">
+     	   <span class="validationError">
+      	  Corrige los errores y reenvía.
+     	   </span>
+    	</div>
+    	
+		<div class="grid">
+			<div class="define-group" id="nombre-linea">
+				<h3>Nombre:</h3>
+					<input type="text" th:field="*{linea.nombre}"/>
+						<span class="validationError"
+      							th:if="${#fields.hasErrors('${lineaWithAttListDto.linea.nombre}')}"
+      							th:errors="*{linea.nombre}">Selecciona un nombre</span>
+      				<div th:each="y , ystat : *{linea.campos}">
+      					<input type="hidden" th:field="*{linea.campos[__${ystat.index}__].id}"/>
+      					<input type="hidden" th:field="*{linea.campos[__${ystat.index}__].atributoId}"/>
+      					<input type="hidden" th:field="*{linea.campos[__${ystat.index}__].datos}"/>
+      				</div>
+			</div>
+			<div class="atribute-group" th:each="t, stat : *{attributes}">
+				<h3 th:text="${t.name}">Atributo:</h3>
+					<input type="text" th:field="*{attributes[__${stat.index}__].value}"/>
+						<span class="validationError"
+      							th:if="${#fields.hasErrors('*{attributes[__${stat.index}__].id}')}"
+      							th:errors="*{attributes[__${stat.index}__].id}">El valor no es correcto para este atributo</span>
+					<input type="hidden" th:field="*{attributes[__${stat.index}__].localIdentifier}"/>
+					<input type="hidden" th:field="*{attributes[__${stat.index}__].id}"/>
+					<input type="hidden" th:field="*{attributes[__${stat.index}__].name}"/>
+					<input type="hidden" th:field="*{attributes[__${stat.index}__].tipo}"/>
+			</div>
+			<input type="hidden" th:value="*{linea.id}" th:field="*{linea.id}">
+			<input type="hidden" th:value="*{linea.propuestaId}" th:field="*{linea.propuestaId}">
+		</div>
+
+		<div>
+			<p>
+				<button>Ok</button>
+			</p>
+		</div>
+		
+		<div>
+			<p>
+				<a th:href="${'/lineas/delete/id/' + lineaWithAttListDto.linea.id}">Borrar Linea</a> - <a th:href="${'/lineas/allof/propid/' + lineaWithAttListDto.linea.propuestaId}">Volver</a>
+			</p>
+		</div>
+		
+	</form>
+
+</body>
+</html>

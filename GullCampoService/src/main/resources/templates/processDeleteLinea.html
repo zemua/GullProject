@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>Gull Project - Borrar Linea</title>
+</head>
+<body>
+
+<h1>Borrar Linea</h1>
+
+	<div>
+		<span class="success" th:text="${deleteCount + ' lineas borradas'}"></span>
+	</div>
+
+	<div>
+		<p>
+			<a th:href="${'/lineas/allof/propid/' + idPropuesta}">Volver</a>
+		</p>
+	</div>
+
+</body>
+</html>

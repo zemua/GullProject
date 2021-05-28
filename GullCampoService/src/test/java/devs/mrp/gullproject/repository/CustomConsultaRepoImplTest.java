@@ -3,7 +3,10 @@ package devs.mrp.gullproject.repository;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,26 +22,21 @@ import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
-import devs.mrp.gullproject.service.AtributoServiceProxy;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+@Slf4j
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 class CustomConsultaRepoImplTest {
 	
 	ConsultaRepo repo;
 	
-	@MockBean
-	AtributoServiceProxy atributoServiceProxy;
-	
 	@Autowired
 	public CustomConsultaRepoImplTest(ConsultaRepo repo) {
 		this.repo = repo;
-		if (!(repo instanceof CustomConsultaRepo)) {
-			fail("ConsultaRepo no extiende CustomConsultaRepo");
-		}
 	}
 	
 	Consulta consulta;
@@ -63,6 +61,10 @@ class CustomConsultaRepoImplTest {
 	
 	@BeforeEach
 	void inicializacion() {
+		
+		if (!(repo instanceof CustomConsultaRepo)) {
+			fail("ConsultaRepo no extiende CustomConsultaRepo");
+		}
 		
 		repo.deleteAll().block();
 		
@@ -615,6 +617,18 @@ class CustomConsultaRepoImplTest {
 	}
 	
 	@Test
+	void testUpdateName() {
+		repo.updateName(consulta.getId(), "nombre actualizado").block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals("nombre actualizado", cons.getNombre());
+		})
+		.expectComplete()
+		.verify();
+	}
+	
+	@Test
 	void testUpdateStatus() {
 		repo.updateStatus(consulta.getId(), "estado actualizado").block();
 		
@@ -646,22 +660,26 @@ class CustomConsultaRepoImplTest {
 		.assertNext(cons -> {
 			assertEquals(3, cons.getPropuestaById(propuesta1.getId()).getAttributeColumns().size());
 			assertEquals(atributo3, cons.getPropuestaById(propuesta1.getId()).getAttributeColumns().get(2));
-		});
+		})
+		.expectComplete()
+		.verify();
 	}
 	
 	@Test
 	void testRemoveAttributeFromList() {
-		repo.removeAttributeFromList(propuesta1.getId(), atributo1).block();
+		Mono<Consulta> mono = repo.removeAttributeFromList(propuesta1.getId(), atributo1);
 		
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals(1, cons.getPropuestaById(propuesta1.getId()).getAttributeColumns().size());
 			assertEquals(atributo2, cons.getPropuestaById(propuesta1.getId()).getAttributeColumns().get(0));
-		});
+		})
+		.expectComplete()
+		.verify();
 	}
 	
 	@Test
-	void testUpdateAttributesOfPropuesta() {
+	void testUpdateAttributesOfPropuesta() {		
 		List<AtributoForCampo> nlist = new ArrayList<>();
 		nlist.add(atributo2);
 		nlist.add(atributo3);
@@ -671,9 +689,11 @@ class CustomConsultaRepoImplTest {
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals(2, cons.getPropuestaById(propuesta1.getId()).getAttributeColumns().size());
-			assertEquals(atributo2, cons.getPropuestaById(propuesta1.getId()).getAttributeColumns().get(0));
-			assertEquals(atributo3, cons.getPropuestaById(propuesta1.getId()).getAttributeColumns().get(1));
-		});
+			assertEquals(atributo2.getId(), cons.getPropuestaById(propuesta1.getId()).getAttributeColumns().get(0).getId());
+			assertEquals(atributo3.getId(), cons.getPropuestaById(propuesta1.getId()).getAttributeColumns().get(1).getId());
+		})
+		.expectComplete()
+		.verify();
 	}
 
 }

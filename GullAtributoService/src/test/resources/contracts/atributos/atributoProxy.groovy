@@ -282,5 +282,46 @@ import org.springframework.cloud.contract.spec.Contract
 			 contentType('application/json')
 		 }
 	 }
+ },
+     Contract.make {
+	 name("should get a flux of all the attributes corresponding to the list of ids")
+	 // You can give a description of the use case that the contract represents
+	 description('''
+		 given:
+		 The list of ids provided
+		 when:
+		 Some ids exist in the database
+		 then:
+		 A flux is returned with those
+	 ''')
+	 request {
+		 method 'GET'
+		 urlPath('/api/atributos/arrayofcampos/byids') {
+		 	queryParameters{
+		 		parameter 'ids': $(c(regex('((\\w+(\\,\\w+)*)?$)')), p('5fd52181c3bd1d49e616e3be,5fd5ec64916371511cdd7c0e,pr1m3r0,s3g7nd0,t3rc3r0'))
+		 	}
+		 }
+		 headers {
+			 contentType('text/html')
+		 }
+	 }
+	 response {
+		 status 200
+		 body ([
+		 	[
+				id: $(c('s3g7nd0'), p(regex('[a-zA-Z0-9]+'))),
+				name: $(c('response name two'), p(regex(nonBlank()))),
+				tipo: $(c('RESPONSETYPETWO'), p(regex('[A-Z]+'))),
+			],
+			[
+				id: $(c('t3rc3r0'), p(regex('[a-zA-Z0-9]+'))),
+				name: $(c('response name three'), p(regex(nonBlank()))),
+				tipo: $(c('RESPONSETYPETHREE'), p(regex('[A-Z]+'))),
+			]
+		 ])
+		 headers {
+			 contentType('application/json')
+		 }
+	 }
  }
 ]

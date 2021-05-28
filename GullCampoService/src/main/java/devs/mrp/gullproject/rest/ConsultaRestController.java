@@ -8,11 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.dto.ConsultaForSpreadsheet;
-import devs.mrp.gullproject.domains.models.CampoRepresentationModel;
-import devs.mrp.gullproject.domains.models.CampoRepresentationModelAssembler;
 import devs.mrp.gullproject.domains.models.ConsultaRepresentationModel;
 import devs.mrp.gullproject.domains.models.ConsultaRepresentationModelAssembler;
-import devs.mrp.gullproject.service.CampoService;
 import devs.mrp.gullproject.service.ConsultaService;
 import reactor.core.publisher.Flux;
 

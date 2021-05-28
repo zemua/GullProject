@@ -84,13 +84,6 @@
 			<artifactId>reactor-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!--
-		<dependency>
-    		<groupId>org.springframework.boot</groupId>
-   			<artifactId>spring-boot-starter-web</artifactId>
-   			<scope>test</scope>
-		</dependency>
-		-->
 		<dependency>
     		<groupId>org.assertj</groupId>
     		<artifactId>assertj-core</artifactId>
@@ -101,18 +94,6 @@
 			<artifactId>spring-cloud-starter-contract-verifier</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!-- <dependency>
-    		<groupId>org.springframework.cloud</groupId>
-    		<artifactId>spring-cloud-contract-maven-plugin</artifactId>
-    		<scope>test</scope>
-		</dependency> -->
-		<!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-contract-dependencies -->
-		<!-- <dependency>
-    		<groupId>org.springframework.cloud</groupId>
-    		<artifactId>spring-cloud-contract-dependencies</artifactId>
-    		<version>3.0.1</version>
-    		<type>pom</type>
-		</dependency> -->
 	</dependencies>
 
 	<dependencyManagement>
@@ -128,16 +109,31 @@
 	</dependencyManagement>
 	
 	<profiles>
-	    <profile>
-			<id>hackteoas</id>
-			<dependencies>
+		<profile>
+			<id>default</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<spring.profile.from.maven/>
+			</properties>
+		</profile>
+		<profile>
+			<id>hackteoasv</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+            <properties>
+                <spring.profile.from.maven>hackteoas</spring.profile.from.maven>
+            </properties>
+            <dependencies>
 				<dependency>
 					<groupId>org.springframework.boot</groupId>
 					<artifactId>spring-boot-starter-web</artifactId>
 					<scope>test</scope>
 				</dependency>
-        	</dependencies>
-    	</profile>
+			</dependencies>
+		</profile>
 	</profiles>
 
 	<build>

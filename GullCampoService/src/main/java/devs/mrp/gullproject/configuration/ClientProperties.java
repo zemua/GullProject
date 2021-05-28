@@ -8,9 +8,11 @@ import lombok.Data;
 public class ClientProperties {
 
 	String atributoServiceUrl;
+	String atributoServiceHost;
 	
 	public ClientProperties(){
-		this.atributoServiceUrl = "/atributo-service/";
+		this.atributoServiceUrl = "http://atributo-service/";
+		this.atributoServiceHost = "atributo-service";
 	}
 	
 }

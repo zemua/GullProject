@@ -11,7 +11,7 @@
 
 	<div>
 		<span class="success" th:if="${linea != null && propuesta != null}">Linea Guardada Como...</span>
-		<span class="success" th:if="${linea == null || propuesta == null}">Algo no ha ido bien...</span>
+		<span class="failure" th:unless="${linea != null && propuesta != null}">Algo no ha ido bien...</span>
 	</div>
 
 	<div th:if="${linea != null && propuesta != null}">
@@ -20,15 +20,15 @@
 				<h3>Nombre:</h3>
 				<span th:text="*{nombre}"> ... </span>
 			</div>
-		</div>
-
-		<div>
-			<span class="success">En la propuesta...</span>
+			<div>
+				<div th:if="*{campos.size() > 0}"><span>Campos...</span></div>
+				<span th:each="t : *{campos}" th:text="${t.getDatos() + '  '}"></span>
+			</div>
 		</div>
 
 		<div class="grid" th:object="${propuesta}">
 			<div class="define-group" id="nombrepropuesta">
-				<h3>Nombre:</h3>
+				<h3>En la propuesta...</h3>
 				<span th:text="*{nombre}"> ... </span>
 			</div>
 		</div>

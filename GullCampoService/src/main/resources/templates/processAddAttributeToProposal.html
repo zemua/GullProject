@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>Gull Project - Atributo Guardado</title>
+</head>
+<body>
+
+<h1>Atributo Guardado</h1>
+
+	<div th:if="${atributos != null && propuesta != null}">
+		<p><span class="success">Los siguientes atributos...</span></p>
+		<div class="grid" th:each="t : ${atributos}">
+			<span th:text="${t.name}">Att name</span>
+		</div>
+		
+		<div><p><span>Constituyen ahora la propuesta: </span> <span th:text="${propuesta.getNombre()}"></span></p></div>
+		
+		<div><p><span>num elementos: </span> <span th:text="${propuesta.getAttributeColumns().size()}"></span></p></div>
+		
+
+		<div>
+			<p>
+				<a th:href="${'/consultas/attof/propid/' + propuesta.getId()}">Volver a la propuesta</a>
+			</p>
+		</div>
+	</div>
+	
+	<div th:unless="${atributos != null && propuesta != null}">
+		<span class="failure">Algo no ha ido bien...</span>
+	</div>
+
+</body>
+</html>

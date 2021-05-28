@@ -13,6 +13,7 @@ import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
+import devs.mrp.gullproject.domains.PropuestaAbstracta;
 import devs.mrp.gullproject.repository.ConsultaRepo;
 import devs.mrp.gullproject.repository.LineaRepo;
 import reactor.core.publisher.Flux;
@@ -59,16 +60,20 @@ public class LineaService {
 	}
 	
 	public Mono<Linea> addLinea(Linea linea) {
-		// TODO test
 		String nPropuestaId = linea.getPropuestaId();
 		Mono<String> nConsultaId = consultaRepo.findByPropuestaId(nPropuestaId).map(consulta -> consulta.getId());
-		nConsultaId.flatMap(bConsultaId -> consultaRepo.addLineaEnPropuesta(bConsultaId, nPropuestaId, linea.getId())).subscribe();
-		return lineaRepo.insert(linea);
+		return nConsultaId.flatMap(bConsultaId -> consultaRepo.addLineaEnPropuesta(bConsultaId, nPropuestaId, linea.getId()))
+				.then(lineaRepo.insert(linea));
+	}
+	
+	public Mono<Linea> addLinea(Mono<Linea> linea) {
+		return linea.flatMap(l -> addLinea(l));
 	}
 	
 	public Flux<Linea> addVariasLineas(Flux<Linea> lineas) {
-		// TODO add also ids to proposal
-		return lineaRepo.insert(lineas);
+		return lineas.flatMap(rLinea -> consultaRepo.findByPropuestaId(rLinea.getPropuestaId())
+										.flatMap(rConsulta -> consultaRepo.addLineaEnPropuesta(rConsulta.getId(), rLinea.getPropuestaId(), rLinea.getId())))
+				.thenMany(lineaRepo.insert(lineas));
 	}
 	
 	public Mono<Linea> updateLinea(Linea linea) {
@@ -80,23 +85,21 @@ public class LineaService {
 	}
 	
 	public Mono<Long> deleteLineaById(String id) {
-		// TODO test
 		Mono<Linea> nlinea = lineaRepo.findById(id);
 		Mono<String> nPropuestaId = nlinea.map(linea -> linea.getPropuestaId());
 		Mono<String> consultaId = nlinea.flatMap(linea -> consultaRepo.findByPropuestaId(linea.getPropuestaId()).map(consulta -> consulta.getId()));
-		Mono.zip(consultaId, nPropuestaId).flatMap(t -> consultaRepo.removeLineaEnPropuesta(t.getT1(), t.getT2(), id)).subscribe();		
-		return lineaRepo.deleteByIdReturningDeletedCount(id);
+		return Mono.zip(consultaId, nPropuestaId).flatMap(t -> consultaRepo.removeLineaEnPropuesta(t.getT1(), t.getT2(), id))
+				.then(lineaRepo.deleteByIdReturningDeletedCount(id));		
 	}
 	
-	public Mono<Long> deleteVariasLineasById(Flux<String> ids){
-		// TODO remove also from proposal
-		return ids.flatMap(id -> lineaRepo.deleteById(id))
-				.count();
+	public Mono<Void> deleteVariasLineasById(Flux<String> ids){
+		return deleteVariasLineas(ids.collectList().flatMapMany(rIdsList -> lineaRepo.findLineasByIdIn(rIdsList)));
 	}
 	
 	public Mono<Void> deleteVariasLineas(Flux<Linea> lineas) {
-		// TODO delete also from proposal
-		return lineaRepo.deleteAll(lineas);
+		return lineas.flatMap(rLinea -> consultaRepo.findByPropuestaId(rLinea.getPropuestaId())
+														.flatMap(rConsulta -> consultaRepo.removeLineaEnPropuesta(rConsulta.getId(), rLinea.getPropuestaId(), rLinea.getId())))
+				.then(lineaRepo.deleteAll(lineas));
 	}
 	
 	public Mono<Void> updateOrderOfSeveralLineas(Map<String, Integer> idlineaVSposicion) {
@@ -107,20 +110,27 @@ public class LineaService {
 		return Mono.empty();
 	}
 	
+	private Mono<Consulta> deleteAllLineasFromPropuesta(String propuestaId) {
+		return consultaRepo.findByPropuestaId(propuestaId).flatMap(rConsulta -> {
+			Propuesta prop = rConsulta.getPropuestaById(propuestaId);
+			prop.setLineaIds(new ArrayList<>());
+			return consultaRepo.updateLineasDeUnaPropuesta(rConsulta.getId(), prop);
+		});
+	}
+	
 	public Mono<Long> deleteSeveralLineasFromPropuestaId(String propuestaId){
-		// TODO delete also from propuesta/consulta repo
-		return lineaRepo.deleteSeveralLineasByPropuestaId(propuestaId).map(r -> Long.valueOf(r.getDeletedCount()));
+		return deleteAllLineasFromPropuesta(propuestaId)
+				.then(lineaRepo.deleteSeveralLineasByPropuestaId(propuestaId).map(r -> Long.valueOf(r.getDeletedCount())));
 	}
 	
 	public Mono<Long> deleteSeveralLineasFromSeveralPropuestaIds(List<String> propuestaIds) {
-		// TODO delete also from propuesta/consulta repo
-		return lineaRepo.deleteSeveralLineasBySeveralPropuestaIds(propuestaIds).map(r-> Long.valueOf(r.getDeletedCount()));
+		return Flux.fromIterable(propuestaIds).flatMap(rPropuestaId -> deleteAllLineasFromPropuesta(rPropuestaId))
+			.then(lineaRepo.deleteSeveralLineasBySeveralPropuestaIds(propuestaIds).map(r-> Long.valueOf(r.getDeletedCount())));
 	}
 	
 	public Mono<Long> deleteSeveralLineasFromSeveralPropuestas(List<Propuesta> propuestas) {
-		// TODO delete also from propuesta/consulta repo
 		List<String> ids = propuestas.stream().map(arg0 -> arg0.getId()).collect(Collectors.toList());
-		return lineaRepo.deleteSeveralLineasBySeveralPropuestaIds(ids).map(r-> Long.valueOf(r.getDeletedCount()));
+		return deleteSeveralLineasFromSeveralPropuestaIds(ids);
 	}
 	
 }

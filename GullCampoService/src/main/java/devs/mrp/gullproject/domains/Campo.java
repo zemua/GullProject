@@ -19,5 +19,16 @@ public class Campo<T> {
 	private String atributoId;
 	
 	private T datos;
+	
+	public Campo(String atributoId, T datos) {
+		this.atributoId = atributoId;
+		this.datos = datos;
+	}
+	
+	public Campo() {}
+	
+	public String getDatosText() {
+		return String.valueOf(datos);
+	}
 
 }

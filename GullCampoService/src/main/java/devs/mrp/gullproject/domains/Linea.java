@@ -1,7 +1,12 @@
 package devs.mrp.gullproject.domains;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotBlank;
 
@@ -12,8 +17,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
+@Slf4j
 @Document (collection = "lineas")
 public class Linea {
 
@@ -48,21 +55,148 @@ public class Linea {
 	 */
 	private List<Campo<?>> campos = new ArrayList<>();
 	
+	public void resetCampos(List<Campo<Object>> campos) {
+		this.campos.clear();
+		this.campos.addAll(campos);
+	}
+	
 	@JsonIgnore
 	public int getCantidadCampos() {
 		return campos.size();
+	}
+	
+	public Map<String, Campo<?>> getMapOfCamposByAtributoId() {
+		return this.campos.stream().collect(Collectors.toMap((c)->c.getAtributoId(), (c)->c));
 	}
 	
 	public Campo<?> getCampoByIndex(int i){
 		return campos.get(i);
 	}
 	
+	public Campo<?> getCampoByAttId(String attId) {
+		Iterator<Campo<?>> it = campos.iterator();
+		while (it.hasNext()) {
+			Campo<?> campo = it.next();
+			if (campo.getAtributoId().equals(attId)) {
+				return campo;
+			}
+		}
+		return null;
+	}
+	
+	public String getValueByAttId(String attId) {
+		Campo<?> c = getCampoByAttId(attId);
+		if (c == null || c.getDatos() == null) {
+			return "";
+		} else {
+			return String.valueOf(c.getDatos());
+		}
+	}
+	
+	public boolean replaceCampo(String atributoId, Campo<?> c) {
+		boolean removed = false;
+		Iterator<Campo<?>> it = this.campos.iterator();
+		while (it.hasNext()) {
+			Campo<?> campo = it.next();
+			if (campo.getAtributoId().equals(atributoId)) {
+				it.remove();
+				removed = true;
+				break;
+			}
+		}
+		if (removed) { campos.add(c); }
+		return removed;
+	}
+	
+	public boolean replaceCampo(Campo<?> c) {
+		return replaceCampo(c.getAtributoId(), c);
+	}
+	
+	public void replaceOrElseAddCampo(String atributoId, Campo<?> c) {
+		if (!replaceCampo(atributoId, c)) {
+			this.campos.add(c);
+		}
+	}
+	
+	public void replaceOrElseAddCampos(List<Campo<?>> campos) {
+		campos.stream().forEach(c -> replaceOrElseAddCampo(c.getAtributoId(), c));
+	}
+	
+	public void replaceOrAddCamposObj(List<Campo<Object>> campos) {
+		List<Campo<?>> cs = new ArrayList<>();
+		cs.addAll(campos);
+		replaceOrElseAddCampos(cs);
+	}
+	
 	public void addCampo(Campo<?> c) {
 		campos.add(c);
 	}
 	
-	public void removeCampo(Campo<?> c) {
-		campos.remove(c);
+	public void removeCampoByAttId(String atributoId) {
+		Iterator<Campo<?>> it = campos.iterator();
+		while (it.hasNext()) {
+			Campo<?> campo = it.next();
+			if (campo.getAtributoId().equals(atributoId)) {
+				it.remove();
+			}
+		}
+	}
+	
+	public void removeCamposByAttId(List<String> attIds) {
+		attIds.stream().forEach(att -> removeCampoByAttId(att));
+	}
+	
+	public boolean equals(Linea linea) {
+		if (!checkEquality(this.nombre, linea.getNombre())) {
+			log.debug("line name not equal");
+			return false;
+			}
+		if (!checkEquality(this.propuestaId, linea.getPropuestaId())) {
+			log.debug("propuestaId not equal");
+			return false;
+			}
+		if (!checkEquality(this.parentId, linea.getParentId())) {
+			log.debug("parentId not equal");
+			return false;
+			}
+		if (!checkEquality(this.counterLineId, linea.getCounterLineId())) {
+			log.debug("counterLineId not equal");
+			return false;
+			}
+		if (this.campos.size() != linea.getCampos().size()) {
+			log.debug("campos.size not equal");
+			return false;
+			}
+		for (int i = 0; i<campos.size(); i++) {
+			Campo<?> c = campos.get(i);
+			Campo<?> d = linea.getCampos().get(i);
+			if (!checkEquality(c.getAtributoId(), d.getAtributoId())) {
+				log.debug("atribute " + c.getAtributoId() + "not equal");
+				return false;
+				}
+			if (!checkEquality(c.getDatos(), d.getDatos())) {
+				log.debug("datos not equals for " + c.getDatosText() + " and " + d.getDatosText());
+				return false;
+				}
+			// don't compare individual ids of each campo
+		}
+		return true;
+	}
+	
+	private boolean checkEquality(Object a, Object b) {
+		if (a == null && b != null) {
+			return false;
+		}
+		if (a != null && b == null) {
+			return false;
+		}
+		if (a == null && b == null) {
+			return true;
+		}
+		if (a != null && b != null) {
+			return a.equals(b);
+		}
+		return false;
 	}
 	
 }

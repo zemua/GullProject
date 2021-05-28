@@ -12,7 +12,8 @@
 
 	<div>
 		<p>
-			<a th:href="${'/lineas/of/' + consulta.getPropuestaById(propuestaId).getId() + '/new'}">Crear nueva linea</a> - 
+			<a th:href="${'/lineas/of/' + consulta.getPropuestaById(propuestaId).getId() + '/new'}">Crear nueva linea</a> -
+			<a th:href="${'/lineas/deleteof/propid/' + propuestaId}">Borrar líneas</a> -  
 			<a th:href="${'/consultas/revisar/id/' + consulta.id}">Volver</a>
 		</p>
 	</div>

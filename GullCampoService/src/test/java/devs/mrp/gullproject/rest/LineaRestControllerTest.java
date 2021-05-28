@@ -3,7 +3,9 @@ package devs.mrp.gullproject.rest;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.assertj.core.api.Assertions;
 import org.hamcrest.BaseMatcher;
@@ -24,14 +26,15 @@ import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.models.LineaRepresentationModel;
 import devs.mrp.gullproject.domains.models.LineaRepresentationModelAssembler;
-import devs.mrp.gullproject.repository.CampoRepo;
 import devs.mrp.gullproject.repository.LineaRepo;
-import devs.mrp.gullproject.service.AtributoServiceProxy;
+import devs.mrp.gullproject.service.LineaService;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
+@Slf4j
 class LineaRestControllerTest {
 	
 	@Autowired
@@ -40,18 +43,15 @@ class LineaRestControllerTest {
 	LineaRestController lineaRestController;
 	
 	@MockBean
-	CampoRepo campoRepo; // evita problemas en el contexto del test con configuracion auto @SpringBootTest en lugar de @WebFluxTest
-	@MockBean
 	LineaRepo lineaRepo;
 	@MockBean
-	LineaRepresentationModelAssembler lrma;
+	LineaService lineaService;
 	@MockBean
-	AtributoServiceProxy asp;
+	LineaRepresentationModelAssembler lrma;
 
 	@Test
 	void testGetAllLineas() {
 		
-		// WebTestClient client = webTestClient.mutateWith(configurer);
 		WebTestClient client = WebTestClient.bindToController(lineaRestController).build().mutateWith(configurer);
 
 		Campo<Integer> m = new Campo<>();
@@ -67,7 +67,7 @@ class LineaRestControllerTest {
 		l.setCampos(campos);
 		Flux<Linea> flux = Flux.just(l);
 		
-		when(lineaRepo.findAll()).thenReturn(flux);
+		when(lineaService.findAll()).thenReturn(flux);
 		LineaRepresentationModel lrm = new LineaRepresentationModel();
 		lrm.setCampos(l.getCampos());
 		lrm.setId(l.getId());
@@ -123,7 +123,7 @@ class LineaRestControllerTest {
 		l.setCampos(campos);
 		Mono<Linea> mono = Mono.just(l);
 		
-		when(lineaRepo.insert(l)).thenReturn(mono);
+		when(lineaService.addLinea(ArgumentMatchers.refEq(l))).thenReturn(mono);
 		LineaRepresentationModel lrm = new LineaRepresentationModel();
 		lrm.setCampos(l.getCampos());
 		lrm.setId(l.getId());
@@ -177,7 +177,7 @@ class LineaRestControllerTest {
 		l.setCampos(campos);
 		Mono<Linea> mono = Mono.just(l);
 		
-		when(lineaRepo.save(l)).thenReturn(mono);
+		when(lineaService.updateLinea(ArgumentMatchers.refEq(l))).thenReturn(mono);
 		LineaRepresentationModel lrm = new LineaRepresentationModel();
 		lrm.setCampos(l.getCampos());
 		lrm.setId(l.getId());
@@ -230,7 +230,7 @@ class LineaRestControllerTest {
 		l.setNombre("linea_name");
 		l.setCampos(campos);
 		
-		when(lineaRepo.deleteByIdReturningDeletedCount(l.getId())).thenReturn(Mono.just(1L));
+		when(lineaService.deleteLineaById(ArgumentMatchers.eq(l.getId()))).thenReturn(Mono.just(1L));
 		
 		client.delete()
 			.uri("/api/lineas/borrar-una?id=linea_id")

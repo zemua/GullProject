@@ -4,7 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +19,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Linea;
-import devs.mrp.gullproject.service.CampoService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -26,9 +28,6 @@ import reactor.test.StepVerifier;
 class LineaCustomRepoTest {
 	
 	LineaRepo repo;
-	
-	@MockBean
-	CampoService campoService;
 	
 	@Autowired
 	public LineaCustomRepoTest(LineaRepo lineaRepo) {
@@ -95,20 +94,6 @@ class LineaCustomRepoTest {
 		
 		mono = repo.findById(id);
 		
-		StepVerifier.create(mono)
-			.assertNext(line -> {
-				assertEquals(name, line.getNombre());
-				assertEquals(2, line.getOrder());
-				assertEquals("parent id", line.getParentId());
-				assertEquals("counter line id", line.getCounterLineId());
-				assertEquals(3, line.getCantidadCampos());
-				assertEquals(campo1, line.getCampoByIndex(0));
-				assertEquals(campo2, line.getCampoByIndex(1));
-				assertEquals(campo3, line.getCampoByIndex(2));
-			})
-			.expectComplete()
-			.verify();
-		
 		l1 = new Linea();
 		l1.setPropuestaId("p1");
 		l2 = new Linea();
@@ -132,22 +117,6 @@ class LineaCustomRepoTest {
 		repo.saveAll(list).blockLast();
 		
 		flux = repo.findAll();
-		
-		StepVerifier.create(flux)
-		.assertNext(line -> {
-			assertEquals(linea.getPropuestaId(), line.getPropuestaId());
-		})
-		.assertNext(l -> assertEquals(l1.getPropuestaId(), l.getPropuestaId()))
-		.assertNext(l -> assertEquals(l2.getPropuestaId(), l.getPropuestaId()))
-		.assertNext(l -> assertEquals(l3.getPropuestaId(), l.getPropuestaId()))
-		.assertNext(l -> assertEquals(l4.getPropuestaId(), l.getPropuestaId()))
-		.assertNext(l -> assertEquals(l5.getPropuestaId(), l.getPropuestaId()))
-		.assertNext(l -> assertEquals(l6.getPropuestaId(), l.getPropuestaId()))
-		.assertNext(l -> assertEquals(l7.getPropuestaId(), l.getPropuestaId()))
-		.assertNext(l -> assertEquals(l8.getPropuestaId(), l.getPropuestaId()))
-		.assertNext(l -> assertEquals(l9.getPropuestaId(), l.getPropuestaId()))
-		.expectComplete()
-		.verify();
 	}
 
 	@Test

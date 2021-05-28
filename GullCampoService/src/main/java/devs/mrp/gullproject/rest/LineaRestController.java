@@ -37,16 +37,13 @@ public class LineaRestController {
 	public Flux<LineaRepresentationModel> getAllLineas(){
 		Flux<Linea> lineas = lineaService.findAll();
 		Flux<LineaRepresentationModel> lrm = lineas.map(e -> lrma.toModel(e));
-		
 		return lrm;
 	}
 	
 	@PostMapping(path = "/nueva", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public Mono<LineaRepresentationModel> crearLinea(@RequestBody Linea linea){
-		log.debug("linea nueva es: " + linea.toString());
 		Mono<Linea> entity = lineaService.addLinea(linea);
 		Mono<LineaRepresentationModel> lrm = entity.map(e -> lrma.toModel(e));
-		
 		return lrm;
 	}
 	
@@ -54,7 +51,6 @@ public class LineaRestController {
 	public Mono<LineaRepresentationModel> actualizarLinea(@RequestBody Linea linea) {
 		Mono<Linea> entity = lineaService.updateLinea(linea);
 		Mono<LineaRepresentationModel> lrm = entity.map(e -> lrma.toModel(e));
-		
 		return lrm;
 	}
 	

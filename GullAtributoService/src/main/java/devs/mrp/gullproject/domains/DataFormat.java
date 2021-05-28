@@ -34,6 +34,8 @@ public enum DataFormat {
 		return false;
 	}
 	
+	// TODO check with regular expression, it is not advisable to guide the logic of the program with exceptions
+	
 	private boolean checkIfInteger(String s) {
 		boolean b = false;
 		try {

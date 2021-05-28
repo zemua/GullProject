@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Lineas de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Gull Project - Lineas de la propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1 th:text="${'Lineas de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Lineas de la propuesta</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/lineas/allof/propid/' + propuestaId}">Volver</a>
+		</p>
+	</div>
+	
+	<div id="lineas-spreadsheet"></div>
+	
+	<form method="POST" th:object="${wrapLineasWithSelectorDto}">
+		<div>
+			<table>
+				<tr>
+					<th>Nombre</th>
+					<th>Campos</th>
+					<th>Borrar</th>
+				</tr>
+				<tr th:each="a, stat : *{lineas}">
+					<td th:text="${a.nombre}"></td>
+					<td th:text="${a.campos.size()}"></td>
+					<td>
+						<input type="checkbox" th:field="*{lineas[__${stat.index}__].selected}" />
+						<input type="hidden" th:field="*{lineas[__${stat.index}__].id}" />
+						<input type="hidden" th:field="*{lineas[__${stat.index}__].nombre}" />
+						<input type="hidden" th:field="*{lineas[__${stat.index}__].propuestaId}" />
+						<div th:each="b, btat : ${a.campos}">
+							<input type="hidden" th:field="*{lineas[__${stat.index}__].campos[__${btat.index}__].id}" />
+							<input type="hidden" th:field="*{lineas[__${stat.index}__].campos[__${btat.index}__].atributoId}" />
+							<input type="hidden" th:field="*{lineas[__${stat.index}__].campos[__${btat.index}__].datos}" />
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div>
+			<p>
+				<button>Borrar las líneas seleccionadas</button>
+			</p>
+		</div>
+	</form>
+
+</body>
+</html>
