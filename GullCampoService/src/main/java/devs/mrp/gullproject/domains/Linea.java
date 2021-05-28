@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Data
 @Slf4j
 @Document (collection = "lineas")
-public class Linea { // TODO test methods
+public class Linea {
 
 	@Id
 	private String id = new ObjectId().toString();
@@ -151,15 +151,15 @@ public class Linea { // TODO test methods
 			log.debug("line name not equal");
 			return false;
 			}
-		if (!this.propuestaId.equals(linea.getPropuestaId())) {
+		if (!checkEquality(this.propuestaId, linea.getPropuestaId())) {
 			log.debug("propuestaId not equal");
 			return false;
 			}
-		if (!this.parentId.equals(linea.getParentId())) {
+		if (!checkEquality(this.parentId, linea.getParentId())) {
 			log.debug("parentId not equal");
 			return false;
 			}
-		if (!this.counterLineId.equals(linea.getCounterLineId())) {
+		if (!checkEquality(this.counterLineId, linea.getCounterLineId())) {
 			log.debug("counterLineId not equal");
 			return false;
 			}
@@ -170,11 +170,11 @@ public class Linea { // TODO test methods
 		for (int i = 0; i<campos.size(); i++) {
 			Campo<?> c = campos.get(i);
 			Campo<?> d = linea.getCampos().get(i);
-			if (!c.getAtributoId().equals(d.getAtributoId())) {
+			if (!checkEquality(c.getAtributoId(), d.getAtributoId())) {
 				log.debug("atribute " + c.getAtributoId() + "not equal");
 				return false;
 				}
-			if (!c.getDatos().equals(d.getDatos())) {
+			if (!checkEquality(c.getDatos(), d.getDatos())) {
 				log.debug("datos not equals for " + c.getDatosText() + " and " + d.getDatosText());
 				return false;
 				}
