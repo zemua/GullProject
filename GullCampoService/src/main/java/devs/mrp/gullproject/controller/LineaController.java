@@ -52,7 +52,7 @@ import reactor.core.publisher.Mono;
 public class LineaController {
 
 	// TODO ordenar lineas arrastrando... Ô.ô https://github.com/sindu12jun/table-dragger
-	// TODO Data editing, soring, filtering... https://dhtmlx.com/docs/products/dhtmlxGrid/
+	// TODO Data editing, sorting, filtering... https://dhtmlx.com/docs/products/dhtmlxGrid/
 
 	private LineaService lineaService;
 	private ConsultaService consultaService;

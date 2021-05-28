@@ -35,7 +35,7 @@ import reactor.core.publisher.Mono;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
-class LineaRestControllerTest { // TODO fix testing after refractoring
+class LineaRestControllerTest {
 	
 	@Autowired
 	HypermediaWebTestClientConfigurer configurer;
@@ -52,7 +52,6 @@ class LineaRestControllerTest { // TODO fix testing after refractoring
 	@Test
 	void testGetAllLineas() {
 		
-		// WebTestClient client = webTestClient.mutateWith(configurer);
 		WebTestClient client = WebTestClient.bindToController(lineaRestController).build().mutateWith(configurer);
 
 		Campo<Integer> m = new Campo<>();

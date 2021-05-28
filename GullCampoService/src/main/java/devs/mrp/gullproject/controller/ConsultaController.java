@@ -88,6 +88,13 @@ public class ConsultaController {
 		return "reviewConsulta";
 	}
 	
+	@GetMapping("/revisar/id/{id}/edit") // TODO test
+	public String editConsultaDetails(Model model, @PathVariable(name = "id") String id) {
+		Mono<Consulta> consulta = consultaService.findById(id);
+		model.addAttribute("consulta", consulta);
+		return "reviewConsultaEdit";
+	}
+	
 	@GetMapping("/revisar/id/{id}/addpropuesta")
 	public String addPropuestaToId(Model model, @PathVariable(name= "id") String id) {
 		model.addAttribute("consultaId", id);

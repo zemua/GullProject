@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>Gull Project - Revisar Consulta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1>Revisar Consulta</h1>
+
+	<div>
+		<p>
+			<a th:href="@{'/consultas/revisar/id/' + ${consulta.id}}">Volver</a>
+		</p>
+	</div>
+	
+	<form method="POST" th:object="${consulta}">
+	<div>
+		<table>
+			<tr>
+				<th>Nombre</th>
+				<th>Estado</th>
+			</tr>
+			<tr>
+				<td><input type="text" th:field="*{nombre}"></td>
+				<td th:text="${consulta.status}"></td>
+			</tr>
+		</table>
+	</div>
+	
+	<div>
+			<p>
+				<button>Ok</button>
+			</p>
+		</div>
+	
+	</form>
+
+</body>
+</html>
