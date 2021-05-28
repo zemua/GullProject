@@ -651,6 +651,67 @@ class ConsultaControllerTestB {
 					.contains(prop1.getNombre());
 			});
 	}
+	
+	@Test
+	void testEditConsultaDetails() {
+		when(consultaService.findById(ArgumentMatchers.eq(consulta1.getId()))).thenReturn(Mono.just(consulta1));
+		webTestClient.get()
+			.uri("/consultas/revisar/id/" + consulta1.getId() + "/edit")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Revisar Consulta")
+					.contains(consulta1.getNombre())
+					.contains(consulta1.getStatus());
+			});
+	}
+	
+	@Test
+	void testProcessEditConsultaDetails() {
+		String newname = "nuevo nombre";
+		String newstatus = "nuevo status";
+		consulta2.setNombre(newname);
+		consulta2.setStatus(newstatus);
+		consulta2.setId(consulta1.getId());
+		when(consultaService.updateNameAndStatus(consulta1.getId(), newname, newstatus)).thenReturn(Mono.just(consulta2));
+		
+		// should update correctly
+		webTestClient.post()
+			.uri("/consultas/revisar/id/" + consulta1 + "/edit")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("id", consulta1.getId())
+					.with("nombre", newname)
+					.with("status", newstatus)
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Datos actualizados");
+			});
+		
+		// should show error invalid data entered
+		webTestClient.post()
+		.uri("/consultas/revisar/id/" + consulta1 + "/edit")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("id", consulta1.getId())
+				.with("nombre", "")
+				.with("status", newstatus)
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+				.contains("Corrige los errores y reenvía");
+		});
+	}
 
 }
 

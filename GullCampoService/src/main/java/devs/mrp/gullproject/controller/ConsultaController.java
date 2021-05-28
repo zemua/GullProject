@@ -88,14 +88,14 @@ public class ConsultaController {
 		return "reviewConsulta";
 	}
 	
-	@GetMapping("/revisar/id/{id}/edit") // TODO test
+	@GetMapping("/revisar/id/{id}/edit")
 	public String editConsultaDetails(Model model, @PathVariable(name = "id") String id) {
 		Mono<Consulta> consulta = consultaService.findById(id);
 		model.addAttribute("consulta", consulta);
 		return "reviewConsultaEdit";
 	}
 	
-	@PostMapping("/revisar/id/{id}/edit") // TODO test
+	@PostMapping("/revisar/id/{id}/edit")
 	public String processEditConsultaDetails(@Valid Consulta consulta, BindingResult bindingResult, Model model, @PathVariable(name = "id") String id) {
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("consulta", consulta);
