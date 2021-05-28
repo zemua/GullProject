@@ -71,4 +71,8 @@ public class ConsultaService {
 	public Mono<Consulta> updateAttributesOfPropuesta(String idPropuesta, List<AtributoForCampo> attributes) {
 		return consultaRepo.updateAttributesOfPropuesta(idPropuesta, attributes);
 	}
+	
+	public Mono<Consulta> updateNameAndStatus(String idConsulta, String name, String status) {
+		return consultaRepo.updateName(idConsulta, name).flatMap(c -> consultaRepo.updateStatus(idConsulta, status));
+	}
 }

@@ -81,7 +81,7 @@ public class ConsultaController {
 		return "showAllConsultas";
 	}
 	
-	@GetMapping("/revisar/id/{id}") // TODO make possible to edit the status of the inquiry
+	@GetMapping("/revisar/id/{id}")
 	public String reviewConsultaById(Model model, @PathVariable(name = "id") String id) {
 		Mono<Consulta> consulta = consultaService.findById(id);
 		model.addAttribute("consulta", consulta);
@@ -93,6 +93,17 @@ public class ConsultaController {
 		Mono<Consulta> consulta = consultaService.findById(id);
 		model.addAttribute("consulta", consulta);
 		return "reviewConsultaEdit";
+	}
+	
+	@PostMapping("/revisar/id/{id}/edit") // TODO test
+	public String processEditConsultaDetails(@Valid Consulta consulta, BindingResult bindingResult, Model model, @PathVariable(name = "id") String id) {
+		if (bindingResult.hasErrors()) {
+			model.addAttribute("consulta", consulta);
+			return "reviewConsultaEdit";
+		}
+		Mono<Consulta> nConsulta = consultaService.updateNameAndStatus(consulta.getId(), consulta.getNombre(), consulta.getStatus());
+		model.addAttribute("consulta", nConsulta);
+		return "processReviewConsultaEdit";
 	}
 	
 	@GetMapping("/revisar/id/{id}/addpropuesta")

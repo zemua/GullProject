@@ -121,5 +121,18 @@ class ConsultaServiceTest {
 		.verify();
 		
 	}
+	
+	@Test
+	void testUpdateNameAndStatus() {
+		Consulta nCons = consultaService.updateNameAndStatus(consulta.getId(), "nuevo nombre", "nuevo status").block();
+		
+		StepVerifier.create(mono)
+		.assertNext(oCons -> {
+			assertEquals("nuevo nombre", oCons.getNombre());
+			assertEquals("nuevo status", oCons.getStatus());
+		})
+		.expectComplete()
+		.verify();
+	}
 
 }

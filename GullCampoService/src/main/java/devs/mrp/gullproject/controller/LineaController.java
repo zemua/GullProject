@@ -265,6 +265,9 @@ public class LineaController {
 		 * need to add errors manually to the bindingResult in a flow and return a Mono
 		 * to avoid blocking
 		 */
+		if (lineaWithAttListDto.getAttributes() == null || lineaWithAttListDto.getAttributes().size() == 0) {
+			return Flux.just(true);
+		}
 		Map<AtributoForLineaFormDto, Integer> map = new HashMap<>();
 		return Mono.just(lineaWithAttListDto.getAttributes()).map(rAttList -> {
 			for (int i = 0; i < rAttList.size(); i++) {
@@ -293,7 +296,11 @@ public class LineaController {
 
 	private Mono<Linea> reconstructLine(LineaWithAttListDto lineaWithAttListDto) {
 		Linea nLinea = lineaWithAttListDto.getLinea();
-		return Flux.fromIterable(lineaWithAttListDto.getAttributes())
+		List<AtributoForLineaFormDto> nAtts = lineaWithAttListDto.getAttributes();
+		if (nAtts == null) {
+			nAtts = new ValidList<>();
+		}
+		return Flux.fromIterable(nAtts)
 				.flatMap(rAtt -> atributoService.getClassTypeOfFormat(rAtt.getTipo()).map(
 						rClass -> new Campo<Object>(rAtt.getId(), ClassDestringfier.toObject(rClass, rAtt.getValue()))))
 				.collectList().map(rCampoList -> {
