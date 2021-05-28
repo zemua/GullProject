@@ -132,6 +132,14 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 	}
 	
 	@Override
+	public Mono<Consulta> updateName(String idConsulta, String name) {
+		Query query = new Query(Criteria.where("id").is(idConsulta));
+		Update update = new Update().set("nombre", name);
+		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
+		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
+	}
+	
+	@Override
 	public Mono<Consulta> updateStatus(String idConsulta, String status) {
 		Query query = new Query(Criteria.where("id").is(idConsulta));
 		Update update = new Update().set("status", status);

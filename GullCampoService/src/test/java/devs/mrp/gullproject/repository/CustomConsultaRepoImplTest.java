@@ -617,6 +617,18 @@ class CustomConsultaRepoImplTest {
 	}
 	
 	@Test
+	void testUpdateName() {
+		repo.updateName(consulta.getId(), "nombre actualizado").block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals("nombre actualizado", cons.getNombre());
+		})
+		.expectComplete()
+		.verify();
+	}
+	
+	@Test
 	void testUpdateStatus() {
 		repo.updateStatus(consulta.getId(), "estado actualizado").block();
 		

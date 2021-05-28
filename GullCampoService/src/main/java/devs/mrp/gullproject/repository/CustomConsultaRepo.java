@@ -36,6 +36,8 @@ public interface CustomConsultaRepo {
 	
 	public Mono<Consulta> removeLineaEnPropuesta(String idConsulta, String idPropuesta, String idLinea);
 	
+	public Mono<Consulta> updateName(String idConsulta, String name);
+	
 	public Mono<Consulta> updateStatus(String idConsulta, String status);
 	
 	public Mono<Consulta> addAttributeToList(String idPropuesta, AtributoForCampo attribute);
