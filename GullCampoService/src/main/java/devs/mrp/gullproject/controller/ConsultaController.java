@@ -38,6 +38,11 @@ import reactor.core.publisher.Mono;
 public class ConsultaController {
 	
 	// TODO re-order attribute columns into proposal
+	
+	// TODO create supplier proposals from customer ones
+	// TODO create our proposals from customer and supplier ones
+	// TODO create customer updated proposals
+	// TODO adapt old supplier proposals for updated customer inquiry
 
 	ConsultaService consultaService;
 	LineaService lineaService;

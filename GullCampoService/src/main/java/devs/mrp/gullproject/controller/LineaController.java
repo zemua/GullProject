@@ -214,6 +214,8 @@ public class LineaController {
 		}
 		model.addAttribute("wrapLineasWithSelectorDto", wrapLineasWithSelectorDto);
 		model.addAttribute("propuestaId", propuestaId);
+		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+		model.addAttribute("consulta", consulta);
 		return "processDeleteLinesOf";
 	}
 

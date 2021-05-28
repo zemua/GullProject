@@ -24,13 +24,13 @@
 		<table>
 			<tr>
 				<th>Nombre</th>
-				<th>Campos</th>
 				<th>Enlace</th>
+				<th th:each="t : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${t.getName()}"></span></th>
 			</tr>
 			<tr th:each="a : ${lineas}">
 				<td th:text="${a.nombre}"></td>
-				<td th:text="${a.getCantidadCampos()}"></td>
 				<td><a th:href="@{'/lineas/revisar/id/' + ${a.id}}">revisar</a></td>
+				<td th:each="t : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${a.getValueByAttId(t.getId())}"></span></td>
 			</tr>
 		</table>
 	</div>
