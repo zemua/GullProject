@@ -93,6 +93,18 @@ public class LineaController {
 		model.addAttribute("propuestaId", propuestaId);
 		return "orderLineasOfPropuesta";
 	}
+	
+	@PostMapping("/allof/propid/{propuestaId}/order") // TODO test
+	public String processOrderallLinesOf(WrapLineasDto wrapLineasDto, Model model, @PathVariable(name ="propuestaId") String propuestaId) {
+		Map<String, Integer> map = new HashMap<>();
+		wrapLineasDto.getLineas().stream().forEach(sLinea -> {
+			map.put(sLinea.getId(), sLinea.getOrder());
+		});
+		Mono<Void> mono = lineaService.updateOrderOfSeveralLineas(map);
+		model.addAttribute("orderMap", mono);
+		model.addAttribute("propuestaId", propuestaId);
+		return "processOrderLineasOfPropuesta";
+	}
 
 	@GetMapping("/of/{propuestaId}/new")
 	public String addLineToPropuesta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
