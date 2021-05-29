@@ -37,8 +37,6 @@ import reactor.core.publisher.Mono;
 @RequestMapping(path = "/consultas")
 public class ConsultaController {
 	
-	// TODO re-order attribute columns into proposal
-	
 	// TODO create supplier proposals from customer ones
 	// TODO create our proposals from customer and supplier ones
 	// TODO create customer updated proposals
@@ -262,6 +260,28 @@ public class ConsultaController {
 		model.addAttribute("propuesta", propuesta);
 		
 		return "processAddAttributeToProposal";
+	}
+	
+	@GetMapping("/editar/propcli/{propid}") // TODO test
+	public String editarProposalCliente(Model model, @PathVariable(name = "propid") String propuestaId) {
+		Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
+		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+		model.addAttribute("propuesta", propuesta);
+		model.addAttribute("consulta", consulta);
+		return "editPropuesta";
+	}
+	
+	@PostMapping("/editar/propcli/{propid}") // TODO test
+	public String processEditarProposalCliente(@Valid PropuestaCliente propuesta, BindingResult bindingResult, Model model, @PathVariable(name ="propid") String propuestaId) {
+		if (bindingResult.hasErrors()) {
+			model.addAttribute("propuesta", propuesta);
+			Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+			model.addAttribute("consulta", consulta);
+			return "editPropuesta";
+		}
+		Mono<Consulta> cons = consultaService.updateNombrePropuesta(propuesta);
+		model.addAttribute("consulta", cons);
+		return "processEditPropuesta";
 	}
 	
 }

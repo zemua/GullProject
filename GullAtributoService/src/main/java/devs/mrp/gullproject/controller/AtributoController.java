@@ -26,7 +26,7 @@ public class AtributoController {
 	
 	// TODO create value maps for atributes that will have defined values, like the DN or the rating of the valves
 	// TODO re-order atributes
-	// TODO group attributes in categories for organized display
+	// TODO group attributes in categories for organized display, the consulta can select which categories it belongs, and filter attributes by it
 
 	AtributoService atributoService;
 	
