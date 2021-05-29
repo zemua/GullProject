@@ -91,8 +91,8 @@ public class LineaController {
 		return "orderLineasOfPropuesta";
 	}
 	
-	@PostMapping("/allof/propid/{propuestaId}/order") // TODO test
-	public String processOrderallLinesOf(WrapLineasDto wrapLineasDto, Model model, @PathVariable(name ="propuestaId") String propuestaId) {
+	@PostMapping("/allof/propid/{propuestaId}/order")
+	public String processOrderAllLinesOf(WrapLineasDto wrapLineasDto, Model model, @PathVariable(name ="propuestaId") String propuestaId) {
 		Map<String, Integer> map = new HashMap<>();
 		wrapLineasDto.getLineas().stream().forEach(sLinea -> {
 			map.put(sLinea.getId(), sLinea.getOrder());

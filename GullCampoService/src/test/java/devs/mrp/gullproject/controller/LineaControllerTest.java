@@ -3,7 +3,9 @@ package devs.mrp.gullproject.controller;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -568,6 +570,31 @@ class LineaControllerTest {
 				.contains(linea2.getNombre())
 				.contains(linea2.getCampoByIndex(1).getDatosText())
 				;
+			});
+	}
+	
+	@Test
+	void testProcessOrderallLinesOf() {
+		Map<String, Integer> map = new HashMap<>();
+		map.put(linea1.getId(), linea1.getOrder());
+		map.put(linea1.getId(), linea1.getOrder());
+		when(lineaService.updateOrderOfSeveralLineas(ArgumentMatchers.refEq(map))).thenReturn(Mono.empty());
+		
+		webTestClient.post()
+			.uri("/lineas/allof/propid/" + propuesta.getId() + "/order")
+			.contentType(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("lineas[0].id", linea1.getId())
+					.with("lineas[0].order", "1")
+					.with("lineas[1].id", linea2.getId())
+					.with("lineas[1].order", "2")
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Lineas de la propuesta")
+					.contains("Orden guardado");
 			});
 	}
 
