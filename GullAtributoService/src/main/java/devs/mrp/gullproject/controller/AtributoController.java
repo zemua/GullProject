@@ -29,7 +29,6 @@ public class AtributoController {
 	// falta añadir handler para situaciones de error como cuando el "id" de la url no existe en db
 	
 	// TODO create value maps for atributes that will have defined values, like the DN or the rating of the valves
-	// TODO re-order atributes
 	// TODO group attributes in categories for organized display, the consulta can select which categories it belongs, and filter attributes by it
 
 	AtributoService atributoService;
@@ -128,7 +127,7 @@ public class AtributoController {
 		return "ordenarAtributos";
 	}
 	
-	@PostMapping("/ordenar") // TODO test
+	@PostMapping("/ordenar")
 	public String processOrdenarAtributos(AtributosWrapper atributosWrapper, Model model) {
 		Map<String, Integer> map = new HashMap<>();
 		atributosWrapper.getAtributos().stream().forEach(a -> {

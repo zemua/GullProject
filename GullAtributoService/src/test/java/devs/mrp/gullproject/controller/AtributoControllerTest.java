@@ -333,5 +333,27 @@ class AtributoControllerTest {
 					.contains("Ordenar Los Atributos");
 		});
 	}
+	
+	@Test
+	void testProcessOrdenarAtributos() {
+		when(atributoService.updateOrderOfSeveralAtributos(ArgumentMatchers.anyMap())).thenReturn(Mono.empty());
+		
+		// should be ok
+		webTestClient.post()
+		.uri("/atributos/ordenar")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("atributos[0].id", "unId")
+				.with("atributos[0].orden", "1")
+				.with("atributos[1].id", "otroId")
+				.with("atributos[1].orden", "2"))
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+			.contains("Orden guardado");
+		});
+	}
 
 }
