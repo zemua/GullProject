@@ -158,7 +158,6 @@ class LineaControllerTest {
 						.contains("Lineas de la propuesta")
 						.contains("Crear nueva linea")
 						.contains("Nombre")
-						.contains("Campos")
 						.contains("Enlace")
 						.contains(propuesta.getNombre());
 			});
@@ -543,6 +542,31 @@ class LineaControllerTest {
 				Assertions.assertThat(response.getResponseBody()).asString()
 				.contains("Borrar Líneas")
 				.contains("Borrado procesado")
+				;
+			});
+	}
+	
+	@Test
+	void testOrderAllLinesOf() {
+		propuesta.addAttribute(atributo1);
+		propuesta.addAttribute(atributo2);
+		propuesta.addAttribute(atributo3);
+		when(lineaService.findByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(linea1, linea2));
+		when(consultaService.findConsultaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(consulta));
+		webTestClient.get()
+			.uri("/lineas/allof/propid/" + propuesta.getId() + "/order")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+				.contains(propuesta.getNombre())
+				.contains("Ordenar lineas de la propuesta")
+				.contains(linea1.getNombre())
+				.contains(linea1.getCampoByIndex(0).getDatosText())
+				.contains(linea2.getNombre())
+				.contains(linea2.getCampoByIndex(1).getDatosText())
 				;
 			});
 	}

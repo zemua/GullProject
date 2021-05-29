@@ -52,9 +52,6 @@ import reactor.core.publisher.Mono;
 @RequestMapping(path = "/lineas")
 public class LineaController {
 
-	// TODO ordenar lineas arrastrando... Ô.ô https://github.com/sindu12jun/table-dragger
-	// TODO Data editing, sorting, filtering... https://dhtmlx.com/docs/products/dhtmlxGrid/
-
 	private LineaService lineaService;
 	private ConsultaService consultaService;
 	private ModelMapper modelMapper;
@@ -79,7 +76,7 @@ public class LineaController {
 		return "showAllLineasOfPropuesta";
 	}
 	
-	@GetMapping("/allof/propid/{propuestaId}/order") // TODO test
+	@GetMapping("/allof/propid/{propuestaId}/order")
 	public String orderAllLinesOf(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		Mono<WrapLineasDto> lineas = lineaService.findByPropuestaId(propuestaId)
 				.collectList().flatMap(rList -> {
