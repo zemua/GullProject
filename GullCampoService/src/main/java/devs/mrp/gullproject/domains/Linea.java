@@ -23,6 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Document (collection = "lineas")
 public class Linea {
+	
+	// TODO add lines pasting from an excel
 
 	@Id
 	private String id = new ObjectId().toString();

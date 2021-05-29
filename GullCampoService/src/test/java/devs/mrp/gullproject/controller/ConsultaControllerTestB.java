@@ -712,6 +712,62 @@ class ConsultaControllerTestB {
 				.contains("Corrige los errores y reenvía");
 		});
 	}
+	
+	@Test
+	void testEditarProposalCliente() {
+		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(prop1.getId()))).thenReturn(Mono.just(prop1));
+		when(consultaService.findConsultaByPropuestaId(ArgumentMatchers.eq(prop1.getId()))).thenReturn(Mono.just(consulta1));
+		
+		webTestClient.get()
+			.uri("/consultas/editar/propcli/" + prop1.getId())
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Nombre")
+					.contains(prop1.getNombre());
+			});
+	}
+	
+	@Test
+	void testProcessEditarProposalCliente() {
+		String newname = "nuevo nombre";
+		when(consultaService.findConsultaByPropuestaId(ArgumentMatchers.refEq(prop1.getId()))).thenReturn(Mono.just(consulta1));
+		when(consultaService.updateNombrePropuesta(ArgumentMatchers.any(Propuesta.class))).thenReturn(Mono.just(consulta1));
+		
+		// should update correctly
+		webTestClient.post()
+			.uri("/consultas/editar/propcli/" + prop1.getId())
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("nombre", newname)
+				.with("id", prop1.getId()))
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Datos actualizados");
+			});
+		
+		// should give an error
+				webTestClient.post()
+					.uri("/consultas/editar/propcli/" + prop1.getId())
+					.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+					.accept(MediaType.TEXT_HTML)
+					.body(BodyInserters.fromFormData("nombre", "")
+						.with("id", prop1.getId()))
+					.exchange()
+					.expectStatus().isOk()
+					.expectBody()
+					.consumeWith(response -> {
+						Assertions.assertThat(response.getResponseBody()).asString()
+							.contains("Corrige los errores y reenvía")
+							.contains("Selecciona un nombre");
+					});
+	}
 
 }
 

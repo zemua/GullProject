@@ -12,11 +12,11 @@
 
 	<div>
 		<p>
-			<a th:href="@{'/consultas/revisar/id/' + ${consulta.id}}">Volver</a> - <a th:href="@{'/consultas/delete/id/' + ${consulta.id} + '/propuesta/' + ${propuesta.id}}">Borrar esta propuesta</a>
+			<a th:href="@{'/consultas/revisar/id/' + ${consulta.id}}">Volver</a> - <a th:href="@{'/consultas/delete/id/' + ${consulta.id} + '/propuesta/' + ${propuestaCliente.id}}">Borrar esta propuesta</a>
 		</p>
 	</div>
 	
-	<form method="POST" th:object="${propuesta}">
+	<form method="POST" th:object="${propuestaCliente}">
 	
 		<div th:if="${#fields.hasErrors()}">
      	   <span class="validationError">
