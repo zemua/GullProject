@@ -1,12 +1,11 @@
-import tableDragger from 'table-dragger'
-var el = document.getElementById('tabla-ordenable');
-var dragger = tableDragger(el, {
-  mode: 'row',
-  dragHandler: '.handle',
-  onlyBody: true,
-  animation: 300
-});
-dragger.on('drop',function(from, to, el, mode){
-  console(from);
-  console(to);
+$(document).ready(function() {
+    // Initialise the table
+    $("#tabla-ordenable").tableDnD({
+		onDrop : function() {
+			$(".linea-order").each(function(index, element) {
+				console.log(index);
+				$(element).val(index);
+			});
+		}
+	});
 });
