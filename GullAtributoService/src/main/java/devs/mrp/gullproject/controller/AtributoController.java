@@ -1,5 +1,8 @@
 package devs.mrp.gullproject.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,7 @@ import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
 import devs.mrp.gullproject.domains.Atributo;
 import devs.mrp.gullproject.domains.DataFormat;
+import devs.mrp.gullproject.domains.DTO.AtributosWrapper;
 import devs.mrp.gullproject.service.AtributoService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -110,6 +114,29 @@ public class AtributoController {
 		atributoService.deleteById(atributo.getId()).subscribe();
 		
 		return "borradoAtributo";
+	}
+	
+	@GetMapping("/ordenar")
+	public String ordenarAtributos(Model model) {
+		Mono<AtributosWrapper> atributos = atributoService.findAll()
+				.collectList().flatMap(rList -> {
+					AtributosWrapper wrap = new AtributosWrapper();
+					wrap.setAtributos(rList);
+					return Mono.just(wrap);
+				});
+		model.addAttribute("atributosWrapper", atributos);
+		return "ordenarAtributos";
+	}
+	
+	@PostMapping("/ordenar") // TODO test
+	public String processOrdenarAtributos(AtributosWrapper atributosWrapper, Model model) {
+		Map<String, Integer> map = new HashMap<>();
+		atributosWrapper.getAtributos().stream().forEach(a -> {
+			map.put(a.getId(), a.getOrden());
+		});
+		Mono<Void> monomap = atributoService.updateOrderOfSeveralAtributos(map);
+		model.addAttribute("map", monomap);
+		return "processOrdenarAtributos";
 	}
 	
 }

@@ -34,5 +34,7 @@ public class Atributo {
 	private boolean valoresFijos = false;
 	
 	List<String> valoresPredefinidos = new ArrayList<>();
+	
+	private Integer orden;
 
 }

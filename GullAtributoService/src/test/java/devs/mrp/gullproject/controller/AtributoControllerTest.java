@@ -304,5 +304,34 @@ class AtributoControllerTest {
 		});
 		
 	}
+	
+	@Test
+	void testOrdenarAtributos() {
+		Atributo a = new Atributo();
+		a.setName("nombreA");
+		a.setTipo(DataFormat.CANTIDAD);
+		a.setId("idDelMoNoA");
+		
+		Atributo b = new Atributo();
+		b.setName("nombreB");
+		b.setTipo(DataFormat.CANTIDAD);
+		b.setId("idDelMoNoB");
+		
+		Flux<Atributo> flux = Flux.just(a, b);
+		when(atributoService.findAll()).thenReturn(flux);
+		
+		webTestClient.get()
+		.uri("/atributos/ordenar")
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("nombreA")
+					.contains("nombreB")
+					.contains("Ordenar Los Atributos");
+		});
+	}
 
 }

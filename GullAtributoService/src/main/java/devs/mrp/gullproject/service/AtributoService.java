@@ -1,6 +1,8 @@
 package devs.mrp.gullproject.service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,14 +23,14 @@ public class AtributoService {
 	}
 	
 	public Flux<Atributo> findAll() {
-		return atributoRepo.findAll();
+		return atributoRepo.findAllByOrderByOrdenAsc();
 	}
 	
 	public Mono<Atributo> findById(String id){
 		return atributoRepo.findById(id);
 	}
 	
-	public Mono<Atributo> save(Atributo a) {
+	public Mono<Atributo> save(Atributo a) { // TODO add orden property
 		return atributoRepo.save(a);
 	}
 	
@@ -45,7 +47,15 @@ public class AtributoService {
 	}
 	
 	public Flux<Atributo> findAtributoByIdIn(List<String> ids) {
-		return atributoRepo.findAtributosByIdIn(ids);
+		return atributoRepo.findAtributosByIdInOrderByOrdenAsc(ids);
+	}
+	
+	public Mono<Void> updateOrderOfSeveralAtributos(Map<String, Integer> idAtributoVSorden) { // TODO test
+		Set<String> set = idAtributoVSorden.keySet();
+		set.stream().forEach(id -> {
+			atributoRepo.updateOrdenOfAtributo(id, idAtributoVSorden.get(id)).subscribe();
+		});
+		return Mono.empty();
 	}
 
 }

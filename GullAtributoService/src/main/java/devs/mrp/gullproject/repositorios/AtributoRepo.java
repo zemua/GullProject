@@ -10,5 +10,7 @@ import reactor.core.publisher.Flux;
 
 @Repository
 public interface AtributoRepo extends ReactiveMongoRepository<Atributo, String>, CustomAtributoRepo {
-	public Flux<Atributo> findAtributosByIdIn(List<String> ids);
+	public Flux<Atributo> findAtributosByIdInOrderByOrdenAsc(List<String> ids);
+	
+	public Flux<Atributo> findAllByOrderByOrdenAsc();
 }

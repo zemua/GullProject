@@ -61,7 +61,7 @@ public class LineaService {
 		return lineaRepo.removeVariosCampos(idLinea, campos);
 	}
 	
-	public Mono<Linea> addLinea(Linea linea) {
+	public Mono<Linea> addLinea(Linea linea) { // TODO don't get order with count, check the highest order
 		String nPropuestaId = linea.getPropuestaId();
 		Mono<String> nConsultaId = consultaRepo.findByPropuestaId(nPropuestaId).map(consulta -> consulta.getId());
 		return nConsultaId.flatMap(bConsultaId -> consultaRepo.addLineaEnPropuesta(bConsultaId, nPropuestaId, linea.getId()))
