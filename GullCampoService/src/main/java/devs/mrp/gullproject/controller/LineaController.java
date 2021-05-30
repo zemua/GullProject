@@ -1,5 +1,7 @@
 package devs.mrp.gullproject.controller;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -30,6 +32,8 @@ import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.domains.StringListOfListsWrapper;
+import devs.mrp.gullproject.domains.StringListWrapper;
 import devs.mrp.gullproject.domains.StringWrapper;
 import devs.mrp.gullproject.domains.WrapLineasDto;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
@@ -169,7 +173,13 @@ public class LineaController {
 			model.addAttribute("stringWrapper", stringWrapper);
 			return "bulkAddLineastoPropuesta";
 		}
-		// TODO
+		
+		String lines[] = texto.split(System.lineSeparator());
+		StringListOfListsWrapper fieldArrays = new StringListOfListsWrapper();
+		for (int i = 0; i<lines.length; i++) {
+			//fieldArrays.add(Arrays.asList(lines[i].split("\\t")));
+		}
+		
 		return "processBulkAddLineasToPropuesta";
 	}
 
