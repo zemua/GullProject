@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Nuevas Lineas en Propuesta: ' + propuesta.getNombre()}">Gull Project - Nuevas Lineas en Propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1>Nuevas Lineas en Propuesta</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/lineas/allof/propid/' + propuestaId}">Volver</a>
+		</p>
+	</div>
+
+	<form method="POST" th:object="${stringWrapper}">
+	
+		<div>
+			<p>
+				<button>Siguiente</button>
+			</p>
+		</div>
+		
+		<div th:if="${#fields.hasErrors()}">
+     	   <span class="validationError">
+      	  Corrige los errores y reenvía.
+     	   </span>
+     	   <span class="validationError"
+      		th:if="${#fields.hasErrors('${stringWrapper.string}')}"
+      		th:errors="*{string}">Debes introducir un texto.</span>
+    	</div>
+    	
+		<div class="grid">
+			<textarea 
+			placeholder="Pega aquí el contenido de tu excel, solamente los datos, no incluyas las cabeceras de las columnas. Cuidado con celdas que puedan estar combinadas"
+			id="paste-textarea" name="string" rows="20" cols="50" autofocus class="sinwrap" wrap="soft"></textarea>
+		</div>
+		
+	</form>
+
+</body>
+</html>

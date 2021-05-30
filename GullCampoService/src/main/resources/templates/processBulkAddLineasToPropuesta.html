@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Nueva Linea en Propuesta: ' + propuesta.getNombre()}">Gull Project - Nueva Linea en Propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1>Nueva Linea en Propuesta</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/lineas/allof/propid/' + propuestaId}">Volver</a>
+		</p>
+	</div>
+
+	<form method="POST" th:object="${stringWrapper}">
+	
+		<div>
+			<p>
+				<button>Siguiente</button>
+			</p>
+		</div>
+    	
+		<div class="grid">
+			
+		</div>
+		
+	</form>
+
+</body>
+</html>

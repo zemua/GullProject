@@ -6,3 +6,8 @@ table, th, td {
 th, td {
   padding: 15px;
 }
+
+.sinwrap {
+	white-space: pre;
+	overflow: auto;
+}

@@ -30,6 +30,7 @@ import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.domains.StringWrapper;
 import devs.mrp.gullproject.domains.WrapLineasDto;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AttributesListDto;
@@ -143,6 +144,33 @@ public class LineaController {
 						return Mono.just("processAddLineaToPropuesta");
 					}
 				});
+	}
+	
+	@GetMapping("/of/{propuestaId}/bulk-add") // TODO test
+	public String bulkAddLineasToPropuesta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+		Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
+		model.addAttribute("propuesta", propuesta);
+		model.addAttribute("propuestaId", propuestaId);
+		StringWrapper wrap = new StringWrapper("");
+		model.addAttribute("stringWrapper", wrap);
+		return "bulkAddLineastoPropuesta";
+	}
+	
+	@PostMapping("/of/{propuestaId}/bulk-add") // TODO test
+	public String processBulkAddLineastoPropuesta(StringWrapper stringWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+		String texto = stringWrapper.getString();
+		if (texto == null || texto.equals("")) {
+			bindingResult.rejectValue("string", "error.stringWrapper.string", "Debes introducir un texto");
+		}
+		if (bindingResult.hasErrors()) {
+			Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
+			model.addAttribute("propuesta", propuesta);
+			model.addAttribute("propuestaId", propuestaId);
+			model.addAttribute("stringWrapper", stringWrapper);
+			return "bulkAddLineastoPropuesta";
+		}
+		// TODO
+		return "processBulkAddLineasToPropuesta";
 	}
 
 	@GetMapping("/revisar/id/{lineaid}")
