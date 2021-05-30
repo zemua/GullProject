@@ -1,6 +1,7 @@
 package devs.mrp.gullproject.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
@@ -133,7 +134,7 @@ public class AtributoController {
 		atributosWrapper.getAtributos().stream().forEach(a -> {
 			map.put(a.getId(), a.getOrden());
 		});
-		Mono<Void> monomap = atributoService.updateOrderOfSeveralAtributos(map);
+		Mono<List<Atributo>> monomap = atributoService.updateOrderOfSeveralAtributos(map);
 		model.addAttribute("map", monomap);
 		return "processOrdenarAtributos";
 	}

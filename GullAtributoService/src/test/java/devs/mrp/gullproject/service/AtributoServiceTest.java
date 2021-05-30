@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -56,10 +58,16 @@ public class AtributoServiceTest {
 		at3 = new Atributo();
 		at3.setName("nombre3");
 		at3.setTipo(DataFormat.DESCRIPCION);
+		
+		atributoService.save(at1).block();
+		atributoService.save(at2).block();
+		atributoService.save(at3).block();
 	}
 	
 	@Test
 	void testSave() {
+		atributoRepo.deleteAll().block();
+		
 		atributoService.save(at1).block();
 		Mono<Atributo> mono = atributoService.findById(at1.getId());
 		StepVerifier.create(mono)
@@ -82,6 +90,32 @@ public class AtributoServiceTest {
 		mono = atributoService.findById(at3.getId());
 		StepVerifier.create(mono)
 		.assertNext(at -> {
+			assertEquals(3, at.getOrden());
+		})
+		.expectComplete()
+		.verify();
+	}
+	
+	@Test
+	void testUpdateOrderOfSeveralAtributos() {
+		Map<String, Integer> map = new HashMap<>();
+		map.put(at1.getId(), 2);
+		map.put(at2.getId(), 3);
+		map.put(at3.getId(), 1);
+		
+		atributoService.updateOrderOfSeveralAtributos(map).block();
+		
+		StepVerifier.create(atributoService.findAll())
+		.assertNext(at -> {
+			assertEquals(at3.getId(), at.getId());
+			assertEquals(1, at.getOrden());
+		})
+		.assertNext(at -> {
+			assertEquals(at1.getId(), at.getId());
+			assertEquals(2, at.getOrden());
+		})
+		.assertNext(at -> {
+			assertEquals(at2.getId(), at.getId());
 			assertEquals(3, at.getOrden());
 		})
 		.expectComplete()

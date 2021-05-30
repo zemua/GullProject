@@ -32,10 +32,10 @@ public class AtributoService {
 	
 	public Mono<Atributo> save(Atributo a) {
 		return atributoRepo.findFirstByOrderByOrdenDesc()
-				.switchIfEmpty(Mono.defer(() -> Mono.just(a).map(at -> {
+				.switchIfEmpty(Mono.just(a).map(at -> {
 					at.setOrden(0);
 					return at;
-				})))
+				}))
 				.flatMap(rAtt -> {
 			if ( rAtt == null || rAtt.getOrden() == null) {
 				a.setOrden(1);
@@ -46,7 +46,7 @@ public class AtributoService {
 		});
 	}
 	
-	public Mono<Void> deleteById(String a) { // TODO hide instead of delete, to avoid crippling functionality in existing lines and propuestas ??
+	public Mono<Void> deleteById(String a) {
 		return atributoRepo.deleteById(a);
 	}
 	
@@ -62,12 +62,11 @@ public class AtributoService {
 		return atributoRepo.findAtributosByIdInOrderByOrdenAsc(ids);
 	}
 	
-	public Mono<Void> updateOrderOfSeveralAtributos(Map<String, Integer> idAtributoVSorden) { // TODO test
+	public Mono<List<Atributo>> updateOrderOfSeveralAtributos(Map<String, Integer> idAtributoVSorden) {
 		Set<String> set = idAtributoVSorden.keySet();
-		set.stream().forEach(id -> {
-			atributoRepo.updateOrdenOfAtributo(id, idAtributoVSorden.get(id)).subscribe();
-		});
-		return Mono.empty();
+		return Flux.fromIterable(set)
+			.flatMap(id -> atributoRepo.updateOrdenOfAtributo(id, idAtributoVSorden.get(id)))
+			.collectList();
 	}
 
 }

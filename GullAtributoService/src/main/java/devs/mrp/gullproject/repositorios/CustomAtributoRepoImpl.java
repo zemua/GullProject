@@ -30,7 +30,7 @@ public class CustomAtributoRepoImpl implements CustomAtributoRepo {
 	}
 	
 	@Override
-	public Mono<Atributo> updateOrdenOfAtributo(String id, Integer orden) { // TODO test
+	public Mono<Atributo> updateOrdenOfAtributo(String id, Integer orden) {
 		Query query = new Query(Criteria.where("id").is(id));
 		Update update = new Update().set("orden", orden);
 		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
