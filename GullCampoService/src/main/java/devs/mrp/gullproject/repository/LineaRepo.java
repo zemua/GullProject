@@ -30,4 +30,6 @@ public interface LineaRepo extends ReactiveMongoRepository<Linea, String>, Custo
 	
 	Mono<Long> countByPropuestaId(String propuestaId);
 	
+	Mono<Linea> findFirstByPropuestaIdOrderByOrderDesc(String propuestaId);
+	
 }

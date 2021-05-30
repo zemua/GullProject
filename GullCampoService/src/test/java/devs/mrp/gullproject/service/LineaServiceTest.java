@@ -197,6 +197,27 @@ class LineaServiceTest {
 			})
 			.expectComplete()
 			.verify();
+		
+		lineaRepo.deleteAll().block();
+		lineaService.addLinea(linea1).block();
+		lineaService.addLinea(linea2).block();
+		lineaz.setPropuestaId(linea1.getPropuestaId());
+		lineaService.addLinea(lineaz).block();
+		StepVerifier.create(lineaRepo.findAll())
+			.assertNext(li -> {
+				assertEquals(1, li.getOrder());
+				assertEquals(linea1.getId(), li.getId());
+			})
+			.assertNext(li -> {
+				assertEquals(2, li.getOrder());
+				assertEquals(linea2.getId(), li.getId());
+			})
+			.assertNext(li -> {
+				assertEquals(3, li.getOrder());
+				assertEquals(lineaz.getId(), li.getId());
+			})
+			.expectComplete()
+			.verify();
 	}
 	
 	@Test

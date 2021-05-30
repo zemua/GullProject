@@ -61,12 +61,20 @@ public class LineaService {
 		return lineaRepo.removeVariosCampos(idLinea, campos);
 	}
 	
-	public Mono<Linea> addLinea(Linea linea) { // TODO don't get order with count, check the highest order
+	public Mono<Linea> addLinea(Linea linea) {
 		String nPropuestaId = linea.getPropuestaId();
-		Mono<String> nConsultaId = consultaRepo.findByPropuestaId(nPropuestaId).map(consulta -> consulta.getId());
-		return nConsultaId.flatMap(bConsultaId -> consultaRepo.addLineaEnPropuesta(bConsultaId, nPropuestaId, linea.getId()))
-				.then(lineaRepo.countByPropuestaId(linea.getPropuestaId())).flatMap(count -> {
-					linea.setOrder(count.intValue()+1);
+		return consultaRepo.findByPropuestaId(nPropuestaId)
+				.map(consulta -> consulta.getId())
+				.flatMap(rConsultaId -> consultaRepo.addLineaEnPropuesta(rConsultaId, nPropuestaId, linea.getId()))
+				
+				.then(lineaRepo.findFirstByPropuestaIdOrderByOrderDesc(nPropuestaId))
+				.switchIfEmpty(Mono.just(linea).map(rLi -> {rLi.setOrder(0); return rLi;}))
+				.flatMap(rLinea -> {
+					if (rLinea == null || rLinea.getOrder() == null) {
+						linea.setOrder(1);
+					} else {
+						linea.setOrder(rLinea.getOrder()+1);
+					}
 					return lineaRepo.insert(linea);
 				});
 	}
