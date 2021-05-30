@@ -13,8 +13,6 @@ import devs.mrp.gullproject.domains.Atributo;
 import reactor.core.publisher.Mono;
 
 public class CustomAtributoRepoImpl implements CustomAtributoRepo {
-	
-	// https://practicaldev-herokuapp-com.global.ssl.fastly.net/iuriimednikov/how-to-build-custom-queries-with-spring-data-reactive-mongodb-1802
 
 	private final ReactiveMongoTemplate mongoTemplate;
 	

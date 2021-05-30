@@ -6,6 +6,7 @@ import java.util.List;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -17,7 +18,7 @@ import lombok.Data;
 public class Atributo {
 	
 	@Id
-	private String id;
+	private String id = new ObjectId().toString();
 	
 	@NotBlank(message = "El nombre es obligatorio")
 	private String name;

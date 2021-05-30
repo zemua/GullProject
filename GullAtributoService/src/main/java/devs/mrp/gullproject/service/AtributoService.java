@@ -30,11 +30,23 @@ public class AtributoService {
 		return atributoRepo.findById(id);
 	}
 	
-	public Mono<Atributo> save(Atributo a) { // TODO add orden property
-		return atributoRepo.save(a);
+	public Mono<Atributo> save(Atributo a) {
+		return atributoRepo.findFirstByOrderByOrdenDesc()
+				.switchIfEmpty(Mono.defer(() -> Mono.just(a).map(at -> {
+					at.setOrden(0);
+					return at;
+				})))
+				.flatMap(rAtt -> {
+			if ( rAtt == null || rAtt.getOrden() == null) {
+				a.setOrden(1);
+			} else {
+				a.setOrden(rAtt.getOrden()+1);
+			}
+			return atributoRepo.save(a);
+		});
 	}
 	
-	public Mono<Void> deleteById(String a) {
+	public Mono<Void> deleteById(String a) { // TODO hide instead of delete, to avoid crippling functionality in existing lines and propuestas ??
 		return atributoRepo.deleteById(a);
 	}
 	
