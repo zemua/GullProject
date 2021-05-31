@@ -139,7 +139,7 @@ public class LineaUtilities {
 	 */
 	
 	public Mono<Boolean[][]> ifListOfListsHasValidData(StringListOfListsWrapper filas, String propuestaId, BindingResult bindingResult) { // TODO test
-		// Use indexedFlux, indexed(), index() or IndexedItem
+		// Use indexed(), index()
 		// https://github.com/reactor/reactor-core/issues/1041
 		// https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Flux.html#index--
 		int i = filas.getStringListWrapper().size();
