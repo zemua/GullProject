@@ -142,6 +142,8 @@ public class LineaUtilities {
 		// Use indexed(), index()
 		// https://github.com/reactor/reactor-core/issues/1041
 		// https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Flux.html#index--
+		// merge all the data in a single List, then by math refer to each column/row to this single list.get()
+		// and use this list to do a flux with index()
 		int i = filas.getStringListWrapper().size();
 		int j = filas.getStrings().size();
 		Boolean[][] validations = new Boolean[i][j];
