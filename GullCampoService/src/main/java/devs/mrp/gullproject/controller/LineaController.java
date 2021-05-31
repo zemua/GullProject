@@ -120,7 +120,7 @@ public class LineaController {
 		return "addLineaToPropuesta";
 	}
 
-	@PostMapping("/of/{propuestaId}/new")
+	@PostMapping("/of/{propuestaId}/new") // TODO campo para "cuantas quieres añadir iguales?"
 	public Mono<String> processAddLineaToPropuesta(@Valid LineaWithAttListDto lineaWithAttListDto,
 			BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		return assertBindingResultOfListDto(lineaWithAttListDto, bindingResult).then(Mono.just(bindingResult))
@@ -176,19 +176,31 @@ public class LineaController {
 		
 		// arrange the lines in an object that can be used in Thymeleaf Template
 		String lines[] = texto.split(System.lineSeparator());
+		Integer nOfCols = 0;
 		StringListOfListsWrapper fieldArrays = new StringListOfListsWrapper();
 		for (int i = 0; i<lines.length; i++) {
-			fieldArrays.add(new StringListWrapper(Arrays.asList(lines[i].split("\\t"))));
+			List<String> fl = Arrays.asList(lines[i].split("\\t"));
+			fieldArrays.add(new StringListWrapper(fl));
+			if (fl.size() > nOfCols) {
+				nOfCols = fl.size();
+			}
 		}
 		
+		for (int i = 0; i<nOfCols; i++) {
+			// it is a bit dumb but is the best way to match the fields in thymeleaf and get the selected value back
+			fieldArrays.add("");
+		}
 		model.addAttribute("stringListOfListsWrapper", fieldArrays);
 		
+		model.addAttribute("atributos", consultaService.findAttributesByPropuestaId(propuestaId));
 		Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
 		model.addAttribute("propuesta", propuesta);
 		model.addAttribute("propuestaId", propuestaId);
 		
 		return "processBulkAddLineasToPropuesta";
 	}
+	
+	@PostMapping("/of/{propuestaId}/bulk-add/verify")
 
 	@GetMapping("/revisar/id/{lineaid}")
 	public String revisarLinea(Model model, @PathVariable(name = "lineaid") String lineaId) {

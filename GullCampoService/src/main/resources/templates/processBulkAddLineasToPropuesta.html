@@ -15,8 +15,12 @@
 			<a th:href="${'/lineas/allof/propid/' + propuestaId}">Volver</a>
 		</p>
 	</div>
+	
+	<div>
+	<p>Cada atributo solamente se puede escoger en una columna, las columnas sin atributo no se registrarán.</p>
+	</div>
 
-	<form method="POST" th:object="${stringWrapper}">
+	<form method="POST" th:object="${stringListOfListsWrapper}">
 	
 		<div>
 			<p>
@@ -26,16 +30,28 @@
     	
 		<div class="grid">
 			<table>
-			<tr>
-				<th th:each="t : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${t.getName()}"></span></th>
+			<tr id="cabecera">
+				<th th:each="t, ctat : *{strings}" th:id="${ctat.index}">
+					<select th:field="*{strings[__${ctat.index}__]}" class="column-selector">
+						<option value=""></option>
+						<option value="0name" class="mono-option">Nombre de la línea</option>
+						<option th:each="z : ${atributos}" th:value="${z.id}" th:text="${z.name}" class="mono-option"></option>
+					</select>
+				</th>
 			</tr>
-			<tr th:each="a : ${lineas}">
-				<td th:each="t : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${a.getValueByAttId(t.getId())}"></span></td>
+			<tr th:each="a, stat : *{stringListWrapper}" th:id="|line${stat.index}|" class="line">
+				<td th:each="t, btat : ${a.string}" class="field">
+					<span th:text="${t}" th:id="|line${stat.index}field${btat.index}|"></span>
+					<input type="hidden" th:field="*{stringListWrapper[__${stat.index}__].string[__${btat.index}__]}"/>
+				</td>
 			</tr>
 		</table>
 		</div>
 		
 	</form>
+	
+	<script type="text/javascript" th:src="@{/js/jquery/jquery-3.6.0.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/scripts/monoSelect.js}"></script>
 
 </body>
 </html>
