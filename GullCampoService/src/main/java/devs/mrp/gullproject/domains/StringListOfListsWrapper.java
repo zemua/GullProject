@@ -8,8 +8,8 @@ import lombok.Data;
 @Data
 public class StringListOfListsWrapper {
 
-	List<StringListWrapper> stringListWrapper = new ArrayList<>();
-	List<String> strings = new ArrayList<>();
+	List<StringListWrapper> stringListWrapper = new ArrayList<>(); // lineas
+	List<String> strings = new ArrayList<>(); // cabecera
 	
 	public void add(StringListWrapper w) {
 		stringListWrapper.add(w);

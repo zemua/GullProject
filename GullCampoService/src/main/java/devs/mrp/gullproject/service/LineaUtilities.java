@@ -1,8 +1,10 @@
 package devs.mrp.gullproject.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -128,16 +130,36 @@ public class LineaUtilities {
 		return fieldArrays;
 	}
 	
-	public Mono<List<List<Boolean>>> ifListOfListsHasValidData(StringListOfListsWrapper filas, String propuestaId, BindingResult bindingResult) { // TODO test
-		mapOfAttIdsToAtts(propuestaId);
+	/**
+	 * 
+	 * below...
+	 * For Validating a List of Lists from Bulk data of excel-paste
+	 * 
+	 * 
+	 */
+	
+	public Mono<Boolean[][]> ifListOfListsHasValidData(StringListOfListsWrapper filas, String propuestaId, BindingResult bindingResult) { // TODO test
+		// Use indexedFlux, indexed(), index() or IndexedItem
+		// https://github.com/reactor/reactor-core/issues/1041
+		// https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Flux.html#index--
+		int i = filas.getStringListWrapper().size();
+		int j = filas.getStrings().size();
+		Boolean[][] validations = new Boolean[i][j];
+		mapOfAttIdsToTipo(propuestaId)
+			.map(rAttToTipo -> {
+				for (int x=0; x<i; x++) {
+					for (int y=0; y<j; y++) {
+						
+					}
+				}
+				return 0;
+			});
 	}
 	
-	private Mono<Map<String, AtributoForCampo>> mapOfAttIdsToAtts(String propuestaId) {
+	private Mono<Map<String, String>> mapOfAttIdsToTipo(String propuestaId) {
 		return consultaService.findAttributesByPropuestaId(propuestaId)
-			.collectMap(rAtt -> rAtt.getId(), rAtt -> rAtt);
+			.collectMap(rAtt -> rAtt.getId(), rAtt -> rAtt.getTipo());
 	}
-	
-	
 	
 	private Map<String, String> mapOfAttIdToData(List<String> columns, List<String> fila) throws Exception {
 		if (columns.size() != fila.size()) {
@@ -146,6 +168,24 @@ public class LineaUtilities {
 		Map<String, String> map = new HashMap<>();
 		for (int i=0; i<columns.size(); i++) {
 			map.put(columns.get(i), fila.get(i));
+		}
+		return map;
+	}
+	
+	private Map<StringListWrapper, Integer> mapOfFilaToPosicion(StringListOfListsWrapper filas) {
+		Map<StringListWrapper, Integer> map = new HashMap<>();
+		List<StringListWrapper> mf = filas.getStringListWrapper();
+		for (int i=0; i<mf.size(); i++) {
+			map.put(mf.get(i), i);
+		}
+		return map;
+	}
+	
+	private Map<String, Integer> mapOfAttIdToPosicionColumna(StringListOfListsWrapper filas) {
+		List<String> columnas = filas.getStrings();
+		Map<String, Integer> map = new HashMap<>();
+		for (int i=0; i<columnas.size();i++) {
+			map.put(columnas.get(i), i);
 		}
 		return map;
 	}
