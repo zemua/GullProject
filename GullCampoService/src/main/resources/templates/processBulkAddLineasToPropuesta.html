@@ -25,7 +25,14 @@
 		</div>
     	
 		<div class="grid">
-			
+			<table>
+			<tr>
+				<th th:each="t : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${t.getName()}"></span></th>
+			</tr>
+			<tr th:each="a : ${lineas}">
+				<td th:each="t : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${a.getValueByAttId(t.getId())}"></span></td>
+			</tr>
+		</table>
 		</div>
 		
 	</form>

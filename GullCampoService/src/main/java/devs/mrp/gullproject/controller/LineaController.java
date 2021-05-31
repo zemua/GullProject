@@ -174,11 +174,18 @@ public class LineaController {
 			return "bulkAddLineastoPropuesta";
 		}
 		
+		// arrange the lines in an object that can be used in Thymeleaf Template
 		String lines[] = texto.split(System.lineSeparator());
 		StringListOfListsWrapper fieldArrays = new StringListOfListsWrapper();
 		for (int i = 0; i<lines.length; i++) {
-			//fieldArrays.add(Arrays.asList(lines[i].split("\\t")));
+			fieldArrays.add(new StringListWrapper(Arrays.asList(lines[i].split("\\t"))));
 		}
+		
+		model.addAttribute("stringListOfListsWrapper", fieldArrays);
+		
+		Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
+		model.addAttribute("propuesta", propuesta);
+		model.addAttribute("propuestaId", propuestaId);
 		
 		return "processBulkAddLineasToPropuesta";
 	}

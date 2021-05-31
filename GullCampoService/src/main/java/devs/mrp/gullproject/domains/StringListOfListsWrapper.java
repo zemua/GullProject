@@ -10,4 +10,12 @@ public class StringListOfListsWrapper {
 
 	List<StringListWrapper> stringListWrapper = new ArrayList<>();
 	
+	public void add(StringListWrapper w) {
+		stringListWrapper.add(w);
+	}
+	
+	public StringListWrapper get(int i) {
+		return stringListWrapper.get(i);
+	}
+	
 }
