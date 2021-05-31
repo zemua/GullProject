@@ -17,6 +17,6 @@ public class LineaWithAttListDto {
 	@Valid
 	Linea linea;
 	@Valid
-	ValidList<AtributoForLineaFormDto> attributes;
+	List<AtributoForLineaFormDto> attributes;
 	
 }

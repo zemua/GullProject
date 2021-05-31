@@ -20,7 +20,7 @@
 	<p>Cada atributo solamente se puede escoger en una columna, las columnas sin atributo no se registrarán.</p>
 	</div>
 
-	<form method="POST" th:object="${stringListOfListsWrapper}">
+	<form method="POST" th:action="@|/lineas/of/${propuestaId}/bulk-add/verify|" th:object="${stringListOfListsWrapper}">
 	
 		<div>
 			<p>
@@ -34,7 +34,7 @@
 				<th th:each="t, ctat : *{strings}" th:id="${ctat.index}">
 					<select th:field="*{strings[__${ctat.index}__]}" class="column-selector">
 						<option value=""></option>
-						<option value="0name" class="mono-option">Nombre de la línea</option>
+						<option value="name" class="mono-option">Nombre de la línea</option>
 						<option th:each="z : ${atributos}" th:value="${z.id}" th:text="${z.name}" class="mono-option"></option>
 					</select>
 				</th>
