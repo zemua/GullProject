@@ -177,7 +177,7 @@ public class LineaController {
 			return "bulkAddLineastoPropuesta";
 		}
 		
-		model.addAttribute("stringListOfListsWrapper", lineaUtilities.excelTextToLineObject(texto));
+		model.addAttribute("stringListOfListsWrapper", lineaUtilities.excelTextToLineObject(texto)); // TODO probar primera y útlima fila en blanco, por tema del split
 		
 		model.addAttribute("atributos", consultaService.findAttributesByPropuestaId(propuestaId));
 		Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
@@ -188,11 +188,27 @@ public class LineaController {
 	}
 	
 	@PostMapping("/of/{propuestaId}/bulk-add/verify") // TODO test
-	public String verifyBulkAddLineastoPropuesta(StringListOfListsWrapper stringListOfListsWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+	public Mono<String> verifyBulkAddLineastoPropuesta(StringListOfListsWrapper stringListOfListsWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		// verify that the data for each column is appropiate according to the attribute
-		
-		
-		return "verifyBulkAddLineasToPropuesta";
+		String nameIdentifier = "name";
+		try {
+			return lineaUtilities.addBulkTableErrorsToBindingResult(stringListOfListsWrapper, propuestaId, bindingResult, nameIdentifier)
+				.map(v -> {
+					if (bindingResult.hasErrors()) {
+						model.addAttribute("stringListOfListsWrapper", stringListOfListsWrapper);
+						model.addAttribute("atributos", consultaService.findAttributesByPropuestaId(propuestaId));
+						Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
+						model.addAttribute("propuesta", propuesta);
+						model.addAttribute("propuestaId", propuestaId);
+					} else {
+						lineaService.addVariasLineas(lineas, propuestaId);
+						return "processBulkAddLineasToPropuesta";
+					}
+					return "verifyBulkAddLineasToPropuesta";
+				});
+		} catch (Exception e) {
+			return Mono.just("processBulkAddLineasToPropuestaError");
+		}
 	}
 
 	@GetMapping("/revisar/id/{lineaid}")

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -134,27 +135,61 @@ public class LineaUtilities {
 	 * 
 	 * below...
 	 * For Validating a List of Lists from Bulk data of excel-paste
+	 * @throws Exception 
 	 * 
 	 * 
 	 */
 	
-	public Mono<Boolean[][]> ifListOfListsHasValidData(StringListOfListsWrapper filas, String propuestaId, BindingResult bindingResult) { // TODO test
-		// Use indexed(), index()
-		// https://github.com/reactor/reactor-core/issues/1041
-		// https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Flux.html#index--
-		// merge all the data in a single List, then by math refer to each column/row to this single list.get()
-		// and use this list to do a flux with index()
-		int i = filas.getStringListWrapper().size();
-		int j = filas.getStrings().size();
-		Boolean[][] validations = new Boolean[i][j];
-		mapOfAttIdsToTipo(propuestaId)
-			.map(rAttToTipo -> {
-				for (int x=0; x<i; x++) {
-					for (int y=0; y<j; y++) {
-						
+	public Mono<Void> addBulkTableErrorsToBindingResult(StringListOfListsWrapper wrapper, String propuestaId, BindingResult bindingResult, String nameIdentifier) throws Exception {
+		return bulkTableWrapperToTuplaTabla(wrapper, propuestaId, nameIdentifier)
+				.map(rTupla -> {
+					if (!rTupla.validado) {
+						// reject the field
+						bindingResult.rejectValue("stringListWrapper[" + rTupla.fila + "].string[" + rTupla.columna + "]",
+								"error.stringListOfListsWrapper.stringListWrapper[" + rTupla.fila + "].string",
+								"El valor no es correcto para este atributo.");
+						bindingResult.rejectValue("strings[" + rTupla.columna + "]",
+								"error.stringListOfListsWrapper.strings",
+								"El valor no es correcto para este atributo.");
 					}
-				}
-				return 0;
+					return rTupla.validado;
+				})
+				.then(Mono.empty());
+	}
+	
+	private class TuplaTabla {
+		Integer fila;
+		Integer columna;
+		String attId;
+		String tipo;
+		String valor;
+		Boolean validado;
+	}
+	
+	private Flux<TuplaTabla> bulkTableWrapperToTuplaTabla(StringListOfListsWrapper wrapper, String propuestaId, String nameIdentifier) throws Exception { // TODO test
+		List<TuplaTabla> tuplas = mapToTuplaTabla(wrapper);
+		AtomicInteger counter = new AtomicInteger();
+		counter.set(0);
+		
+		return mapOfAttIdsToTipo(propuestaId)
+			.flatMapMany(rAttToTipo -> {
+				return Flux.fromIterable(tuplas)
+						.flatMap(fTupla -> {
+							fTupla.tipo = rAttToTipo.get(fTupla.attId);
+							if (fTupla.attId.equals(nameIdentifier)) { // This is the column corresponding to the line's name in the table, not an attribute
+								fTupla.validado = true;
+								if (fTupla.valor.isBlank()) {
+									fTupla.valor = String.valueOf(counter.incrementAndGet()); // line's name should not be empty
+								}
+								return Mono.just(fTupla);
+							} else {
+							return atributoService.validateDataFormat(fTupla.tipo, fTupla.valor)
+									.map(rBool -> {
+										fTupla.validado = rBool;
+										return fTupla;
+									});
+							}
+						});
 			});
 	}
 	
@@ -163,33 +198,47 @@ public class LineaUtilities {
 			.collectMap(rAtt -> rAtt.getId(), rAtt -> rAtt.getTipo());
 	}
 	
-	private Map<String, String> mapOfAttIdToData(List<String> columns, List<String> fila) throws Exception {
-		if (columns.size() != fila.size()) {
-			throw new Exception("listas deben ser del mismo tamaño");
+	private List<TuplaTabla> mapToTuplaTabla(StringListOfListsWrapper wrapper) throws Exception {
+		List<TuplaTabla> tuplas = new ArrayList<>();
+		
+		List<StringListWrapper> lineas = wrapper.getStringListWrapper();
+		List<String> columnas = wrapper.getStrings();
+		
+		for (int i=0; i<lineas.size(); i++) {
+			for (int j=0; j<columnas.size(); j++) {
+				if (columnas.size() != lineas.size()) {
+					throw new Exception("incorrect length of lines");
+				}
+				TuplaTabla tu = new TuplaTabla();
+				tu.fila = i;
+				tu.columna = j;
+				tu.attId = columnas.get(j);
+				tu.valor = lineas.get(i).get(j);
+				// remains the type and the validation, will be done in a flux together
+				tuplas.add(tu);
+			}
 		}
-		Map<String, String> map = new HashMap<>();
-		for (int i=0; i<columns.size(); i++) {
-			map.put(columns.get(i), fila.get(i));
-		}
-		return map;
+		
+		return tuplas;
 	}
 	
-	private Map<StringListWrapper, Integer> mapOfFilaToPosicion(StringListOfListsWrapper filas) {
-		Map<StringListWrapper, Integer> map = new HashMap<>();
-		List<StringListWrapper> mf = filas.getStringListWrapper();
-		for (int i=0; i<mf.size(); i++) {
-			map.put(mf.get(i), i);
-		}
-		return map;
+	public List<Linea> lineasFromWrapper(StringListOfListsWrapper wrapper) throws Exception {
+		List<String> columnas = wrapper.getStrings();
+		
+		List<Linea> lineas = new ArrayList<>();
+		
+		wrapper.getStringListWrapper().forEach(w -> {
+			List<String> strings = w.getString();
+			if (strings.size() != columnas.size()) {
+				throw new Exception("incorrect length of lines");
+			}
+		});
+		
+		return lineas;
 	}
 	
-	private Map<String, Integer> mapOfAttIdToPosicionColumna(StringListOfListsWrapper filas) {
-		List<String> columnas = filas.getStrings();
-		Map<String, Integer> map = new HashMap<>();
-		for (int i=0; i<columnas.size();i++) {
-			map.put(columnas.get(i), i);
-		}
-		return map;
+	public List<String> columnasFromWrapper(StringListOfListsWrapper wrapper) {
+		return wrapper.getStrings().stream().filter(s -> !s.isBlank()).collect(Collectors.toList());
 	}
 	
 }
