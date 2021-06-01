@@ -193,18 +193,23 @@ public class LineaController {
 		String nameIdentifier = "name";
 		try {
 			return lineaUtilities.addBulkTableErrorsToBindingResult(stringListOfListsWrapper, propuestaId, bindingResult, nameIdentifier)
-				.map(v -> {
+				.flatMap(v -> {
 					if (bindingResult.hasErrors()) {
 						model.addAttribute("stringListOfListsWrapper", stringListOfListsWrapper);
 						model.addAttribute("atributos", consultaService.findAttributesByPropuestaId(propuestaId));
 						Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
 						model.addAttribute("propuesta", propuesta);
 						model.addAttribute("propuestaId", propuestaId);
+						return Mono.just("processBulkAddLineasToPropuesta");
 					} else {
-						lineaService.addVariasLineas(lineas, propuestaId);
-						return "processBulkAddLineasToPropuesta";
+						try {
+							return lineaUtilities.allLineasFromBulkWrapper(stringListOfListsWrapper, propuestaId)
+									.flatMapMany(rAllLineas -> lineaService.addVariasLineas(Flux.fromIterable(rAllLineas), propuestaId))
+										.then(Mono.just("verifyBulkAddLineasToPropuesta"));
+						} catch (Exception e) {
+							return Mono.just("processBulkAddLineasToPropuestaError");
+						}
 					}
-					return "verifyBulkAddLineasToPropuesta";
 				});
 		} catch (Exception e) {
 			return Mono.just("processBulkAddLineasToPropuestaError");
