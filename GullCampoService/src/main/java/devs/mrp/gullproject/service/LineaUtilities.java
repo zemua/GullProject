@@ -141,7 +141,7 @@ public class LineaUtilities {
 	 * 
 	 */
 	
-	public Mono<Void> addBulkTableErrorsToBindingResult(StringListOfListsWrapper wrapper, String propuestaId, BindingResult bindingResult, String nameIdentifier) throws Exception {
+	public Flux<Boolean> addBulkTableErrorsToBindingResult(StringListOfListsWrapper wrapper, String propuestaId, BindingResult bindingResult, String nameIdentifier) throws Exception {
 		return bulkTableWrapperToTuplaTabla(wrapper, propuestaId, nameIdentifier)
 				.map(rTupla -> {
 					if (!rTupla.validado) {
@@ -154,8 +154,7 @@ public class LineaUtilities {
 								"El valor no es correcto para este atributo.");
 					}
 					return rTupla.validado;
-				})
-				.then(Mono.empty());
+				});
 	}
 	
 	private class TuplaTabla {
