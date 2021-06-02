@@ -7,6 +7,7 @@ $(document).ready(function() {
 	});
 	
 	selects.change(function() {
+		var current = this;
 		var valor = this.value;
 		var seleccion = $(this).data('seleccion');
 		
@@ -17,7 +18,11 @@ $(document).ready(function() {
 		
 		// disable selected item
 		options.filter(function(){
-			return this.value==valor;
+			if (current == this.parentNode) {
+				return false;
+			} else {
+				return this.value==valor;
+			}
 		}).prop('disabled', valor !== "");
 		
 		// set selected value for re-enabling
