@@ -196,9 +196,9 @@ public class LineaController {
 			return lineaUtilities.addBulkTableErrorsToBindingResult(stringListOfListsWrapper, propuestaId, bindingResult, nameIdentifier)
 				.then(Mono.just(bindingResult))
 				.flatMap(binding -> {
-					log.debug("go for it");
+					log.debug("to choose between if bindingResult has errors or not");
 					if (binding.hasErrors()) {
-						log.debug("bulk-add-verify: binding result has errors");
+						log.debug("binding result has errors and we go back to the same view highlighting errors");
 						model.addAttribute("stringListOfListsWrapper", stringListOfListsWrapper);
 						model.addAttribute("atributos", consultaService.findAttributesByPropuestaId(propuestaId));
 						Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
@@ -207,11 +207,12 @@ public class LineaController {
 						return Mono.just("processBulkAddLineasToPropuesta");
 					} else {
 						try {
-							log.debug("verifying");
+							log.debug("binding result has no errors");
 							model.addAttribute("atributos", consultaService.findAttributesByPropuestaId(propuestaId));
 							Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
 							model.addAttribute("propuesta", propuesta);
 							model.addAttribute("propuestaId", propuestaId);
+							log.debug("going to start getting all lineas from bulk");
 							return lineaUtilities.allLineasFromBulkWrapper(stringListOfListsWrapper, propuestaId)
 									.flatMapMany(rAllLineas -> {
 												log.debug("esto es lo que se va a pasar a la db");
@@ -219,15 +220,20 @@ public class LineaController {
 												rAllLineas.stream().forEach(l -> log.debug(l.toString()));
 												return lineaService.addVariasLineas(Flux.fromIterable(rAllLineas), propuestaId);
 											})
-										.then(Mono.just("verifyBulkAddLineasToPropuesta"));
+										.then(Mono.just("verifyBulkAddLineasToPropuesta").map(mon -> {
+											log.debug("y devolvemos la pantalla siguiente de verificación");
+											return mon;
+										}));
 						} catch (Exception e) {
-							log.debug("exception during verification");
+							log.debug("exception during verification and we go back to the same view");
+							e.printStackTrace();
 							return Mono.just("processBulkAddLineasToPropuesta");
 						}
 					}
 				});
 		} catch (Exception e) {
-			log.debug("exception during add errors to bindingresult");
+			log.debug("exception during add errors to bindingresult and we go back to the same view");
+			e.printStackTrace();
 			return Mono.just("processBulkAddLineasToPropuesta");
 		}
 	}

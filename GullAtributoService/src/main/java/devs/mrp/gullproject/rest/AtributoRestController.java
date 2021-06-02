@@ -18,9 +18,11 @@ import devs.mrp.gullproject.domains.DTO.AtributoDTO;
 import devs.mrp.gullproject.domains.representationmodels.AtributoRepresentationModel;
 import devs.mrp.gullproject.domains.representationmodels.AtributoRepresentationModelAssembler;
 import devs.mrp.gullproject.service.AtributoService;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/api/atributos", produces = "application/json")
 public class AtributoRestController {
@@ -61,11 +63,17 @@ public class AtributoRestController {
 	@GetMapping(path = "/typeofformat/{format}")
 	public Mono<String> getTypeOfGivenFormat(@PathVariable(value = "format") String format){
 		// beware of exceptions being thrown here if the String is not a valid value for the enum
-		try {
-			String c = DataFormat.valueOf(format).getTipo();
-			return Mono.just(c);
-		} catch (Exception e) {
-			e.printStackTrace();
+		if (DataFormat.isMember(format)) {
+			try {
+				log.debug("going to get type of " + format);
+				String c = DataFormat.valueOf(format).getTipo();
+				log.debug("type is " + c);
+				return Mono.just(c);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return Mono.just("");
+			}
+		} else {
 			return Mono.just("");
 		}
 	}

@@ -176,18 +176,27 @@ public class LineaUtilities {
 				return Flux.fromIterable(tuplas)
 						.flatMap(fTupla -> {
 							fTupla.tipo = rAttToTipo.get(fTupla.attId);
-							if (fTupla.attId.equals(nameIdentifier)) { // This is the column corresponding to the line's name in the table, not an attribute
+							if (fTupla.attId != null && !fTupla.attId.equals("")) {
+									if (fTupla.attId.equals(nameIdentifier)) { // This is the column corresponding to
+																				// the line's name in the table, not an
+																				// attribute
+										fTupla.validado = true;
+										if (fTupla.valor.isBlank()) {
+											fTupla.valor = String.valueOf(counter.incrementAndGet()); // line's name
+																										// should not be
+																										// empty
+										}
+										return Mono.just(fTupla);
+									} else {
+										return atributoService.validateDataFormat(fTupla.tipo, fTupla.valor)
+												.map(rBool -> {
+													fTupla.validado = rBool;
+													return fTupla;
+												});
+									}
+							} else { // it is a field that we are not going to use
 								fTupla.validado = true;
-								if (fTupla.valor.isBlank()) {
-									fTupla.valor = String.valueOf(counter.incrementAndGet()); // line's name should not be empty
-								}
 								return Mono.just(fTupla);
-							} else {
-							return atributoService.validateDataFormat(fTupla.tipo, fTupla.valor)
-									.map(rBool -> {
-										fTupla.validado = rBool;
-										return fTupla;
-									});
 							}
 						});
 			});
@@ -246,6 +255,7 @@ public class LineaUtilities {
 					List<Linea> listOfLineas = new ArrayList<>();
 					
 					rAllDuplas.stream().forEach(sDupla ->{
+						log.debug("vamos a pasar estas duplas a linea: " + sDupla.toString());
 						Linea linea = new Linea();
 						sDupla.stream().forEach(sField -> {
 							Campo<Object> campo = new Campo<>();
@@ -265,26 +275,34 @@ public class LineaUtilities {
 		return mapOfAttIdsToTipo(propuestaId)
 			.flatMap(rAttIdToTipo -> {
 				
+				log.debug("tenemos este mapa de Atributo.id a Atributo.tipo " + rAttIdToTipo.toString());
+				
 				Map<String, String> attIdToClass = new HashMap<>();
 				
+				log.debug("vamos a crear un flux desde el set: " + rAttIdToTipo.keySet().toString());
 				return Flux.fromIterable(rAttIdToTipo.keySet())
 						// first we map the classes vs ids so we just need to make one query per att to the db
-					.map(rAttId -> atributoService.getClassTypeOfFormat(rAttIdToTipo.get(rAttId))
+					.flatMap(rAttId -> {
+						log.debug("vamos a obtener el classType del id " + rAttId + " para el tipo " + rAttIdToTipo.get(rAttId));
+						return atributoService.getClassTypeOfFormat(rAttIdToTipo.get(rAttId))
 								.map(rClass -> {
+									log.debug("del id " +rAttId.toString() + " obtenemos el tipo " + rClass.toString() + " y lo añadimos al mapa");
 									attIdToClass.put(rAttId, rClass);
 									return rClass;
-								}))
-					
+								});
+					})
 					// then we use the map to fill the remaining data
 					.then(Mono.just(duplas).map(rDuplas -> {
-						
+						log.debug("tenemos este mapa de Atributo.id a Atributo.class " + attIdToClass.toString());
 						rDuplas.forEach(rLinea -> {
+							log.debug("en esta linea " + rLinea.toString());
 							rLinea.forEach(rCampo -> {
 								rCampo.tipo = rAttIdToTipo.get(rCampo.attId);
 								rCampo.clase = attIdToClass.get(rCampo.attId);
+								log.debug("añadimos tipo y clase de este campo: " + rCampo);
 							});
 						});
-						
+						log.debug("devolvemos estas duplas en allLineasInDuplaCompleta: " + rDuplas.toString());
 						return rDuplas;
 					}));
 			});
@@ -292,27 +310,37 @@ public class LineaUtilities {
 	
 	private List<List<DuplaAttVal>> allLineasInDuplaWithAttidAndValor(StringListOfListsWrapper wrapper) throws Exception {
 		List<List<DuplaAttVal>> lista = new ArrayList<>();
+		log.debug("generando los arrays de duplas con id y valor");
 		for (int i =0; i<wrapper.getStrings().size(); i++) {
-			lista.add(lineaDuplaWithAttidAndValor(wrapper, i));
+			List<DuplaAttVal> aray = lineaDuplaWithAttidAndValor(wrapper, i);
+			log.debug("añadimos a la lista el array " + aray.toString());
+			lista.add(aray);
 		}
 		return lista;
 	}
 	
 	private List<DuplaAttVal> lineaDuplaWithAttidAndValor(StringListOfListsWrapper wrapper, int lineN) throws Exception {
+		log.debug("para esta linea tenemos...");
 		List<String> columnas = wrapper.getStrings();
+		log.debug("columnas: " + columnas.toString());
 		List<DuplaAttVal> linea = new ArrayList<>();
 		StringListWrapper current = wrapper.getStringListWrapper().get(lineN);
+		log.debug("campos: " + current.toString());
 		
 		if (current.getString().size() != columnas.size()) {
+			log.debug("line " + lineN + "has a length of " + current.getString().size() + " which is different from the columns of " + columnas.size());
 			throw new Exception("error on line length");
 		}
 		
 		for (int i=0; i<columnas.size(); i++) {
-			if (!columnas.get(i).isBlank()) {
+			if (!(columnas.get(i) == null) && !columnas.get(i).isBlank()) {
 				DuplaAttVal dupla = new DuplaAttVal();
 				dupla.attId = columnas.get(i);
 				dupla.valor = current.get(i);
 				linea.add(dupla);
+				log.debug("añadimos a la linea esta dupla" + dupla);
+			} else {
+				log.debug("esta columna no está asignada, no la añadimos a la línea");
 			}
 		}
 		
