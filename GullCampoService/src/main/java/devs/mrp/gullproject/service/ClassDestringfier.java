@@ -12,6 +12,7 @@ public class ClassDestringfier {
 	}
 	
 	public static Object toObject( Class<?> clazz, String value ) {
+		if (clazz == null) {return toObject(value);}
 	    if( Boolean.class == clazz ) return Boolean.parseBoolean( value );
 	    if( Byte.class == clazz ) return Byte.parseByte( value );
 	    if( Short.class == clazz ) return Short.parseShort( value );
@@ -24,6 +25,7 @@ public class ClassDestringfier {
 	}
 	
 	public static Object toObject(String clazz, String value) {
+		if (clazz == null) {return toObject(value);}
 		if (clazz.equals("Boolean")) return Boolean.parseBoolean(value);
 		if (clazz.equals("Integer")) return Integer.parseInt(value);
 		if (clazz.equals("Long")) return Long.parseLong(value);

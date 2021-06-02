@@ -247,6 +247,7 @@ public class LineaUtilities {
 		String tipo;
 		String clase;
 		String valor;
+		Boolean esNombreLinea;
 	}
 	
 	public Mono<List<Linea>> allLineasFromBulkWrapper(StringListOfListsWrapper wrapper, String propuestaId) throws Exception { // TODO test
@@ -260,13 +261,14 @@ public class LineaUtilities {
 						sDupla.stream().forEach(sField -> {
 							Campo<Object> campo = new Campo<>();
 							campo.setAtributoId(sField.attId);
+							log.debug("vamos a llamar a classDestringfier con clase " + sField.clase + " y valor " + sField.valor);
 							campo.setDatos(ClassDestringfier.toObject(sField.clase, sField.valor));
 							linea.addCampo(campo);
 						});
+						linea.setPropuestaId(propuestaId);
 						listOfLineas.add(linea);
 					});
-					
-					return listOfLineas;
+					return listOfLineas; // TODO añadir nombre a la linea
 				});
 	}
 	
@@ -297,9 +299,11 @@ public class LineaUtilities {
 						rDuplas.forEach(rLinea -> {
 							log.debug("en esta linea " + rLinea.toString());
 							rLinea.forEach(rCampo -> {
+								log.debug("vamor a recoger del tipo de " + rCampo.attId + " desde el mapa " + rAttIdToTipo.toString());
 								rCampo.tipo = rAttIdToTipo.get(rCampo.attId);
+								log.debug("vamos a recoger la clase de " + rCampo.attId + " desde el mapa " + attIdToClass.toString());
 								rCampo.clase = attIdToClass.get(rCampo.attId);
-								log.debug("añadimos tipo y clase de este campo: " + rCampo);
+								log.debug("añadimos tipo " + rCampo.tipo + " y clase " + rCampo.clase + " a este campo: ");
 							});
 						});
 						log.debug("devolvemos estas duplas en allLineasInDuplaCompleta: " + rDuplas.toString());

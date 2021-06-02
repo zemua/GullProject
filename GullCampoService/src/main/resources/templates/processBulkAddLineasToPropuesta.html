@@ -33,7 +33,6 @@
 			<tr id="cabecera">
 				<th th:each="t, ctat : *{strings}" th:id="${ctat.index}" class="header" th:classappend="${#fields.hasErrors('*{strings[__${ctat.index}__]}') ? 'error' : '' }">
 					<select th:field="*{strings[__${ctat.index}__]}" class="column-selector">
-					<!-- <select th:name="'strings[' + ${ctat.index} + ']'" class="column-selector"> -->
 						<option th:value="''"></option>
 						<option th:value="'name'" class="mono-option">Nombre de la línea</option>
 						<option th:each="z : ${atributos}" th:value="${z.id}" th:text="${z.name}" class="mono-option"></option>
