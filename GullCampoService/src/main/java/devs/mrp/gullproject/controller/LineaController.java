@@ -174,7 +174,7 @@ public class LineaController {
 			model.addAttribute("propuesta", propuesta);
 			model.addAttribute("propuestaId", propuestaId);
 			model.addAttribute("stringWrapper", stringWrapper);
-			return "bulkAddLineastoPropuesta";
+			return "bulkAddLineastoPropuesta"; // TODO set other mono-select to choose order-of-line-named fields, for example field 1 and 2 concatenated to form the name of the line
 		}
 		
 		model.addAttribute("stringListOfListsWrapper", lineaUtilities.excelTextToLineObject(texto)); // TODO probar primera y útlima fila en blanco, por tema del split
@@ -190,10 +190,9 @@ public class LineaController {
 	@PostMapping("/of/{propuestaId}/bulk-add/verify") // TODO test
 	public Mono<String> verifyBulkAddLineastoPropuesta(StringListOfListsWrapper stringListOfListsWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		// verify that the data for each column is appropiate according to the attribute
-		String nameIdentifier = "name";
 		try {
 			log.debug("going to find errors");
-			return lineaUtilities.addBulkTableErrorsToBindingResult(stringListOfListsWrapper, propuestaId, bindingResult, nameIdentifier)
+			return lineaUtilities.addBulkTableErrorsToBindingResult(stringListOfListsWrapper, propuestaId, bindingResult)
 				.then(Mono.just(bindingResult))
 				.flatMap(binding -> {
 					log.debug("to choose between if bindingResult has errors or not");

@@ -141,8 +141,9 @@ public class LineaUtilities {
 	 * 
 	 */
 	
-	public Flux<Boolean> addBulkTableErrorsToBindingResult(StringListOfListsWrapper wrapper, String propuestaId, BindingResult bindingResult, String nameIdentifier) throws Exception {
-		return bulkTableWrapperToTuplaTabla(wrapper, propuestaId, nameIdentifier)
+	// TODO change implementation for getting the name
+	public Flux<Boolean> addBulkTableErrorsToBindingResult(StringListOfListsWrapper wrapper, String propuestaId, BindingResult bindingResult) throws Exception {
+		return bulkTableWrapperToTuplaTabla(wrapper, propuestaId)
 				.map(rTupla -> {
 					if (!rTupla.validado) {
 						// reject the field
@@ -166,7 +167,7 @@ public class LineaUtilities {
 		Boolean validado;
 	}
 	
-	private Flux<TuplaTabla> bulkTableWrapperToTuplaTabla(StringListOfListsWrapper wrapper, String propuestaId, String nameIdentifier) throws Exception { // TODO test
+	private Flux<TuplaTabla> bulkTableWrapperToTuplaTabla(StringListOfListsWrapper wrapper, String propuestaId) throws Exception { // TODO test
 		List<TuplaTabla> tuplas = mapToTuplaTabla(wrapper);
 		AtomicInteger counter = new AtomicInteger();
 		counter.set(0);
@@ -177,9 +178,7 @@ public class LineaUtilities {
 						.flatMap(fTupla -> {
 							fTupla.tipo = rAttToTipo.get(fTupla.attId);
 							if (fTupla.attId != null && !fTupla.attId.equals("")) {
-									if (fTupla.attId.equals(nameIdentifier)) { // This is the column corresponding to
-																				// the line's name in the table, not an
-																				// attribute
+									if (fTupla.attId.equals("name")) { // TODO change implementation of name recognition
 										fTupla.validado = true;
 										if (fTupla.valor.isBlank()) {
 											fTupla.valor = String.valueOf(counter.incrementAndGet()); // line's name
@@ -213,9 +212,11 @@ public class LineaUtilities {
 		List<StringListWrapper> lineas = wrapper.getStringListWrapper();
 		List<String> columnas = wrapper.getStrings();
 		
+		log.debug("numero de columnas: " + columnas.size());
 		for (int i=0; i<lineas.size(); i++) {
+			log.debug("numero de campos en la linea: " + lineas.get(i).getString().size());
 			for (int j=0; j<columnas.size(); j++) {
-				if (columnas.size() != lineas.size()) {
+				if (columnas.size() != lineas.get(i).getString().size()) {
 					throw new Exception("incorrect length of lines");
 				}
 				TuplaTabla tu = new TuplaTabla();
@@ -315,7 +316,7 @@ public class LineaUtilities {
 	private List<List<DuplaAttVal>> allLineasInDuplaWithAttidAndValor(StringListOfListsWrapper wrapper) throws Exception {
 		List<List<DuplaAttVal>> lista = new ArrayList<>();
 		log.debug("generando los arrays de duplas con id y valor");
-		for (int i =0; i<wrapper.getStrings().size(); i++) {
+		for (int i =0; i<wrapper.getStringListWrapper().size(); i++) {
 			List<DuplaAttVal> aray = lineaDuplaWithAttidAndValor(wrapper, i);
 			log.debug("añadimos a la lista el array " + aray.toString());
 			lista.add(aray);

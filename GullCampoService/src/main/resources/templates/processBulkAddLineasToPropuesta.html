@@ -3,12 +3,12 @@
 	xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="utf-8">
-<title th:text="${'Gull Project - Nueva Linea en Propuesta: ' + propuesta.getNombre()}">Gull Project - Nueva Linea en Propuesta</title>
+<title th:text="${'Gull Project - Nuevas Lineas en Propuesta: ' + propuesta.getNombre()}">Gull Project - Nuevas Lineas en Propuesta</title>
 <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
 
-<h1>Nueva Linea en Propuesta</h1>
+<h1>Nuevas Lineas en Propuesta</h1>
 
 	<div>
 		<p>
@@ -31,10 +31,17 @@
 		<div class="grid">
 			<table>
 			<tr id="cabecera">
+				<th th:each="n, ntat : *{name}" th:id="${ntat.index}" class="header" th:classappend="${#fields.hasErrors('*{name[__${ntat.index}__]}') ? 'error' : '' }">
+					<select th:field="*{name[__${ntat.index}__]}" class="name-selector">
+						<option th:value="''"></option>
+						<option th:each="x : ${atributos}" th:value="${x.id}" th:text="${x.name}" class="mono-name"></option>
+					</select>
+				</th>
+			</tr>
+			<tr id="cabecera">
 				<th th:each="t, ctat : *{strings}" th:id="${ctat.index}" class="header" th:classappend="${#fields.hasErrors('*{strings[__${ctat.index}__]}') ? 'error' : '' }">
 					<select th:field="*{strings[__${ctat.index}__]}" class="column-selector">
 						<option th:value="''"></option>
-						<option th:value="'name'" class="mono-option">Nombre de la línea</option>
 						<option th:each="z : ${atributos}" th:value="${z.id}" th:text="${z.name}" class="mono-option"></option>
 					</select>
 				</th>

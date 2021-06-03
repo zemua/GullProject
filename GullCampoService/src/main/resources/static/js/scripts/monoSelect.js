@@ -1,6 +1,6 @@
-$(document).ready(function() {
-    var selects = $('.column-selector');
-	var options = $('.mono-option');
+function restringir(sel, opt) {
+	var selects = $(sel);
+	var options = $(opt);
 	
 	selects.each(function(){
 		$(this).data('seleccion', '');
@@ -28,4 +28,9 @@ $(document).ready(function() {
 		// set selected value for re-enabling
 		$(this).data('seleccion', valor);
 	});
+}
+
+$(document).ready(function() {
+	restringir('.column-selector', '.mono-option');
+	restringir('.name-selector', '.mono-name');
 });

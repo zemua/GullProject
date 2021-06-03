@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 public class StringListOfListsWrapper {
 
 	List<StringListWrapper> stringListWrapper = new ArrayList<>(); // lineas
-	List<String> strings = new ArrayList<>(); // cabecera
+	List<String> strings = new ArrayList<>(); // cabecera / columns
+	List<Integer> name = new ArrayList<>(); // line-name components by order
 	
 	public void add(StringListWrapper w) {
 		stringListWrapper.add(w);
