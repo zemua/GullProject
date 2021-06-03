@@ -118,7 +118,7 @@ public class LineaUtilities {
 		StringListOfListsWrapper fieldArrays = new StringListOfListsWrapper();
 		for (int i = 0; i<lines.length; i++) {
 			List<String> fl = Arrays.asList(lines[i].split("\\t"));
-			fieldArrays.add(new StringListWrapper(fl));
+			fieldArrays.add(new StringListWrapper(fl, "name")); // TODO add the name of the file
 			if (fl.size() > nOfCols) {
 				nOfCols = fl.size();
 			}
@@ -136,7 +136,7 @@ public class LineaUtilities {
 	/**
 	 * 
 	 * below...
-	 * For Validating a List of Lists from Bulk data of excel-paste
+	 * For Validating a List of Lists from Bulk data of excel-paste in the bindingResult
 	 * @throws Exception 
 	 * 
 	 * 
@@ -153,6 +153,15 @@ public class LineaUtilities {
 	
 	// TODO change implementation for getting the name
 	public Flux<Boolean> addBulkTableErrorsToBindingResult(StringListOfListsWrapper wrapper, String propuestaId, BindingResult bindingResult) throws Exception {
+		List<String> names = getNames(wrapper);
+		for (int i=0; i<names.size(); i++) {
+			if (names.get(i) == null || names.get(i).equals("")) {
+				bindingResult.rejectValue("stringListWrapper[" + i + "].name",
+											"error.stringListWrapper[\" + i + \"].name",
+											"Esta fila necesita un nombre");
+			}
+		}
+		
 		return bulkTableWrapperToTuplaTabla(wrapper, propuestaId)
 				.map(rTupla -> {
 					if (!rTupla.validado) {
@@ -168,6 +177,28 @@ public class LineaUtilities {
 				});
 	}
 	
+	private List<String> getNames(StringListOfListsWrapper wrapper) { // TODO revisar, el código está mal
+		List<String> names = new ArrayList<>();
+		
+		log.debug("vamos a extraer los nombres");
+		for (int i=0; i<wrapper.getStringListWrapper().size(); i++) {
+			log.debug("para la linea " + i);
+			StringBuilder nameBuilder = new StringBuilder();
+			for(int j=0; j<wrapper.getStrings().size(); j++) {
+				for (int k=0; k<wrapper.getStrings().size(); k++) {
+					String field = wrapper.getList(j).get(k);
+					if (field != null) {
+						nameBuilder.append(field);
+					}
+				}
+				names.add(nameBuilder.toString());
+				wrapper.getList(i).setName(nameBuilder.toString());
+			}
+		}
+		
+		return names;
+	}
+	
 	private Flux<TuplaTabla> bulkTableWrapperToTuplaTabla(StringListOfListsWrapper wrapper, String propuestaId) throws Exception { // TODO test
 		List<TuplaTabla> tuplas = mapToTuplaTabla(wrapper);
 		AtomicInteger counter = new AtomicInteger();
@@ -179,21 +210,13 @@ public class LineaUtilities {
 						.flatMap(fTupla -> {
 							fTupla.tipo = rAttToTipo.get(fTupla.attId);
 							if (fTupla.attId != null && !fTupla.attId.equals("")) {
-									if (fTupla.attId.equals("name")) { // TODO change implementation of name recognition
-										fTupla.validado = true;
-										if (fTupla.valor.isBlank()) {
-											fTupla.valor = String.valueOf(counter.incrementAndGet()); // line's name
-																										// should not be
-																										// empty
-										}
-										return Mono.just(fTupla);
-									} else {
+									
 										return atributoService.validateDataFormat(fTupla.tipo, fTupla.valor)
 												.map(rBool -> {
 													fTupla.validado = rBool;
 													return fTupla;
 												});
-									}
+									
 							} else { // it is a field that we are not going to use
 								fTupla.validado = true;
 								return Mono.just(fTupla);

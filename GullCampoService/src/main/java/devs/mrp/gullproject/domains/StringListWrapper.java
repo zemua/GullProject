@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class StringListWrapper {
 
 	List<String> string;
+	String name;
 	
 	public void add(String s) {
 		string.add(s);
