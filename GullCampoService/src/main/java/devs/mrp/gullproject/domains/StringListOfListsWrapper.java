@@ -30,4 +30,12 @@ public class StringListOfListsWrapper {
 		return strings.get(i);
 	}
 	
+	public void addName(Integer i) {
+		name.add(i);
+	}
+	
+	public Integer getName(int i) {
+		return name.get(i);
+	}
+	
 }

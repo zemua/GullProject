@@ -174,7 +174,7 @@ public class LineaController {
 			model.addAttribute("propuesta", propuesta);
 			model.addAttribute("propuestaId", propuestaId);
 			model.addAttribute("stringWrapper", stringWrapper);
-			return "bulkAddLineastoPropuesta"; // TODO set other mono-select to choose order-of-line-named fields, for example field 1 and 2 concatenated to form the name of the line
+			return "bulkAddLineastoPropuesta";
 		}
 		
 		model.addAttribute("stringListOfListsWrapper", lineaUtilities.excelTextToLineObject(texto)); // TODO probar primera y útlima fila en blanco, por tema del split

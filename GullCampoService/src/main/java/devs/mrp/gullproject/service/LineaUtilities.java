@@ -127,6 +127,7 @@ public class LineaUtilities {
 		for (int i = 0; i<nOfCols; i++) {
 			// it is a bit dumb but is the best way to match the fields in thymeleaf and get the selected value back
 			fieldArrays.add("");
+			fieldArrays.addName(null);
 		}
 		
 		return fieldArrays;
@@ -140,6 +141,15 @@ public class LineaUtilities {
 	 * 
 	 * 
 	 */
+	
+	private class TuplaTabla {
+		Integer fila;
+		Integer columna;
+		String attId;
+		String tipo;
+		String valor;
+		Boolean validado;
+	}
 	
 	// TODO change implementation for getting the name
 	public Flux<Boolean> addBulkTableErrorsToBindingResult(StringListOfListsWrapper wrapper, String propuestaId, BindingResult bindingResult) throws Exception {
@@ -156,15 +166,6 @@ public class LineaUtilities {
 					}
 					return rTupla.validado;
 				});
-	}
-	
-	private class TuplaTabla {
-		Integer fila;
-		Integer columna;
-		String attId;
-		String tipo;
-		String valor;
-		Boolean validado;
 	}
 	
 	private Flux<TuplaTabla> bulkTableWrapperToTuplaTabla(StringListOfListsWrapper wrapper, String propuestaId) throws Exception { // TODO test
