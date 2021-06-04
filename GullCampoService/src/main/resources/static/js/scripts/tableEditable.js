@@ -1,14 +1,14 @@
 $(document).ready(function() {
 	var fields = $(".field").each(function() {
-		var texts = $(this).find(".field-text");
-		var inputs = $(this).find(".field-input");
+		var text = $(this).find(".field-text");
+		var input = $(this).find(".field-input");
 	
 		$(this).click(function() {
-			texts.focus();
+			text.focus();
 		});
 		
-		texts.on('input', 'input:text', function() {
-			inputs.val($(this).html());
+		text.on('input', function() {
+			input.val($(this).text());
 		});
 	})
 });
