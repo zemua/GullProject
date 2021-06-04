@@ -11,3 +11,8 @@ th, td {
 	white-space: pre;
 	overflow: auto;
 }
+
+table .error {
+	border: 1px solid red;
+	color: red;
+}

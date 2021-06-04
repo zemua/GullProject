@@ -151,17 +151,27 @@ public class LineaUtilities {
 		Boolean validado;
 	}
 	
-	// TODO change implementation for getting the name
 	public Flux<Boolean> addBulkTableErrorsToBindingResult(StringListOfListsWrapper wrapper, String propuestaId, BindingResult bindingResult) throws Exception {
 		List<String> names = getNames(wrapper);
+		boolean addedErrorToName = false;
 		for (int i=0; i<names.size(); i++) {
+			log.debug("para el nombre de la fila " + i);
 			if (names.get(i) == null || names.get(i).equals("")) {
+				log.debug("encontramos error y añadimos al bindingResult");
 				bindingResult.rejectValue("stringListWrapper[" + i + "].name",
-											"error.stringListWrapper[\" + i + \"].name",
+											"error.stringListWrapper.name",
 											"Esta fila necesita un nombre");
+				if (!addedErrorToName) {
+					bindingResult.rejectValue("nameError", "error.stringListWrapper.nameError",
+							"Estas filas necesitan un nombre");
+					addedErrorToName = true;
+				}
+			} else {
+				log.debug("no encontramos error");
 			}
 		}
 		
+		BooleanWrapper addedErrorToFields = new BooleanWrapper(false); // TODO check that fields are checked correctly
 		return bulkTableWrapperToTuplaTabla(wrapper, propuestaId)
 				.map(rTupla -> {
 					if (!rTupla.validado) {
@@ -172,28 +182,37 @@ public class LineaUtilities {
 						bindingResult.rejectValue("strings[" + rTupla.columna + "]",
 								"error.stringListOfListsWrapper.strings",
 								"El valor no es correcto para este atributo.");
+						if (!addedErrorToFields.getB()) {
+							bindingResult.rejectValue("fieldError",
+									"error.stringListWrapper.fieldError",
+									"Estos campos tienen un valor incorrecto");
+							addedErrorToFields.setB(true);;
+						}
 					}
 					return rTupla.validado;
 				});
 	}
 	
-	private List<String> getNames(StringListOfListsWrapper wrapper) { // TODO revisar, el código está mal
+	private List<String> getNames(StringListOfListsWrapper wrapper) {
 		List<String> names = new ArrayList<>();
 		
 		log.debug("vamos a extraer los nombres");
 		for (int i=0; i<wrapper.getStringListWrapper().size(); i++) {
 			log.debug("para la linea " + i);
 			StringBuilder nameBuilder = new StringBuilder();
-			for(int j=0; j<wrapper.getStrings().size(); j++) {
-				for (int k=0; k<wrapper.getStrings().size(); k++) {
-					String field = wrapper.getList(j).get(k);
-					if (field != null) {
-						nameBuilder.append(field);
+			for(int j=0; j<wrapper.getStrings().size(); j++) { // for each number (1,2,3,4...)
+				for (int k=0; k<wrapper.getStrings().size(); k++) { // go column by column
+					if (wrapper.getName(k) != null && wrapper.getName(k).equals(j+1)) { // If column-name(k) contains number (j+1)
+						String field = wrapper.getList(i).get(k);
+						if (field != null) {
+							nameBuilder.append(field);
+						}
 					}
 				}
-				names.add(nameBuilder.toString());
-				wrapper.getList(i).setName(nameBuilder.toString());
 			}
+			log.debug("añadimos el nombre: " + nameBuilder.toString());
+			names.add(nameBuilder.toString());
+			wrapper.getList(i).setName(nameBuilder.toString());
 		}
 		
 		return names;
@@ -272,10 +291,11 @@ public class LineaUtilities {
 		String tipo;
 		String clase;
 		String valor;
-		Boolean esNombreLinea;
+		int linea;
 	}
 	
 	public Mono<List<Linea>> allLineasFromBulkWrapper(StringListOfListsWrapper wrapper, String propuestaId) throws Exception { // TODO test
+		List<String> names = getNames(wrapper);
 		return allLineasInDuplaCompleta(wrapper, propuestaId)
 				.map(rAllDuplas -> {
 					List<Linea> listOfLineas = new ArrayList<>();
@@ -291,6 +311,7 @@ public class LineaUtilities {
 							linea.addCampo(campo);
 						});
 						linea.setPropuestaId(propuestaId);
+						linea.setNombre(names.get(sDupla.get(0).linea));
 						listOfLineas.add(linea);
 					});
 					return listOfLineas; // TODO añadir nombre a la linea
@@ -366,6 +387,7 @@ public class LineaUtilities {
 				DuplaAttVal dupla = new DuplaAttVal();
 				dupla.attId = columnas.get(i);
 				dupla.valor = current.get(i);
+				dupla.linea = lineN;
 				linea.add(dupla);
 				log.debug("añadimos a la linea esta dupla" + dupla);
 			} else {
