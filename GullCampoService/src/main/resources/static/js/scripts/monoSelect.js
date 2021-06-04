@@ -28,6 +28,8 @@ function restringir(sel, opt) {
 		// set selected value for re-enabling
 		$(this).data('seleccion', valor);
 	});
+	
+	selects.trigger('change'); // in case of input error, where the select has an option on page-load
 }
 
 $(document).ready(function() {

@@ -37,6 +37,7 @@ import devs.mrp.gullproject.domains.dto.WrapLineasWithSelectorDto;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaService;
+import devs.mrp.gullproject.service.LineaUtilities;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -45,7 +46,7 @@ import reactor.core.publisher.Mono;
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = LineaController.class)
 @AutoConfigureWebTestClient
-@Import({MapperConfig.class})
+@Import({MapperConfig.class, LineaUtilities.class})
 class LineaControllerTest {
 	
 	WebTestClient webTestClient;
@@ -596,6 +597,29 @@ class LineaControllerTest {
 					.contains("Lineas de la propuesta")
 					.contains("Orden guardado");
 			});
+	}
+	
+	@Test
+	void testBulkAddLineasToPropuesta() {
+		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
+		
+		webTestClient.get()
+			.uri("/lineas/of/" + propuesta.getId() + "/bulk-add")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+				.contains("Nuevas Lineas en Propuesta")
+				.contains(propuesta.getNombre())
+				.contains("Pega aquí el contenido de tu excel");
+			});
+	}
+	
+	@Test
+	void testProcessBulkAddLineasToPropuesta() {
+		
 	}
 
 }

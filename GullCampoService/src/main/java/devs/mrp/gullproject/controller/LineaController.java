@@ -110,6 +110,8 @@ public class LineaController {
 		model.addAttribute("propuestaId", propuestaId);
 		return "processOrderLineasOfPropuesta";
 	}
+	
+	// TODO make an endpoint to edit lines with the "tabla editable" functionality
 
 	@GetMapping("/of/{propuestaId}/new")
 	public String addLineToPropuesta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
@@ -153,7 +155,7 @@ public class LineaController {
 				});
 	}
 	
-	@GetMapping("/of/{propuestaId}/bulk-add") // TODO test
+	@GetMapping("/of/{propuestaId}/bulk-add")
 	public String bulkAddLineasToPropuesta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
 		model.addAttribute("propuesta", propuesta);
@@ -233,7 +235,7 @@ public class LineaController {
 		} catch (Exception e) {
 			log.debug("exception during add errors to bindingresult and we go back to the same view");
 			e.printStackTrace();
-			return Mono.just("processBulkAddLineasToPropuesta"); // TODO on error, javascript should trigger "onChanged" for each select
+			return Mono.just("processBulkAddLineasToPropuesta");
 		}
 	}
 
