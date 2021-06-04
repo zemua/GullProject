@@ -75,4 +75,10 @@ public class ConsultaService {
 	public Mono<Consulta> updateNameAndStatus(String idConsulta, String name, String status) {
 		return consultaRepo.updateName(idConsulta, name).flatMap(c -> consultaRepo.updateStatus(idConsulta, status));
 	}
+	
+	public Mono<Consulta> updateNombrePropuesta(Propuesta propuesta) {
+		return consultaRepo.findByPropuestaId(propuesta.getId()).flatMap(rConsulta -> {
+			return consultaRepo.updateNombrePropuesta(rConsulta.getId(), propuesta);
+		});
+	}
 }

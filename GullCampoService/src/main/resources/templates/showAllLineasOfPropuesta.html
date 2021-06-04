@@ -12,7 +12,9 @@
 
 	<div>
 		<p>
-			<a th:href="${'/lineas/of/' + consulta.getPropuestaById(propuestaId).getId() + '/new'}">Crear nueva linea</a> -
+			<a th:href="${'/lineas/of/' + propuestaId + '/new'}">Crear nueva linea</a> -
+			<a th:href="${'/lineas/of/' + propuestaId + '/bulk-add'}">Crear en bloque</a> -
+			<a th:href="${'/lineas/allof/propid/' + propuestaId + '/order'}">Ordenar líneas</a> -
 			<a th:href="${'/lineas/deleteof/propid/' + propuestaId}">Borrar líneas</a> -  
 			<a th:href="${'/consultas/revisar/id/' + consulta.id}">Volver</a>
 		</p>
@@ -24,13 +26,13 @@
 		<table>
 			<tr>
 				<th>Nombre</th>
-				<th>Campos</th>
 				<th>Enlace</th>
+				<th th:each="t : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${t.getName()}"></span></th>
 			</tr>
 			<tr th:each="a : ${lineas}">
 				<td th:text="${a.nombre}"></td>
-				<td th:text="${a.getCantidadCampos()}"></td>
 				<td><a th:href="@{'/lineas/revisar/id/' + ${a.id}}">revisar</a></td>
+				<td th:each="t : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${a.getValueByAttId(t.getId())}"></span></td>
 			</tr>
 		</table>
 	</div>

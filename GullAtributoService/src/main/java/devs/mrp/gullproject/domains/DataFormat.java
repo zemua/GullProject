@@ -1,5 +1,7 @@
 package devs.mrp.gullproject.domains;
 
+import org.apache.commons.lang3.EnumUtils;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -8,6 +10,8 @@ public enum DataFormat {
 	DESCRIPCION(String.class), CANTIDAD(Integer.class), COSTE(Double.class), MARGEN(Float.class), PVP(Double.class), PLAZO(Long.class);
 	
 	Class<?> clase;
+	
+	private static DataFormat[] sFormats;
 	
 	private DataFormat(Class<?> clase) {
 		this.clase = clase;
@@ -32,6 +36,10 @@ public enum DataFormat {
 			return checkIfBoolean(s);
 		}
 		return false;
+	}
+	
+	public static boolean isMember(String nName) {
+		return EnumUtils.isValidEnum(DataFormat.class, nName);
 	}
 	
 	// TODO check with regular expression, it is not advisable to guide the logic of the program with exceptions

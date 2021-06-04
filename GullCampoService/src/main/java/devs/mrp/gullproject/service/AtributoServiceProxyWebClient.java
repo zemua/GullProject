@@ -60,6 +60,7 @@ public class AtributoServiceProxyWebClient {
 	}
 	
 	public Mono<String> getClassTypeOfFormat(String format){
+		log.debug("calling atributoService asking for " + format);
 		return webClientBuilder.build().get()
 				.uri(clientProperties.getAtributoServiceUrl().concat("api/atributos/typeofformat/").concat(format))
 				.header("Content-Type", "text/html")

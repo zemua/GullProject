@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>Gull Project - Revisar Propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1>Revisar Propuesta</h1>
+
+	<div>
+		<p>
+			<a th:href="@{'/consultas/revisar/id/' + ${consulta.id}}">Volver</a> - <a th:href="@{'/consultas/delete/id/' + ${consulta.id} + '/propuesta/' + ${propuestaCliente.id}}">Borrar esta propuesta</a>
+		</p>
+	</div>
+	
+	<form method="POST" th:object="${propuestaCliente}">
+	
+		<div th:if="${#fields.hasErrors()}">
+     	   <span class="validationError">
+      	  Corrige los errores y reenvía.
+     	   </span>
+    	</div>
+    	
+    	<span class="validationError"
+      	th:if="${#fields.hasErrors('nombre')}"
+      	th:errors="*{nombre}">Selecciona un nombre</span>
+	
+		<div>
+			<table>
+				<tr>
+					<th>Nombre</th>
+				</tr>
+				<tr>
+					<td><input type="text" th:field="*{nombre}"></td>
+				</tr>
+			</table>
+			<input type="hidden" th:field="*{id}">
+		</div>
+
+		<div>
+			<p>
+				<button>Ok</button>
+			</p>
+		</div>
+
+	</form>
+
+</body>
+</html>

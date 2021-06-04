@@ -1,5 +1,9 @@
 package devs.mrp.gullproject.controller;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +18,7 @@ import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
 import devs.mrp.gullproject.domains.Atributo;
 import devs.mrp.gullproject.domains.DataFormat;
+import devs.mrp.gullproject.domains.DTO.AtributosWrapper;
 import devs.mrp.gullproject.service.AtributoService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -25,8 +30,7 @@ public class AtributoController {
 	// falta añadir handler para situaciones de error como cuando el "id" de la url no existe en db
 	
 	// TODO create value maps for atributes that will have defined values, like the DN or the rating of the valves
-	// TODO re-order atributes
-	// TODO group attributes in categories for organized display
+	// TODO group attributes in categories for organized display, the consulta can select which categories it belongs, and filter attributes by it
 
 	AtributoService atributoService;
 	
@@ -110,6 +114,29 @@ public class AtributoController {
 		atributoService.deleteById(atributo.getId()).subscribe();
 		
 		return "borradoAtributo";
+	}
+	
+	@GetMapping("/ordenar")
+	public String ordenarAtributos(Model model) {
+		Mono<AtributosWrapper> atributos = atributoService.findAll()
+				.collectList().flatMap(rList -> {
+					AtributosWrapper wrap = new AtributosWrapper();
+					wrap.setAtributos(rList);
+					return Mono.just(wrap);
+				});
+		model.addAttribute("atributosWrapper", atributos);
+		return "ordenarAtributos";
+	}
+	
+	@PostMapping("/ordenar")
+	public String processOrdenarAtributos(AtributosWrapper atributosWrapper, Model model) {
+		Map<String, Integer> map = new HashMap<>();
+		atributosWrapper.getAtributos().stream().forEach(a -> {
+			map.put(a.getId(), a.getOrden());
+		});
+		Mono<List<Atributo>> monomap = atributoService.updateOrderOfSeveralAtributos(map);
+		model.addAttribute("map", monomap);
+		return "processOrdenarAtributos";
 	}
 	
 }

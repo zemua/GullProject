@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,11 +38,11 @@ public class LineaService {
 	}
 	
 	public Flux<Linea> findByPropuestaId(String propuestaId) {
-		return lineaRepo.findAllByPropuestaId(propuestaId);
+		return lineaRepo.findAllByPropuestaIdOrderByOrderAsc(propuestaId);
 	}
 	
 	public Flux<Linea> findAll(){
-		return lineaRepo.findAll();
+		return lineaRepo.findAllByOrderByOrderAsc();
 	}
 	
 	public Mono<Linea> addCampo(String idLinea, Campo<?> campo){
@@ -61,19 +63,39 @@ public class LineaService {
 	
 	public Mono<Linea> addLinea(Linea linea) {
 		String nPropuestaId = linea.getPropuestaId();
-		Mono<String> nConsultaId = consultaRepo.findByPropuestaId(nPropuestaId).map(consulta -> consulta.getId());
-		return nConsultaId.flatMap(bConsultaId -> consultaRepo.addLineaEnPropuesta(bConsultaId, nPropuestaId, linea.getId()))
-				.then(lineaRepo.insert(linea));
+		return consultaRepo.findByPropuestaId(nPropuestaId)
+				.map(consulta -> consulta.getId())
+				.flatMap(rConsultaId -> consultaRepo.addLineaEnPropuesta(rConsultaId, nPropuestaId, linea.getId()))
+				
+				.then(lineaRepo.findFirstByPropuestaIdOrderByOrderDesc(nPropuestaId))
+				.switchIfEmpty(Mono.just(linea).map(rLi -> {rLi.setOrder(0); return rLi;}))
+				.flatMap(rLinea -> {
+					if (rLinea == null || rLinea.getOrder() == null) {
+						linea.setOrder(1);
+					} else {
+						linea.setOrder(rLinea.getOrder()+1);
+					}
+					return lineaRepo.insert(linea);
+				});
 	}
 	
 	public Mono<Linea> addLinea(Mono<Linea> linea) {
 		return linea.flatMap(l -> addLinea(l));
 	}
 	
-	public Flux<Linea> addVariasLineas(Flux<Linea> lineas) {
+	public Flux<Linea> addVariasLineas(Flux<Linea> lineas, String propuestaId) {
+		AtomicInteger count = new AtomicInteger();
 		return lineas.flatMap(rLinea -> consultaRepo.findByPropuestaId(rLinea.getPropuestaId())
 										.flatMap(rConsulta -> consultaRepo.addLineaEnPropuesta(rConsulta.getId(), rLinea.getPropuestaId(), rLinea.getId())))
-				.thenMany(lineaRepo.insert(lineas));
+				.then(lineaRepo.countByPropuestaId(propuestaId)).flatMapMany(rCount -> {
+					count.set(rCount.intValue());
+					return lineas;
+					})
+				.map(rLinea -> {
+					rLinea.setOrder(count.incrementAndGet());
+					return rLinea;
+				})
+				.collectList().flatMapMany(rList -> lineaRepo.insert(rList));
 	}
 	
 	public Mono<Linea> updateLinea(Linea linea) {
@@ -93,7 +115,7 @@ public class LineaService {
 	}
 	
 	public Mono<Void> deleteVariasLineasById(Flux<String> ids){
-		return deleteVariasLineas(ids.collectList().flatMapMany(rIdsList -> lineaRepo.findLineasByIdIn(rIdsList)));
+		return deleteVariasLineas(ids.collectList().flatMapMany(rIdsList -> lineaRepo.findLineasByIdInOrderByOrderAsc(rIdsList)));
 	}
 	
 	public Mono<Void> deleteVariasLineas(Flux<Linea> lineas) {

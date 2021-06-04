@@ -3,7 +3,9 @@ package devs.mrp.gullproject.controller;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +37,7 @@ import devs.mrp.gullproject.domains.dto.WrapLineasWithSelectorDto;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaService;
+import devs.mrp.gullproject.service.LineaUtilities;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -43,7 +46,7 @@ import reactor.core.publisher.Mono;
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = LineaController.class)
 @AutoConfigureWebTestClient
-@Import({MapperConfig.class})
+@Import({MapperConfig.class, LineaUtilities.class})
 class LineaControllerTest {
 	
 	WebTestClient webTestClient;
@@ -158,7 +161,6 @@ class LineaControllerTest {
 						.contains("Lineas de la propuesta")
 						.contains("Crear nueva linea")
 						.contains("Nombre")
-						.contains("Campos")
 						.contains("Enlace")
 						.contains(propuesta.getNombre());
 			});
@@ -545,6 +547,79 @@ class LineaControllerTest {
 				.contains("Borrado procesado")
 				;
 			});
+	}
+	
+	@Test
+	void testOrderAllLinesOf() {
+		propuesta.addAttribute(atributo1);
+		propuesta.addAttribute(atributo2);
+		propuesta.addAttribute(atributo3);
+		when(lineaService.findByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(linea1, linea2));
+		when(consultaService.findConsultaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(consulta));
+		webTestClient.get()
+			.uri("/lineas/allof/propid/" + propuesta.getId() + "/order")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+				.contains(propuesta.getNombre())
+				.contains("Ordenar lineas de la propuesta")
+				.contains(linea1.getNombre())
+				.contains(linea1.getCampoByIndex(0).getDatosText())
+				.contains(linea2.getNombre())
+				.contains(linea2.getCampoByIndex(1).getDatosText())
+				;
+			});
+	}
+	
+	@Test
+	void testProcessOrderallLinesOf() {
+		Map<String, Integer> map = new HashMap<>();
+		map.put(linea1.getId(), linea1.getOrder());
+		map.put(linea1.getId(), linea1.getOrder());
+		when(lineaService.updateOrderOfSeveralLineas(ArgumentMatchers.refEq(map))).thenReturn(Mono.empty());
+		
+		webTestClient.post()
+			.uri("/lineas/allof/propid/" + propuesta.getId() + "/order")
+			.contentType(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("lineas[0].id", linea1.getId())
+					.with("lineas[0].order", "1")
+					.with("lineas[1].id", linea2.getId())
+					.with("lineas[1].order", "2")
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Lineas de la propuesta")
+					.contains("Orden guardado");
+			});
+	}
+	
+	@Test
+	void testBulkAddLineasToPropuesta() {
+		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
+		
+		webTestClient.get()
+			.uri("/lineas/of/" + propuesta.getId() + "/bulk-add")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+				.contains("Nuevas Lineas en Propuesta")
+				.contains(propuesta.getNombre())
+				.contains("Pega aquí el contenido de tu excel");
+			});
+	}
+	
+	@Test
+	void testProcessBulkAddLineasToPropuesta() {
+		
 	}
 
 }

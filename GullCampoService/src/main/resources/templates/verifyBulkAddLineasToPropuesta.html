@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Nueva Linea en Propuesta: ' + propuesta.getNombre()}">Gull Project - Nueva Linea en Propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1>Nueva Linea en Propuesta</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/lineas/allof/propid/' + propuestaId}">Volver</a>
+		</p>
+	</div>
+	
+	<div>
+	<p>Cada atributo solamente se puede escoger en una columna, las columnas sin atributo no se registrarán.</p>
+	</div>
+
+	<form method="POST" th:action="@{'/lineas/of/' + ${propuestaId} + '/bulk-add/verify'}" th:object="${stringListOfListsWrapper}">
+	
+		<div>
+			<p>
+				<button>Siguiente</button>
+			</p>
+		</div>
+    	
+		<div class="grid">
+			<table>
+			<tr id="cabecera">
+				<th th:each="t, ctat : *{strings}" th:id="${ctat.index}" class="header" th:classappend="${#fields.hasErrors('*{strings[__${ctat.index}__]}') ? 'error' : '' }">
+					<select th:field="*{strings[__${ctat.index}__]}" class="column-selector">
+						<option value=""></option>
+						<option value="name" class="mono-option">Nombre de la línea</option>
+						<option th:each="z : ${atributos}" th:value="${z.id}" th:text="${z.name}" class="mono-option"></option>
+					</select>
+				</th>
+			</tr>
+			<tr th:each="a, stat : *{stringListWrapper}" th:id="|line${stat.index}|" class="line">
+				<td th:each="t, btat : ${a.string}" class="field" th:classappend="${#fields.hasErrors('*{stringListWrapper[__${stat.index}__].string[__${btat.index}__]}') ? 'error' : '' }">
+					<span th:text="${t}" th:id="|line${stat.index}field${btat.index}|"></span>
+					<input type="hidden" th:field="*{stringListWrapper[__${stat.index}__].string[__${btat.index}__]}"/>
+				</td>
+			</tr>
+		</table>
+		</div>
+		
+	</form>
+	
+	<script type="text/javascript" th:src="@{/js/jquery/jquery-3.6.0.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/scripts/monoSelect.js}"></script>
+
+</body>
+</html>

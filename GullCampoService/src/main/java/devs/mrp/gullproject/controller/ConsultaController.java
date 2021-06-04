@@ -37,7 +37,10 @@ import reactor.core.publisher.Mono;
 @RequestMapping(path = "/consultas")
 public class ConsultaController {
 	
-	// TODO re-order attribute columns into proposal
+	// TODO create supplier proposals from customer ones
+	// TODO create our proposals from customer and supplier ones
+	// TODO create customer updated proposals
+	// TODO adapt old supplier proposals for updated customer inquiry
 
 	ConsultaService consultaService;
 	LineaService lineaService;
@@ -88,14 +91,14 @@ public class ConsultaController {
 		return "reviewConsulta";
 	}
 	
-	@GetMapping("/revisar/id/{id}/edit") // TODO test
+	@GetMapping("/revisar/id/{id}/edit")
 	public String editConsultaDetails(Model model, @PathVariable(name = "id") String id) {
 		Mono<Consulta> consulta = consultaService.findById(id);
 		model.addAttribute("consulta", consulta);
 		return "reviewConsultaEdit";
 	}
 	
-	@PostMapping("/revisar/id/{id}/edit") // TODO test
+	@PostMapping("/revisar/id/{id}/edit")
 	public String processEditConsultaDetails(@Valid Consulta consulta, BindingResult bindingResult, Model model, @PathVariable(name = "id") String id) {
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("consulta", consulta);
@@ -257,6 +260,28 @@ public class ConsultaController {
 		model.addAttribute("propuesta", propuesta);
 		
 		return "processAddAttributeToProposal";
+	}
+	
+	@GetMapping("/editar/propcli/{propid}")
+	public String editarProposalCliente(Model model, @PathVariable(name = "propid") String propuestaId) {
+		Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
+		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+		model.addAttribute("propuestaCliente", propuesta);
+		model.addAttribute("consulta", consulta);
+		return "editPropuesta";
+	}
+	
+	@PostMapping("/editar/propcli/{propid}")
+	public String processEditarProposalCliente(@Valid PropuestaCliente propuestaCliente, BindingResult bindingResult, Model model, @PathVariable(name ="propid") String propuestaId) {
+		if (bindingResult.hasErrors()) {
+			model.addAttribute("propuestaCliente", propuestaCliente);
+			Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+			model.addAttribute("consulta", consulta);
+			return "editPropuesta";
+		}
+		Mono<Consulta> cons = consultaService.updateNombrePropuesta(propuestaCliente);
+		model.addAttribute("consulta", cons);
+		return "processEditPropuesta";
 	}
 	
 }

@@ -13,8 +13,6 @@ import devs.mrp.gullproject.domains.Atributo;
 import reactor.core.publisher.Mono;
 
 public class CustomAtributoRepoImpl implements CustomAtributoRepo {
-	
-	// https://practicaldev-herokuapp-com.global.ssl.fastly.net/iuriimednikov/how-to-build-custom-queries-with-spring-data-reactive-mongodb-1802
 
 	private final ReactiveMongoTemplate mongoTemplate;
 	
@@ -29,6 +27,14 @@ public class CustomAtributoRepoImpl implements CustomAtributoRepo {
 		Update update = new Update().set("name", name);
 		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
 		return mongoTemplate.findAndModify(query, update,  options, Atributo.class);
+	}
+	
+	@Override
+	public Mono<Atributo> updateOrdenOfAtributo(String id, Integer orden) {
+		Query query = new Query(Criteria.where("id").is(id));
+		Update update = new Update().set("orden", orden);
+		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
+		return mongoTemplate.findAndModify(query, update, options, Atributo.class);
 	}
 
 }

@@ -2,6 +2,7 @@ package devs.mrp.gullproject.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
@@ -170,6 +171,7 @@ class LineaServiceTest {
 		StepVerifier.create(monoLinea)
 			.assertNext(line -> {
 				assertEquals(lineaz.getId(), line.getId());
+				assertEquals(2, line.getOrder());
 			})
 			.expectComplete()
 			.verify();
@@ -195,15 +197,37 @@ class LineaServiceTest {
 			})
 			.expectComplete()
 			.verify();
+		
+		lineaRepo.deleteAll().block();
+		lineaService.addLinea(linea1).block();
+		lineaService.addLinea(linea2).block();
+		lineaz.setPropuestaId(linea1.getPropuestaId());
+		lineaService.addLinea(lineaz).block();
+		StepVerifier.create(lineaRepo.findAll())
+			.assertNext(li -> {
+				assertEquals(1, li.getOrder());
+				assertEquals(linea1.getId(), li.getId());
+			})
+			.assertNext(li -> {
+				assertEquals(2, li.getOrder());
+				assertEquals(linea2.getId(), li.getId());
+			})
+			.assertNext(li -> {
+				assertEquals(3, li.getOrder());
+				assertEquals(lineaz.getId(), li.getId());
+			})
+			.expectComplete()
+			.verify();
 	}
 	
 	@Test
 	void testAddVariasLineas_And_DeleteVariasLineas_And_DeleteVariasLineasById() {
-		lineaService.addVariasLineas(Flux.just(linea4, linea5)).blockLast();
+		lineaService.addVariasLineas(Flux.just(linea4, linea5), propuesta.getId()).blockLast();
 		
 		StepVerifier.create(lineaService.findById(linea4.getId()))
 			.assertNext(line -> {
 				assertEquals(linea4.getId(), line.getId());
+				assertEquals(2, line.getOrder());
 			})
 			.expectComplete()
 			.verify();
@@ -211,6 +235,7 @@ class LineaServiceTest {
 		StepVerifier.create(lineaService.findById(linea5.getId()))
 			.assertNext(line -> {
 				assertEquals(linea5.getId(), line.getId());
+				assertEquals(3, line.getOrder());
 			})
 			.expectComplete()
 			.verify();
@@ -218,8 +243,8 @@ class LineaServiceTest {
 		StepVerifier.create(monoConsulta)
 		.assertNext(cons -> {
 			assertEquals(3, cons.getPropuestaByIndex(0).getCantidadLineaIds());
-			assertEquals(linea4.getId(), cons.getPropuestaByIndex(0).getLineaIdByIndex(1));
-			assertEquals(linea5.getId(), cons.getPropuestaByIndex(0).getLineaIdByIndex(2));
+			assertTrue(linea4.getId().equals(cons.getPropuestaByIndex(0).getLineaIdByIndex(1)) || linea4.getId().equals(cons.getPropuestaByIndex(0).getLineaIdByIndex(2)));
+			assertTrue(linea5.getId().equals(cons.getPropuestaByIndex(0).getLineaIdByIndex(1)) || linea5.getId().equals(cons.getPropuestaByIndex(0).getLineaIdByIndex(2)));
 		})
 		.expectComplete()
 		.verify();
@@ -252,7 +277,7 @@ class LineaServiceTest {
 	
 	@Test
 	void testDeleteSeveralLineasFromPropuestaId() {
-		lineaService.addVariasLineas(Flux.just(linea4, linea5)).blockLast();
+		lineaService.addVariasLineas(Flux.just(linea4, linea5), propuesta.getId()).blockLast();
 		Long deletecount = lineaService.deleteSeveralLineasFromPropuestaId(propuesta.getId()).block();
 		
 		StepVerifier.create(lineaService.findById(linea3.getId()))
@@ -276,7 +301,7 @@ class LineaServiceTest {
 	
 	@Test
 	void testDeleteSeveralLineasFromSeveralPropuestas() {
-		lineaService.addVariasLineas(Flux.just(linea4, linea5, linea6, linea7)).blockLast();
+		lineaService.addVariasLineas(Flux.just(linea4, linea5, linea6, linea7), propuesta.getId()).blockLast();
 		
 		StepVerifier.create(lineaService.findById(linea3.getId()))
 		.assertNext(assertionConsumer -> {})

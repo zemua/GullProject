@@ -59,6 +59,7 @@ class ConsultaServiceTest {
 		att2.setTipo("tipo2");
 		
 		propuesta1.addAttribute(att1);
+		propuesta1.setNombre("nombre original");
 		propuesta1.addAttribute(att2);
 		
 		consulta.addPropuesta(propuesta1);
@@ -130,6 +131,19 @@ class ConsultaServiceTest {
 		.assertNext(oCons -> {
 			assertEquals("nuevo nombre", oCons.getNombre());
 			assertEquals("nuevo status", oCons.getStatus());
+		})
+		.expectComplete()
+		.verify();
+	}
+	
+	@Test
+	void testUpdateNombrePropuesta() {
+		propuesta1.setNombre("nombre actualizado");
+		Consulta nCons = consultaService.updateNombrePropuesta(propuesta1).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(oCons -> {
+			assertEquals("nombre actualizado", oCons.getPropuestaByIndex(0).getNombre());
 		})
 		.expectComplete()
 		.verify();

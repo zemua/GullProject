@@ -50,6 +50,7 @@ class CustomAtributoRepoTest {
 		atributo.setId(id);
 		atributo.setName(name);
 		atributo.setTipo(tipo);
+		atributo.setOrden(1);
 		atributo.setValoresFijos(valoresFijos);
 		
 		repo.save(atributo).block();
@@ -79,5 +80,17 @@ class CustomAtributoRepoTest {
 			.expectComplete()
 			.verify();
 		
+	}
+	
+	@Test
+	void testUpdateOrdenOfAtributo() {
+		repo.updateOrdenOfAtributo(atributo.getId(), 2).block();
+		
+		StepVerifier.create(mono)
+			.assertNext(attr -> {
+				assertEquals(2, attr.getOrden());
+			})
+			.expectComplete()
+			.verify();
 	}
 }
