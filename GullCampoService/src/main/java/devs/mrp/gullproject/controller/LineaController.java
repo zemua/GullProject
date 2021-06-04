@@ -233,7 +233,7 @@ public class LineaController {
 		} catch (Exception e) {
 			log.debug("exception during add errors to bindingresult and we go back to the same view");
 			e.printStackTrace();
-			return Mono.just("processBulkAddLineasToPropuesta");
+			return Mono.just("processBulkAddLineasToPropuesta"); // TODO on error, javascript should trigger "onChanged" for each select
 		}
 	}
 

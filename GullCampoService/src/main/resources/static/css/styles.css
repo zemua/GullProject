@@ -13,6 +13,7 @@ th, td {
 }
 
 table .error {
-	border: 1px solid red;
 	color: red;
+	text-decoration: underline;
+	font: bold;
 }
