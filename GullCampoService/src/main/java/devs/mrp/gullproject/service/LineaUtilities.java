@@ -113,12 +113,12 @@ public class LineaUtilities {
 	
 	public StringListOfListsWrapper excelTextToLineObject(String texto) {
 		// arrange the lines in an object that can be used in Thymeleaf Template
-		String lines[] = texto.split(System.lineSeparator());
+		String lines[] = texto.split("\\R");
 		Integer nOfCols = 0;
 		StringListOfListsWrapper fieldArrays = new StringListOfListsWrapper();
 		for (int i = 0; i<lines.length; i++) {
 			List<String> fl = Arrays.asList(lines[i].split("\\t"));
-			fieldArrays.add(new StringListWrapper(fl, "name")); // TODO add the name of the file
+			fieldArrays.add(new StringListWrapper(fl, "")); // we didn't retrieve the name yet so we use an empty string in the meanwhile
 			if (fl.size() > nOfCols) {
 				nOfCols = fl.size();
 			}
@@ -171,11 +171,12 @@ public class LineaUtilities {
 			}
 		}
 		
-		BooleanWrapper addedErrorToFields = new BooleanWrapper(false); // TODO check that fields are checked correctly
+		BooleanWrapper addedErrorToFields = new BooleanWrapper(false);
 		return bulkTableWrapperToTuplaTabla(wrapper, propuestaId)
 				.map(rTupla -> {
 					if (!rTupla.validado) {
 						// reject the field
+						log.debug("este campo tiene error: " + rTupla.toString() + " en la fila " + rTupla.fila + " y la columna " + rTupla.columna);
 						bindingResult.rejectValue("stringListWrapper[" + rTupla.fila + "].string[" + rTupla.columna + "]",
 								"error.stringListOfListsWrapper.stringListWrapper[" + rTupla.fila + "].string",
 								"El valor no es correcto para este atributo.");
@@ -232,6 +233,7 @@ public class LineaUtilities {
 									
 										return atributoService.validateDataFormat(fTupla.tipo, fTupla.valor)
 												.map(rBool -> {
+													log.debug("respuesta de atributo service para tipo " + fTupla.tipo + " y valor " + fTupla.valor + " es " + rBool);
 													fTupla.validado = rBool;
 													return fTupla;
 												});
@@ -314,7 +316,7 @@ public class LineaUtilities {
 						linea.setNombre(names.get(sDupla.get(0).linea));
 						listOfLineas.add(linea);
 					});
-					return listOfLineas; // TODO añadir nombre a la linea
+					return listOfLineas;
 				});
 	}
 	

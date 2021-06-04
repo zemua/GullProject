@@ -65,8 +65,8 @@
 			</tr>
 			<tr th:each="a, stat : *{stringListWrapper}" th:id="|line${stat.index}|" class="line" th:classappend="${#fields.hasErrors('*{stringListWrapper[__${stat.index}__].name}') ? 'error' : '' }">
 				<td th:each="t, btat : ${a.string}" class="field" th:classappend="${#fields.hasErrors('*{stringListWrapper[__${stat.index}__].string[__${btat.index}__]}') ? 'error' : '' }">
-					<span th:text="${t}" th:id="|line${stat.index}field${btat.index}|"></span>
-					<input type="hidden" th:field="*{stringListWrapper[__${stat.index}__].string[__${btat.index}__]}"/>
+					<span th:text="${t}" th:id="|line${stat.index}field${btat.index}|" class="field-text" contenteditable="true"></span>
+					<input type="hidden" th:field="*{stringListWrapper[__${stat.index}__].string[__${btat.index}__]}" class="field-input"/>
 				</td>
 			</tr>
 		</table>
@@ -76,6 +76,7 @@
 	
 	<script type="text/javascript" th:src="@{/js/jquery/jquery-3.6.0.min.js}"></script>
 	<script type="text/javascript" th:src="@{/js/scripts/monoSelect.js}"></script>
+	<script type="text/javascript" th:src="@{/js/scripts/tableEditable.js}"></script>
 
 </body>
 </html>
