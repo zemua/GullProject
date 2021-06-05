@@ -165,7 +165,7 @@ public class LineaController {
 		return "bulkAddLineastoPropuesta";
 	}
 	
-	@PostMapping("/of/{propuestaId}/bulk-add") // TODO test
+	@PostMapping("/of/{propuestaId}/bulk-add")
 	public String processBulkAddLineastoPropuesta(StringWrapper stringWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		String texto = stringWrapper.getString();
 		if (texto == null || texto.equals("")) {

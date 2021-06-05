@@ -316,6 +316,7 @@ class LineaControllerTest {
 	@Test
 	void testRevisarLinea() {
 		when(lineaService.findById(ArgumentMatchers.eq(linea1.getId()))).thenReturn(Mono.just(linea1));
+		propuesta.getAttributeColumns().clear();
 		propuesta.addAttribute(atributo2);
 		propuesta.addAttribute(atributo3);
 		when(consultaService.findAttributesByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.fromIterable(propuesta.getAttributeColumns()));
@@ -645,12 +646,28 @@ class LineaControllerTest {
 				.contains("mono-option");
 			});
 		
-		// TODO make case where validation fails
+		log.debug("should fail validation");
+		webTestClient.post()
+		.uri("/lineas/of/" + propuesta.getId() + "/bulk-add")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("string", "")
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+			.contains("Corrige los errores y reenvía.")
+			.contains("Debes introducir un texto");
+		});
 	}
 	
 	@Test
 	void testVerifyBulkAddLineasToPropuesta() {
-		/*log.debug("should be ok");
+		
+		
+		log.debug("should be ok");
 		webTestClient.post()
 			.uri("/lineas/of/" + propuesta.getId() + "/bulk-add")
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -673,8 +690,7 @@ class LineaControllerTest {
 				.contains("field a2")
 				.contains("field b1")
 				.contains("field b2");
-			})
-			;*/
+			});
 	}
 
 }
