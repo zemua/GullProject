@@ -138,6 +138,8 @@ class LineaControllerTest {
 		
 		propuesta.addLineaId(linea1.getId());
 		propuesta.addLineaId(linea2.getId());
+		propuesta.addAttribute(atributo1);
+		propuesta.addAttribute(atributo2);
 		
 		mono1 = Mono.just(linea1);
 		mono2 = Mono.just(linea2);
@@ -619,7 +621,60 @@ class LineaControllerTest {
 	
 	@Test
 	void testProcessBulkAddLineasToPropuesta() {
+		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
+		when(consultaService.findAttributesByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(atributo1, atributo2));
 		
+		log.debug("should be ok");
+		webTestClient.post()
+			.uri("/lineas/of/" + propuesta.getId() + "/bulk-add")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("string", "asdf	qwer	zxcv")
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+				.contains("asdf")
+				.contains("qwer")
+				.contains("zxcv")
+				.contains(propuesta.getAttributeColumns().get(0).getName())
+				.contains(propuesta.getAttributeColumns().get(1).getName())
+				.contains("mono-name")
+				.contains("mono-option");
+			});
+		
+		// TODO make case where validation fails
+	}
+	
+	@Test
+	void testVerifyBulkAddLineasToPropuesta() {
+		/*log.debug("should be ok");
+		webTestClient.post()
+			.uri("/lineas/of/" + propuesta.getId() + "/bulk-add")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("name[0]", "")
+					.with("name[1]", "2")
+					.with("strings[0]", propuesta.getAttributeColumns().get(0).getId())
+					.with("strings[1]", propuesta.getAttributeColumns().get(1).getId())
+					.with("stringListWrapper[0].string[0]", "field a1")
+					.with("stringListWrapper[0].string[1]", "field a2")
+					.with("stringListWrapper[1].string[0]", "field b1")
+					.with("stringListWrapper[1].string[1]", "field b2")
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+				.contains("field a1")
+				.contains("field a2")
+				.contains("field b1")
+				.contains("field b2");
+			})
+			;*/
 	}
 
 }

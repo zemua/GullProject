@@ -179,7 +179,7 @@ public class LineaController {
 			return "bulkAddLineastoPropuesta";
 		}
 		
-		model.addAttribute("stringListOfListsWrapper", lineaUtilities.excelTextToLineObject(texto)); // TODO probar primera y útlima fila en blanco, por tema del split
+		model.addAttribute("stringListOfListsWrapper", lineaUtilities.excelTextToLineObject(texto));
 		
 		model.addAttribute("atributos", consultaService.findAttributesByPropuestaId(propuestaId));
 		Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
