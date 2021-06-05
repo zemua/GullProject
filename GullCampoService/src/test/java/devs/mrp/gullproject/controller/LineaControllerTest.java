@@ -665,32 +665,90 @@ class LineaControllerTest {
 	
 	@Test
 	void testVerifyBulkAddLineasToPropuesta() {
-		
+		when(consultaService.findAttributesByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(atributo1, atributo2));
+		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
+		when(lineaService.addVariasLineas(ArgumentMatchers.any(Flux.class), ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(linea1, linea2));
+		when(atributoService.getClassTypeOfFormat(ArgumentMatchers.eq("NUMERO"))).thenReturn(Mono.just("Integer"));
+		when(atributoService.getClassTypeOfFormat(ArgumentMatchers.eq("DESCRIPCION"))).thenReturn(Mono.just("String"));
+		when(atributoService.validateDataFormat(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(Mono.just(false));
+		when(atributoService.validateDataFormat(ArgumentMatchers.eq(atributo1.getTipo()), ArgumentMatchers.eq(campo1a.getDatosText()))).thenReturn(Mono.just(true));
+		when(atributoService.validateDataFormat(ArgumentMatchers.eq(atributo2.getTipo()), ArgumentMatchers.eq(campo1b.getDatosText()))).thenReturn(Mono.just(true));
+		when(atributoService.validateDataFormat(ArgumentMatchers.eq(atributo1.getTipo()), ArgumentMatchers.eq(campo2a.getDatosText()))).thenReturn(Mono.just(true));
+		when(atributoService.validateDataFormat(ArgumentMatchers.eq(atributo2.getTipo()), ArgumentMatchers.eq(campo2b.getDatosText()))).thenReturn(Mono.just(true));
 		
 		log.debug("should be ok");
 		webTestClient.post()
-			.uri("/lineas/of/" + propuesta.getId() + "/bulk-add")
+			.uri("/lineas/of/" + propuesta.getId() + "/bulk-add/verify")
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.accept(MediaType.TEXT_HTML)
 			.body(BodyInserters.fromFormData("name[0]", "")
 					.with("name[1]", "2")
 					.with("strings[0]", propuesta.getAttributeColumns().get(0).getId())
 					.with("strings[1]", propuesta.getAttributeColumns().get(1).getId())
-					.with("stringListWrapper[0].string[0]", "field a1")
-					.with("stringListWrapper[0].string[1]", "field a2")
-					.with("stringListWrapper[1].string[0]", "field b1")
-					.with("stringListWrapper[1].string[1]", "field b2")
+					.with("stringListWrapper[0].string[0]", campo1a.getDatosText())
+					.with("stringListWrapper[0].string[1]", campo1b.getDatosText())
+					.with("stringListWrapper[1].string[0]", campo2a.getDatosText())
+					.with("stringListWrapper[1].string[1]", campo2b.getDatosText())
 					)
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody()
 			.consumeWith(response -> {
 				Assertions.assertThat(response.getResponseBody()).asString()
-				.contains("field a1")
-				.contains("field a2")
-				.contains("field b1")
-				.contains("field b2");
+				.contains(campo1a.getDatosText())
+				.contains(campo1b.getDatosText())
+				.contains(campo2a.getDatosText())
+				.contains(campo2b.getDatosText())
+				.contains(linea1.getNombre())
+				.contains("Lineas añadidas")
+				.doesNotContain("Corrige los errores");
 			});
+		
+		log.debug("should throw validation error of field");
+		webTestClient.post()
+		.uri("/lineas/of/" + propuesta.getId() + "/bulk-add/verify")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("name[0]", "")
+				.with("name[1]", "2")
+				.with("strings[0]", propuesta.getAttributeColumns().get(0).getId())
+				.with("strings[1]", propuesta.getAttributeColumns().get(1).getId())
+				.with("stringListWrapper[0].string[0]", campo1a.getDatosText())
+				.with("stringListWrapper[0].string[1]", "xxxxx")
+				.with("stringListWrapper[1].string[0]", campo2a.getDatosText())
+				.with("stringListWrapper[1].string[1]", campo2b.getDatosText())
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+			.contains("Corrige los errores")
+			.contains("Estos campos tienen un valor incorrecto");
+		});
+		
+		log.debug("should throw validation error of name");
+		webTestClient.post()
+		.uri("/lineas/of/" + propuesta.getId() + "/bulk-add/verify")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("name[0]", "")
+				.with("name[1]", "")
+				.with("strings[0]", propuesta.getAttributeColumns().get(0).getId())
+				.with("strings[1]", propuesta.getAttributeColumns().get(1).getId())
+				.with("stringListWrapper[0].string[0]", campo1a.getDatosText())
+				.with("stringListWrapper[0].string[1]", campo1b.getDatosText())
+				.with("stringListWrapper[1].string[0]", campo2a.getDatosText())
+				.with("stringListWrapper[1].string[1]", campo2b.getDatosText())
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+			.contains("Corrige los errores")
+			.contains("Estas filas necesitan un nombre");
+		});
 	}
 
 }

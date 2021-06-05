@@ -151,7 +151,7 @@ public class LineaUtilities {
 		Boolean validado;
 	}
 	
-	public Flux<Boolean> addBulkTableErrorsToBindingResult(StringListOfListsWrapper wrapper, String propuestaId, BindingResult bindingResult) throws Exception {
+	public Flux<Boolean> addBulkTableErrorsToBindingResult(StringListOfListsWrapper wrapper, String propuestaId, BindingResult bindingResult) throws Exception { // TODO test
 		List<String> names = getNames(wrapper);
 		boolean addedErrorToName = false;
 		for (int i=0; i<names.size(); i++) {

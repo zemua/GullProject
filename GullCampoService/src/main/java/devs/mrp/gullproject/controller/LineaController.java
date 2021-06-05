@@ -189,7 +189,7 @@ public class LineaController {
 		return "processBulkAddLineasToPropuesta";
 	}
 	
-	@PostMapping("/of/{propuestaId}/bulk-add/verify") // TODO test
+	@PostMapping("/of/{propuestaId}/bulk-add/verify")
 	public Mono<String> verifyBulkAddLineastoPropuesta(StringListOfListsWrapper stringListOfListsWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		// verify that the data for each column is appropiate according to the attribute
 		try {
@@ -220,6 +220,9 @@ public class LineaController {
 												log.debug(rAllLineas.toString());
 												rAllLineas.stream().forEach(l -> log.debug(l.toString()));
 												return lineaService.addVariasLineas(Flux.fromIterable(rAllLineas), propuestaId);
+											}).collectList().map(rLineasInserted -> {
+												model.addAttribute("lineas", rLineasInserted);
+												return rLineasInserted;
 											})
 										.then(Mono.just("verifyBulkAddLineasToPropuesta").map(mon -> {
 											log.debug("y devolvemos la pantalla siguiente de verificación");
