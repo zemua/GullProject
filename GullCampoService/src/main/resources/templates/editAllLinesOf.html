@@ -3,12 +3,12 @@
 	xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="utf-8">
-<title th:text="${'Gull Project - Ordenar lineas de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Gull Project - Ordenar lineas de la propuesta</title>
+<title th:text="${'Gull Project - Editar lineas de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Gull Project - Editar lineas de la propuesta</title>
 <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
 
-<h1 th:text="${'Ordenar lineas de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Ordenar lineas de la propuesta</h1>
+<h1 th:text="${'Editar lineas de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Editar lineas de la propuesta</h1>
 
 	<div>
 		<p>
@@ -36,6 +36,7 @@
 								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].linea.nombre}" class="field-input"/>
 								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].linea.id}" class="linea-id"/>
 								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].linea.propuestaId}"/>
+								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].linea.order}"/>
 							</td>
 							<td th:each="t, tstat : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}" class="field" th:classappend="${#fields.hasErrors('*{lineaWithAttListDtos[__${ystat.index}__].attributes[__${tstat.index}__].value}') ? 'error' : '' }">
 								<span th:text="${a.linea.getValueByAttId(t.getId())}" class="field-text" contenteditable="true"></span>

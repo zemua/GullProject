@@ -142,7 +142,7 @@ public class LineaController {
 						Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
 						model.addAttribute("consulta", consulta);
 						model.addAttribute("propuestaId", propuestaId);
-						return Mono.just("editAllLinesOf");
+						return Mono.just("editAllLinesOf"); // TODO check validation of errors
 					} else {
 						Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
 						model.addAttribute("consulta", consulta);
@@ -152,10 +152,20 @@ public class LineaController {
 								.collectList().map(rListDtos -> {
 									MultipleLineaWithAttListDto multiple = new MultipleLineaWithAttListDto();
 									multiple.setLineaWithAttListDtos(rListDtos);
+									multiple.getLineaWithAttListDtos().sort((a, b) -> {
+										if (a.getLinea().getOrder()==null && b.getLinea().getOrder() == null) {
+											return 0;
+										} else if (a.getLinea().getOrder() == null) {
+											return -1;
+										} else if (b.getLinea().getOrder() == null) {
+											return 1;
+										}
+										return a.getLinea().getOrder() - b.getLinea().getOrder();
+									});
 									model.addAttribute("multipleLineaWithAttListDto", multiple);
 									return multiple;
 								})
-								.then(Mono.just("processEditAllLinesOf")); // TODO adapt template to show info
+								.then(Mono.just("processEditAllLinesOf")); // TODO fix lines show here in the incorrect order
 					}
 				});
 	}

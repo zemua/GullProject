@@ -3,12 +3,12 @@
 	xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="utf-8">
-<title th:text="${'Gull Project - Ordenar lineas de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Gull Project - Ordenar lineas de la propuesta</title>
+<title th:text="${'Gull Project - Editar lineas de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Gull Project - Editar lineas de la propuesta</title>
 <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
 
-<h1 th:text="${'Ordenar lineas de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Ordenar lineas de la propuesta</h1>
+<h1 th:text="${'Editar lineas de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Editar lineas de la propuesta</h1>
 
 	<div>
 		<p>
@@ -27,18 +27,12 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr th:each="a, ystat : *{lineas}" th:id="${ystat.index + 2}">
+				<tr th:each="a, ystat : ${multipleLineaWithAttListDto.lineaWithAttListDtos}">
 					<td class="field">
-						<span th:text="${a.nombre}" class="field-text"></span>
-						<input type="hidden" th:field="*{lineas[__${ystat.index}__].nombre}" class="field-input"/>
-						<input type="hidden" th:field="*{lineas[__${ystat.index}__].id}" class="linea-id"/>
-						<input type="hidden" th:field="*{lineas[__${ystat.index}__].order}"/>
+						<span th:text="${a.linea.nombre}" class="field-text"></span>
 					</td>
-					<td th:each="t, tstat : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}" class="field" th:classappend="${#fields.hasErrors('*{lineas[__${ystat.index}__].campos[__${tstat.index}__].datos}') ? 'error' : '' }">
-						<span th:text="${a.getValueByAttId(t.getId())}" class="field-text"></span>
-						<input type="hidden" th:field="*{lineas[__${ystat.index}__].campos[__${tstat.index}__].datos}" class="field-input"/>
-						<input type="hidden" th:field="*{lineas[__${ystat.index}__].campos[__${tstat.index}__].atributoId}"/>
-						<input type="hidden" th:field="*{lineas[__${ystat.index}__].campos[__${tstat.index}__].id}"/>
+					<td th:each="t, tstat : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}" class="field">
+						<span th:text="${a.linea.getValueByAttId(t.getId())}" class="field-text"></span>
 					</td>
 				</tr>
 			</tbody>
