@@ -22,7 +22,7 @@
 			<div>
 				<table id="tabla-ordenable" class="tablesorter">
 					<thead>
-						<tr class="nodrop nodrag" id="1">
+						<tr class="nodrop nodrag">
 							<th>Nombre</th>
 							<th th:each="t : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}">
 								<span th:text="${t.getName()}"></span>
@@ -30,17 +30,20 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr th:each="a, ystat : *{lineas}" th:id="${ystat.index + 2}">
+						<tr th:each="a, ystat : *{lineaWithAttListDtos}">
 							<td class="field">
-								<span th:text="${a.nombre}" class="field-text" contenteditable="true"></span>
-								<input type="hidden" th:field="*{lineas[__${ystat.index}__].nombre}" class="field-input"/>
-								<input type="hidden" th:field="*{lineas[__${ystat.index}__].id}" class="linea-id"/>
+								<span th:text="${a.linea.nombre}" class="field-text" contenteditable="true"></span>
+								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].linea.nombre}" class="field-input"/>
+								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].linea.id}" class="linea-id"/>
+								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].linea.propuestaId}"/>
 							</td>
-							<td th:each="t, tstat : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}" class="field" th:classappend="${#fields.hasErrors('*{lineas[__${ystat.index}__].campos[__${tstat.index}__].datos}') ? 'error' : '' }">
-								<span th:text="${a.getValueByAttId(t.getId())}" class="field-text" contenteditable="true"></span>
-								<input type="hidden" th:field="*{lineas[__${ystat.index}__].campos[__${tstat.index}__].datos}" class="field-input"/>
-								<input type="hidden" th:field="*{lineas[__${ystat.index}__].campos[__${tstat.index}__].atributoId}"/>
-								<input type="hidden" th:field="*{lineas[__${ystat.index}__].campos[__${tstat.index}__].id}"/>
+							<td th:each="t, tstat : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}" class="field" th:classappend="${#fields.hasErrors('*{lineaWithAttListDtos[__${ystat.index}__].attributes[__${tstat.index}__].value}') ? 'error' : '' }">
+								<span th:text="${a.linea.getValueByAttId(t.getId())}" class="field-text" contenteditable="true"></span>
+								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].attributes[__${tstat.index}__].value}" class="field-input"/>
+								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].attributes[__${tstat.index}__].localIdentifier}"/>
+								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].attributes[__${tstat.index}__].id}"/>
+								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].attributes[__${tstat.index}__].name}"/>
+								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].attributes[__${tstat.index}__].tipo}"/>
 							</td>
 						</tr>
 					</tbody>

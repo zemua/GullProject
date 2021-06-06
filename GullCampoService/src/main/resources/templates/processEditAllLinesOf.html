@@ -29,12 +29,12 @@
 			<tbody>
 				<tr th:each="a, ystat : *{lineas}" th:id="${ystat.index + 2}">
 					<td class="field">
-						<span th:text="${a.nombre}" class="field-text" contenteditable="true"></span>
+						<span th:text="${a.nombre}" class="field-text"></span>
 						<input type="hidden" th:field="*{lineas[__${ystat.index}__].nombre}" class="field-input"/>
 						<input type="hidden" th:field="*{lineas[__${ystat.index}__].id}" class="linea-id"/>
 					</td>
 					<td th:each="t, tstat : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}" class="field" th:classappend="${#fields.hasErrors('*{lineas[__${ystat.index}__].campos[__${tstat.index}__].datos}') ? 'error' : '' }">
-						<span th:text="${a.getValueByAttId(t.getId())}" class="field-text" contenteditable="true"></span>
+						<span th:text="${a.getValueByAttId(t.getId())}" class="field-text"></span>
 						<input type="hidden" th:field="*{lineas[__${ystat.index}__].campos[__${tstat.index}__].datos}" class="field-input"/>
 						<input type="hidden" th:field="*{lineas[__${ystat.index}__].campos[__${tstat.index}__].atributoId}"/>
 						<input type="hidden" th:field="*{lineas[__${ystat.index}__].campos[__${tstat.index}__].id}"/>

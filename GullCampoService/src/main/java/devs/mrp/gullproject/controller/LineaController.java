@@ -132,21 +132,21 @@ public class LineaController {
 	
 	@PostMapping("/allof/propid/{propuestaId}/edit") // TODO test
 	public Mono<String> processEditAllLinesOf(MultipleLineaWithAttListDto multipleLineaWithAttListDto, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
-		Flux<LineaWithAttListDto> dtos = lineaUtilities.getAttributesOfProposal(Flux.fromIterable(wrapLineasDto.getLineas()), propuestaId);
-		return dtos.flatMap(rDto -> {
+		return Flux.fromIterable(multipleLineaWithAttListDto.getLineaWithAttListDtos()).flatMap(rDto -> {
 			return lineaUtilities.assertBindingResultOfListDto(rDto, bindingResult)
 					.then(Mono.just(rDto));
 		}).collectList()
 				.flatMap(rDtoList -> {
 					if(bindingResult.hasErrors()) {
-						model.addAttribute("wrapLineasDto", wrapLineasDto);
+						model.addAttribute("multipleLineaWithAttListDto", multipleLineaWithAttListDto);
 						Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
 						model.addAttribute("consulta", consulta);
 						model.addAttribute("propuestaId", propuestaId);
 						return Mono.just("editAllLinesOf");
 					} else {
-						
-						return Mono.just("processEditAllLinesOf");
+						return lineaService.updateVariasLineas(Flux.fromIterable(rDtoList)
+							.flatMap(oDto -> lineaUtilities.reconstructLine(oDto)))
+								.then(Mono.just("processEditAllLinesOf"));
 					}
 				});
 	}
