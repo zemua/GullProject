@@ -191,7 +191,7 @@ public class LineaUtilities {
 						}
 					}
 					return rTupla.validado;
-				});
+				}).concatWithValues(!addedErrorToName);
 	}
 	
 	private List<String> getNames(StringListOfListsWrapper wrapper) {
@@ -219,7 +219,7 @@ public class LineaUtilities {
 		return names;
 	}
 	
-	private Flux<TuplaTabla> bulkTableWrapperToTuplaTabla(StringListOfListsWrapper wrapper, String propuestaId) throws Exception { // TODO test
+	private Flux<TuplaTabla> bulkTableWrapperToTuplaTabla(StringListOfListsWrapper wrapper, String propuestaId) throws Exception {
 		List<TuplaTabla> tuplas = mapToTuplaTabla(wrapper);
 		AtomicInteger counter = new AtomicInteger();
 		counter.set(0);
