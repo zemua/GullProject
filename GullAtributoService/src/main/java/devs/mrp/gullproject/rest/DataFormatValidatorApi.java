@@ -21,7 +21,7 @@ public class DataFormatValidatorApi {
 		boolean b = false;
 		try {
 			DataFormat df = DataFormat.valueOf(type);
-			b = df.checkIfValidValue(data);
+			b = df.checkIfValidRegex(data);
 		} catch (IllegalArgumentException e) {
 			log.debug("valor del tipo no encaja con ninguna de las constantes válidas");
 			b = false;

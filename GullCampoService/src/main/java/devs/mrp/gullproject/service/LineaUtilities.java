@@ -320,6 +320,7 @@ public class LineaUtilities {
 							campo.setAtributoId(sField.attId);
 							log.debug("vamos a llamar a classDestringfier con clase " + sField.clase + " y valor " + sField.valor);
 							campo.setDatos(ClassDestringfier.toObject(sField.clase, sField.valor));
+							log.debug("hemos obtenido los datos " + campo.getDatosText());
 							linea.addCampo(campo);
 						});
 						linea.setPropuestaId(propuestaId);

@@ -38,6 +38,17 @@ public enum DataFormat {
 		return false;
 	}
 	
+	public boolean checkIfValidRegex(String value) {
+		value = value.replace(",", ".");
+		if (clase == String.class) {return true;}
+		if (clase == Boolean.class && (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false"))) {return true;}
+		if (clase == Integer.class && value.matches("^-?\\d{0,9}$")) {return true;}
+		if (clase == Long.class && value.matches("^-?\\d*$")) {return true;}
+		if (clase == Float.class && value.matches("^-?\\d*\\.?\\d*$")) {return true;}
+		if (clase == Double.class && value.matches("^-?\\d*\\.?\\d*$")) {return true;}
+		return false;
+	}
+	
 	public static boolean isMember(String nName) {
 		return EnumUtils.isValidEnum(DataFormat.class, nName);
 	}
