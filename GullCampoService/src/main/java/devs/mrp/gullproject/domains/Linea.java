@@ -24,7 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 @Document (collection = "lineas")
 public class Linea {
 	
-	// TODO add lines pasting from an excel
 	// TODO separate JPA and control functionality -> LineaOperations() con final Linea field
 
 	@Id

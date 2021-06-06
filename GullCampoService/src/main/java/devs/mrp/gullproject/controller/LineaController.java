@@ -113,6 +113,20 @@ public class LineaController {
 	}
 	
 	// TODO make an endpoint to edit lines with the "tabla editable" functionality
+	@GetMapping("/allof/propid/{propuestaId}/edit") // TODO test
+	public String editAllLinesOf(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+		Mono<WrapLineasDto> lineas = lineaService.findByPropuestaId(propuestaId)
+				.collectList().flatMap(rList -> {
+					WrapLineasDto wrap = new WrapLineasDto();
+					wrap.setLineas(rList);
+					return Mono.just(wrap);
+				});
+		model.addAttribute("wrapLineasDto", lineas);
+		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+		model.addAttribute("consulta", consulta);
+		model.addAttribute("propuestaId", propuestaId);
+		return "editAllLinesOf";
+	}
 
 	@GetMapping("/of/{propuestaId}/new")
 	public String addLineToPropuesta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
