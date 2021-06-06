@@ -151,7 +151,7 @@ public class LineaUtilities {
 		Boolean validado;
 	}
 	
-	public Flux<Boolean> addBulkTableErrorsToBindingResult(StringListOfListsWrapper wrapper, String propuestaId, BindingResult bindingResult) throws Exception { // TODO test
+	public Flux<Boolean> addBulkTableErrorsToBindingResult(StringListOfListsWrapper wrapper, String propuestaId, BindingResult bindingResult) throws Exception {
 		List<String> names = getNames(wrapper);
 		boolean addedErrorToName = false;
 		for (int i=0; i<names.size(); i++) {
@@ -296,7 +296,7 @@ public class LineaUtilities {
 		int linea;
 	}
 	
-	public Mono<List<Linea>> allLineasFromBulkWrapper(StringListOfListsWrapper wrapper, String propuestaId) throws Exception { // TODO test
+	public Mono<List<Linea>> allLineasFromBulkWrapper(StringListOfListsWrapper wrapper, String propuestaId) throws Exception {
 		List<String> names = getNames(wrapper);
 		return allLineasInDuplaCompleta(wrapper, propuestaId)
 				.map(rAllDuplas -> {

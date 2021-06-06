@@ -288,5 +288,58 @@ public class LineaUtilitiesTest {
 		.verify()
 		;
 	}
+	
+	@Test
+	void testAllLineasFromBulkWrapper() throws Exception {
+		when(atributoService.validateDataFormat(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Mono.just(false));
+		when(atributoService.validateDataFormat(ArgumentMatchers.eq("DESCRIPCION"), ArgumentMatchers.anyString())).thenReturn(Mono.just(true));
+		when(consultaService.findAttributesByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(att1,att2));
+		when(atributoService.getClassTypeOfFormat(ArgumentMatchers.anyString())).thenReturn(Mono.just("Integer"));
+		when(atributoService.getClassTypeOfFormat(ArgumentMatchers.eq(att1.getTipo()))).thenReturn(Mono.just("String"));
+		when(atributoService.getClassTypeOfFormat(ArgumentMatchers.eq(att2.getTipo()))).thenReturn(Mono.just("String"));
+		
+		StringListOfListsWrapper wrapper = new StringListOfListsWrapper();
+		
+		List<Integer> names = new ArrayList<>();
+		names.add(1);
+		names.add(null);
+		wrapper.setName(names);
+		
+		List<String> nAtts = new ArrayList<>();
+		nAtts.add(att1.getId());
+		nAtts.add(att2.getId());
+		wrapper.setStrings(nAtts);
+		
+		List<StringListWrapper> wr = new ArrayList<>();
+		StringListWrapper w1 = new StringListWrapper();
+		w1.setString(new ArrayList<>());
+		w1.add(campo1.getDatosText());
+		w1.add(campo2.getDatosText());
+		wr.add(w1);
+		var w2 = new StringListWrapper();
+		w2.setString(new ArrayList<>());
+		w2.add(campo3.getDatosText());
+		w2.add(campo4.getDatosText());
+		wr.add(w2);
+		wrapper.setStringListWrapper(wr);
+		
+		Mono<List<Linea>> mono = lineaUtilities.allLineasFromBulkWrapper(wrapper, propuesta.getId());
+		StepVerifier.create(mono)
+		.assertNext(m -> {
+			assertEquals(att1.getId(), m.get(0).getCampoByIndex(0).getAtributoId());
+			assertEquals(campo1.getDatosText(), m.get(0).getCampoByIndex(0).getDatosText());
+			assertEquals(att2.getId(), m.get(0).getCampoByIndex(1).getAtributoId());
+			assertEquals(campo2.getDatosText(), m.get(0).getCampoByIndex(1).getDatosText());
+			assertEquals(campo1.getDatosText(), m.get(0).getNombre());
+			assertEquals(att1.getId(), m.get(1).getCampoByIndex(0).getAtributoId());
+			assertEquals(campo3.getDatosText(), m.get(1).getCampoByIndex(0).getDatosText());
+			assertEquals(att2.getId(), m.get(1).getCampoByIndex(1).getAtributoId());
+			assertEquals(campo4.getDatosText(), m.get(1).getCampoByIndex(1).getDatosText());
+			assertEquals(campo3.getDatosText(), m.get(1).getNombre());
+		})
+		.expectComplete()
+		.verify()
+		;
+	}
 
 }
