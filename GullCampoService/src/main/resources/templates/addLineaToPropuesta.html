@@ -38,7 +38,7 @@
 			</div>
 			<div>
 				<h3>¿Cuántas líneas como esta quieres añadir?</h3>
-				<input type="number" name="qty" min="1" value="1"/>
+				<input type="number" th:field="*{qty}" min="1"/>
 			</div>
 			<input type="hidden" th:value="*{linea.id}" th:field="*{linea.id}">
 			<input type="hidden" th:value="*{linea.propuestaId}" th:field="*{linea.propuestaId}">

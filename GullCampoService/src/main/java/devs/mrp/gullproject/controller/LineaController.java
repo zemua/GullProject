@@ -119,15 +119,15 @@ public class LineaController {
 		Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
 		Linea lLinea = new Linea();
 		lLinea.setPropuestaId(propuestaId);
-		Mono<LineaWithAttListDto> atributosDePropuesta = lineaUtilities.getAttributesOfProposal(lLinea, propuestaId);
+		Mono<LineaWithAttListDto> atributosDePropuesta = lineaUtilities.getAttributesOfProposal(lLinea, propuestaId, 1);
 		model.addAttribute("propuesta", propuesta);
 		model.addAttribute("propuestaId", propuestaId);
 		model.addAttribute("lineaWithAttListDto", atributosDePropuesta);
 		return "addLineaToPropuesta";
 	}
 
-	@PostMapping("/of/{propuestaId}/new") // TODO campo para "cuantas quieres añadir iguales?"
-	public Mono<String> processAddLineaToPropuesta(@Valid LineaWithAttListDto lineaWithAttListDto, // TODO test
+	@PostMapping("/of/{propuestaId}/new")
+	public Mono<String> processAddLineaToPropuesta(@Valid LineaWithAttListDto lineaWithAttListDto,
 			BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		return lineaUtilities.assertBindingResultOfListDto(lineaWithAttListDto, bindingResult).then(Mono.just(bindingResult))
 				.flatMap(rBindingResult -> {
@@ -139,25 +139,24 @@ public class LineaController {
 					} else {
 						Flux<Linea> l1;
 						Mono<Propuesta> p1;
+						p1 = consultaService.findPropuestaByPropuestaId(propuestaId);
 						if (lineaWithAttListDto.getLinea().getPropuestaId().equals(propuestaId)) {
 							log.debug("propuestaId's equal");
 							Mono<List<Linea>> llineas = lineaUtilities.reconstructLine(lineaWithAttListDto)
 									.map(rLine -> {
 										List<Linea> lista = new ArrayList<>();
 										for (int i=0; i<lineaWithAttListDto.getQty(); i++) {
-											rLine.setId(new ObjectId().toString());
-											lista.add(rLine);
+											Linea dLine = rLine.clonar();
+											lista.add(dLine);
 										}
 										return lista;
 									});
 							l1 = lineaService.addVariasLineas(llineas.flatMapMany(ll -> Flux.fromIterable(ll)), propuestaId);
-							p1 = consultaService.findPropuestaByPropuestaId(propuestaId);
 						} else {
 							log.debug("propuestaId's are NOT equal");
 							l1 = Flux.empty();
-							p1 = Mono.empty();
 						}
-						model.addAttribute("linea", l1);
+						model.addAttribute("lineas", new ReactiveDataDriverContextVariable(l1, 1));
 						model.addAttribute("propuesta", p1);
 						model.addAttribute("qty", lineaWithAttListDto.getQty());
 						return Mono.just("processAddLineaToPropuesta");
@@ -255,7 +254,7 @@ public class LineaController {
 	@GetMapping("/revisar/id/{lineaid}")
 	public String revisarLinea(Model model, @PathVariable(name = "lineaid") String lineaId) {
 		Mono<Linea> linea = lineaService.findById(lineaId);
-		Mono<LineaWithAttListDto> lineaDto = lineaUtilities.getAttributesOfProposal(linea);
+		Mono<LineaWithAttListDto> lineaDto = lineaUtilities.getAttributesOfProposal(linea, 1);
 
 		model.addAttribute("lineaWithAttListDto", lineaDto);
 

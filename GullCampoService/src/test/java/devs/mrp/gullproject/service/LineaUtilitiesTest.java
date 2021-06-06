@@ -105,7 +105,7 @@ public class LineaUtilitiesTest {
 	@Test
 	void testGetAttributesOfProposal() {
 		when(consultaService.findAttributesByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(att1,att2));
-		Mono<LineaWithAttListDto> mono = lineaUtilities.getAttributesOfProposal(linea1, propuesta.getId());
+		Mono<LineaWithAttListDto> mono = lineaUtilities.getAttributesOfProposal(linea1, propuesta.getId(), 1);
 		StepVerifier.create(mono)
 			.assertNext(dto -> {
 				assertEquals(linea1, dto.getLinea());
@@ -129,7 +129,7 @@ public class LineaUtilitiesTest {
 		List<AtributoForLineaFormDto> as = new ArrayList<>();
 		as.add(a1);
 		as.add(a2);
-		LineaWithAttListDto dto = new LineaWithAttListDto(linea1, as);
+		LineaWithAttListDto dto = new LineaWithAttListDto(linea1, as, 1);
 		Flux<Boolean> assertions = lineaUtilities.assertBindingResultOfListDto(dto, bindingResult);
 		
 		StepVerifier.create(assertions)
@@ -157,7 +157,7 @@ public class LineaUtilitiesTest {
 		List<AtributoForLineaFormDto> as = new ArrayList<>();
 		as.add(a1);
 		as.add(a2);
-		LineaWithAttListDto dto = new LineaWithAttListDto(linea1, as);
+		LineaWithAttListDto dto = new LineaWithAttListDto(linea1, as, 1);
 		
 		Mono<Linea> li = lineaUtilities.reconstructLine(dto);
 		StepVerifier.create(li)

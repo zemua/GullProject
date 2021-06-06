@@ -20,9 +20,4 @@ public class LineaWithAttListDto {
 	List<AtributoForLineaFormDto> attributes;
 	Integer qty;
 	
-	public LineaWithAttListDto(Linea linea, List<AtributoForLineaFormDto> attributes) {
-		this.linea = linea;
-		this.attributes = attributes;
-	}
-	
 }

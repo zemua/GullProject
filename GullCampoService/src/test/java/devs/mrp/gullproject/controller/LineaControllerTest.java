@@ -195,8 +195,11 @@ class LineaControllerTest {
 	
 	@Test
 	void testProcessAddLineaToPropuesta() {
+		List<Linea> lns = new ArrayList<>();
+		lns.add(linea1);
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
 		when(lineaService.addLinea(ArgumentMatchers.any(Mono.class))).thenReturn(Mono.just(linea1));
+		when(lineaService.addVariasLineas(ArgumentMatchers.any(Flux.class), ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.fromIterable(lns));
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
 		when(atributoService.getClassTypeOfFormat(ArgumentMatchers.anyString())).thenReturn(Mono.just("String"));
 		when(atributoService.validateDataFormat(ArgumentMatchers.eq("DESCRIPCION"), ArgumentMatchers.eq("valor de att 1"))).thenReturn(Mono.just(true));
@@ -216,6 +219,7 @@ class LineaControllerTest {
 				.with("attributes[0].localIdentifier", "localIdentifier")
 				.with("attributes[0].name", "nombre att 1")
 				.with("attributes[0].tipo", "DESCRIPCION")
+				.with("qty", "1")
 				)
 		.exchange()
 		.expectStatus().isOk()
@@ -224,8 +228,6 @@ class LineaControllerTest {
 				Assertions.assertThat(response.getResponseBody()).asString()
 					.contains("Gull Project - Linea Guardada")
 					.contains("Linea Guardada Como...")
-					.contains("Nombre:")
-					.contains("Campos...")
 					.contains(String.valueOf(linea1.getCampoByIndex(0).getDatos()))
 					.contains(String.valueOf(linea1.getCampoByIndex(1).getDatos()))
 					.doesNotContain("errores")
@@ -248,6 +250,7 @@ class LineaControllerTest {
 				.with("attributes[0].localIdentifier", "localIdentifier")
 				.with("attributes[0].name", atributo1.getName())
 				.with("attributes[0].tipo", "DESCRIPCION")
+				.with("qty", "1")
 				)
 		.exchange()
 		.expectStatus().isOk()
@@ -256,7 +259,6 @@ class LineaControllerTest {
 				Assertions.assertThat(response.getResponseBody()).asString()
 					.contains("Gull Project - Linea Guardada")
 					.doesNotContain("Linea Guardada Como...")
-					.doesNotContain("Nombre:")
 					.doesNotContain("errores")
 					.doesNotContain(propuesta.getNombre())
 					.doesNotContain(linea1.getNombre())
@@ -279,6 +281,7 @@ class LineaControllerTest {
 				.with("attributes[0].localIdentifier", "localIdentifier")
 				.with("attributes[0].name", atributo1.getName())
 				.with("attributes[0].tipo", "DESCRIPCION")
+				.with("qty", "1")
 				)
 		.exchange()
 		.expectStatus().isOk()
@@ -287,7 +290,6 @@ class LineaControllerTest {
 				Assertions.assertThat(response.getResponseBody()).asString()
 					.contains("Gull Project - Nueva Linea en Propuesta")
 					.doesNotContain("Linea Guardada Como...")
-					.contains("Nombre:")
 					.contains("Corrige los errores y reenvía")
 					.contains("Selecciona un nombre")
 					.contains("Ok")
@@ -299,11 +301,15 @@ class LineaControllerTest {
 		linea1.setNombre("valid name");
 		webTestClient.post().uri("/lineas/of/" + propuesta.getId() + "/new")
 				.contentType(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.TEXT_HTML)
-				.body(BodyInserters.fromFormData("linea.nombre", linea1.getNombre()).with("linea.id", linea1.getId())
-						.with("linea.propuestaId", propuesta.getId()).with("attributes[0].id", atributo1.getId())
+				.body(BodyInserters.fromFormData("linea.nombre", linea1.getNombre())
+						.with("linea.id", linea1.getId())
+						.with("linea.propuestaId", propuesta.getId())
+						.with("attributes[0].id", atributo1.getId())
 						.with("attributes[0].value", "valor de att 1")
 						.with("attributes[0].localIdentifier", "localIdentifier")
-						.with("attributes[0].name", atributo1.getName()).with("attributes[0].tipo", "CANTIDAD"))
+						.with("attributes[0].name", atributo1.getName())
+						.with("attributes[0].tipo", "CANTIDAD")
+						.with("qty", "1"))
 				.exchange().expectStatus().isOk().expectBody().consumeWith(response -> {
 					Assertions.assertThat(response.getResponseBody()).asString()
 							.contains("Gull Project - Nueva Linea en Propuesta")

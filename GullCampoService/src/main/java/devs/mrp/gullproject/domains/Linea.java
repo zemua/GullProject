@@ -58,6 +58,17 @@ public class Linea {
 	 */
 	private List<Campo<?>> campos = new ArrayList<>();
 	
+	public Linea clonar() {
+		Linea l = new Linea();
+		l.setCampos(this.getCampos());
+		l.setCounterLineId(this.getCounterLineId());
+		l.setNombre(this.getNombre());
+		l.setOrder(this.getOrder());
+		l.setParentId(this.getParentId());
+		l.setPropuestaId(this.getPropuestaId());
+		return l;
+	}
+	
 	public void resetCampos(List<Campo<Object>> campos) {
 		this.campos.clear();
 		this.campos.addAll(campos);

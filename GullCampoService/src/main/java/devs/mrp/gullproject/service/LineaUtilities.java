@@ -43,17 +43,17 @@ public class LineaUtilities {
 		this.atributoService = atributoService;
 	}
 
-	public Mono<LineaWithAttListDto> getAttributesOfProposal(Linea lLinea, String propuestaId) {
+	public Mono<LineaWithAttListDto> getAttributesOfProposal(Linea lLinea, String propuestaId, Integer qtyLineas) {
 		return consultaService.findAttributesByPropuestaId(propuestaId)
 				.map(rAttProp -> modelMapper.map(rAttProp, AtributoForLineaFormDto.class)).map(rAttForForm -> {
 					rAttForForm.setValue(lLinea.getValueByAttId(rAttForForm.getId()));
 					return rAttForForm;
 				}).collectList().flatMap(rAttFormList -> Mono
-						.just(new LineaWithAttListDto(lLinea, new ValidList<AtributoForLineaFormDto>(rAttFormList))));
+						.just(new LineaWithAttListDto(lLinea, new ValidList<AtributoForLineaFormDto>(rAttFormList), qtyLineas)));
 	}
 
-	public Mono<LineaWithAttListDto> getAttributesOfProposal(Mono<Linea> lLinea) {
-		return lLinea.flatMap(linea -> getAttributesOfProposal(linea, linea.getPropuestaId()));
+	public Mono<LineaWithAttListDto> getAttributesOfProposal(Mono<Linea> lLinea, Integer qtyLineas) {
+		return lLinea.flatMap(linea -> getAttributesOfProposal(linea, linea.getPropuestaId(), qtyLineas));
 	}
 
 	public Flux<Boolean> assertBindingResultOfListDto(LineaWithAttListDto lineaWithAttListDto,
