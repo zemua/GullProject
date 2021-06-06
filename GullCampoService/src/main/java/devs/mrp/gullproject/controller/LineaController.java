@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -126,7 +127,7 @@ public class LineaController {
 	}
 
 	@PostMapping("/of/{propuestaId}/new") // TODO campo para "cuantas quieres añadir iguales?"
-	public Mono<String> processAddLineaToPropuesta(@Valid LineaWithAttListDto lineaWithAttListDto,
+	public Mono<String> processAddLineaToPropuesta(@Valid LineaWithAttListDto lineaWithAttListDto, // TODO test
 			BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		return lineaUtilities.assertBindingResultOfListDto(lineaWithAttListDto, bindingResult).then(Mono.just(bindingResult))
 				.flatMap(rBindingResult -> {
@@ -136,20 +137,29 @@ public class LineaController {
 						model.addAttribute("lineaWithAttListDto", lineaWithAttListDto);
 						return Mono.just("addLineaToPropuesta");
 					} else {
-						Mono<Linea> l1;
+						Flux<Linea> l1;
 						Mono<Propuesta> p1;
 						if (lineaWithAttListDto.getLinea().getPropuestaId().equals(propuestaId)) {
 							log.debug("propuestaId's equal");
-							Mono<Linea> llinea = lineaUtilities.reconstructLine(lineaWithAttListDto);
-							l1 = lineaService.addLinea(llinea);
+							Mono<List<Linea>> llineas = lineaUtilities.reconstructLine(lineaWithAttListDto)
+									.map(rLine -> {
+										List<Linea> lista = new ArrayList<>();
+										for (int i=0; i<lineaWithAttListDto.getQty(); i++) {
+											rLine.setId(new ObjectId().toString());
+											lista.add(rLine);
+										}
+										return lista;
+									});
+							l1 = lineaService.addVariasLineas(llineas.flatMapMany(ll -> Flux.fromIterable(ll)), propuestaId);
 							p1 = consultaService.findPropuestaByPropuestaId(propuestaId);
 						} else {
 							log.debug("propuestaId's are NOT equal");
-							l1 = Mono.empty();
+							l1 = Flux.empty();
 							p1 = Mono.empty();
 						}
 						model.addAttribute("linea", l1);
 						model.addAttribute("propuesta", p1);
+						model.addAttribute("qty", lineaWithAttListDto.getQty());
 						return Mono.just("processAddLineaToPropuesta");
 					}
 				});
