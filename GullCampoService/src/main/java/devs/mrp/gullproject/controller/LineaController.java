@@ -144,9 +144,18 @@ public class LineaController {
 						model.addAttribute("propuestaId", propuestaId);
 						return Mono.just("editAllLinesOf");
 					} else {
-						return lineaService.updateVariasLineas(Flux.fromIterable(rDtoList)
-							.flatMap(oDto -> lineaUtilities.reconstructLine(oDto)))
-								.then(Mono.just("processEditAllLinesOf"));
+						Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+						model.addAttribute("consulta", consulta);
+						model.addAttribute("propuestaId", propuestaId);
+						return lineaUtilities.getAttributesOfProposal(lineaService.updateVariasLineas(Flux.fromIterable(rDtoList)
+							.flatMap(oDto -> lineaUtilities.reconstructLine(oDto))), propuestaId)
+								.collectList().map(rListDtos -> {
+									MultipleLineaWithAttListDto multiple = new MultipleLineaWithAttListDto();
+									multiple.setLineaWithAttListDtos(rListDtos);
+									model.addAttribute("multipleLineaWithAttListDto", multiple);
+									return multiple;
+								})
+								.then(Mono.just("processEditAllLinesOf")); // TODO adapt template to show info
 					}
 				});
 	}

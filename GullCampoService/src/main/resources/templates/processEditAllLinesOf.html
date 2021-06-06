@@ -32,6 +32,7 @@
 						<span th:text="${a.nombre}" class="field-text"></span>
 						<input type="hidden" th:field="*{lineas[__${ystat.index}__].nombre}" class="field-input"/>
 						<input type="hidden" th:field="*{lineas[__${ystat.index}__].id}" class="linea-id"/>
+						<input type="hidden" th:field="*{lineas[__${ystat.index}__].order}"/>
 					</td>
 					<td th:each="t, tstat : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}" class="field" th:classappend="${#fields.hasErrors('*{lineas[__${ystat.index}__].campos[__${tstat.index}__].datos}') ? 'error' : '' }">
 						<span th:text="${a.getValueByAttId(t.getId())}" class="field-text"></span>
