@@ -284,6 +284,11 @@ public class LineaController {
 		} catch (Exception e) {
 			log.debug("exception during add errors to bindingresult and we go back to the same view");
 			e.printStackTrace();
+			model.addAttribute("stringListOfListsWrapper", stringListOfListsWrapper);
+			model.addAttribute("atributos", consultaService.findAttributesByPropuestaId(propuestaId));
+			Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
+			model.addAttribute("propuesta", propuesta);
+			model.addAttribute("propuestaId", propuestaId);
 			return Mono.just("processBulkAddLineasToPropuesta");
 		}
 	}

@@ -124,11 +124,14 @@ public class LineaUtilities {
 		Integer nOfCols = 0;
 		StringListOfListsWrapper fieldArrays = new StringListOfListsWrapper();
 		for (int i = 0; i<lines.length; i++) {
-			List<String> fl = Arrays.asList(lines[i].split("\\t"));
-			fieldArrays.add(new StringListWrapper(fl, "")); // we didn't retrieve the name yet so we use an empty string in the meanwhile
+			List<String> fl = new ArrayList<>(Arrays.asList(lines[i].split("\\t")));
 			if (fl.size() > nOfCols) {
 				nOfCols = fl.size();
 			}
+			while (fl.size() < nOfCols) {
+				fl.add("");
+			}
+			fieldArrays.add(new StringListWrapper(fl, "")); // we didn't retrieve the name yet so we use an empty string in the meanwhile
 		}
 		
 		for (int i = 0; i<nOfCols; i++) {
