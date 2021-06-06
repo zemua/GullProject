@@ -42,6 +42,7 @@ import devs.mrp.gullproject.domains.dto.AttributesListDto;
 import devs.mrp.gullproject.domains.dto.AtributoForLineaFormDto;
 import devs.mrp.gullproject.domains.dto.LineaWithAttListDto;
 import devs.mrp.gullproject.domains.dto.LineaWithSelectorDto;
+import devs.mrp.gullproject.domains.dto.MultipleLineaWithAttListDto;
 import devs.mrp.gullproject.domains.dto.WrapLineasWithSelectorDto;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.ClassDestringfier;
@@ -112,20 +113,42 @@ public class LineaController {
 		return "processOrderLineasOfPropuesta";
 	}
 	
-	// TODO make an endpoint to edit lines with the "tabla editable" functionality
 	@GetMapping("/allof/propid/{propuestaId}/edit") // TODO test
 	public String editAllLinesOf(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
-		Mono<WrapLineasDto> lineas = lineaService.findByPropuestaId(propuestaId)
-				.collectList().flatMap(rList -> {
-					WrapLineasDto wrap = new WrapLineasDto();
-					wrap.setLineas(rList);
-					return Mono.just(wrap);
+		Flux<Linea> lineas = lineaService.findByPropuestaId(propuestaId);
+		Mono<MultipleLineaWithAttListDto> lineaDtos = lineaUtilities.getAttributesOfProposal(lineas, propuestaId)
+				.collectList().map(listOfDtos -> {
+					MultipleLineaWithAttListDto multiple = new MultipleLineaWithAttListDto();
+					multiple.setLineaWithAttListDtos(listOfDtos);
+					return multiple;
 				});
-		model.addAttribute("wrapLineasDto", lineas);
+		
+		model.addAttribute("multipleLineaWithAttListDto", lineaDtos);
 		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
 		model.addAttribute("consulta", consulta);
 		model.addAttribute("propuestaId", propuestaId);
 		return "editAllLinesOf";
+	}
+	
+	@PostMapping("/allof/propid/{propuestaId}/edit") // TODO test
+	public Mono<String> processEditAllLinesOf(MultipleLineaWithAttListDto multipleLineaWithAttListDto, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+		Flux<LineaWithAttListDto> dtos = lineaUtilities.getAttributesOfProposal(Flux.fromIterable(wrapLineasDto.getLineas()), propuestaId);
+		return dtos.flatMap(rDto -> {
+			return lineaUtilities.assertBindingResultOfListDto(rDto, bindingResult)
+					.then(Mono.just(rDto));
+		}).collectList()
+				.flatMap(rDtoList -> {
+					if(bindingResult.hasErrors()) {
+						model.addAttribute("wrapLineasDto", wrapLineasDto);
+						Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+						model.addAttribute("consulta", consulta);
+						model.addAttribute("propuestaId", propuestaId);
+						return Mono.just("editAllLinesOf");
+					} else {
+						
+						return Mono.just("processEditAllLinesOf");
+					}
+				});
 	}
 
 	@GetMapping("/of/{propuestaId}/new")

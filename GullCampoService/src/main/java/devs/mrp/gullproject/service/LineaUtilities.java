@@ -55,6 +55,13 @@ public class LineaUtilities {
 	public Mono<LineaWithAttListDto> getAttributesOfProposal(Mono<Linea> lLinea, Integer qtyLineas) {
 		return lLinea.flatMap(linea -> getAttributesOfProposal(linea, linea.getPropuestaId(), qtyLineas));
 	}
+	
+	public Flux<LineaWithAttListDto> getAttributesOfProposal(Flux<Linea> lineas, String propuestaId) {
+		return lineas.flatMap(rLinea -> {
+			return getAttributesOfProposal(rLinea, propuestaId, 1);
+		})
+		;
+	}
 
 	public Flux<Boolean> assertBindingResultOfListDto(LineaWithAttListDto lineaWithAttListDto,
 			BindingResult bindingResult) {
