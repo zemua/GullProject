@@ -756,5 +756,34 @@ class LineaControllerTest {
 			.contains("Estas filas necesitan un nombre");
 		});
 	}
+	
+	@Test
+	void testEditAllLinesOf() {
+		campo2a.setAtributoId(atributo1.getId());
+		campo2b.setAtributoId(atributo2.getId());
+		when(lineaService.findByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(linea1, linea2));
+		when(consultaService.findAttributesByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(atributo1, atributo2));
+		when(consultaService.findConsultaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(consulta));
+		
+		webTestClient.get()
+			.uri("/lineas/allof/propid/" + propuesta.getId() + "/edit")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+				.contains(propuesta.getNombre())
+				.contains("Editar lineas de la propuesta")
+				.contains(linea1.getNombre())
+				.contains(linea1.getCampoByIndex(0).getDatosText())
+				.contains(linea2.getNombre())
+				.contains(linea2.getCampoByIndex(1).getDatosText())
+				;
+			})
+			;
+	}
+	
+	
 
 }
