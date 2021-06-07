@@ -71,7 +71,7 @@ public class LineaUtilities {
 	}
 
 	public Flux<Boolean> assertBindingResultOfListDto(LineaWithAttListDto lineaWithAttListDto,
-			BindingResult bindingResult) {
+			BindingResult bindingResult, String attsRoute) {
 		/**
 		 * BindingResult checks out of the box if there is any error in the line, but
 		 * not in the attributes (we removed the validation in that class) To check if
@@ -98,8 +98,9 @@ public class LineaUtilities {
 						.map(rBool -> {
 							if (!rBool) {
 								Integer pos = map.get(rAtt);
-								bindingResult.rejectValue("attributes[" + pos + "].id",
-										"error.atributosDeLinea.attributes[" + pos + "]",
+								log.debug("going to reject: " + attsRoute + "[" + pos + "].id");
+								bindingResult.rejectValue(attsRoute + "[" + pos + "].id",
+										"error." + attsRoute + "[" + pos + "]",
 										"El valor no es correcto para este atributo.");
 							}
 							return rBool;

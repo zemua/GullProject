@@ -75,6 +75,8 @@ public class LineaController {
 		this.atributoService = atributoService;
 		this.lineaUtilities = lineaUtilities;
 	}
+	
+	// TODO for excels where one sheet = one product, first map fields in the sheet row/column=attribute, then extract data from several sheets following this map.
 
 	@GetMapping("/allof/propid/{propuestaId}")
 	public String showAllLinesOf(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
@@ -113,7 +115,7 @@ public class LineaController {
 		return "processOrderLineasOfPropuesta";
 	}
 	
-	@GetMapping("/allof/propid/{propuestaId}/edit") // TODO test
+	@GetMapping("/allof/propid/{propuestaId}/edit")
 	public String editAllLinesOf(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		Flux<Linea> lineas = lineaService.findByPropuestaId(propuestaId);
 		Mono<MultipleLineaWithAttListDto> lineaDtos = lineaUtilities.getAttributesOfProposal(lineas, propuestaId)
@@ -132,12 +134,13 @@ public class LineaController {
 	
 	@PostMapping("/allof/propid/{propuestaId}/edit") // TODO test
 	public Mono<String> processEditAllLinesOf(MultipleLineaWithAttListDto multipleLineaWithAttListDto, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
-		return Flux.fromIterable(multipleLineaWithAttListDto.getLineaWithAttListDtos()).flatMap(rDto -> {
-			return lineaUtilities.assertBindingResultOfListDto(rDto, bindingResult)
-					.then(Mono.just(rDto));
+		return Flux.fromIterable(multipleLineaWithAttListDto.getLineaWithAttListDtos()).index().flatMap(rTuple -> {
+			return lineaUtilities.assertBindingResultOfListDto(rTuple.getT2(), bindingResult, "lineaWithAttListDtos[" + rTuple.getT1() + "].attributes")
+					.then(Mono.just(rTuple.getT2())); // TODO check errors on name (if empty)
 		}).collectList()
 				.flatMap(rDtoList -> {
 					if(bindingResult.hasErrors()) {
+						log.debug("bindingResult tiene errores, enviamos de vuelta: " + multipleLineaWithAttListDto.toString());
 						model.addAttribute("multipleLineaWithAttListDto", multipleLineaWithAttListDto);
 						Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
 						model.addAttribute("consulta", consulta);
@@ -181,7 +184,7 @@ public class LineaController {
 	@PostMapping("/of/{propuestaId}/new")
 	public Mono<String> processAddLineaToPropuesta(@Valid LineaWithAttListDto lineaWithAttListDto,
 			BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
-		return lineaUtilities.assertBindingResultOfListDto(lineaWithAttListDto, bindingResult).then(Mono.just(bindingResult))
+		return lineaUtilities.assertBindingResultOfListDto(lineaWithAttListDto, bindingResult, "attributes").then(Mono.just(bindingResult))
 				.flatMap(rBindingResult -> {
 					if (rBindingResult.hasErrors()) {
 						model.addAttribute("propuesta", consultaService.findPropuestaByPropuestaId(propuestaId));
@@ -321,7 +324,7 @@ public class LineaController {
 	@PostMapping("/revisar/id/{lineaid}")
 	public Mono<String> processRevisarLinea(@Valid LineaWithAttListDto lineaWithAttListDto, BindingResult bindingResult,
 			Model model, @PathVariable(name = "lineaid") String lineaId) {
-		return lineaUtilities.assertBindingResultOfListDto(lineaWithAttListDto, bindingResult).then(Mono.just(bindingResult))
+		return lineaUtilities.assertBindingResultOfListDto(lineaWithAttListDto, bindingResult, "attributes").then(Mono.just(bindingResult))
 				.flatMap(rBindingResult -> {
 					if (rBindingResult.hasErrors()) {
 						model.addAttribute("lineaWithAttListDto", lineaWithAttListDto);

@@ -130,7 +130,7 @@ public class LineaUtilitiesTest {
 		as.add(a1);
 		as.add(a2);
 		LineaWithAttListDto dto = new LineaWithAttListDto(linea1, as, 1);
-		Flux<Boolean> assertions = lineaUtilities.assertBindingResultOfListDto(dto, bindingResult);
+		Flux<Boolean> assertions = lineaUtilities.assertBindingResultOfListDto(dto, bindingResult, "attributes");
 		
 		StepVerifier.create(assertions)
 			.assertNext(b -> {
