@@ -152,20 +152,16 @@ public class LineaController {
 								.collectList().map(rListDtos -> {
 									MultipleLineaWithAttListDto multiple = new MultipleLineaWithAttListDto();
 									multiple.setLineaWithAttListDtos(rListDtos);
-									multiple.getLineaWithAttListDtos().sort((a, b) -> {
-										if (a.getLinea().getOrder()==null && b.getLinea().getOrder() == null) {
-											return 0;
-										} else if (a.getLinea().getOrder() == null) {
-											return -1;
-										} else if (b.getLinea().getOrder() == null) {
-											return 1;
+									multiple.getLineaWithAttListDtos().forEach(sLineAtt -> {
+										if (sLineAtt.getLinea().getOrder() == null) {
+											sLineAtt.getLinea().setOrder(0);
 										}
-										return a.getLinea().getOrder() - b.getLinea().getOrder();
 									});
+									multiple.getLineaWithAttListDtos().sort((a, b) -> a.getLinea().getOrder().compareTo(b.getLinea().getOrder()));
 									model.addAttribute("multipleLineaWithAttListDto", multiple);
 									return multiple;
 								})
-								.then(Mono.just("processEditAllLinesOf")); // TODO fix lines show here in the incorrect order
+								.then(Mono.just("processEditAllLinesOf"));
 					}
 				});
 	}

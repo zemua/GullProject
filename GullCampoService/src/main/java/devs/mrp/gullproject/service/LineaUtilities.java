@@ -60,7 +60,14 @@ public class LineaUtilities {
 		return lineas.flatMap(rLinea -> {
 			return getAttributesOfProposal(rLinea, propuestaId, 1);
 		})
-		;
+				.map(rDto -> {
+					if (rDto.getLinea().getOrder() == null) {
+						rDto.getLinea().setOrder(0);
+					}
+					return rDto;
+				})
+				.collectSortedList((l1, l2) -> l1.getLinea().getOrder().compareTo(l2.getLinea().getOrder()))
+				.flatMapMany(rList -> Flux.fromIterable(rList));
 	}
 
 	public Flux<Boolean> assertBindingResultOfListDto(LineaWithAttListDto lineaWithAttListDto,
