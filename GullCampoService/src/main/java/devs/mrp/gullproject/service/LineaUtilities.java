@@ -110,6 +110,18 @@ public class LineaUtilities {
 			}
 		});
 	}
+	
+	public boolean assertNameBindingResultOfListDto(LineaWithAttListDto lineaWithAttListDto, BindingResult bindingResult, String nameRoute) {
+		String nombre = lineaWithAttListDto.getLinea().getNombre();
+		boolean isValid = true;
+		if (nombre == null || nombre.equals("")) {
+			isValid = false;
+			bindingResult.rejectValue(nameRoute,
+					"error." + nameRoute,
+					"El nombre de esta línea no es válido");
+		}
+		return isValid;
+	}
 
 	public Mono<Linea> reconstructLine(LineaWithAttListDto lineaWithAttListDto) {
 		Linea nLinea = lineaWithAttListDto.getLinea();
