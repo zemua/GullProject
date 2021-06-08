@@ -60,6 +60,11 @@ public enum DataFormat {
 		return EnumUtils.isValidEnum(DataFormat.class, nName);
 	}
 	
+	/**
+	 * @deprecated
+	 * @param s
+	 * @return
+	 */
 	private boolean checkIfInteger(String s) {
 		boolean b = false;
 		try {
@@ -74,6 +79,11 @@ public enum DataFormat {
 		return b;
 	}
 	
+	/**
+	 * @deprecated
+	 * @param s
+	 * @return
+	 */
 	private boolean checkIfLong(String s) {
 		boolean b = false;
 		try {
@@ -88,6 +98,11 @@ public enum DataFormat {
 		return b;
 	}
 	
+	/**
+	 * @deprecated
+	 * @param s
+	 * @return
+	 */
 	private boolean checkIfDouble(String s) {
 		boolean b = false;
 		try {
@@ -102,6 +117,11 @@ public enum DataFormat {
 		return b;
 	}
 	
+	/**
+	 * @deprecated
+	 * @param s
+	 * @return
+	 */
 	private boolean checkIfFloat(String s) {
 		boolean b = false;
 		try {
@@ -116,6 +136,11 @@ public enum DataFormat {
 		return b;
 	}
 	
+	/**
+	 * @deprecated
+	 * @param s
+	 * @return
+	 */
 	private boolean checkIfBoolean(String s) {
 		boolean b = false;
 		try {
