@@ -136,7 +136,8 @@ public class LineaController {
 	public Mono<String> processEditAllLinesOf(MultipleLineaWithAttListDto multipleLineaWithAttListDto, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		return Flux.fromIterable(multipleLineaWithAttListDto.getLineaWithAttListDtos()).index().flatMap(rTuple -> {
 			return lineaUtilities.assertBindingResultOfListDto(rTuple.getT2(), bindingResult, "lineaWithAttListDtos[" + rTuple.getT1() + "].attributes")
-					.then(Mono.just(rTuple.getT2())); // TODO check errors on name (if empty)
+					.then(Mono.just(lineaUtilities.assertNameBindingResultOfListDto(rTuple.getT2(), bindingResult, "lineaWithAttListDtos[" + rTuple.getT1() + "].linea.nombre")))
+					.then(Mono.just(rTuple.getT2()));
 		}).collectList()
 				.flatMap(rDtoList -> {
 					if(bindingResult.hasErrors()) {
@@ -145,7 +146,7 @@ public class LineaController {
 						Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
 						model.addAttribute("consulta", consulta);
 						model.addAttribute("propuestaId", propuestaId);
-						return Mono.just("editAllLinesOf"); // TODO check validation of errors
+						return Mono.just("editAllLinesOf");
 					} else {
 						Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
 						model.addAttribute("consulta", consulta);

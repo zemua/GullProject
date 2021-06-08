@@ -19,7 +19,12 @@
 	<form method="POST" th:object="${multipleLineaWithAttListDto}">
 		<div>
 			<div><button>Guardar</button></div>
-			<div>
+		<div>
+		<div th:if="${#fields.hasErrors()}">
+     	   <span class="validationError">
+      	  Corrige los errores y reenvía.
+     	   </span>
+    	</div>
 				<table id="tabla-ordenable" class="tablesorter">
 					<thead>
 						<tr class="nodrop nodrag">

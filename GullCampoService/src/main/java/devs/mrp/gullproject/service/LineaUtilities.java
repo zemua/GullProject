@@ -111,7 +111,7 @@ public class LineaUtilities {
 		});
 	}
 	
-	public boolean assertNameBindingResultOfListDto(LineaWithAttListDto lineaWithAttListDto, BindingResult bindingResult, String nameRoute) {
+	public boolean assertNameBindingResultOfListDto(LineaWithAttListDto lineaWithAttListDto, BindingResult bindingResult, String nameRoute) { // TODO test
 		String nombre = lineaWithAttListDto.getLinea().getNombre();
 		boolean isValid = true;
 		if (nombre == null || nombre.equals("")) {
