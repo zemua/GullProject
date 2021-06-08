@@ -36,6 +36,7 @@ import devs.mrp.gullproject.domains.dto.LineaWithSelectorDto;
 import devs.mrp.gullproject.domains.dto.WrapLineasWithSelectorDto;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.ConsultaService;
+import devs.mrp.gullproject.service.LineaOperations;
 import devs.mrp.gullproject.service.LineaService;
 import devs.mrp.gullproject.service.LineaUtilities;
 import lombok.extern.slf4j.Slf4j;
@@ -68,10 +69,12 @@ class LineaControllerTest {
 	}
 	
 	Linea linea1;
+	LineaOperations linea1Operations;
 	Campo<String> campo1a;
 	Campo<Integer> campo1b;
 	
 	Linea linea2;
+	LineaOperations linea2Operations;
 	Campo<String> campo2a;
 	Campo<Integer> campo2b;
 	
@@ -119,8 +122,9 @@ class LineaControllerTest {
 		campo1b.setAtributoId(atributo2.getId());
 		campo1b.setDatos(123);
 		linea1 = new Linea();
-		linea1.addCampo(campo1a);
-		linea1.addCampo(campo1b);
+		linea1Operations = new LineaOperations(linea1);
+		linea1Operations.addCampo(campo1a);
+		linea1Operations.addCampo(campo1b);
 		linea1.setNombre("nombre linea 1");
 		linea1.setPropuestaId(propuesta.getId());
 		
@@ -131,8 +135,9 @@ class LineaControllerTest {
 		campo2b.setAtributoId(atributo3.getId());
 		campo2b.setDatos(321);
 		linea2 = new Linea();
-		linea2.addCampo(campo2a);
-		linea2.addCampo(campo2b);
+		linea2Operations = new LineaOperations(linea2);
+		linea2Operations.addCampo(campo2a);
+		linea2Operations.addCampo(campo2b);
 		linea2.setNombre("nombre linea 2");
 		linea2.setPropuestaId(propuesta.getId());
 		
@@ -250,8 +255,8 @@ class LineaControllerTest {
 				Assertions.assertThat(response.getResponseBody()).asString()
 					.contains("Gull Project - Linea Guardada")
 					.contains("Linea Guardada Como...")
-					.contains(String.valueOf(linea1.getCampoByIndex(0).getDatos()))
-					.contains(String.valueOf(linea1.getCampoByIndex(1).getDatos()))
+					.contains(String.valueOf(linea1Operations.getCampoByIndex(0).getDatos()))
+					.contains(String.valueOf(linea1Operations.getCampoByIndex(1).getDatos()))
 					.doesNotContain("errores")
 					.contains(propuesta.getNombre())
 					.contains(linea1.getNombre())
@@ -364,8 +369,8 @@ class LineaControllerTest {
 			.doesNotContain(atributo1.getName())
 			.contains(propuesta.getAttributeColumns().get(0).getName())
 			.contains(propuesta.getAttributeColumns().get(1).getName())
-			.contains(String.valueOf(linea1.getCampoByIndex(0).getDatos()))
-			.contains(String.valueOf(linea1.getCampoByIndex(1).getDatos()));
+			.contains(String.valueOf(linea1Operations.getCampoByIndex(0).getDatos()))
+			.contains(String.valueOf(linea1Operations.getCampoByIndex(1).getDatos()));
 		});
 	}
 	
@@ -378,7 +383,7 @@ class LineaControllerTest {
 		att1.setId(atributo1.getId());
 		att1.setName(atributo1.getName());
 		att1.setTipo(atributo1.getTipo());
-		att1.setValue(String.valueOf(linea1.getCampoByIndex(0).getDatos()));
+		att1.setValue(String.valueOf(linea1Operations.getCampoByIndex(0).getDatos()));
 		AtributoForLineaFormDto att2 = new AtributoForLineaFormDto();
 		att2.setId(atributo2.getId());
 		att2.setName(atributo2.getName());
@@ -392,8 +397,8 @@ class LineaControllerTest {
 		att3.setValue("45789");
 		campo2b.setDatos(Integer.parseInt(att3.getValue()));
 		
-		linea1.replaceOrElseAddCampo(atributo2.getId(), campo2a);
-		linea1.replaceOrElseAddCampo(atributo3.getId(), campo2b);
+		linea1Operations.replaceOrElseAddCampo(atributo2.getId(), campo2a);
+		linea1Operations.replaceOrElseAddCampo(atributo3.getId(), campo2b);
 		when(lineaService.updateLinea(ArgumentMatchers.any(Linea.class))).thenReturn(Mono.just(linea1));
 		
 		log.debug("response when all correct");
@@ -440,9 +445,9 @@ class LineaControllerTest {
 					.contains("Linea Actualizada")
 					.contains("Linea Guardada Como...")
 					.contains(linea1.getNombre())
-					.contains(String.valueOf(linea1.getCampoByIndex(0).getDatos()))
-					.contains(String.valueOf(linea1.getCampoByIndex(1).getDatos()))
-					.contains(String.valueOf(linea1.getCampoByIndex(2).getDatos()))
+					.contains(String.valueOf(linea1Operations.getCampoByIndex(0).getDatos()))
+					.contains(String.valueOf(linea1Operations.getCampoByIndex(1).getDatos()))
+					.contains(String.valueOf(linea1Operations.getCampoByIndex(2).getDatos()))
 					;
 		});
 	}
@@ -461,7 +466,7 @@ class LineaControllerTest {
 			Assertions.assertThat(response.getResponseBody()).asString()
 			.contains(linea1.getNombre())
 			.contains(linea1.getId())
-			.contains(linea1.getCampoByIndex(0).getDatosText())
+			.contains(linea1Operations.getCampoByIndex(0).getDatosText())
 			.contains("Borrar Linea");
 		});
 		
@@ -504,11 +509,11 @@ class LineaControllerTest {
 			.contains("Lineas de la propuesta")
 			.contains("Borrar")
 			.contains(linea1.getNombre())
-			.contains(linea1.getCampoByIndex(0).getDatosText())
-			.contains(linea1.getCampoByIndex(1).getDatosText())
+			.contains(linea1Operations.getCampoByIndex(0).getDatosText())
+			.contains(linea1Operations.getCampoByIndex(1).getDatosText())
 			.contains(linea2.getNombre())
-			.contains(linea2.getCampoByIndex(0).getDatosText())
-			.contains(linea2.getCampoByIndex(1).getDatosText());
+			.contains(linea2Operations.getCampoByIndex(0).getDatosText())
+			.contains(linea2Operations.getCampoByIndex(1).getDatosText());
 		});
 	}
 	
@@ -598,9 +603,9 @@ class LineaControllerTest {
 				.contains(propuesta.getNombre())
 				.contains("Ordenar lineas de la propuesta")
 				.contains(linea1.getNombre())
-				.contains(linea1.getCampoByIndex(0).getDatosText())
+				.contains(linea1Operations.getCampoByIndex(0).getDatosText())
 				.contains(linea2.getNombre())
-				.contains(linea2.getCampoByIndex(1).getDatosText())
+				.contains(linea2Operations.getCampoByIndex(1).getDatosText())
 				;
 			});
 	}
@@ -798,9 +803,9 @@ class LineaControllerTest {
 				.contains(propuesta.getNombre())
 				.contains("Editar lineas de la propuesta")
 				.contains(linea1.getNombre())
-				.contains(linea1.getCampoByIndex(0).getDatosText())
+				.contains(linea1Operations.getCampoByIndex(0).getDatosText())
 				.contains(linea2.getNombre())
-				.contains(linea2.getCampoByIndex(1).getDatosText())
+				.contains(linea2Operations.getCampoByIndex(1).getDatosText())
 				;
 			})
 			;

@@ -47,6 +47,7 @@ import devs.mrp.gullproject.domains.dto.WrapLineasWithSelectorDto;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.ClassDestringfier;
 import devs.mrp.gullproject.service.ConsultaService;
+import devs.mrp.gullproject.service.LineaOperations;
 import devs.mrp.gullproject.service.LineaService;
 import devs.mrp.gullproject.service.LineaUtilities;
 import devs.mrp.gullproject.validator.AttributeValueValidator;
@@ -202,7 +203,8 @@ public class LineaController {
 									.map(rLine -> {
 										List<Linea> lista = new ArrayList<>();
 										for (int i=0; i<lineaWithAttListDto.getQty(); i++) {
-											Linea dLine = rLine.clonar();
+											LineaOperations operationsRline = new LineaOperations(rLine);
+											Linea dLine = operationsRline.clonar();
 											lista.add(dLine);
 										}
 										return lista;

@@ -46,7 +46,8 @@ public class LineaUtilities {
 	public Mono<LineaWithAttListDto> getAttributesOfProposal(Linea lLinea, String propuestaId, Integer qtyLineas) {
 		return consultaService.findAttributesByPropuestaId(propuestaId)
 				.map(rAttProp -> modelMapper.map(rAttProp, AtributoForLineaFormDto.class)).map(rAttForForm -> {
-					rAttForForm.setValue(lLinea.getValueByAttId(rAttForForm.getId()));
+					LineaOperations operations = new LineaOperations(lLinea);
+					rAttForForm.setValue(operations.getValueByAttId(rAttForForm.getId()));
 					return rAttForForm;
 				}).collectList().flatMap(rAttFormList -> Mono
 						.just(new LineaWithAttListDto(lLinea, new ValidList<AtributoForLineaFormDto>(rAttFormList), qtyLineas)));
@@ -134,7 +135,8 @@ public class LineaUtilities {
 				.flatMap(rAtt -> atributoService.getClassTypeOfFormat(rAtt.getTipo()).map(
 						rClass -> new Campo<Object>(rAtt.getId(), ClassDestringfier.toObject(rClass, rAtt.getValue()))))
 				.collectList().map(rCampoList -> {
-					nLinea.replaceOrAddCamposObj(rCampoList);
+					LineaOperations operations = new LineaOperations(nLinea);
+					operations.replaceOrAddCamposObj(rCampoList);
 					return nLinea;
 				});
 	}
@@ -342,7 +344,8 @@ public class LineaUtilities {
 							log.debug("vamos a llamar a classDestringfier con clase " + sField.clase + " y valor " + sField.valor);
 							campo.setDatos(ClassDestringfier.toObject(sField.clase, sField.valor));
 							log.debug("hemos obtenido los datos " + campo.getDatosText());
-							linea.addCampo(campo);
+							LineaOperations operations = new LineaOperations(linea);
+							operations.addCampo(campo);
 						});
 						linea.setPropuestaId(propuestaId);
 						linea.setNombre(names.get(sDupla.get(0).linea));

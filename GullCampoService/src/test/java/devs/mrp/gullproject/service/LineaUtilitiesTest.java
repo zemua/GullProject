@@ -54,9 +54,11 @@ public class LineaUtilitiesTest {
 	Campo<String> campo1;
 	Campo<String> campo2;
 	Linea linea1;
+	LineaOperations linea1o;
 	Campo<String> campo3;
 	Campo<String> campo4;
 	Linea linea2;
+	LineaOperations linea2o;
 	Propuesta propuesta;
 	LineaWithAttListDto lineaWithAttListDto;
 	
@@ -84,10 +86,11 @@ public class LineaUtilitiesTest {
 		campo2.setAtributoId(att2.getId());
 		campo2.setDatos("datos2");
 		linea1 = new Linea();
+		linea1o = new LineaOperations(linea1);
 		linea1.setNombre("nombre linea 1");
 		linea1.setPropuestaId(propuesta.getId());
-		linea1.addCampo(campo1);
-		linea1.addCampo(campo2);
+		linea1o.addCampo(campo1);
+		linea1o.addCampo(campo2);
 		campo3 = new Campo<>();
 		campo3.setAtributoId(att1.getId());
 		campo3.setDatos("datos3");
@@ -95,10 +98,11 @@ public class LineaUtilitiesTest {
 		campo4.setAtributoId(att2.getId());
 		campo4.setDatos("datos4");
 		linea2 = new Linea();
+		linea2o = new LineaOperations(linea2);
 		linea2.setNombre("nombre linea 2");
 		linea2.setPropuestaId(propuesta.getId());
-		linea2.addCampo(campo3);
-		linea2.addCampo(campo4);
+		linea2o.addCampo(campo3);
+		linea2o.addCampo(campo4);
 		propuesta.addLineaId(linea1.getId());
 		propuesta.addAttribute(att1);
 		propuesta.addAttribute(att2);
@@ -174,10 +178,11 @@ public class LineaUtilitiesTest {
 		Mono<Linea> li = lineaUtilities.reconstructLine(dto);
 		StepVerifier.create(li)
 		.assertNext(rL -> {
+			LineaOperations rLo = new LineaOperations(rL);
 			assertEquals(linea1.getNombre(), rL.getNombre());
-			assertEquals(2, rL.getCantidadCampos());
-			assertEquals(att1.getId(), rL.getCampoByIndex(0).getAtributoId());
-			assertEquals(a2.getValue(), rL.getCampoByIndex(1).getDatosText());
+			assertEquals(2, rLo.getCantidadCampos());
+			assertEquals(att1.getId(), rLo.getCampoByIndex(0).getAtributoId());
+			assertEquals(a2.getValue(), rLo.getCampoByIndex(1).getDatosText());
 		})
 		.expectComplete()
 		.verify()
@@ -338,15 +343,17 @@ public class LineaUtilitiesTest {
 		Mono<List<Linea>> mono = lineaUtilities.allLineasFromBulkWrapper(wrapper, propuesta.getId());
 		StepVerifier.create(mono)
 		.assertNext(m -> {
-			assertEquals(att1.getId(), m.get(0).getCampoByIndex(0).getAtributoId());
-			assertEquals(campo1.getDatosText(), m.get(0).getCampoByIndex(0).getDatosText());
-			assertEquals(att2.getId(), m.get(0).getCampoByIndex(1).getAtributoId());
-			assertEquals(campo2.getDatosText(), m.get(0).getCampoByIndex(1).getDatosText());
-			assertEquals(campo1.getDatosText(), m.get(0).getNombre());
-			assertEquals(att1.getId(), m.get(1).getCampoByIndex(0).getAtributoId());
-			assertEquals(campo3.getDatosText(), m.get(1).getCampoByIndex(0).getDatosText());
-			assertEquals(att2.getId(), m.get(1).getCampoByIndex(1).getAtributoId());
-			assertEquals(campo4.getDatosText(), m.get(1).getCampoByIndex(1).getDatosText());
+			LineaOperations m0 = new LineaOperations(m.get(0));
+			LineaOperations m1 = new LineaOperations(m.get(1));
+			assertEquals(att1.getId(), m0.getCampoByIndex(0).getAtributoId());
+			assertEquals(campo1.getDatosText(), m0.getCampoByIndex(0).getDatosText());
+			assertEquals(att2.getId(), m0.getCampoByIndex(1).getAtributoId());
+			assertEquals(campo2.getDatosText(), m0.getCampoByIndex(1).getDatosText());
+			assertEquals(campo1.getDatosText(), m0.getLinea().getNombre());
+			assertEquals(att1.getId(), m1.getCampoByIndex(0).getAtributoId());
+			assertEquals(campo3.getDatosText(), m1.getCampoByIndex(0).getDatosText());
+			assertEquals(att2.getId(), m1.getCampoByIndex(1).getAtributoId());
+			assertEquals(campo4.getDatosText(), m1.getCampoByIndex(1).getDatosText());
 			assertEquals(campo3.getDatosText(), m.get(1).getNombre());
 		})
 		.expectComplete()
