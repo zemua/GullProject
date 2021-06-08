@@ -11,8 +11,6 @@ public enum DataFormat {
 	
 	Class<?> clase;
 	
-	private static DataFormat[] sFormats;
-	
 	private DataFormat(Class<?> clase) {
 		this.clase = clase;
 	}
@@ -21,6 +19,15 @@ public enum DataFormat {
 		return this.clase.getSimpleName();
 	}
 	
+	/**
+	 * Check if the provided String is a valid value for the current enum
+	 * @deprecated
+	 * This method is no longer acceptable to check validity.
+	 * <p> Use {@link DataFormat#checkIfValidRegex(String value)} instead
+	 * 
+	 * @param s
+	 * @return
+	 */
 	public boolean checkIfValidValue(String s) {
 		if (clase.equals(String.class)) {
 			return true;
@@ -52,8 +59,6 @@ public enum DataFormat {
 	public static boolean isMember(String nName) {
 		return EnumUtils.isValidEnum(DataFormat.class, nName);
 	}
-	
-	// TODO check with regular expression, it is not advisable to guide the logic of the program with exceptions
 	
 	private boolean checkIfInteger(String s) {
 		boolean b = false;
