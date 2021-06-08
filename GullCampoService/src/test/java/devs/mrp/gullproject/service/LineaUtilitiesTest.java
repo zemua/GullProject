@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 
 import devs.mrp.gullproject.domains.AtributoForCampo;
@@ -57,6 +58,7 @@ public class LineaUtilitiesTest {
 	Campo<String> campo4;
 	Linea linea2;
 	Propuesta propuesta;
+	LineaWithAttListDto lineaWithAttListDto;
 	
 	@Autowired
 	LineaUtilitiesTest(ModelMapper modelMapper, LineaUtilities lineaUtilities) {
@@ -100,6 +102,16 @@ public class LineaUtilitiesTest {
 		propuesta.addLineaId(linea1.getId());
 		propuesta.addAttribute(att1);
 		propuesta.addAttribute(att2);
+		
+		
+		AtributoForLineaFormDto a1 = modelMapper.map(att1, AtributoForLineaFormDto.class);
+		a1.setValue("valor1");
+		AtributoForLineaFormDto a2 = modelMapper.map(att2, AtributoForLineaFormDto.class);
+		a2.setValue("valor2");
+		List<AtributoForLineaFormDto> as = new ArrayList<>();
+		as.add(a1);
+		as.add(a2);
+		lineaWithAttListDto = new LineaWithAttListDto(linea1, as, 1);
 	}
 	
 	@Test
@@ -340,6 +352,14 @@ public class LineaUtilitiesTest {
 		.expectComplete()
 		.verify()
 		;
+	}
+	
+	@Test
+	void testAssertNameBindingResultOfListDto() {
+		lineaWithAttListDto.getLinea().setNombre("");
+		BindException bindingResult = new BindException(lineaWithAttListDto, "lineaWithAttListDto");
+		lineaUtilities.assertNameBindingResultOfListDto(lineaWithAttListDto, bindingResult, "linea.nombre");
+		assertTrue(bindingResult.hasErrors());
 	}
 
 }
