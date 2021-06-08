@@ -32,7 +32,7 @@
 						<span th:text="${a.linea.nombre}" class="field-text"></span>
 					</td>
 					<td th:each="t, tstat : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}" class="field">
-						<span th:text="${a.linea.getValueByAttId(t.getId())}" class="field-text"></span>
+						<span th:text="${a.linea.operations().getValueByAttId(t.getId())}" class="field-text"></span>
 					</td>
 				</tr>
 			</tbody>

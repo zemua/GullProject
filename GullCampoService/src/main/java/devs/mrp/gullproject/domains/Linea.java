@@ -61,4 +61,8 @@ public class Linea {
 		return op.equals(l);
 	}
 	
+	public LineaOperations operations() {
+		return new LineaOperations(this);
+	}
+	
 }

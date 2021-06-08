@@ -59,7 +59,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Controller
 @RequestMapping(path = "/lineas")
-public class LineaController {
+public class LineaController { // TODO bug deleted lines still showing in propuesta total counting
 
 	private LineaService lineaService;
 	private ConsultaService consultaService;

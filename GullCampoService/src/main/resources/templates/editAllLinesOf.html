@@ -44,7 +44,7 @@
 								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].linea.order}"/>
 							</td>
 							<td th:each="t, tstat : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}" class="field" th:classappend="${#fields.hasErrors('*{lineaWithAttListDtos[__${ystat.index}__].attributes[__${tstat.index}__].id}') ? 'error' : '' }">
-								<span th:text="${a.linea.getValueByAttId(t.getId())}" class="field-text" contenteditable="true"></span>
+								<span th:text="${a.linea.operations().getValueByAttId(t.getId())}" class="field-text" contenteditable="true"></span>
 								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].attributes[__${tstat.index}__].value}" class="field-input"/>
 								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].attributes[__${tstat.index}__].localIdentifier}"/>
 								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].attributes[__${tstat.index}__].id}"/>

@@ -41,6 +41,7 @@ public class ConsultaController {
 	// TODO create our proposals from customer and supplier ones
 	// TODO create customer updated proposals
 	// TODO adapt old supplier proposals for updated customer inquiry
+	// TODO make a "compare" view to check supplier vs customer table and ours vs customer table
 
 	ConsultaService consultaService;
 	LineaService lineaService;

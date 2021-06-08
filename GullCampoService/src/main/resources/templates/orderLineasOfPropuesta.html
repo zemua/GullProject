@@ -36,7 +36,7 @@
 								<input type="hidden" th:field="*{lineas[__${ystat.index}__].id}" class="linea-id"/>
 								<input type="hidden" th:field="*{lineas[__${ystat.index}__].order}" class="linea-order"/>
 							</td>
-							<td th:each="t : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${a.getValueByAttId(t.getId())}"></span></td>
+							<td th:each="t : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${a.operations().getValueByAttId(t.getId())}"></span></td>
 						</tr>
 					</tbody>
 				</table>
