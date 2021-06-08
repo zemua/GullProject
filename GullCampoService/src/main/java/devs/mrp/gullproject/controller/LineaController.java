@@ -132,7 +132,7 @@ public class LineaController {
 		return "editAllLinesOf";
 	}
 	
-	@PostMapping("/allof/propid/{propuestaId}/edit") // TODO test
+	@PostMapping("/allof/propid/{propuestaId}/edit")
 	public Mono<String> processEditAllLinesOf(MultipleLineaWithAttListDto multipleLineaWithAttListDto, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		return Flux.fromIterable(multipleLineaWithAttListDto.getLineaWithAttListDtos()).index().flatMap(rTuple -> {
 			return lineaUtilities.assertBindingResultOfListDto(rTuple.getT2(), bindingResult, "lineaWithAttListDtos[" + rTuple.getT1() + "].attributes")
