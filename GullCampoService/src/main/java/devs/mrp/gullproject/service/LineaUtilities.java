@@ -116,6 +116,7 @@ public class LineaUtilities {
 		boolean isValid = true;
 		if (nombre == null || nombre.equals("")) {
 			isValid = false;
+			log.debug("going to reject an empty name: " + nameRoute);
 			bindingResult.rejectValue(nameRoute,
 					"error." + nameRoute,
 					"El nombre de esta línea no es válido");
