@@ -155,6 +155,15 @@ class LineaControllerTest {
 		
 		
 		
+		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
+		when(lineaService.addVariasLineas(ArgumentMatchers.any(Flux.class), ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(linea1, linea2));
+		when(atributoService.getClassTypeOfFormat(ArgumentMatchers.eq("NUMERO"))).thenReturn(Mono.just("Integer"));
+		when(atributoService.getClassTypeOfFormat(ArgumentMatchers.eq("DESCRIPCION"))).thenReturn(Mono.just("String"));
+		when(atributoService.validateDataFormat(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(Mono.just(false));
+		when(atributoService.validateDataFormat(ArgumentMatchers.eq(atributo1.getTipo()), ArgumentMatchers.eq(campo1a.getDatosText()))).thenReturn(Mono.just(true));
+		when(atributoService.validateDataFormat(ArgumentMatchers.eq(atributo2.getTipo()), ArgumentMatchers.eq(campo1b.getDatosText()))).thenReturn(Mono.just(true));
+		when(atributoService.validateDataFormat(ArgumentMatchers.eq(atributo1.getTipo()), ArgumentMatchers.eq(campo2a.getDatosText()))).thenReturn(Mono.just(true));
+		when(atributoService.validateDataFormat(ArgumentMatchers.eq(atributo2.getTipo()), ArgumentMatchers.eq(campo2b.getDatosText()))).thenReturn(Mono.just(true));
 		when(consultaService.findAttributesByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(atributo1, atributo2));
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
 		when(lineaService.addVariasLineas(ArgumentMatchers.any(Flux.class), ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(linea1, linea2));
@@ -785,13 +794,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
-	void testEditAllLinesOf() {
-		campo2a.setAtributoId(atributo1.getId());
-		campo2b.setAtributoId(atributo2.getId());
-		when(lineaService.findByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(linea1, linea2));
-		when(consultaService.findAttributesByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(atributo1, atributo2));
-		when(consultaService.findConsultaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(consulta));
-		
+	void testEditAllLinesOf() {		
 		webTestClient.get()
 			.uri("/lineas/allof/propid/" + propuesta.getId() + "/edit")
 			.accept(MediaType.TEXT_HTML)
@@ -1030,6 +1033,81 @@ class LineaControllerTest {
 						.contains("Guardar");
 					});
 					;
+	}
+	
+	@Test
+	void testRenameAllLinesOf() {
+		webTestClient.get()
+			.uri("/lineas/allof/propid/" + propuesta.getId() + "/rename")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+				.contains(propuesta.getNombre())
+				.contains("Renombrar lineas de la propuesta")
+				.contains(linea1.getNombre())
+				.contains(linea1Operations.getCampoByIndex(0).getDatosText())
+				.contains(linea2.getNombre())
+				.contains(linea2Operations.getCampoByIndex(1).getDatosText())
+				;
+			})
+			;
+	}
+	
+	@Test
+	void testProcessRenameAllLinesOf() {
+		log.debug("should be ok");
+		webTestClient.post()
+			.uri("/lineas/of/" + propuesta.getId() + "/bulk-add/verify")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("name[0]", "")
+					.with("name[1]", "2")
+					.with("strings[0]", propuesta.getAttributeColumns().get(0).getId())
+					.with("strings[1]", propuesta.getAttributeColumns().get(1).getId())
+					.with("stringListWrapper[0].string[0]", campo1a.getDatosText())
+					.with("stringListWrapper[0].string[1]", campo1b.getDatosText())
+					.with("stringListWrapper[1].string[0]", campo2a.getDatosText())
+					.with("stringListWrapper[1].string[1]", campo2b.getDatosText())
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+				.contains(campo1a.getDatosText())
+				.contains(campo1b.getDatosText())
+				.contains(campo2a.getDatosText())
+				.contains(campo2b.getDatosText())
+				.contains(linea1.getNombre())
+				.contains("Lineas añadidas")
+				.doesNotContain("Corrige los errores");
+			});
+		
+		log.debug("should throw validation error of name");
+		webTestClient.post()
+		.uri("/lineas/of/" + propuesta.getId() + "/bulk-add/verify")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("name[0]", "")
+				.with("name[1]", "")
+				.with("strings[0]", propuesta.getAttributeColumns().get(0).getId())
+				.with("strings[1]", propuesta.getAttributeColumns().get(1).getId())
+				.with("stringListWrapper[0].string[0]", campo1a.getDatosText())
+				.with("stringListWrapper[0].string[1]", campo1b.getDatosText())
+				.with("stringListWrapper[1].string[0]", campo2a.getDatosText())
+				.with("stringListWrapper[1].string[1]", campo2b.getDatosText())
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+			.contains("Corrige los errores")
+			.contains("Estas filas necesitan un nombre");
+		});
 	}
 
 }

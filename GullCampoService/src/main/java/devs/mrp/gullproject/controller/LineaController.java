@@ -60,6 +60,7 @@ import reactor.core.publisher.Mono;
 @Controller
 @RequestMapping(path = "/lineas")
 public class LineaController { // TODO page for re-assign name
+	// TODO remap values of a column, set before-after of unique values
 
 	private LineaService lineaService;
 	private ConsultaService consultaService;
@@ -111,7 +112,7 @@ public class LineaController { // TODO page for re-assign name
 		return "processOrderLineasOfPropuesta";
 	}
 	
-	@GetMapping("/allof/propid/{propuestaId}/rename") // TODO test
+	@GetMapping("/allof/propid/{propuestaId}/rename")
 	public String renameAllLinesOf(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		Mono<StringListOfListsWrapper> lineas = lineaUtilities.stringListOfListsFromPropuestaId(propuestaId);
 		model.addAttribute("stringListOfListsWrapper", lineas);
@@ -121,7 +122,7 @@ public class LineaController { // TODO page for re-assign name
 		return "renameAllLinesOf";
 	}
 	
-	@PostMapping("/allof/propid/{propuestaId}/rename") // TODO test
+	@PostMapping("/allof/propid/{propuestaId}/rename")
 	public Mono<String> processRenameAllLinesOf(StringListOfListsWrapper stringListOfListsWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		
 		model.addAttribute("stringListOfListsWrapper", stringListOfListsWrapper);

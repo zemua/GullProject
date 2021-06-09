@@ -20,6 +20,12 @@
 		<div>
 			<div><button>Guardar</button></div>
 			<div>
+			
+			<div th:if="${#fields.hasErrors()}">
+     	   		<span class="validationError">
+      	  			Corrige los errores y reenvía.<br/>Estas filas necesitan un nombre
+     	   		</span>
+     	   	</div>
 				<table>
 					<thead>
 						<tr id="fila-nombre">
