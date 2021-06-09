@@ -121,7 +121,7 @@ class LineaControllerTest {
 		campo1a.setDatos("datos1");
 		campo1b = new Campo<>();
 		campo1b.setAtributoId(atributo2.getId());
-		campo1b.setDatos(123);
+		campo1b.setDatos(123456789);
 		linea1 = new Linea();
 		linea1Operations = new LineaOperations(linea1);
 		linea1Operations.addCampo(campo1a);
@@ -134,7 +134,7 @@ class LineaControllerTest {
 		campo2a.setDatos("datos2");
 		campo2b = new Campo<>();
 		campo2b.setAtributoId(atributo3.getId());
-		campo2b.setDatos(321);
+		campo2b.setDatos(321098765);
 		linea2 = new Linea();
 		linea2Operations = new LineaOperations(linea2);
 		linea2Operations.addCampo(campo2a);
@@ -1126,6 +1126,25 @@ class LineaControllerTest {
 			.contains(linea1Operations.getCampoByIndex(0).getDatosText())
 			.contains(linea2.getNombre())
 			.contains(linea2Operations.getCampoByIndex(1).getDatosText())
+			;
+		})
+		;
+	}
+	
+	@Test
+	void testRemapValuesAttColumn() {
+		webTestClient.get()
+		.uri("/lineas/allof/propid/" + propuesta.getId() + "/remap/" + atributo1.getLocalIdentifier())
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+			.contains(linea1.getCampos().get(0).getDatosText())
+			.contains(linea2.getCampos().get(0).getDatosText())
+			.doesNotContain(linea1.getCampos().get(1).getDatosText())
+			.doesNotContain(linea2.getCampos().get(1).getDatosText())
 			;
 		})
 		;

@@ -164,7 +164,7 @@ public class LineaController { // TODO page for re-assign name
 		return "remapValuesGeneral";
 	}
 	
-	@GetMapping("/allof/propid/{propuestaId}/remap/{localIdentifier}") // TODO test
+	@GetMapping("/allof/propid/{propuestaId}/remap/{localIdentifier}")
 	public String remapValuesAttColumn(Model model, @PathVariable(name = "propuestaId") String propuestaId, @PathVariable(name = "localIdentifier") String localIdentifier) {
 		Mono<AttRemapersWrapper> remapers = consultaService.findPropuestaByPropuestaId(propuestaId)
 				.flatMap(rProp -> {
