@@ -59,7 +59,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Controller
 @RequestMapping(path = "/lineas")
-public class LineaController { // TODO bug deleted lines still showing in propuesta total counting
+public class LineaController { // TODO page for re-assign name
 
 	private LineaService lineaService;
 	private ConsultaService consultaService;
@@ -91,12 +91,7 @@ public class LineaController { // TODO bug deleted lines still showing in propue
 	
 	@GetMapping("/allof/propid/{propuestaId}/order")
 	public String orderAllLinesOf(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
-		Mono<WrapLineasDto> lineas = lineaService.findByPropuestaId(propuestaId)
-				.collectList().flatMap(rList -> {
-					WrapLineasDto wrap = new WrapLineasDto();
-					wrap.setLineas(rList);
-					return Mono.just(wrap);
-				});
+		Mono<WrapLineasDto> lineas = lineaUtilities.wrapLineasDtoFromPropuestaId(propuestaId);
 		model.addAttribute("wrapLineasDto", lineas);
 		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
 		model.addAttribute("consulta", consulta);
@@ -114,6 +109,22 @@ public class LineaController { // TODO bug deleted lines still showing in propue
 		model.addAttribute("orderMap", mono);
 		model.addAttribute("propuestaId", propuestaId);
 		return "processOrderLineasOfPropuesta";
+	}
+	
+	@GetMapping("/allof/propid/{propuestaId}/rename") // TODO test
+	public String renameAllLinesOf(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+		Mono<StringListOfListsWrapper> lineas = lineaUtilities.stringListOfListsFromPropuestaId(propuestaId);
+		model.addAttribute("stringListOfListsWrapper", lineas);
+		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+		model.addAttribute("consulta", consulta);
+		model.addAttribute("propuestaId", propuestaId);
+		return "renameAllLinesOf";
+	}
+	
+	@PostMapping("/allof/propid/{propuestaId}/rename") // TODO test
+	public String processRenameAllLinesOf(StringListOfListsWrapper stringListOfListsWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+		
+		return "processRenameAllLinesOf";
 	}
 	
 	@GetMapping("/allof/propid/{propuestaId}/edit")

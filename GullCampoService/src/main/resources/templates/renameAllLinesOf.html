@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Renombrar lineas de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Gull Project - Renombrar lineas de la propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1 th:text="${'Renombrar lineas de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Renombrar lineas de la propuesta</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/lineas/allof/propid/' + propuestaId}">Volver</a>
+		</p>
+	</div>
+
+	<form method="POST" th:object="${stringListOfListsWrapper}">
+		<div>
+			<div><button>Guardar</button></div>
+			<div>
+				<table>
+					<thead>
+						<tr id="fila-nombre">
+							<th></th>
+							<th th:each="n, ntat : *{strings}" th:id="'name' + ${ntat.index}" class="header" th:classappend="${#fields.hasErrors('*{name[__${ntat.index}__]}') ? 'error' : '' }">
+								<select th:field="*{name[__${ntat.index}__]}" class="name-selector">
+									<option th:value="''"></option>
+									<option th:each="x, row : *{strings}" th:value="${row.index + 1}" th:text="${row.index + 1}" class="mono-name"></option>
+								</select>
+							</th>
+						</tr>
+						<tr id="1">
+							<th>Nombre</th>
+							<th th:each="t : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}">
+								<span th:text="${t.getName()}"></span>
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="a, ystat : *{stringListWrapper}" th:id="${ystat.index + 2}">
+							<td>
+								<span th:text="${a.name}"></span>
+								<input type="hidden" th:field="*{stringListWrapper[__${ystat.index}__].id}" class="linea-id"/>
+							</td>
+							<td th:each="t ,ttat : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${a.get(__${ttat.index}__)}"></span></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</form>
+
+	<script type="text/javascript" th:src="@{/js/jquery/jquery-3.6.0.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/scripts/monoSelect.js}"></script>
+	<script type="text/javascript" th:src="@{/js/scripts/tableEditable.js}"></script>
+
+</body>
+</html>

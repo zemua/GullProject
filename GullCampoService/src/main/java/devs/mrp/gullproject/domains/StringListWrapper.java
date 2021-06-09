@@ -14,6 +14,16 @@ public class StringListWrapper {
 
 	List<String> string;
 	String name;
+	String id;
+	
+	public StringListWrapper(List<String> string) {
+		this.string = string;
+	}
+	
+	public StringListWrapper(List<String> string, String name){
+		this.string = string;
+		this.name = name;
+	}
 	
 	public void add(String s) {
 		string.add(s);
