@@ -122,9 +122,29 @@ public class LineaController { // TODO page for re-assign name
 	}
 	
 	@PostMapping("/allof/propid/{propuestaId}/rename") // TODO test
-	public String processRenameAllLinesOf(StringListOfListsWrapper stringListOfListsWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+	public Mono<String> processRenameAllLinesOf(StringListOfListsWrapper stringListOfListsWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		
-		return "processRenameAllLinesOf";
+		model.addAttribute("stringListOfListsWrapper", stringListOfListsWrapper);
+		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+		model.addAttribute("consulta", consulta);
+		model.addAttribute("propuestaId", propuestaId);
+		
+		try {
+			lineaUtilities.addBulkTableErrorsToBindingResult(stringListOfListsWrapper, propuestaId, bindingResult);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Mono.just("renameAllLinesOf");
+		}
+		
+		if (bindingResult.hasErrors()) {
+			return Mono.just("renameAllLinesOf");
+		}
+		
+		return Flux.fromIterable(stringListOfListsWrapper.getStringListWrapper())
+				.flatMap(rWrap -> {
+					return lineaService.updateNombre(rWrap.getId(), rWrap.getName());
+				})
+				.then(Mono.just("processRenameAllLinesOf"));
 	}
 	
 	@GetMapping("/allof/propid/{propuestaId}/edit")

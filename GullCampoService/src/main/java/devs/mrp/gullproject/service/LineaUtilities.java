@@ -130,10 +130,6 @@ public class LineaUtilities {
 		}
 		return isValid;
 	}
-	
-	public boolean assertNameBindingResultOfStringListOfLists(StringListOfListsWrapper stringListOfListsWrapper, BindingResult bindingResult, String nameRoute) {
-		
-	}
 
 	public Mono<Linea> reconstructLine(LineaWithAttListDto lineaWithAttListDto) {
 		Linea nLinea = lineaWithAttListDto.getLinea();
