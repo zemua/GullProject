@@ -35,9 +35,9 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Controller
 @RequestMapping(path = "/consultas")
-public class ConsultaController {
+public class ConsultaController { // TODO order atributes in proposal
 	
-	// TODO create supplier proposals from customer ones
+	// TODO create supplier proposals from customer ones (discriminar lineas con el mismo nombre y distinto precio)
 	// TODO create our proposals from customer and supplier ones
 	// TODO create customer updated proposals
 	// TODO adapt old supplier proposals for updated customer inquiry

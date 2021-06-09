@@ -30,5 +30,10 @@ public class Campo<T> {
 	public String getDatosText() {
 		return String.valueOf(datos);
 	}
+	
+	@SuppressWarnings("unchecked")
+	public void setDatosCasting(Object d) {
+		this.datos = (T)d;
+	}
 
 }

@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -40,11 +41,14 @@ import devs.mrp.gullproject.domains.WrapLineasDto;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AttributesListDto;
 import devs.mrp.gullproject.domains.dto.AtributoForLineaFormDto;
+import devs.mrp.gullproject.domains.dto.AttRemaper;
+import devs.mrp.gullproject.domains.dto.AttRemapersWrapper;
 import devs.mrp.gullproject.domains.dto.LineaWithAttListDto;
 import devs.mrp.gullproject.domains.dto.LineaWithSelectorDto;
 import devs.mrp.gullproject.domains.dto.MultipleLineaWithAttListDto;
 import devs.mrp.gullproject.domains.dto.WrapLineasWithSelectorDto;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
+import devs.mrp.gullproject.service.AttRemaperUtilities;
 import devs.mrp.gullproject.service.ClassDestringfier;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaOperations;
@@ -67,15 +71,17 @@ public class LineaController { // TODO page for re-assign name
 	private ModelMapper modelMapper;
 	AtributoServiceProxyWebClient atributoService;
 	LineaUtilities lineaUtilities;
+	AttRemaperUtilities attRemaperUtilities;
 
 	@Autowired
 	public LineaController(LineaService lineaService, ConsultaService consultaService, ModelMapper modelMapper,
-			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities) {
+			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities, AttRemaperUtilities attRemaperUtilities) {
 		this.lineaService = lineaService;
 		this.consultaService = consultaService;
 		this.modelMapper = modelMapper;
 		this.atributoService = atributoService;
 		this.lineaUtilities = lineaUtilities;
+		this.attRemaperUtilities = attRemaperUtilities;
 	}
 	
 	// TODO for excels where one sheet = one product, first map fields in the sheet row/column=attribute, then extract data from several sheets following this map.
@@ -146,6 +152,75 @@ public class LineaController { // TODO page for re-assign name
 					return lineaService.updateNombre(rWrap.getId(), rWrap.getName());
 				})
 				.then(Mono.just("processRenameAllLinesOf"));
+	}
+	
+	@GetMapping("/allof/propid/{propuestaId}/remap") // TODO test
+	public String remapValuesGeneral(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+		Flux<Linea> lineas = lineaService.findByPropuestaId(propuestaId);
+		model.addAttribute("lineas", new ReactiveDataDriverContextVariable(lineas, 1));
+		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+		model.addAttribute("consulta", consulta);
+		model.addAttribute("propuestaId", propuestaId);
+		return "remapValuesGeneral";
+	}
+	
+	@GetMapping("/allof/propid/{propuestaId}/remap/{localIdentifier}") // TODO test
+	public String remapValuesAttColumn(Model model, @PathVariable(name = "propuestaId") String propuestaId, @PathVariable(name = "localIdentifier") String localIdentifier) {
+		Mono<AttRemapersWrapper> remapers = consultaService.findPropuestaByPropuestaId(propuestaId)
+				.flatMap(rProp -> {
+					Optional<AtributoForCampo> att = rProp.getAttributeColumns().stream().filter(at -> at.getLocalIdentifier().equals(localIdentifier)).findFirst();
+					AtributoForCampo attb = new AtributoForCampo();
+					attb.setTipo("DESCRIPCION");
+					attb.setName("DESCRIPCION");
+					return lineaService.findByPropuestaId(propuestaId)
+						.map(rLine -> {
+							AttRemaper maper = new AttRemaper();
+							Campo<?> campo = rLine.operations().getCampoByAttId(att.orElse(attb).getId());
+							if (campo != null) {
+								maper.setBefore(campo.getDatosText());
+								maper.setAfter(campo.getDatosText());
+							} else {
+								maper.setBefore("");
+								maper.setAfter("");
+							}
+							maper.setAtributoId(att.orElse(attb).getId());
+							maper.setLocalIdentifier(localIdentifier);
+							maper.setName(att.orElse(attb).getName());
+							maper.setTipo(att.orElse(attb).getTipo());
+							log.debug("devolviendo " + maper.toString());
+							return maper;
+						})
+						.distinct(AttRemaper::getBefore).collectList()
+						.map(rList -> {
+							log.debug("después de filtrado: " + rList.toString());
+							return new AttRemapersWrapper(rList);
+						});
+				});
+		
+		model.addAttribute("attRemapersWrapper", remapers);
+		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+		model.addAttribute("consulta", consulta);
+		model.addAttribute("propuestaId", propuestaId);
+		return "remapValuesAttColumn";
+	}
+	
+	@PostMapping("/allof/propid/{propuestaId}/remap/{localIdentifier}") // TODO test
+	public Mono<String> processRemapValuesAttColumn(AttRemapersWrapper attRemapersWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId, @PathVariable(name = "localIdentifier") String localIdentifier) {
+		model.addAttribute("attRemapersWrapper", attRemapersWrapper);
+		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+		model.addAttribute("consulta", consulta);
+		model.addAttribute("propuestaId", propuestaId);
+		
+		return attRemaperUtilities.validateAttRemapers(attRemapersWrapper.getRemapers(), bindingResult, "remapers")
+				.then(Mono.just(attRemapersWrapper))
+					.flatMap(wrapper -> {
+						if (bindingResult.hasErrors()) {
+							return Mono.just("remapValuesAttColumn");
+						} else {
+							return attRemaperUtilities.remapLineasAtt(attRemapersWrapper.getRemapers(), propuestaId)
+								.then(Mono.just("processRemapValuesAttcolumn"));
+						}
+					});
 	}
 	
 	@GetMapping("/allof/propid/{propuestaId}/edit")
