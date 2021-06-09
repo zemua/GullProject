@@ -35,6 +35,7 @@ import devs.mrp.gullproject.domains.dto.AtributoForLineaFormDto;
 import devs.mrp.gullproject.domains.dto.LineaWithSelectorDto;
 import devs.mrp.gullproject.domains.dto.WrapLineasWithSelectorDto;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
+import devs.mrp.gullproject.service.AttRemaperUtilities;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaOperations;
 import devs.mrp.gullproject.service.LineaService;
@@ -47,7 +48,7 @@ import reactor.core.publisher.Mono;
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = LineaController.class)
 @AutoConfigureWebTestClient
-@Import({MapperConfig.class, LineaUtilities.class})
+@Import({MapperConfig.class, LineaUtilities.class, AttRemaperUtilities.class})
 class LineaControllerTest {
 	
 	WebTestClient webTestClient;
@@ -1108,6 +1109,26 @@ class LineaControllerTest {
 			.contains("Corrige los errores")
 			.contains("Estas filas necesitan un nombre");
 		});
+	}
+	
+	@Test
+	void testRemapValuesGeneral() {
+		webTestClient.get()
+		.uri("/lineas/allof/propid/" + propuesta.getId() + "/remap")
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+			.contains(propuesta.getNombre())
+			.contains(linea1.getNombre())
+			.contains(linea1Operations.getCampoByIndex(0).getDatosText())
+			.contains(linea2.getNombre())
+			.contains(linea2Operations.getCampoByIndex(1).getDatosText())
+			;
+		})
+		;
 	}
 
 }

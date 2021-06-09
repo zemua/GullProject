@@ -154,7 +154,7 @@ public class LineaController { // TODO page for re-assign name
 				.then(Mono.just("processRenameAllLinesOf"));
 	}
 	
-	@GetMapping("/allof/propid/{propuestaId}/remap") // TODO test
+	@GetMapping("/allof/propid/{propuestaId}/remap")
 	public String remapValuesGeneral(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		Flux<Linea> lineas = lineaService.findByPropuestaId(propuestaId);
 		model.addAttribute("lineas", new ReactiveDataDriverContextVariable(lineas, 1));
