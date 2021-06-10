@@ -61,6 +61,7 @@ public class LineaUtilitiesTest {
 	LineaOperations linea2o;
 	Propuesta propuesta;
 	LineaWithAttListDto lineaWithAttListDto;
+	List<Linea> lineas;
 	
 	@Autowired
 	LineaUtilitiesTest(ModelMapper modelMapper, LineaUtilities lineaUtilities) {
@@ -106,6 +107,9 @@ public class LineaUtilitiesTest {
 		propuesta.addLineaId(linea1.getId());
 		propuesta.addAttribute(att1);
 		propuesta.addAttribute(att2);
+		lineas = new ArrayList<>();
+		lineas.add(linea1);
+		lineas.add(linea2);
 		
 		
 		AtributoForLineaFormDto a1 = modelMapper.map(att1, AtributoForLineaFormDto.class);
@@ -367,6 +371,18 @@ public class LineaUtilitiesTest {
 		BindException bindingResult = new BindException(lineaWithAttListDto, "lineaWithAttListDto");
 		lineaUtilities.assertNameBindingResultOfListDto(lineaWithAttListDto, bindingResult, "linea.nombre");
 		assertTrue(bindingResult.hasErrors());
+	}
+	
+	@Test
+	void testSetringListOfListsFromPropuestaAndLineas() {
+		Mono<StringListOfListsWrapper> wrap = lineaUtilities.stringListOfListsFromPropuestaId(propuesta.getId());
+		
+		StepVerifier.create(wrap)
+			.assertNext(w -> {
+				assertEquals("", w.get);
+			})
+			.expectComplete()
+			.verify();
 	}
 
 }

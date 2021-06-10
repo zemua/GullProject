@@ -16,4 +16,6 @@ public class AtributoForCampo {
 	String name;
 	String tipo;
 	
+	int order;
+	
 }
