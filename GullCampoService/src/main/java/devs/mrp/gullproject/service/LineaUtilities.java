@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -23,8 +24,11 @@ import devs.mrp.gullproject.domains.StringListWrapper;
 import devs.mrp.gullproject.domains.WrapLineasDto;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AtributoForLineaFormDto;
+import devs.mrp.gullproject.domains.dto.AttRemaper;
+import devs.mrp.gullproject.domains.dto.AttRemapersWrapper;
 import devs.mrp.gullproject.domains.dto.BooleanWrapper;
 import devs.mrp.gullproject.domains.dto.LineaWithAttListDto;
+import devs.mrp.gullproject.domains.dto.MultipleLineaWithAttListDto;
 import devs.mrp.gullproject.validator.ValidList;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -75,6 +79,57 @@ public class LineaUtilities {
 				})
 				.collectSortedList((l1, l2) -> l1.getLinea().getOrder().compareTo(l2.getLinea().getOrder()))
 				.flatMapMany(rList -> Flux.fromIterable(rList));
+	}
+	
+	public Mono<MultipleLineaWithAttListDto> getWrappedLineasWithAttListDtoFromPropuestaId(String propuestaId) {
+		Flux<Linea> lineas = lineaService.findByPropuestaId(propuestaId);
+		return getAttributesOfProposal(lineas, propuestaId)
+				.collectList().map(listOfDtos -> {
+					MultipleLineaWithAttListDto multiple = new MultipleLineaWithAttListDto();
+					multiple.setLineaWithAttListDtos(listOfDtos);
+					return multiple;
+				});
+	}
+	
+	public Flux<LineaWithAttListDto> assertBindingResultOfWrappedMultipleLines(MultipleLineaWithAttListDto multipleLineaWithAttListDto, BindingResult bindingResult) {
+		return Flux.fromIterable(multipleLineaWithAttListDto.getLineaWithAttListDtos()).index().flatMap(rTuple -> {
+			return assertBindingResultOfListDto(rTuple.getT2(), bindingResult, "lineaWithAttListDtos[" + rTuple.getT1() + "].attributes")
+					.then(Mono.just(assertNameBindingResultOfListDto(rTuple.getT2(), bindingResult, "lineaWithAttListDtos[" + rTuple.getT1() + "].linea.nombre")))
+					.then(Mono.just(rTuple.getT2()));
+		});
+	}
+	
+	public Flux<LineaWithAttListDto> updateLinesFromListOfLinesWithAttListDto(List<LineaWithAttListDto> lineasDto, String propuestaId) {
+		return getAttributesOfProposal(lineaService.updateVariasLineas(Flux.fromIterable(lineasDto)
+				.flatMap(oDto -> reconstructLine(oDto))), propuestaId);
+	}
+	
+	public MultipleLineaWithAttListDto wrapLinesIntoMultipleObject(List<LineaWithAttListDto> lineasDto) {
+		MultipleLineaWithAttListDto multiple = new MultipleLineaWithAttListDto();
+		multiple.setLineaWithAttListDtos(lineasDto);
+		multiple.getLineaWithAttListDtos().forEach(sLineAtt -> {
+			if (sLineAtt.getLinea().getOrder() == null) {
+				sLineAtt.getLinea().setOrder(0);
+			}
+		});
+		multiple.getLineaWithAttListDtos().sort((a, b) -> a.getLinea().getOrder().compareTo(b.getLinea().getOrder()));
+		return multiple;
+	}
+	
+	public Flux<Linea> addSeveralCopiesOfSameLineDto(LineaWithAttListDto lineaWithAttListDto, String propuestaId) {
+		Flux<Linea> l1;
+		Mono<List<Linea>> llineas = reconstructLine(lineaWithAttListDto)
+				.map(rLine -> {
+					List<Linea> lista = new ArrayList<>();
+					for (int i=0; i<lineaWithAttListDto.getQty(); i++) {
+						LineaOperations operationsRline = new LineaOperations(rLine);
+						Linea dLine = operationsRline.clonar();
+						lista.add(dLine);
+					}
+					return lista;
+				});
+		l1 = lineaService.addVariasLineas(llineas.flatMapMany(ll -> Flux.fromIterable(ll)), propuestaId);
+		return l1;
 	}
 
 	public Flux<Boolean> assertBindingResultOfListDto(LineaWithAttListDto lineaWithAttListDto,
@@ -477,6 +532,61 @@ public class LineaUtilities {
 		}
 		
 		return linea;
+	}
+	
+	
+	/****
+	 * 
+	 * Various functions
+	 * 
+	 */
+	
+	public Map<String, Integer> linesWrapToMapOf_Id_vs_Order(WrapLineasDto wrapLineasDto) {
+		Map<String, Integer> map = new HashMap<>();
+		wrapLineasDto.getLineas().stream().forEach(sLinea -> {
+			map.put(sLinea.getId(), sLinea.getOrder());
+		});
+		return map;
+	}
+	
+	public Flux<Linea> updateNombresFromStringListOfListsWrapper(StringListOfListsWrapper stringListOfListsWrapper) {
+		return Flux.fromIterable(stringListOfListsWrapper.getStringListWrapper())
+				.flatMap(rWrap -> {
+					return lineaService.updateNombre(rWrap.getId(), rWrap.getName());
+				});
+	}
+	
+	public Mono<AttRemapersWrapper> getRemappersFromPropuestaAndAttId(String propuestaId, String localIdentifier) {
+		return consultaService.findPropuestaByPropuestaId(propuestaId)
+				.flatMap(rProp -> {
+					Optional<AtributoForCampo> att = rProp.getAttributeColumns().stream().filter(at -> at.getLocalIdentifier().equals(localIdentifier)).findFirst();
+					AtributoForCampo attb = new AtributoForCampo();
+					attb.setTipo("DESCRIPCION");
+					attb.setName("DESCRIPCION");
+					return lineaService.findByPropuestaId(propuestaId)
+						.map(rLine -> {
+							AttRemaper maper = new AttRemaper();
+							Campo<?> campo = rLine.operations().getCampoByAttId(att.orElse(attb).getId());
+							if (campo != null) {
+								maper.setBefore(campo.getDatosText());
+								maper.setAfter(campo.getDatosText());
+							} else {
+								maper.setBefore("");
+								maper.setAfter("");
+							}
+							maper.setAtributoId(att.orElse(attb).getId());
+							maper.setLocalIdentifier(localIdentifier);
+							maper.setName(att.orElse(attb).getName());
+							maper.setTipo(att.orElse(attb).getTipo());
+							log.debug("devolviendo " + maper.toString());
+							return maper;
+						})
+						.distinct(AttRemaper::getBefore).collectList()
+						.map(rList -> {
+							log.debug("después de filtrado: " + rList.toString());
+							return new AttRemapersWrapper(rList);
+						});
+				});
 	}
 	
 }
