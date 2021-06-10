@@ -192,7 +192,7 @@ public class LineaUtilities {
 				;
 	}
 	
-	private StringListOfListsWrapper stringListOfListsFromPropuestaAndLineas(Propuesta propuesta, List<Linea> lineas) { // TODO test
+	private StringListOfListsWrapper stringListOfListsFromPropuestaAndLineas(Propuesta propuesta, List<Linea> lineas) {
 		StringListOfListsWrapper wrap = new StringListOfListsWrapper();
 		wrap.setStrings(propuesta.getAttributeColumns().stream().map(att -> att.getName()).collect(Collectors.toList()));
 		propuesta.getAttributeColumns().stream().forEach(att -> wrap.getName().add(null));

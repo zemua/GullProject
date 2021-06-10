@@ -1,6 +1,7 @@
 package devs.mrp.gullproject.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -48,6 +49,8 @@ public class LineaUtilitiesTest {
 	AtributoServiceProxyWebClient atributoService;
 	@MockBean
 	BindingResult bindingResult;
+	@MockBean
+	LineaService lineaService;
 	
 	AtributoForCampo att1;
 	AtributoForCampo att2;
@@ -120,6 +123,9 @@ public class LineaUtilitiesTest {
 		as.add(a1);
 		as.add(a2);
 		lineaWithAttListDto = new LineaWithAttListDto(linea1, as, 1);
+		
+		when(lineaService.findByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(linea1, linea2));
+		when(consultaService.findPropuestaByPropuestaId(propuesta.getId())).thenReturn(Mono.just(propuesta));
 	}
 	
 	@Test
@@ -379,7 +385,19 @@ public class LineaUtilitiesTest {
 		
 		StepVerifier.create(wrap)
 			.assertNext(w -> {
-				assertEquals("", w.get);
+				assertEquals(2, w.getName().size());
+				assertNull(w.getName().get(0));
+				assertNull(w.getName().get(1));
+				assertEquals(2, w.getStrings().size());
+				assertEquals(att1.getName(), w.getStrings().get(0));
+				assertEquals(att2.getName(), w.getStrings().get(1));
+				assertEquals(2, w.getStringListWrapper().size());
+				assertEquals(linea1.getNombre(), w.getStringListWrapper().get(0).getName());
+				assertEquals(linea2.getNombre(), w.getStringListWrapper().get(1).getName());
+				assertEquals(campo1.getDatosText(), w.getStringListWrapper().get(0).getString().get(0));
+				assertEquals(campo2.getDatosText(), w.getStringListWrapper().get(0).getString().get(1));
+				assertEquals(campo3.getDatosText(), w.getStringListWrapper().get(1).getString().get(0));
+				assertEquals(campo4.getDatosText(), w.getStringListWrapper().get(1).getString().get(1));
 			})
 			.expectComplete()
 			.verify();
