@@ -27,6 +27,11 @@ public class Campo<T> {
 	
 	public Campo() {}
 	
+	public Campo(Campo<T> c) {
+		this.atributoId = c.atributoId;
+		this.datos = c.datos;
+	}
+	
 	public String getDatosText() {
 		return String.valueOf(datos);
 	}

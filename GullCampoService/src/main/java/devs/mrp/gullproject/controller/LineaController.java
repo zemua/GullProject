@@ -63,8 +63,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Controller
 @RequestMapping(path = "/lineas")
-public class LineaController { // TODO page for re-assign name
-	// TODO remap values of a column, set before-after of unique values
+public class LineaController {
 
 	private LineaService lineaService;
 	private ConsultaService consultaService;
@@ -204,7 +203,7 @@ public class LineaController { // TODO page for re-assign name
 		return "remapValuesAttColumn";
 	}
 	
-	@PostMapping("/allof/propid/{propuestaId}/remap/{localIdentifier}") // TODO test
+	@PostMapping("/allof/propid/{propuestaId}/remap/{localIdentifier}")
 	public Mono<String> processRemapValuesAttColumn(AttRemapersWrapper attRemapersWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId, @PathVariable(name = "localIdentifier") String localIdentifier) {
 		model.addAttribute("attRemapersWrapper", attRemapersWrapper);
 		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);

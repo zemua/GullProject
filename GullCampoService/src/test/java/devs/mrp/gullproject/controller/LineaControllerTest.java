@@ -181,6 +181,8 @@ class LineaControllerTest {
 		when(consultaService.findAttributesByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(atributo1, atributo2));
 		when(consultaService.findConsultaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(consulta));
 		when(lineaService.updateVariasLineas(ArgumentMatchers.any(Flux.class))).thenReturn(Flux.just(linea1, linea2));
+		when(atributoService.validateDataFormat(atributo1.getTipo(), campo1a.getDatosText() + "after")).thenReturn(Mono.just(true));
+		when(atributoService.validateDataFormat(atributo1.getTipo(), campo2a.getDatosText() + "after")).thenReturn(Mono.just(true));
 	}
 
 	@Test
@@ -1145,6 +1147,87 @@ class LineaControllerTest {
 			.contains(linea2.getCampos().get(0).getDatosText())
 			.doesNotContain(linea1.getCampos().get(1).getDatosText())
 			.doesNotContain(linea2.getCampos().get(1).getDatosText())
+			;
+		})
+		;
+	}
+	
+	@Test
+	void testProcessRemapValuesAttColumn() {
+		Linea lineaA;
+		lineaA = linea1.operations().clonar();
+		LineaOperations opa = lineaA.operations();
+		opa.getCampoByAttId(atributo1.getId()).setDatosCasting(campo1a.getDatosText() + "after");
+		log.debug("linea1: " + linea1.toString());
+		log.debug("lineaA: " + lineaA.toString());
+		
+		Linea lineaB;
+		lineaB = linea2.operations().clonar();
+		LineaOperations opb = lineaB.operations();
+		opb.getCampoByAttId(atributo1.getId()).setDatosCasting(campo2a.getDatosText() + "after");
+		log.debug("linea2: " + linea2.toString());
+		log.debug("lineaB: " + lineaB.toString());
+		
+		when(lineaService.updateLinea(ArgumentMatchers.any(Linea.class))).thenReturn(Mono.just(lineaA));
+		
+		log.debug("should be ok");
+		webTestClient.post()
+		.uri("/lineas/allof/propid/" + propuesta.getId() + "/remap/" + atributo1.getLocalIdentifier())
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("remapers[0].before", campo1a.getDatosText())
+				.with("remapers[0].after", campo1a.getDatosText() + "after")
+				.with("remapers[0].tipo", atributo1.getTipo())
+				.with("remapers[0].name", atributo1.getName())
+				.with("remapers[0].atributoId", campo1a.getAtributoId())
+				.with("remapers[0].localIdentifier", atributo1.getLocalIdentifier())
+				
+				.with("remapers[1].after", campo2a.getDatosText() + "after")
+				.with("remapers[1].before", campo2a.getDatosText())
+				.with("remapers[1].tipo", atributo1.getTipo())
+				.with("remapers[1].name", atributo1.getName())
+				.with("remapers[1].atributoId", campo2a.getAtributoId())
+				.with("remapers[1].localIdentifier", atributo1.getLocalIdentifier())
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+			.contains("Remapeado");
+		});
+		
+		
+		when(atributoService.validateDataFormat(atributo1.getTipo(), campo2a.getDatosText() + "after")).thenReturn(Mono.just(false));
+		log.debug("should give validation error");
+		webTestClient.post()
+		.uri("/lineas/allof/propid/" + propuesta.getId() + "/remap/" + atributo1.getLocalIdentifier())
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("remapers[0].before", campo1a.getDatosText())
+				.with("remapers[0].after", campo1a.getDatosText() + "after")
+				.with("remapers[0].tipo", atributo1.getTipo())
+				.with("remapers[0].name", atributo1.getName())
+				.with("remapers[0].atributoId", campo1a.getAtributoId())
+				.with("remapers[0].localIdentifier", atributo1.getLocalIdentifier())
+				
+				.with("remapers[1].after", campo2a.getDatosText() + "after")
+				.with("remapers[1].before", campo2a.getDatosText())
+				.with("remapers[1].tipo", atributo1.getTipo())
+				.with("remapers[1].name", atributo1.getName())
+				.with("remapers[1].atributoId", campo2a.getAtributoId())
+				.with("remapers[1].localIdentifier", atributo1.getLocalIdentifier())
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+			.contains(linea1.getCampos().get(0).getDatosText()+"after")
+			.contains(linea2.getCampos().get(0).getDatosText()+"after")
+			.doesNotContain(linea1.getCampos().get(1).getDatosText())
+			.doesNotContain(linea2.getCampos().get(1).getDatosText())
+			.contains("error")
 			;
 		})
 		;

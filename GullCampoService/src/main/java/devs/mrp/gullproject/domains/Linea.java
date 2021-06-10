@@ -18,11 +18,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import devs.mrp.gullproject.service.LineaOperations;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Data
 @Slf4j
 @Document (collection = "lineas")
+@NoArgsConstructor
 public class Linea {
 
 	@Id
@@ -59,6 +61,15 @@ public class Linea {
 	public boolean equals(Linea l) {
 		LineaOperations op = new LineaOperations(this);
 		return op.equals(l);
+	}
+	
+	public Linea(Linea lin) {
+		this.counterLineId = lin.counterLineId;
+		this.nombre = lin.nombre;
+		this.order = lin.order.intValue();
+		this.parentId = lin.parentId;
+		this.propuestaId = lin.propuestaId;
+		lin.getCampos().stream().forEach(c -> this.campos.add(new Campo<>(c)));
 	}
 	
 	public LineaOperations operations() {

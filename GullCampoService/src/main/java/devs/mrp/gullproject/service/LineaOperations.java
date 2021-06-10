@@ -25,14 +25,7 @@ public class LineaOperations {
 	}
 	
 	public Linea clonar() {
-		Linea l = new Linea();
-		l.setCampos(linea.getCampos());
-		l.setCounterLineId(linea.getCounterLineId());
-		l.setNombre(linea.getNombre());
-		l.setOrder(linea.getOrder());
-		l.setParentId(linea.getParentId());
-		l.setPropuestaId(linea.getPropuestaId());
-		return l;
+		return new Linea(this.linea);
 	}
 	
 	public void resetCampos(List<Campo<Object>> campos) {
