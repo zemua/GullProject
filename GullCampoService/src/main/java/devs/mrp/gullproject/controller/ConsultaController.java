@@ -25,9 +25,11 @@ import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AttributesListDto;
 import devs.mrp.gullproject.domains.dto.ConsultaPropuestaBorrables;
+import devs.mrp.gullproject.domains.dto.WrapAtributosForCampoDto;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaService;
+import devs.mrp.gullproject.service.PropuestaUtilities;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -43,17 +45,21 @@ public class ConsultaController { // TODO order atributes in proposal
 	// TODO adapt old supplier proposals for updated customer inquiry
 	// TODO make a "compare" view to check supplier vs customer table and ours vs customer table
 
+	// TODO reducir a 1 responsabilidad por funcion
+	
 	ConsultaService consultaService;
 	LineaService lineaService;
 	AtributoServiceProxyWebClient atributoService;
 	private final ModelMapper modelMapper;
+	PropuestaUtilities propuestaUtilities;
 	
 	@Autowired
-	public ConsultaController(ConsultaService consultaService, LineaService lineaService, AtributoServiceProxyWebClient atributoService, ModelMapper modelMapper) {
+	public ConsultaController(ConsultaService consultaService, LineaService lineaService, AtributoServiceProxyWebClient atributoService, ModelMapper modelMapper, PropuestaUtilities propuestaUtilities) {
 		this.consultaService = consultaService;
 		this.lineaService = lineaService;
 		this.atributoService = atributoService;
 		this.modelMapper = modelMapper;
+		this.propuestaUtilities = propuestaUtilities;
 	}
 	
 	@GetMapping("/nuevo")
@@ -261,6 +267,34 @@ public class ConsultaController { // TODO order atributes in proposal
 		model.addAttribute("propuesta", propuesta);
 		
 		return "processAddAttributeToProposal";
+	}
+	
+	@GetMapping("/attof/propid/{id}/order") // TODO test
+	public String orderAttributesOfProposal(Model model, @PathVariable(name = "id") String propuestaId) {
+		Mono<WrapAtributosForCampoDto> wrap = propuestaUtilities.wrapAtributos(propuestaId);
+		model.addAttribute("wrapAtributosForCampoDto", wrap);
+		Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
+		model.addAttribute("propuesta", propuesta);
+		return "orderAttributesOfProposal";
+	}
+	
+	@PostMapping("/attof/propid/{id}/order") // TODO test
+	public Mono<String> orderAttributesOfProposal(WrapAtributosForCampoDto wrapAtributosForCampoDto, BindingResult bindingResult, Model model, @PathVariable(name = "id") String propuestaId) {
+		return propuestaUtilities.atributosFromWrap(wrapAtributosForCampoDto, bindingResult, propuestaId)
+			.flatMap(array -> {
+				return consultaService.reOrderAttributesOfPropuesta(propuestaId, array);
+			})
+			.map(prop -> {
+				model.addAttribute("propuestaId", propuestaId);
+				if (bindingResult.hasErrors()) {
+					model.addAttribute("mensaje", "Error");
+					return "processOrderAttributesOfProposal";
+				} else {
+					model.addAttribute("mensaje", "Orden guardado");
+					return "processOrderAttributesOfProposal";
+				}
+			})
+			;
 	}
 	
 	@GetMapping("/editar/propcli/{propid}")

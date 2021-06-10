@@ -12,7 +12,8 @@
 
 	<div>
 		<p>
-			<a th:href="${'/consultas/attof/propid/' + consulta.getPropuestaById(propuestaId).getId() + '/new'}">Modificar atributos</a> - 
+			<a th:href="${'/consultas/attof/propid/' + consulta.getPropuestaById(propuestaId).getId() + '/new'}">Modificar atributos</a> -
+			<a th:href="${'/consultas/attof/propid/' + consulta.getPropuestaById(propuestaId).getId() + '/order'}">Ordenar atributos</a> -  
 			<a th:href="${'/consultas/revisar/id/' + consulta.id}">Volver</a>
 		</p>
 	</div>

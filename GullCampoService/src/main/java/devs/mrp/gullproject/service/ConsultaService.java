@@ -81,4 +81,16 @@ public class ConsultaService {
 			return consultaRepo.updateNombrePropuesta(rConsulta.getId(), propuesta);
 		});
 	}
+	
+	public Mono<Consulta> reOrderAttributesOfPropuestaInConsulta(String idPropuesta, List<AtributoForCampo> attributes) {
+		attributes.sort((a1, a2) -> Integer.valueOf(a1.getOrder()).compareTo(a2.getOrder()));
+		return updateAttributesOfPropuesta(idPropuesta, attributes);
+	}
+	
+	public Mono<Propuesta> reOrderAttributesOfPropuesta(String idPropuesta, List<AtributoForCampo> attributes) {
+		return reOrderAttributesOfPropuestaInConsulta(idPropuesta, attributes)
+				.map(consulta -> {
+					return consulta.getPropuestaById(idPropuesta);
+				});
+	}
 }

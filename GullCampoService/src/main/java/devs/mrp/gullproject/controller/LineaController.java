@@ -63,7 +63,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Controller
 @RequestMapping(path = "/lineas")
-public class LineaController {
+public class LineaController { // TODO reducir a 1 responsabilidad por función
 
 	private LineaService lineaService;
 	private ConsultaService consultaService;
@@ -365,6 +365,10 @@ public class LineaController {
 	@PostMapping("/of/{propuestaId}/bulk-add/verify")
 	public Mono<String> verifyBulkAddLineastoPropuesta(StringListOfListsWrapper stringListOfListsWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		// verify that the data for each column is appropiate according to the attribute
+		model.addAttribute("atributos", consultaService.findAttributesByPropuestaId(propuestaId));
+		Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
+		model.addAttribute("propuesta", propuesta);
+		model.addAttribute("propuestaId", propuestaId);
 		try {
 			log.debug("going to find errors");
 			return lineaUtilities.addBulkTableErrorsToBindingResult(stringListOfListsWrapper, propuestaId, bindingResult)
@@ -374,18 +378,10 @@ public class LineaController {
 					if (binding.hasErrors()) {
 						log.debug("binding result has errors and we go back to the same view highlighting errors");
 						model.addAttribute("stringListOfListsWrapper", stringListOfListsWrapper);
-						model.addAttribute("atributos", consultaService.findAttributesByPropuestaId(propuestaId));
-						Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
-						model.addAttribute("propuesta", propuesta);
-						model.addAttribute("propuestaId", propuestaId);
 						return Mono.just("processBulkAddLineasToPropuesta");
 					} else {
 						try {
 							log.debug("binding result has no errors");
-							model.addAttribute("atributos", consultaService.findAttributesByPropuestaId(propuestaId));
-							Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
-							model.addAttribute("propuesta", propuesta);
-							model.addAttribute("propuestaId", propuestaId);
 							log.debug("going to start getting all lineas from bulk");
 							return lineaUtilities.allLineasFromBulkWrapper(stringListOfListsWrapper, propuestaId)
 									.flatMapMany(rAllLineas -> {
@@ -412,10 +408,6 @@ public class LineaController {
 			log.debug("exception during add errors to bindingresult and we go back to the same view");
 			e.printStackTrace();
 			model.addAttribute("stringListOfListsWrapper", stringListOfListsWrapper);
-			model.addAttribute("atributos", consultaService.findAttributesByPropuestaId(propuestaId));
-			Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
-			model.addAttribute("propuesta", propuesta);
-			model.addAttribute("propuestaId", propuestaId);
 			return Mono.just("processBulkAddLineasToPropuesta");
 		}
 	}
