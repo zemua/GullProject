@@ -155,4 +155,8 @@ public class LineaService {
 		return deleteSeveralLineasFromSeveralPropuestaIds(ids);
 	}
 	
+	public Mono<Linea> updateNombre(String idLinea, String nombre) {
+		return lineaRepo.updateNombre(idLinea, nombre);
+	}
+	
 }

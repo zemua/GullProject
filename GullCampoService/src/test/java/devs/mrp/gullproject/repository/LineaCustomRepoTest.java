@@ -19,6 +19,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Linea;
+import devs.mrp.gullproject.service.LineaOperations;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -41,18 +42,28 @@ class LineaCustomRepoTest {
 	Campo<String> campo2;
 	Campo<String> campo3;
 	Linea linea;
+	LineaOperations lineaO;
 	Mono<Linea> mono;
 	Flux<Linea> flux;
 	
 	Linea l1;
+	LineaOperations l1o;
 	Linea l2;
+	LineaOperations l2o;
 	Linea l3;
+	LineaOperations l3o;
 	Linea l4;
+	LineaOperations l4o;
 	Linea l5;
+	LineaOperations l5o;
 	Linea l6;
+	LineaOperations l6o;
 	Linea l7;
+	LineaOperations l7o;
 	Linea l8;
+	LineaOperations l8o;
 	Linea l9;
+	LineaOperations l9o;
 	
 	@BeforeEach
 	void setUp() {
@@ -82,6 +93,7 @@ class LineaCustomRepoTest {
 		campos.add(campo3);
 		
 		linea = new Linea();
+		lineaO = new LineaOperations(linea);
 		linea.setCampos(campos);
 		linea.setPropuestaId("propA");
 		linea.setId(id);
@@ -96,22 +108,31 @@ class LineaCustomRepoTest {
 		
 		l1 = new Linea();
 		l1.setPropuestaId("p1");
+		l1o = new LineaOperations(l1);
 		l2 = new Linea();
 		l2.setPropuestaId("p1");
+		l2o = new LineaOperations(l2);
 		l3 = new Linea();
 		l3.setPropuestaId("p2");
+		l3o = new LineaOperations(l3);
 		l4 = new Linea();
 		l4.setPropuestaId("p2");
+		l4o = new LineaOperations(l4);
 		l5 = new Linea();
 		l5.setPropuestaId("p3");
+		l5o = new LineaOperations(l5);
 		l6 = new Linea();
 		l6.setPropuestaId("p3");
+		l6o = new LineaOperations(l6);
 		l7 = new Linea();
 		l7.setPropuestaId("p4");
+		l7o = new LineaOperations(l7);
 		l8 = new Linea();
 		l8.setPropuestaId("p4");
+		l8o = new LineaOperations(l8);
 		l9 = new Linea();
 		l9.setPropuestaId("p5");
+		l9o = new LineaOperations(l9);
 		
 		List<Linea> list = Arrays.asList(l1, l2, l3, l4, l5, l6, l7, l8, l9);
 		repo.saveAll(list).blockLast();
@@ -149,10 +170,11 @@ class LineaCustomRepoTest {
 		
 		StepVerifier.create(mono)
 			.assertNext(line -> {
+				LineaOperations lineo = new LineaOperations(line);
 				assertEquals(name, line.getNombre());
-				assertEquals(2, line.getCantidadCampos());
-				assertEquals(campo1, line.getCampoByIndex(0));
-				assertEquals(campo2, line.getCampoByIndex(1));
+				assertEquals(2, lineo.getCantidadCampos());
+				assertEquals(campo1, lineo.getCampoByIndex(0));
+				assertEquals(campo2, lineo.getCampoByIndex(1));
 			})
 			.expectComplete()
 			.verify();
@@ -163,9 +185,10 @@ class LineaCustomRepoTest {
 		
 		StepVerifier.create(mono2)
 			.assertNext(line -> {
+				LineaOperations lineo = new LineaOperations(line);
 				assertEquals(name, line.getNombre());
-				assertEquals(1, line.getCantidadCampos());
-				assertEquals(campo2, line.getCampoByIndex(0));
+				assertEquals(1, lineo.getCantidadCampos());
+				assertEquals(campo2, lineo.getCampoByIndex(0));
 			})
 			.expectComplete()
 			.verify();
@@ -202,9 +225,10 @@ class LineaCustomRepoTest {
 		
 		StepVerifier.create(mono)
 			.assertNext(line -> {
+				LineaOperations lineo = new LineaOperations(line);
 				assertEquals(name, line.getNombre());
-				assertEquals(1, line.getCantidadCampos());
-				assertEquals(campo1, line.getCampoByIndex(0));
+				assertEquals(1, lineo.getCantidadCampos());
+				assertEquals(campo1, lineo.getCampoByIndex(0));
 			})
 			.expectComplete()
 			.verify();
@@ -215,10 +239,11 @@ class LineaCustomRepoTest {
 		
 		StepVerifier.create(mono2)
 			.assertNext(line -> {
+				LineaOperations lineo = new LineaOperations(line);
 				assertEquals(name, line.getNombre());
-				assertEquals(2, line.getCantidadCampos());
-				assertEquals(campo1, line.getCampoByIndex(0));
-				assertEquals(campo2, line.getCampoByIndex(1));
+				assertEquals(2, lineo.getCantidadCampos());
+				assertEquals(campo1, lineo.getCampoByIndex(0));
+				assertEquals(campo2, lineo.getCampoByIndex(1));
 			})
 			.expectComplete()
 			.verify();
@@ -230,10 +255,11 @@ class LineaCustomRepoTest {
 		
 		StepVerifier.create(mono3)
 			.assertNext(line -> {
+				LineaOperations lineo = new LineaOperations(line);
 				assertEquals(name, line.getNombre());
-				assertEquals(2, line.getCantidadCampos());
-				assertEquals(campo1, line.getCampoByIndex(0));
-				assertEquals(campo2, line.getCampoByIndex(1));
+				assertEquals(2, lineo.getCantidadCampos());
+				assertEquals(campo1, lineo.getCampoByIndex(0));
+				assertEquals(campo2, lineo.getCampoByIndex(1));
 			})
 			.expectComplete()
 			.verify();
@@ -274,10 +300,11 @@ class LineaCustomRepoTest {
 		
 		StepVerifier.create(mono)
 			.assertNext(line -> {
+				LineaOperations lineo = new LineaOperations(line);
 				assertEquals(name, line.getNombre());
-				assertEquals(2, line.getCantidadCampos());
-				assertEquals(campo1, line.getCampoByIndex(0));
-				assertEquals(campo2, line.getCampoByIndex(1));
+				assertEquals(2, lineo.getCantidadCampos());
+				assertEquals(campo1, lineo.getCampoByIndex(0));
+				assertEquals(campo2, lineo.getCampoByIndex(1));
 			})
 			.expectComplete()
 			.verify();
@@ -298,11 +325,12 @@ class LineaCustomRepoTest {
 		
 		StepVerifier.create(mono)
 		.assertNext(line -> {
+			LineaOperations lineo = new LineaOperations(line);
 			assertEquals(name, line.getNombre());
-			assertEquals(2, line.getCantidadCampos());
-			assertEquals(campo1, line.getCampoByIndex(0));
-			assertEquals(campo3, line.getCampoByIndex(1));
-			assertNotEquals(campo2, line.getCampoByIndex(1));
+			assertEquals(2, lineo.getCantidadCampos());
+			assertEquals(campo1, lineo.getCampoByIndex(0));
+			assertEquals(campo3, lineo.getCampoByIndex(1));
+			assertNotEquals(campo2, lineo.getCampoByIndex(1));
 		})
 		.expectComplete()
 		.verify();
@@ -323,11 +351,12 @@ class LineaCustomRepoTest {
 		
 		StepVerifier.create(mono)
 		.assertNext(line -> {
+			LineaOperations lineo = new LineaOperations(line);
 			assertEquals(name, line.getNombre());
-			assertEquals(2, line.getCantidadCampos());
-			assertEquals(campo1, line.getCampoByIndex(0));
-			assertEquals(campo3, line.getCampoByIndex(1));
-			assertNotEquals(campo2, line.getCampoByIndex(1));
+			assertEquals(2, lineo.getCantidadCampos());
+			assertEquals(campo1, lineo.getCampoByIndex(0));
+			assertEquals(campo3, lineo.getCampoByIndex(1));
+			assertNotEquals(campo2, lineo.getCampoByIndex(1));
 		})
 		.expectComplete()
 		.verify();
@@ -417,11 +446,12 @@ class LineaCustomRepoTest {
 		
 		StepVerifier.create(mono)
 			.assertNext(line -> {
+				LineaOperations lineo = new LineaOperations(line);
 				assertEquals(name, line.getNombre());
-				assertEquals(3, line.getCantidadCampos());
-				assertEquals(campo1, line.getCampoByIndex(0));
-				assertEquals(campo2, line.getCampoByIndex(1));
-				assertEquals(campo3, line.getCampoByIndex(2));
+				assertEquals(3, lineo.getCantidadCampos());
+				assertEquals(campo1, lineo.getCampoByIndex(0));
+				assertEquals(campo2, lineo.getCampoByIndex(1));
+				assertEquals(campo3, lineo.getCampoByIndex(2));
 			})
 			.expectComplete()
 			.verify();
@@ -432,9 +462,10 @@ class LineaCustomRepoTest {
 		
 		StepVerifier.create(mono2)
 			.assertNext(line -> {
+				LineaOperations lineo = new LineaOperations(line);
 				assertEquals(name, line.getNombre());
-				assertEquals(1, line.getCantidadCampos());
-				assertEquals(campo3, line.getCampoByIndex(0));
+				assertEquals(1, lineo.getCantidadCampos());
+				assertEquals(campo3, lineo.getCampoByIndex(0));
 			})
 			.expectComplete()
 			.verify();
@@ -477,9 +508,10 @@ class LineaCustomRepoTest {
 		
 		StepVerifier.create(mono)
 			.assertNext(line -> {
+				LineaOperations lineo = new LineaOperations(line);
 				assertEquals(name, line.getNombre());
-				assertEquals(1, line.getCantidadCampos());
-				assertEquals(campo1, line.getCampoByIndex(0));
+				assertEquals(1, lineo.getCantidadCampos());
+				assertEquals(campo1, lineo.getCampoByIndex(0));
 				//assertEquals(campo2, line.getCampo(1));
 				//assertEquals(campo3, line.getCampo(2));
 			})
@@ -492,12 +524,13 @@ class LineaCustomRepoTest {
 		
 		StepVerifier.create(mono2)
 			.assertNext(line -> {
+				LineaOperations lineo = new LineaOperations(line);
 				assertEquals(2, entradas);
 				assertEquals(name, line.getNombre());
-				assertEquals(3, line.getCantidadCampos());
-				assertEquals(campo1, line.getCampoByIndex(0));
-				assertEquals(campo2, line.getCampoByIndex(1));
-				assertEquals(campo3, line.getCampoByIndex(2));
+				assertEquals(3, lineo.getCantidadCampos());
+				assertEquals(campo1, lineo.getCampoByIndex(0));
+				assertEquals(campo2, lineo.getCampoByIndex(1));
+				assertEquals(campo3, lineo.getCampoByIndex(2));
 			})
 			.expectComplete()
 			.verify();
@@ -540,11 +573,12 @@ class LineaCustomRepoTest {
 		
 		StepVerifier.create(mono)
 			.assertNext(line -> {
+				LineaOperations lineo = new LineaOperations(line);
 				assertEquals(name, line.getNombre());
-				assertEquals(3, line.getCantidadCampos());
-				assertEquals(campo1, line.getCampoByIndex(0));
-				assertEquals(campo2, line.getCampoByIndex(1));
-				assertEquals(campo3, line.getCampoByIndex(2));
+				assertEquals(3, lineo.getCantidadCampos());
+				assertEquals(campo1, lineo.getCampoByIndex(0));
+				assertEquals(campo2, lineo.getCampoByIndex(1));
+				assertEquals(campo3, lineo.getCampoByIndex(2));
 			})
 			.expectComplete()
 			.verify();
@@ -568,14 +602,15 @@ class LineaCustomRepoTest {
 		
 		StepVerifier.create(mono2)
 			.assertNext(line -> {
+				LineaOperations lineo = new LineaOperations(line);
 				assertEquals(2, entradas);
 				assertEquals(name, line.getNombre());
-				assertEquals(3, line.getCantidadCampos());
-				assertEquals(campo1, line.getCampoByIndex(0));
-				assertEquals(campo2re, line.getCampoByIndex(1));
-				assertEquals(campo3re, line.getCampoByIndex(2));
-				assertNotEquals(campo2, line.getCampoByIndex(1));
-				assertNotEquals(campo3, line.getCampoByIndex(2));
+				assertEquals(3, lineo.getCantidadCampos());
+				assertEquals(campo1, lineo.getCampoByIndex(0));
+				assertEquals(campo2re, lineo.getCampoByIndex(1));
+				assertEquals(campo3re, lineo.getCampoByIndex(2));
+				assertNotEquals(campo2, lineo.getCampoByIndex(1));
+				assertNotEquals(campo3, lineo.getCampoByIndex(2));
 			})
 			.expectComplete()
 			.verify();
@@ -584,10 +619,11 @@ class LineaCustomRepoTest {
 	@Test
 	void testUpdateNombre() {
 		Linea resultado = repo.updateNombre(linea.getId(), "nombre actualizado").block();
+		LineaOperations resultadoO = new LineaOperations(resultado);
 		
 		StepVerifier.create(mono)
 		.assertNext(line -> {
-			assertEquals(3, resultado.getCantidadCampos());
+			assertEquals(3, resultadoO.getCantidadCampos());
 			assertEquals("nombre actualizado", resultado.getNombre());
 			assertEquals("nombre actualizado", line.getNombre());
 		})
@@ -598,10 +634,11 @@ class LineaCustomRepoTest {
 	@Test
 	void testUpdateOrder() {
 		Linea resultado = repo.updateOrder(linea.getId(), 4).block();
+		LineaOperations resultadoO = new LineaOperations(resultado);
 		
 		StepVerifier.create(mono)
 		.assertNext(line -> {
-			assertEquals(3, resultado.getCantidadCampos());
+			assertEquals(3, resultadoO.getCantidadCampos());
 			assertEquals(4, line.getOrder());
 		})
 		.expectComplete()
@@ -611,10 +648,11 @@ class LineaCustomRepoTest {
 	@Test
 	void testUpdateParentId() {
 		Linea resultado = repo.updateParentId(linea.getId(), "new parent id").block();
+		LineaOperations resultadoO = new LineaOperations(resultado);
 		
 		StepVerifier.create(mono)
 		.assertNext(line -> {
-			assertEquals(3, resultado.getCantidadCampos());
+			assertEquals(3, resultadoO.getCantidadCampos());
 			assertEquals("new parent id", line.getParentId());
 		})
 		.expectComplete()
@@ -624,10 +662,11 @@ class LineaCustomRepoTest {
 	@Test
 	void testUpdateCounterLineId() {
 		Linea resultado = repo.updateCounterLineId(linea.getId(), "new counter id").block();
+		LineaOperations resultadoO = new LineaOperations(resultado);
 		
 		StepVerifier.create(mono)
 		.assertNext(line -> {
-			assertEquals(3, resultado.getCantidadCampos());
+			assertEquals(3, resultadoO.getCantidadCampos());
 			assertEquals("new counter id", line.getCounterLineId());
 		})
 		.expectComplete()

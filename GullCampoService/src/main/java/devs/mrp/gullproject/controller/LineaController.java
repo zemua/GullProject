@@ -7,10 +7,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -39,12 +41,17 @@ import devs.mrp.gullproject.domains.WrapLineasDto;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AttributesListDto;
 import devs.mrp.gullproject.domains.dto.AtributoForLineaFormDto;
+import devs.mrp.gullproject.domains.dto.AttRemaper;
+import devs.mrp.gullproject.domains.dto.AttRemapersWrapper;
 import devs.mrp.gullproject.domains.dto.LineaWithAttListDto;
 import devs.mrp.gullproject.domains.dto.LineaWithSelectorDto;
+import devs.mrp.gullproject.domains.dto.MultipleLineaWithAttListDto;
 import devs.mrp.gullproject.domains.dto.WrapLineasWithSelectorDto;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
+import devs.mrp.gullproject.service.AttRemaperUtilities;
 import devs.mrp.gullproject.service.ClassDestringfier;
 import devs.mrp.gullproject.service.ConsultaService;
+import devs.mrp.gullproject.service.LineaOperations;
 import devs.mrp.gullproject.service.LineaService;
 import devs.mrp.gullproject.service.LineaUtilities;
 import devs.mrp.gullproject.validator.AttributeValueValidator;
@@ -63,16 +70,20 @@ public class LineaController {
 	private ModelMapper modelMapper;
 	AtributoServiceProxyWebClient atributoService;
 	LineaUtilities lineaUtilities;
+	AttRemaperUtilities attRemaperUtilities;
 
 	@Autowired
 	public LineaController(LineaService lineaService, ConsultaService consultaService, ModelMapper modelMapper,
-			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities) {
+			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities, AttRemaperUtilities attRemaperUtilities) {
 		this.lineaService = lineaService;
 		this.consultaService = consultaService;
 		this.modelMapper = modelMapper;
 		this.atributoService = atributoService;
 		this.lineaUtilities = lineaUtilities;
+		this.attRemaperUtilities = attRemaperUtilities;
 	}
+	
+	// TODO for excels where one sheet = one product, first map fields in the sheet row/column=attribute, then extract data from several sheets following this map.
 
 	@GetMapping("/allof/propid/{propuestaId}")
 	public String showAllLinesOf(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
@@ -86,12 +97,7 @@ public class LineaController {
 	
 	@GetMapping("/allof/propid/{propuestaId}/order")
 	public String orderAllLinesOf(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
-		Mono<WrapLineasDto> lineas = lineaService.findByPropuestaId(propuestaId)
-				.collectList().flatMap(rList -> {
-					WrapLineasDto wrap = new WrapLineasDto();
-					wrap.setLineas(rList);
-					return Mono.just(wrap);
-				});
+		Mono<WrapLineasDto> lineas = lineaUtilities.wrapLineasDtoFromPropuestaId(propuestaId);
 		model.addAttribute("wrapLineasDto", lineas);
 		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
 		model.addAttribute("consulta", consulta);
@@ -111,24 +117,182 @@ public class LineaController {
 		return "processOrderLineasOfPropuesta";
 	}
 	
-	// TODO make an endpoint to edit lines with the "tabla editable" functionality
+	@GetMapping("/allof/propid/{propuestaId}/rename")
+	public String renameAllLinesOf(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+		Mono<StringListOfListsWrapper> lineas = lineaUtilities.stringListOfListsFromPropuestaId(propuestaId);
+		model.addAttribute("stringListOfListsWrapper", lineas);
+		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+		model.addAttribute("consulta", consulta);
+		model.addAttribute("propuestaId", propuestaId);
+		return "renameAllLinesOf";
+	}
+	
+	@PostMapping("/allof/propid/{propuestaId}/rename")
+	public Mono<String> processRenameAllLinesOf(StringListOfListsWrapper stringListOfListsWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+		
+		model.addAttribute("stringListOfListsWrapper", stringListOfListsWrapper);
+		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+		model.addAttribute("consulta", consulta);
+		model.addAttribute("propuestaId", propuestaId);
+		
+		try {
+			lineaUtilities.addBulkTableErrorsToBindingResult(stringListOfListsWrapper, propuestaId, bindingResult);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Mono.just("renameAllLinesOf");
+		}
+		
+		if (bindingResult.hasErrors()) {
+			return Mono.just("renameAllLinesOf");
+		}
+		
+		return Flux.fromIterable(stringListOfListsWrapper.getStringListWrapper())
+				.flatMap(rWrap -> {
+					return lineaService.updateNombre(rWrap.getId(), rWrap.getName());
+				})
+				.then(Mono.just("processRenameAllLinesOf"));
+	}
+	
+	@GetMapping("/allof/propid/{propuestaId}/remap")
+	public String remapValuesGeneral(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+		Flux<Linea> lineas = lineaService.findByPropuestaId(propuestaId);
+		model.addAttribute("lineas", new ReactiveDataDriverContextVariable(lineas, 1));
+		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+		model.addAttribute("consulta", consulta);
+		model.addAttribute("propuestaId", propuestaId);
+		return "remapValuesGeneral";
+	}
+	
+	@GetMapping("/allof/propid/{propuestaId}/remap/{localIdentifier}")
+	public String remapValuesAttColumn(Model model, @PathVariable(name = "propuestaId") String propuestaId, @PathVariable(name = "localIdentifier") String localIdentifier) {
+		Mono<AttRemapersWrapper> remapers = consultaService.findPropuestaByPropuestaId(propuestaId)
+				.flatMap(rProp -> {
+					Optional<AtributoForCampo> att = rProp.getAttributeColumns().stream().filter(at -> at.getLocalIdentifier().equals(localIdentifier)).findFirst();
+					AtributoForCampo attb = new AtributoForCampo();
+					attb.setTipo("DESCRIPCION");
+					attb.setName("DESCRIPCION");
+					return lineaService.findByPropuestaId(propuestaId)
+						.map(rLine -> {
+							AttRemaper maper = new AttRemaper();
+							Campo<?> campo = rLine.operations().getCampoByAttId(att.orElse(attb).getId());
+							if (campo != null) {
+								maper.setBefore(campo.getDatosText());
+								maper.setAfter(campo.getDatosText());
+							} else {
+								maper.setBefore("");
+								maper.setAfter("");
+							}
+							maper.setAtributoId(att.orElse(attb).getId());
+							maper.setLocalIdentifier(localIdentifier);
+							maper.setName(att.orElse(attb).getName());
+							maper.setTipo(att.orElse(attb).getTipo());
+							log.debug("devolviendo " + maper.toString());
+							return maper;
+						})
+						.distinct(AttRemaper::getBefore).collectList()
+						.map(rList -> {
+							log.debug("después de filtrado: " + rList.toString());
+							return new AttRemapersWrapper(rList);
+						});
+				});
+		
+		model.addAttribute("attRemapersWrapper", remapers);
+		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+		model.addAttribute("consulta", consulta);
+		model.addAttribute("propuestaId", propuestaId);
+		return "remapValuesAttColumn";
+	}
+	
+	@PostMapping("/allof/propid/{propuestaId}/remap/{localIdentifier}")
+	public Mono<String> processRemapValuesAttColumn(AttRemapersWrapper attRemapersWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId, @PathVariable(name = "localIdentifier") String localIdentifier) {
+		model.addAttribute("attRemapersWrapper", attRemapersWrapper);
+		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+		model.addAttribute("consulta", consulta);
+		model.addAttribute("propuestaId", propuestaId);
+		
+		return attRemaperUtilities.validateAttRemapers(attRemapersWrapper.getRemapers(), bindingResult, "remapers")
+				.then(Mono.just(attRemapersWrapper))
+					.flatMap(wrapper -> {
+						if (bindingResult.hasErrors()) {
+							return Mono.just("remapValuesAttColumn");
+						} else {
+							return attRemaperUtilities.remapLineasAtt(attRemapersWrapper.getRemapers(), propuestaId)
+								.then(Mono.just("processRemapValuesAttcolumn"));
+						}
+					});
+	}
+	
+	@GetMapping("/allof/propid/{propuestaId}/edit")
+	public String editAllLinesOf(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+		Flux<Linea> lineas = lineaService.findByPropuestaId(propuestaId);
+		Mono<MultipleLineaWithAttListDto> lineaDtos = lineaUtilities.getAttributesOfProposal(lineas, propuestaId)
+				.collectList().map(listOfDtos -> {
+					MultipleLineaWithAttListDto multiple = new MultipleLineaWithAttListDto();
+					multiple.setLineaWithAttListDtos(listOfDtos);
+					return multiple;
+				});
+		
+		model.addAttribute("multipleLineaWithAttListDto", lineaDtos);
+		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+		model.addAttribute("consulta", consulta);
+		model.addAttribute("propuestaId", propuestaId);
+		return "editAllLinesOf";
+	}
+	
+	@PostMapping("/allof/propid/{propuestaId}/edit")
+	public Mono<String> processEditAllLinesOf(MultipleLineaWithAttListDto multipleLineaWithAttListDto, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+		return Flux.fromIterable(multipleLineaWithAttListDto.getLineaWithAttListDtos()).index().flatMap(rTuple -> {
+			return lineaUtilities.assertBindingResultOfListDto(rTuple.getT2(), bindingResult, "lineaWithAttListDtos[" + rTuple.getT1() + "].attributes")
+					.then(Mono.just(lineaUtilities.assertNameBindingResultOfListDto(rTuple.getT2(), bindingResult, "lineaWithAttListDtos[" + rTuple.getT1() + "].linea.nombre")))
+					.then(Mono.just(rTuple.getT2()));
+		}).collectList()
+				.flatMap(rDtoList -> {
+					if(bindingResult.hasErrors()) {
+						log.debug("bindingResult tiene errores, enviamos de vuelta: " + multipleLineaWithAttListDto.toString());
+						model.addAttribute("multipleLineaWithAttListDto", multipleLineaWithAttListDto);
+						Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+						model.addAttribute("consulta", consulta);
+						model.addAttribute("propuestaId", propuestaId);
+						return Mono.just("editAllLinesOf");
+					} else {
+						Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+						model.addAttribute("consulta", consulta);
+						model.addAttribute("propuestaId", propuestaId);
+						return lineaUtilities.getAttributesOfProposal(lineaService.updateVariasLineas(Flux.fromIterable(rDtoList)
+							.flatMap(oDto -> lineaUtilities.reconstructLine(oDto))), propuestaId)
+								.collectList().map(rListDtos -> {
+									MultipleLineaWithAttListDto multiple = new MultipleLineaWithAttListDto();
+									multiple.setLineaWithAttListDtos(rListDtos);
+									multiple.getLineaWithAttListDtos().forEach(sLineAtt -> {
+										if (sLineAtt.getLinea().getOrder() == null) {
+											sLineAtt.getLinea().setOrder(0);
+										}
+									});
+									multiple.getLineaWithAttListDtos().sort((a, b) -> a.getLinea().getOrder().compareTo(b.getLinea().getOrder()));
+									model.addAttribute("multipleLineaWithAttListDto", multiple);
+									return multiple;
+								})
+								.then(Mono.just("processEditAllLinesOf"));
+					}
+				});
+	}
 
 	@GetMapping("/of/{propuestaId}/new")
 	public String addLineToPropuesta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
 		Linea lLinea = new Linea();
 		lLinea.setPropuestaId(propuestaId);
-		Mono<LineaWithAttListDto> atributosDePropuesta = lineaUtilities.getAttributesOfProposal(lLinea, propuestaId);
+		Mono<LineaWithAttListDto> atributosDePropuesta = lineaUtilities.getAttributesOfProposal(lLinea, propuestaId, 1);
 		model.addAttribute("propuesta", propuesta);
 		model.addAttribute("propuestaId", propuestaId);
 		model.addAttribute("lineaWithAttListDto", atributosDePropuesta);
 		return "addLineaToPropuesta";
 	}
 
-	@PostMapping("/of/{propuestaId}/new") // TODO campo para "cuantas quieres añadir iguales?"
+	@PostMapping("/of/{propuestaId}/new")
 	public Mono<String> processAddLineaToPropuesta(@Valid LineaWithAttListDto lineaWithAttListDto,
 			BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
-		return lineaUtilities.assertBindingResultOfListDto(lineaWithAttListDto, bindingResult).then(Mono.just(bindingResult))
+		return lineaUtilities.assertBindingResultOfListDto(lineaWithAttListDto, bindingResult, "attributes").then(Mono.just(bindingResult))
 				.flatMap(rBindingResult -> {
 					if (rBindingResult.hasErrors()) {
 						model.addAttribute("propuesta", consultaService.findPropuestaByPropuestaId(propuestaId));
@@ -136,20 +300,29 @@ public class LineaController {
 						model.addAttribute("lineaWithAttListDto", lineaWithAttListDto);
 						return Mono.just("addLineaToPropuesta");
 					} else {
-						Mono<Linea> l1;
+						Flux<Linea> l1;
 						Mono<Propuesta> p1;
+						p1 = consultaService.findPropuestaByPropuestaId(propuestaId);
 						if (lineaWithAttListDto.getLinea().getPropuestaId().equals(propuestaId)) {
 							log.debug("propuestaId's equal");
-							Mono<Linea> llinea = lineaUtilities.reconstructLine(lineaWithAttListDto);
-							l1 = lineaService.addLinea(llinea);
-							p1 = consultaService.findPropuestaByPropuestaId(propuestaId);
+							Mono<List<Linea>> llineas = lineaUtilities.reconstructLine(lineaWithAttListDto)
+									.map(rLine -> {
+										List<Linea> lista = new ArrayList<>();
+										for (int i=0; i<lineaWithAttListDto.getQty(); i++) {
+											LineaOperations operationsRline = new LineaOperations(rLine);
+											Linea dLine = operationsRline.clonar();
+											lista.add(dLine);
+										}
+										return lista;
+									});
+							l1 = lineaService.addVariasLineas(llineas.flatMapMany(ll -> Flux.fromIterable(ll)), propuestaId);
 						} else {
 							log.debug("propuestaId's are NOT equal");
-							l1 = Mono.empty();
-							p1 = Mono.empty();
+							l1 = Flux.empty();
 						}
-						model.addAttribute("linea", l1);
+						model.addAttribute("lineas", new ReactiveDataDriverContextVariable(l1, 1));
 						model.addAttribute("propuesta", p1);
+						model.addAttribute("qty", lineaWithAttListDto.getQty());
 						return Mono.just("processAddLineaToPropuesta");
 					}
 				});
@@ -165,7 +338,7 @@ public class LineaController {
 		return "bulkAddLineastoPropuesta";
 	}
 	
-	@PostMapping("/of/{propuestaId}/bulk-add") // TODO test
+	@PostMapping("/of/{propuestaId}/bulk-add")
 	public String processBulkAddLineastoPropuesta(StringWrapper stringWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		String texto = stringWrapper.getString();
 		if (texto == null || texto.equals("")) {
@@ -179,7 +352,7 @@ public class LineaController {
 			return "bulkAddLineastoPropuesta";
 		}
 		
-		model.addAttribute("stringListOfListsWrapper", lineaUtilities.excelTextToLineObject(texto)); // TODO probar primera y útlima fila en blanco, por tema del split
+		model.addAttribute("stringListOfListsWrapper", lineaUtilities.excelTextToLineObject(texto));
 		
 		model.addAttribute("atributos", consultaService.findAttributesByPropuestaId(propuestaId));
 		Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
@@ -189,7 +362,7 @@ public class LineaController {
 		return "processBulkAddLineasToPropuesta";
 	}
 	
-	@PostMapping("/of/{propuestaId}/bulk-add/verify") // TODO test
+	@PostMapping("/of/{propuestaId}/bulk-add/verify")
 	public Mono<String> verifyBulkAddLineastoPropuesta(StringListOfListsWrapper stringListOfListsWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		// verify that the data for each column is appropiate according to the attribute
 		try {
@@ -220,6 +393,9 @@ public class LineaController {
 												log.debug(rAllLineas.toString());
 												rAllLineas.stream().forEach(l -> log.debug(l.toString()));
 												return lineaService.addVariasLineas(Flux.fromIterable(rAllLineas), propuestaId);
+											}).collectList().map(rLineasInserted -> {
+												model.addAttribute("lineas", rLineasInserted);
+												return rLineasInserted;
 											})
 										.then(Mono.just("verifyBulkAddLineasToPropuesta").map(mon -> {
 											log.debug("y devolvemos la pantalla siguiente de verificación");
@@ -235,6 +411,11 @@ public class LineaController {
 		} catch (Exception e) {
 			log.debug("exception during add errors to bindingresult and we go back to the same view");
 			e.printStackTrace();
+			model.addAttribute("stringListOfListsWrapper", stringListOfListsWrapper);
+			model.addAttribute("atributos", consultaService.findAttributesByPropuestaId(propuestaId));
+			Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
+			model.addAttribute("propuesta", propuesta);
+			model.addAttribute("propuestaId", propuestaId);
 			return Mono.just("processBulkAddLineasToPropuesta");
 		}
 	}
@@ -242,7 +423,7 @@ public class LineaController {
 	@GetMapping("/revisar/id/{lineaid}")
 	public String revisarLinea(Model model, @PathVariable(name = "lineaid") String lineaId) {
 		Mono<Linea> linea = lineaService.findById(lineaId);
-		Mono<LineaWithAttListDto> lineaDto = lineaUtilities.getAttributesOfProposal(linea);
+		Mono<LineaWithAttListDto> lineaDto = lineaUtilities.getAttributesOfProposal(linea, 1);
 
 		model.addAttribute("lineaWithAttListDto", lineaDto);
 
@@ -252,7 +433,7 @@ public class LineaController {
 	@PostMapping("/revisar/id/{lineaid}")
 	public Mono<String> processRevisarLinea(@Valid LineaWithAttListDto lineaWithAttListDto, BindingResult bindingResult,
 			Model model, @PathVariable(name = "lineaid") String lineaId) {
-		return lineaUtilities.assertBindingResultOfListDto(lineaWithAttListDto, bindingResult).then(Mono.just(bindingResult))
+		return lineaUtilities.assertBindingResultOfListDto(lineaWithAttListDto, bindingResult, "attributes").then(Mono.just(bindingResult))
 				.flatMap(rBindingResult -> {
 					if (rBindingResult.hasErrors()) {
 						model.addAttribute("lineaWithAttListDto", lineaWithAttListDto);

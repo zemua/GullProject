@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>Gull Project - Remapear Campo</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1>Remapear Campo</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/lineas/allof/propid/' + propuestaId}">Volver</a>
+		</p>
+	</div>
+	
+	<form method="POST" th:object="${attRemapersWrapper}">
+		<div>
+			<p>
+				<button>Guardar</button>
+			</p>
+		</div>
+		<div>
+			<table>
+				<tr>
+					<th>Antes</th>
+					<th> => </th>
+					<th>Después</th>
+				</tr>
+				<tr th:each="a, astat : *{remapers}">
+					<td th:text="${a.before}"></td>
+					<td> => </td>
+					<td class="field" th:classappend="${#fields.hasErrors('*{remapers[__${astat.index}__].after}') ? 'error' : '' }">
+						<span class="field-text" th:text="${a.after}" contenteditable="true"></span>
+						<input type="hidden" th:field="*{remapers[__${astat.index}__].after}" class="field-input"/>
+						<input type="hidden" th:field="*{remapers[__${astat.index}__].before}"/>
+						<input type="hidden" th:field="*{remapers[__${astat.index}__].tipo}"/>
+						<input type="hidden" th:field="*{remapers[__${astat.index}__].name}"/>
+						<input type="hidden" th:field="*{remapers[__${astat.index}__].atributoId}"/>
+						<input type="hidden" th:field="*{remapers[__${astat.index}__].localIdentifier}"/>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</form>
+	
+	<script type="text/javascript" th:src="@{/js/jquery/jquery-3.6.0.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/scripts/tableEditable.js}"></script>
+
+</body>
+</html>

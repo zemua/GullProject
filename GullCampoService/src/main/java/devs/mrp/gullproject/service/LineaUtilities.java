@@ -10,14 +10,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Linea;
+import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.StringListOfListsWrapper;
 import devs.mrp.gullproject.domains.StringListWrapper;
+import devs.mrp.gullproject.domains.WrapLineasDto;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AtributoForLineaFormDto;
 import devs.mrp.gullproject.domains.dto.BooleanWrapper;
@@ -36,28 +39,46 @@ public class LineaUtilities {
 	ConsultaService consultaService;
 	AtributoServiceProxyWebClient atributoService;
 	ModelMapper modelMapper;
+	LineaService lineaService;
 	
-	public LineaUtilities(ConsultaService consultaService, ModelMapper modelMapper, AtributoServiceProxyWebClient atributoService) {
+	@Autowired
+	public LineaUtilities(ConsultaService consultaService, ModelMapper modelMapper, AtributoServiceProxyWebClient atributoService, LineaService lineaService) {
 		this.consultaService = consultaService;
 		this.modelMapper = modelMapper;
 		this.atributoService = atributoService;
+		this.lineaService = lineaService;
 	}
 
-	public Mono<LineaWithAttListDto> getAttributesOfProposal(Linea lLinea, String propuestaId) {
+	public Mono<LineaWithAttListDto> getAttributesOfProposal(Linea lLinea, String propuestaId, Integer qtyLineas) {
 		return consultaService.findAttributesByPropuestaId(propuestaId)
 				.map(rAttProp -> modelMapper.map(rAttProp, AtributoForLineaFormDto.class)).map(rAttForForm -> {
-					rAttForForm.setValue(lLinea.getValueByAttId(rAttForForm.getId()));
+					LineaOperations operations = new LineaOperations(lLinea);
+					rAttForForm.setValue(operations.getValueByAttId(rAttForForm.getId()));
 					return rAttForForm;
 				}).collectList().flatMap(rAttFormList -> Mono
-						.just(new LineaWithAttListDto(lLinea, new ValidList<AtributoForLineaFormDto>(rAttFormList))));
+						.just(new LineaWithAttListDto(lLinea, new ValidList<AtributoForLineaFormDto>(rAttFormList), qtyLineas)));
 	}
 
-	public Mono<LineaWithAttListDto> getAttributesOfProposal(Mono<Linea> lLinea) {
-		return lLinea.flatMap(linea -> getAttributesOfProposal(linea, linea.getPropuestaId()));
+	public Mono<LineaWithAttListDto> getAttributesOfProposal(Mono<Linea> lLinea, Integer qtyLineas) {
+		return lLinea.flatMap(linea -> getAttributesOfProposal(linea, linea.getPropuestaId(), qtyLineas));
+	}
+	
+	public Flux<LineaWithAttListDto> getAttributesOfProposal(Flux<Linea> lineas, String propuestaId) {
+		return lineas.flatMap(rLinea -> {
+			return getAttributesOfProposal(rLinea, propuestaId, 1);
+		})
+				.map(rDto -> {
+					if (rDto.getLinea().getOrder() == null) {
+						rDto.getLinea().setOrder(0);
+					}
+					return rDto;
+				})
+				.collectSortedList((l1, l2) -> l1.getLinea().getOrder().compareTo(l2.getLinea().getOrder()))
+				.flatMapMany(rList -> Flux.fromIterable(rList));
 	}
 
 	public Flux<Boolean> assertBindingResultOfListDto(LineaWithAttListDto lineaWithAttListDto,
-			BindingResult bindingResult) {
+			BindingResult bindingResult, String attsRoute) {
 		/**
 		 * BindingResult checks out of the box if there is any error in the line, but
 		 * not in the attributes (we removed the validation in that class) To check if
@@ -84,8 +105,9 @@ public class LineaUtilities {
 						.map(rBool -> {
 							if (!rBool) {
 								Integer pos = map.get(rAtt);
-								bindingResult.rejectValue("attributes[" + pos + "].id",
-										"error.atributosDeLinea.attributes[" + pos + "]",
+								log.debug("going to reject: " + attsRoute + "[" + pos + "].id");
+								bindingResult.rejectValue(attsRoute + "[" + pos + "].id",
+										"error." + attsRoute + "[" + pos + "]",
 										"El valor no es correcto para este atributo.");
 							}
 							return rBool;
@@ -94,6 +116,19 @@ public class LineaUtilities {
 				return Mono.just(true);
 			}
 		});
+	}
+	
+	public boolean assertNameBindingResultOfListDto(LineaWithAttListDto lineaWithAttListDto, BindingResult bindingResult, String nameRoute) {
+		String nombre = lineaWithAttListDto.getLinea().getNombre();
+		boolean isValid = true;
+		if (nombre == null || nombre.equals("")) {
+			isValid = false;
+			log.debug("going to reject an empty name: " + nameRoute);
+			bindingResult.rejectValue(nameRoute,
+					"error." + nameRoute,
+					"El nombre de esta línea no es válido");
+		}
+		return isValid;
 	}
 
 	public Mono<Linea> reconstructLine(LineaWithAttListDto lineaWithAttListDto) {
@@ -106,7 +141,8 @@ public class LineaUtilities {
 				.flatMap(rAtt -> atributoService.getClassTypeOfFormat(rAtt.getTipo()).map(
 						rClass -> new Campo<Object>(rAtt.getId(), ClassDestringfier.toObject(rClass, rAtt.getValue()))))
 				.collectList().map(rCampoList -> {
-					nLinea.replaceOrAddCamposObj(rCampoList);
+					LineaOperations operations = new LineaOperations(nLinea);
+					operations.replaceOrAddCamposObj(rCampoList);
 					return nLinea;
 				});
 	}
@@ -117,11 +153,14 @@ public class LineaUtilities {
 		Integer nOfCols = 0;
 		StringListOfListsWrapper fieldArrays = new StringListOfListsWrapper();
 		for (int i = 0; i<lines.length; i++) {
-			List<String> fl = Arrays.asList(lines[i].split("\\t"));
-			fieldArrays.add(new StringListWrapper(fl, "")); // we didn't retrieve the name yet so we use an empty string in the meanwhile
+			List<String> fl = new ArrayList<>(Arrays.asList(lines[i].split("\\t")));
 			if (fl.size() > nOfCols) {
 				nOfCols = fl.size();
 			}
+			while (fl.size() < nOfCols) {
+				fl.add("");
+			}
+			fieldArrays.add(new StringListWrapper(fl, "")); // we didn't retrieve the name yet so we use an empty string in the meanwhile
 		}
 		
 		for (int i = 0; i<nOfCols; i++) {
@@ -131,6 +170,44 @@ public class LineaUtilities {
 		}
 		
 		return fieldArrays;
+	}
+	
+	public Mono<WrapLineasDto> wrapLineasDtoFromPropuestaId(String propuestaId) {
+		return lineaService.findByPropuestaId(propuestaId)
+				.collectList().flatMap(rList -> {
+					WrapLineasDto wrap = new WrapLineasDto();
+					wrap.setLineas(rList);
+					return Mono.just(wrap);
+				});
+	}
+	
+	public Mono<StringListOfListsWrapper> stringListOfListsFromPropuestaId(String propuestaId) {
+		return lineaService.findByPropuestaId(propuestaId)
+				.collectList().flatMap(rList -> {
+					return consultaService.findPropuestaByPropuestaId(propuestaId)
+						.flatMap(rProp -> {
+							return Mono.just(stringListOfListsFromPropuestaAndLineas(rProp, rList));
+						});
+				})
+				;
+	}
+	
+	private StringListOfListsWrapper stringListOfListsFromPropuestaAndLineas(Propuesta propuesta, List<Linea> lineas) {
+		StringListOfListsWrapper wrap = new StringListOfListsWrapper();
+		wrap.setStrings(propuesta.getAttributeColumns().stream().map(att -> att.getName()).collect(Collectors.toList()));
+		propuesta.getAttributeColumns().stream().forEach(att -> wrap.getName().add(null));
+		lineas.stream().forEach(sLine -> {
+			LineaOperations sLineOp = sLine.operations();
+			StringListWrapper stringListWrapper = new StringListWrapper();
+			stringListWrapper.setString(new ArrayList<>());
+			stringListWrapper.setName(sLine.getNombre());
+			stringListWrapper.setId(sLine.getId());
+			propuesta.getAttributeColumns().stream().forEach(att -> {
+				stringListWrapper.add(sLineOp.getCampoByAttId(att.getId()).getDatosText());
+			});
+			wrap.getStringListWrapper().add(stringListWrapper);
+		});
+		return wrap;
 	}
 	
 	/**
@@ -191,7 +268,7 @@ public class LineaUtilities {
 						}
 					}
 					return rTupla.validado;
-				});
+				}).concatWithValues(!addedErrorToName);
 	}
 	
 	private List<String> getNames(StringListOfListsWrapper wrapper) {
@@ -219,7 +296,7 @@ public class LineaUtilities {
 		return names;
 	}
 	
-	private Flux<TuplaTabla> bulkTableWrapperToTuplaTabla(StringListOfListsWrapper wrapper, String propuestaId) throws Exception { // TODO test
+	private Flux<TuplaTabla> bulkTableWrapperToTuplaTabla(StringListOfListsWrapper wrapper, String propuestaId) throws Exception {
 		List<TuplaTabla> tuplas = mapToTuplaTabla(wrapper);
 		AtomicInteger counter = new AtomicInteger();
 		counter.set(0);
@@ -296,7 +373,7 @@ public class LineaUtilities {
 		int linea;
 	}
 	
-	public Mono<List<Linea>> allLineasFromBulkWrapper(StringListOfListsWrapper wrapper, String propuestaId) throws Exception { // TODO test
+	public Mono<List<Linea>> allLineasFromBulkWrapper(StringListOfListsWrapper wrapper, String propuestaId) throws Exception {
 		List<String> names = getNames(wrapper);
 		return allLineasInDuplaCompleta(wrapper, propuestaId)
 				.map(rAllDuplas -> {
@@ -310,7 +387,9 @@ public class LineaUtilities {
 							campo.setAtributoId(sField.attId);
 							log.debug("vamos a llamar a classDestringfier con clase " + sField.clase + " y valor " + sField.valor);
 							campo.setDatos(ClassDestringfier.toObject(sField.clase, sField.valor));
-							linea.addCampo(campo);
+							log.debug("hemos obtenido los datos " + campo.getDatosText());
+							LineaOperations operations = new LineaOperations(linea);
+							operations.addCampo(campo);
 						});
 						linea.setPropuestaId(propuestaId);
 						linea.setNombre(names.get(sDupla.get(0).linea));

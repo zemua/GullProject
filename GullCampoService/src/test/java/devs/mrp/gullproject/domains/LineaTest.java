@@ -8,6 +8,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import devs.mrp.gullproject.service.LineaOperations;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 public class LineaTest {
 
 	Linea linea;
+	LineaOperations lineaOperations;
 	Campo<String> campo1;
 	Campo<Integer> campo2;
 	Campo<Double> campo3;
@@ -57,6 +61,7 @@ public class LineaTest {
 		linea.setId("idlinea");
 		linea.setNombre("nombre linea");
 		linea.setPropuestaId("propuestaid");
+		lineaOperations = new LineaOperations(linea);
 	}
 	
 	@Test
@@ -68,15 +73,15 @@ public class LineaTest {
 		campo7.setId("id7");
 		campos.add(campo6);
 		campos.add(campo7);
-		linea.resetCampos(campos);
-		assertEquals(2, linea.getCantidadCampos());
-		assertEquals(campo6.getId(), linea.getCampoByIndex(0).getId());
-		assertEquals(campo7.getId(), linea.getCampoByIndex(1).getId());
+		lineaOperations.resetCampos(campos);
+		assertEquals(2, lineaOperations.getCantidadCampos());
+		assertEquals(campo6.getId(), lineaOperations.getCampoByIndex(0).getId());
+		assertEquals(campo7.getId(), lineaOperations.getCampoByIndex(1).getId());
 	}
 	
 	@Test
 	void testGetMapOfCamposByAtributoId() {
-		Map<String, Campo<?>> map = linea.getMapOfCamposByAtributoId();
+		Map<String, Campo<?>> map = lineaOperations.getMapOfCamposByAtributoId();
 		assertEquals(campo1.getId(), map.get(campo1.getAtributoId()).getId());
 		assertEquals(campo2.getId(), map.get(campo2.getAtributoId()).getId());
 		assertEquals(campo3.getId(), map.get(campo3.getAtributoId()).getId());
@@ -84,46 +89,46 @@ public class LineaTest {
 	
 	@Test
 	void testGetCampoByAttId() {
-		assertEquals(campo1, linea.getCampoByAttId(campo1.getAtributoId()));
-		assertEquals(campo2, linea.getCampoByAttId(campo2.getAtributoId()));
-		assertEquals(campo3, linea.getCampoByAttId(campo3.getAtributoId()));
-		assertNull(linea.getCampoByAttId("atributo que no existe"));
+		assertEquals(campo1, lineaOperations.getCampoByAttId(campo1.getAtributoId()));
+		assertEquals(campo2, lineaOperations.getCampoByAttId(campo2.getAtributoId()));
+		assertEquals(campo3, lineaOperations.getCampoByAttId(campo3.getAtributoId()));
+		assertNull(lineaOperations.getCampoByAttId("atributo que no existe"));
 	}
 	
 	@Test
 	void testGetValueByAttId() {
-		assertEquals(campo1.getDatosText(), linea.getValueByAttId(campo1.getAtributoId()));
-		assertEquals(campo2.getDatosText(), linea.getValueByAttId(campo2.getAtributoId()));
-		assertEquals(campo3.getDatosText(), linea.getValueByAttId(campo3.getAtributoId()));
-		assertEquals("", linea.getValueByAttId("atributo id que no existe"));
+		assertEquals(campo1.getDatosText(), lineaOperations.getValueByAttId(campo1.getAtributoId()));
+		assertEquals(campo2.getDatosText(), lineaOperations.getValueByAttId(campo2.getAtributoId()));
+		assertEquals(campo3.getDatosText(), lineaOperations.getValueByAttId(campo3.getAtributoId()));
+		assertEquals("", lineaOperations.getValueByAttId("atributo id que no existe"));
 	}
 	
 	@Test
 	void testReplaceCampo() {
-		linea.replaceCampo(campo1.getAtributoId(), campo4);
-		assertEquals(campo2, linea.getCampoByIndex(0));
-		assertEquals(campo3, linea.getCampoByIndex(1));
-		assertEquals(campo4, linea.getCampoByIndex(2));
-		linea.replaceCampo(campo3);
-		assertEquals(campo2, linea.getCampoByIndex(0));
-		assertEquals(campo4, linea.getCampoByIndex(1));
-		assertEquals(campo3, linea.getCampoByIndex(2));
+		lineaOperations.replaceCampo(campo1.getAtributoId(), campo4);
+		assertEquals(campo2, lineaOperations.getCampoByIndex(0));
+		assertEquals(campo3, lineaOperations.getCampoByIndex(1));
+		assertEquals(campo4, lineaOperations.getCampoByIndex(2));
+		lineaOperations.replaceCampo(campo3);
+		assertEquals(campo2, lineaOperations.getCampoByIndex(0));
+		assertEquals(campo4, lineaOperations.getCampoByIndex(1));
+		assertEquals(campo3, lineaOperations.getCampoByIndex(2));
 	}
 	
 	@Test
 	void testReplaceOrElseAddCampo() {
-		linea.replaceOrElseAddCampo(campo1.getAtributoId(), campo4);
-		assertEquals(3, linea.getCantidadCampos());
-		assertEquals(campo2, linea.getCampoByIndex(0));
-		assertEquals(campo3, linea.getCampoByIndex(1));
-		assertEquals(campo4, linea.getCampoByIndex(2));
+		lineaOperations.replaceOrElseAddCampo(campo1.getAtributoId(), campo4);
+		assertEquals(3, lineaOperations.getCantidadCampos());
+		assertEquals(campo2, lineaOperations.getCampoByIndex(0));
+		assertEquals(campo3, lineaOperations.getCampoByIndex(1));
+		assertEquals(campo4, lineaOperations.getCampoByIndex(2));
 		
-		linea.replaceOrElseAddCampo(campo5.getAtributoId(), campo5);
-		assertEquals(4, linea.getCantidadCampos());
-		assertEquals(campo2, linea.getCampoByIndex(0));
-		assertEquals(campo3, linea.getCampoByIndex(1));
-		assertEquals(campo4, linea.getCampoByIndex(2));
-		assertEquals(campo5, linea.getCampoByIndex(3));
+		lineaOperations.replaceOrElseAddCampo(campo5.getAtributoId(), campo5);
+		assertEquals(4, lineaOperations.getCantidadCampos());
+		assertEquals(campo2, lineaOperations.getCampoByIndex(0));
+		assertEquals(campo3, lineaOperations.getCampoByIndex(1));
+		assertEquals(campo4, lineaOperations.getCampoByIndex(2));
+		assertEquals(campo5, lineaOperations.getCampoByIndex(3));
 	}
 	
 	@Test
@@ -132,13 +137,13 @@ public class LineaTest {
 		campos.add(campo4);
 		campos.add(campo5);
 		campos.add(campo1);
-		linea.replaceOrElseAddCampos(campos);
-		assertEquals(5, linea.getCantidadCampos());
-		assertEquals(campo2, linea.getCampoByIndex(0));
-		assertEquals(campo3, linea.getCampoByIndex(1));
-		assertEquals(campo4, linea.getCampoByIndex(2));
-		assertEquals(campo5, linea.getCampoByIndex(3));
-		assertEquals(campo1, linea.getCampoByIndex(4));
+		lineaOperations.replaceOrElseAddCampos(campos);
+		assertEquals(5, lineaOperations.getCantidadCampos());
+		assertEquals(campo2, lineaOperations.getCampoByIndex(0));
+		assertEquals(campo3, lineaOperations.getCampoByIndex(1));
+		assertEquals(campo4, lineaOperations.getCampoByIndex(2));
+		assertEquals(campo5, lineaOperations.getCampoByIndex(3));
+		assertEquals(campo1, lineaOperations.getCampoByIndex(4));
 	}
 	
 	@Test
@@ -153,48 +158,49 @@ public class LineaTest {
 		campos.add(campo6);
 		campos.add(campo7);
 		
-		linea.replaceOrAddCamposObj(campos);
-		assertEquals(4, linea.getCantidadCampos());
-		assertEquals(campo1, linea.getCampoByIndex(0));
-		assertEquals(campo3, linea.getCampoByIndex(1));
-		assertEquals(campo6, linea.getCampoByIndex(2));
-		assertEquals(campo7, linea.getCampoByIndex(3));
+		lineaOperations.replaceOrAddCamposObj(campos);
+		assertEquals(4, lineaOperations.getCantidadCampos());
+		assertEquals(campo1, lineaOperations.getCampoByIndex(0));
+		assertEquals(campo3, lineaOperations.getCampoByIndex(1));
+		assertEquals(campo6, lineaOperations.getCampoByIndex(2));
+		assertEquals(campo7, lineaOperations.getCampoByIndex(3));
 	}
 	
 	@Test
 	void testAddCampo() {
-		linea.addCampo(campo4);
-		assertEquals(4, linea.getCantidadCampos());
-		assertEquals(campo1, linea.getCampoByIndex(0));
-		assertEquals(campo2, linea.getCampoByIndex(1));
-		assertEquals(campo3, linea.getCampoByIndex(2));
-		assertEquals(campo4, linea.getCampoByIndex(3));
-		linea.addCampo(campo1);
-		assertEquals(5, linea.getCantidadCampos());
-		assertEquals(campo1, linea.getCampoByIndex(0));
-		assertEquals(campo2, linea.getCampoByIndex(1));
-		assertEquals(campo3, linea.getCampoByIndex(2));
-		assertEquals(campo4, linea.getCampoByIndex(3));
-		assertEquals(campo1, linea.getCampoByIndex(4));
+		lineaOperations.addCampo(campo4);
+		assertEquals(4, lineaOperations.getCantidadCampos());
+		assertEquals(campo1, lineaOperations.getCampoByIndex(0));
+		assertEquals(campo2, lineaOperations.getCampoByIndex(1));
+		assertEquals(campo3, lineaOperations.getCampoByIndex(2));
+		assertEquals(campo4, lineaOperations.getCampoByIndex(3));
+		lineaOperations.addCampo(campo1);
+		assertEquals(5, lineaOperations.getCantidadCampos());
+		assertEquals(campo1, lineaOperations.getCampoByIndex(0));
+		assertEquals(campo2, lineaOperations.getCampoByIndex(1));
+		assertEquals(campo3, lineaOperations.getCampoByIndex(2));
+		assertEquals(campo4, lineaOperations.getCampoByIndex(3));
+		assertEquals(campo1, lineaOperations.getCampoByIndex(4));
 	}
 	
 	@Test
 	void testRemoveCampoByAttId() {
-		linea.removeCampoByAttId(campo2.getAtributoId());
-		assertEquals(2, linea.getCantidadCampos());
-		assertEquals(campo1, linea.getCampoByIndex(0));
-		assertEquals(campo3, linea.getCampoByIndex(1));
+		lineaOperations.removeCampoByAttId(campo2.getAtributoId());
+		assertEquals(2, lineaOperations.getCantidadCampos());
+		assertEquals(campo1, lineaOperations.getCampoByIndex(0));
+		assertEquals(campo3, lineaOperations.getCampoByIndex(1));
 	}
 	
 	@Test
 	void testEquals() {
 		Linea linea2 = new Linea();
+		LineaOperations linea2operations = new LineaOperations(linea2);
 		linea2.setNombre(linea.getNombre());
 		linea2.setPropuestaId(linea.getPropuestaId());
-		linea2.addCampo(campo1);
-		linea2.addCampo(campo2);
-		linea2.addCampo(campo3);
-		assertTrue(linea.equals(linea2));
+		linea2operations.addCampo(campo1);
+		linea2operations.addCampo(campo2);
+		linea2operations.addCampo(campo3);
+		assertTrue(lineaOperations.equals(linea2));
 	}
 	
 }

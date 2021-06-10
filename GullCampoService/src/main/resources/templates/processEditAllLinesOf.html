@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Editar lineas de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Gull Project - Editar lineas de la propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1 th:text="${'Editar lineas de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Editar lineas de la propuesta</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/lineas/allof/propid/' + propuestaId}">Volver</a>
+		</p>
+	</div>
+	
+	<div>
+		<table id="tabla-ordenable" class="tablesorter">
+			<thead>
+				<tr class="nodrop nodrag" id="1">
+					<th>Nombre</th>
+					<th th:each="t : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}">
+						<span th:text="${t.getName()}"></span>
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="a, ystat : ${multipleLineaWithAttListDto.lineaWithAttListDtos}">
+					<td class="field">
+						<span th:text="${a.linea.nombre}" class="field-text"></span>
+					</td>
+					<td th:each="t, tstat : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}" class="field">
+						<span th:text="${a.linea.operations().getValueByAttId(t.getId())}" class="field-text"></span>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+</body>
+</html>

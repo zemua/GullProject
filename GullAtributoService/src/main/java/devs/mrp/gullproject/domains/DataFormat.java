@@ -11,8 +11,6 @@ public enum DataFormat {
 	
 	Class<?> clase;
 	
-	private static DataFormat[] sFormats;
-	
 	private DataFormat(Class<?> clase) {
 		this.clase = clase;
 	}
@@ -21,6 +19,15 @@ public enum DataFormat {
 		return this.clase.getSimpleName();
 	}
 	
+	/**
+	 * Check if the provided String is a valid value for the current enum
+	 * @deprecated
+	 * This method is no longer acceptable to check validity.
+	 * <p> Use {@link DataFormat#checkIfValidRegex(String value)} instead
+	 * 
+	 * @param s
+	 * @return
+	 */
 	public boolean checkIfValidValue(String s) {
 		if (clase.equals(String.class)) {
 			return true;
@@ -38,12 +45,26 @@ public enum DataFormat {
 		return false;
 	}
 	
+	public boolean checkIfValidRegex(String value) {
+		value = value.replace(",", ".");
+		if (clase == String.class) {return true;}
+		if (clase == Boolean.class && (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false"))) {return true;}
+		if (clase == Integer.class && value.matches("^-?\\d{0,9}$")) {return true;}
+		if (clase == Long.class && value.matches("^-?\\d*$")) {return true;}
+		if (clase == Float.class && value.matches("^-?\\d*\\.?\\d*$")) {return true;}
+		if (clase == Double.class && value.matches("^-?\\d*\\.?\\d*$")) {return true;}
+		return false;
+	}
+	
 	public static boolean isMember(String nName) {
 		return EnumUtils.isValidEnum(DataFormat.class, nName);
 	}
 	
-	// TODO check with regular expression, it is not advisable to guide the logic of the program with exceptions
-	
+	/**
+	 * @deprecated
+	 * @param s
+	 * @return
+	 */
 	private boolean checkIfInteger(String s) {
 		boolean b = false;
 		try {
@@ -58,6 +79,11 @@ public enum DataFormat {
 		return b;
 	}
 	
+	/**
+	 * @deprecated
+	 * @param s
+	 * @return
+	 */
 	private boolean checkIfLong(String s) {
 		boolean b = false;
 		try {
@@ -72,6 +98,11 @@ public enum DataFormat {
 		return b;
 	}
 	
+	/**
+	 * @deprecated
+	 * @param s
+	 * @return
+	 */
 	private boolean checkIfDouble(String s) {
 		boolean b = false;
 		try {
@@ -86,6 +117,11 @@ public enum DataFormat {
 		return b;
 	}
 	
+	/**
+	 * @deprecated
+	 * @param s
+	 * @return
+	 */
 	private boolean checkIfFloat(String s) {
 		boolean b = false;
 		try {
@@ -100,6 +136,11 @@ public enum DataFormat {
 		return b;
 	}
 	
+	/**
+	 * @deprecated
+	 * @param s
+	 * @return
+	 */
 	private boolean checkIfBoolean(String s) {
 		boolean b = false;
 		try {

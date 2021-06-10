@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import devs.mrp.gullproject.service.LineaOperations;
 import lombok.extern.slf4j.Slf4j;
 
 public interface Propuesta {
@@ -37,8 +38,9 @@ public interface Propuesta {
 	//public boolean saveOrder(Map<String, Integer> idlineaVSposicion); // Integer = posición-de-la-línea, String = id-de-linea
 	
 	public static boolean confirmaIguales(Linea linea1, Linea linea2) {
-		
-		if (linea1.getCantidadCampos() != linea2.getCantidadCampos()) {
+		LineaOperations operations1 = new LineaOperations(linea1);
+		LineaOperations operations2 = new LineaOperations(linea2);
+		if (operations1.getCantidadCampos() != operations2.getCantidadCampos()) {
 			return false;
 		}
 		
