@@ -33,7 +33,7 @@ public class AttRemaperUtilities {
 		return atributoService.validateDataFormat(attRemaper.getTipo(), attRemaper.getAfter());
 	}
 	
-	public Flux<Boolean> validateAttRemapers(List<AttRemaper> remapers, BindingResult bindingResult, String errorRoute) { // TODO test
+	public Flux<Boolean> validateAttRemapers(List<AttRemaper> remapers, BindingResult bindingResult, String errorRoute) {
 		return Flux.fromIterable(remapers).index()
 			.flatMap(rRemaper -> {
 				return validateAttRemaper(rRemaper.getT2())
@@ -50,7 +50,7 @@ public class AttRemaperUtilities {
 			;
 	}
 	
-	public Flux<Linea> remapLineasAtt(List<AttRemaper> remapers, String propuestaId) { // TODO test
+	public Flux<Linea> remapLineasAtt(List<AttRemaper> remapers, String propuestaId) {
 		if (remapers.size() == 0) {return null;}
 		String attId = remapers.get(0).getAtributoId();
 		
