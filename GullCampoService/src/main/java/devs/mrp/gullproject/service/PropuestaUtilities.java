@@ -41,7 +41,7 @@ public class PropuestaUtilities {
 				});
 	}
 	
-	public Mono<List<AtributoForCampo>> atributosFromWrap(WrapAtributosForCampoDto wrapAtributosForCampoDto, BindingResult bindingResult, String propuestaId) { // TODO test
+	public Mono<List<AtributoForCampo>> atributosFromWrapAndValidate(WrapAtributosForCampoDto wrapAtributosForCampoDto, BindingResult bindingResult, String propuestaId) { // TODO test
 		return consultaService.findAttributesByPropuestaId(propuestaId).index()
 				.collectMap((a)->a.getT2().getLocalIdentifier(),(a)->a)
 				.map(rMap -> {

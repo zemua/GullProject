@@ -37,9 +37,11 @@ import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaService;
 import devs.mrp.gullproject.service.PropuestaUtilities;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = ConsultaController.class)
 @AutoConfigureWebTestClient
@@ -139,6 +141,11 @@ class ConsultaControllerTestB {
 		
 		mono1 = Mono.just(consulta1);
 		mono2 = Mono.just(consulta2);
+		
+		
+		
+		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(prop1.getId()))).thenReturn(Mono.just(prop1));
+		when(consultaService.findAttributesByPropuestaId(prop1.getId())).thenReturn(Flux.fromIterable(consulta1.getPropuestaById(prop1.getId()).getAttributeColumns()));
 	}
 
 	@Test
@@ -768,6 +775,69 @@ class ConsultaControllerTestB {
 							.contains("Corrige los errores y reenvía")
 							.contains("Selecciona un nombre");
 					});
+	}
+	
+	@Test
+	void testOrderAttributesOfProposal() {
+		webTestClient.get()
+			.uri("/consultas/attof/propid/" + prop1.getId() + "/order")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Ordenar")
+					.contains(prop1.getNombre())
+					.contains(prop1.getAttributeColumns().get(0).getName())
+					.contains(prop1.getAttributeColumns().get(1).getName());
+			});
+			;
+	}
+	
+	@Test
+	void testProcessOrderAttributesOfProposal() {
+		when(consultaService.reOrderAttributesOfPropuesta(ArgumentMatchers.eq(prop1.getId()), ArgumentMatchers.anyList())).thenReturn(Mono.just(prop1));
+		
+		log.debug("should be ok");
+		webTestClient.post()
+			.uri("/consultas/attof/propid/" + prop1.getId() + "/order")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("atributos[0].localIdentifier", prop1.getAttributeColumns().get(0).getLocalIdentifier())
+				.with("atributos[0].order", String.valueOf(1))
+				.with("atributos[1].localIdentifier", prop1.getAttributeColumns().get(1).getLocalIdentifier())
+				.with("atributes[1].order", String.valueOf(0))
+				)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Orden guardado")
+					.doesNotContain("Error");
+			})
+			;
+		
+		log.debug("should be error");
+		webTestClient.post()
+			.uri("/consultas/attof/propid/" + prop1.getId() + "/order")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("atributos[0].localIdentifier", "invalidId")
+				.with("atributos[0].order", String.valueOf(1))
+				.with("atributos[1].localIdentifier", prop1.getAttributeColumns().get(1).getLocalIdentifier())
+				.with("atributes[1].order", String.valueOf(0))
+				)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Error")
+					.doesNotContain("Orden guardado");
+			})
+			;
 	}
 
 }

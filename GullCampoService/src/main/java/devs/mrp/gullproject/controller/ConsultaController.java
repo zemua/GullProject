@@ -37,15 +37,13 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Controller
 @RequestMapping(path = "/consultas")
-public class ConsultaController { // TODO order atributes in proposal
+public class ConsultaController {
 	
 	// TODO create supplier proposals from customer ones (discriminar lineas con el mismo nombre y distinto precio)
 	// TODO create our proposals from customer and supplier ones
 	// TODO create customer updated proposals
 	// TODO adapt old supplier proposals for updated customer inquiry
 	// TODO make a "compare" view to check supplier vs customer table and ours vs customer table
-
-	// TODO reducir a 1 responsabilidad por funcion
 	
 	ConsultaService consultaService;
 	LineaService lineaService;
@@ -239,7 +237,7 @@ public class ConsultaController { // TODO order atributes in proposal
 		return "processAddAttributeToProposal";
 	}
 	
-	@GetMapping("/attof/propid/{id}/order") // TODO test
+	@GetMapping("/attof/propid/{id}/order")
 	public String orderAttributesOfProposal(Model model, @PathVariable(name = "id") String propuestaId) {
 		Mono<WrapAtributosForCampoDto> wrap = propuestaUtilities.wrapAtributos(propuestaId);
 		model.addAttribute("wrapAtributosForCampoDto", wrap);
@@ -248,9 +246,9 @@ public class ConsultaController { // TODO order atributes in proposal
 		return "orderAttributesOfProposal";
 	}
 	
-	@PostMapping("/attof/propid/{id}/order") // TODO test
-	public Mono<String> orderAttributesOfProposal(WrapAtributosForCampoDto wrapAtributosForCampoDto, BindingResult bindingResult, Model model, @PathVariable(name = "id") String propuestaId) {
-		return propuestaUtilities.atributosFromWrap(wrapAtributosForCampoDto, bindingResult, propuestaId)
+	@PostMapping("/attof/propid/{id}/order")
+	public Mono<String> processOrderAttributesOfProposal(WrapAtributosForCampoDto wrapAtributosForCampoDto, BindingResult bindingResult, Model model, @PathVariable(name = "id") String propuestaId) {
+		return propuestaUtilities.atributosFromWrapAndValidate(wrapAtributosForCampoDto, bindingResult, propuestaId)
 			.flatMap(array -> {
 				return consultaService.reOrderAttributesOfPropuesta(propuestaId, array);
 			})
