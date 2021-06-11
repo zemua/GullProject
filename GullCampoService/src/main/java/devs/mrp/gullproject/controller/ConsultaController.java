@@ -48,15 +48,13 @@ public class ConsultaController {
 	ConsultaService consultaService;
 	LineaService lineaService;
 	AtributoServiceProxyWebClient atributoService;
-	private final ModelMapper modelMapper;
 	PropuestaUtilities propuestaUtilities;
 	
 	@Autowired
-	public ConsultaController(ConsultaService consultaService, LineaService lineaService, AtributoServiceProxyWebClient atributoService, ModelMapper modelMapper, PropuestaUtilities propuestaUtilities) {
+	public ConsultaController(ConsultaService consultaService, LineaService lineaService, AtributoServiceProxyWebClient atributoService, PropuestaUtilities propuestaUtilities) {
 		this.consultaService = consultaService;
 		this.lineaService = lineaService;
 		this.atributoService = atributoService;
-		this.modelMapper = modelMapper;
 		this.propuestaUtilities = propuestaUtilities;
 	}
 	
