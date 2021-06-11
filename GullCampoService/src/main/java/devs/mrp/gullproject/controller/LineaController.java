@@ -63,7 +63,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Controller
 @RequestMapping(path = "/lineas")
-public class LineaController { // TODO reducir a 1 responsabilidad por función
+public class LineaController {
 
 	private LineaService lineaService;
 	private ConsultaService consultaService;

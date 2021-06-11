@@ -64,9 +64,7 @@ public class ConsultaController { // TODO order atributes in proposal
 	
 	@GetMapping("/nuevo")
 	public String createConsulta(Model model) {
-		
 		model.addAttribute("consulta", new Consulta());
-		
 		return "createConsulta";
 	}
 	
@@ -151,10 +149,8 @@ public class ConsultaController { // TODO order atributes in proposal
 	
 	@GetMapping("/delete/id/{id}")
 	public String deleteConsultaById(Model model, @PathVariable(name= "id") String id) {
-		
 		Mono<Consulta> c = consultaService.findById(id);
 		model.addAttribute("consulta", c);
-		
 		return "deleteConsultaById";
 	}
 	
@@ -194,7 +190,6 @@ public class ConsultaController { // TODO order atributes in proposal
 		model.addAttribute("idPropuesta", propuestaid);
 		Mono<Propuesta> p = consultaService.findById(consultaid).flatMap(cons -> Mono.just(cons.getPropuestaById(propuestaid)));
 		model.addAttribute("propuesta", p);
-		
 		return "deletePropuestaById";
 	}
 	
@@ -225,22 +220,7 @@ public class ConsultaController { // TODO order atributes in proposal
 	@GetMapping("/attof/propid/{id}/new")
 	public String addAttributeToProposal(Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("proposalId", proposalId);
-		
-		Mono<AttributesListDto> atributos = consultaService.findPropuestaByPropuestaId(proposalId)
-				.flatMapMany(rPropuesta -> Flux.fromIterable(rPropuesta.getAttributeColumns()))
-				.map(rAtt -> rAtt.getId()).collectList()
-				.flatMap(rAttList -> {
-					return atributoService.getAllAtributos()
-							.map(rAttProp -> modelMapper.map(rAttProp, AtributoForFormDto.class))
-							.map(rAttForm -> {
-								if (rAttList.contains(rAttForm.getId())) {
-									rAttForm.setSelected(true);
-								} else {rAttForm.setSelected(false);}
-								return rAttForm;
-								})
-							.collectList().flatMap(rAttForm -> Mono.just(new AttributesListDto(rAttForm)));
-				});
-		
+		Mono<AttributesListDto> atributos = propuestaUtilities.getAttributesAndMarkActualFromProposal(proposalId);
 		model.addAttribute("atts", atributos);
 		return "addAttributeToProposal";
 	}
@@ -248,19 +228,9 @@ public class ConsultaController { // TODO order atributes in proposal
 	@PostMapping("/attof/propid/{id}/new")
 	public String processAddAttributeToProposal(@ModelAttribute AttributesListDto atts, BindingResult bindingResult, Model model, @PathVariable(name = "id") String propuestaId) {
 		
-		Flux<AtributoForCampo> attributes;
-		
-		if (atts.getAttributes() == null || atts.getAttributes().size() == 0) {
-			attributes = Flux.fromIterable(new ArrayList<AtributoForCampo>());
-		} else {
-			attributes = Flux.fromIterable(atts.getAttributes())
-					.filter(a -> a.getSelected())
-					.map(a -> modelMapper.map(a, AtributoForCampo.class));
-		}
-		
+		Flux<AtributoForCampo> attributes = propuestaUtilities.listOfSelectedAttributes(atts);
 		Mono<Consulta> consulta = attributes.collectList()
 				.flatMap(latts -> consultaService.updateAttributesOfPropuesta(propuestaId, latts));
-		
 		Mono<Propuesta> propuesta = consulta.map(c -> c.getPropuestaById(propuestaId));
 
 		model.addAttribute("atributos", new ReactiveDataDriverContextVariable(attributes, 1));

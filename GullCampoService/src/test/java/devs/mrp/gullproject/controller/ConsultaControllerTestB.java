@@ -36,13 +36,14 @@ import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaService;
+import devs.mrp.gullproject.service.PropuestaUtilities;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = ConsultaController.class)
 @AutoConfigureWebTestClient
-@Import(MapperConfig.class)
+@Import({MapperConfig.class, PropuestaUtilities.class})
 @ActiveProfiles("default")
 class ConsultaControllerTestB {
 	
