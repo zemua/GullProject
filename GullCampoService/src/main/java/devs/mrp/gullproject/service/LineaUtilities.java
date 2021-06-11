@@ -3,6 +3,7 @@ package devs.mrp.gullproject.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -28,7 +29,9 @@ import devs.mrp.gullproject.domains.dto.AttRemaper;
 import devs.mrp.gullproject.domains.dto.AttRemapersWrapper;
 import devs.mrp.gullproject.domains.dto.BooleanWrapper;
 import devs.mrp.gullproject.domains.dto.LineaWithAttListDto;
+import devs.mrp.gullproject.domains.dto.LineaWithSelectorDto;
 import devs.mrp.gullproject.domains.dto.MultipleLineaWithAttListDto;
+import devs.mrp.gullproject.domains.dto.WrapLineasWithSelectorDto;
 import devs.mrp.gullproject.validator.ValidList;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -89,6 +92,39 @@ public class LineaUtilities {
 					multiple.setLineaWithAttListDtos(listOfDtos);
 					return multiple;
 				});
+	}
+	
+	public Mono<WrapLineasWithSelectorDto> getWrappedLinesWithSelectorFromPropuestaId(String propuestaId) {
+		return lineaService.findByPropuestaId(propuestaId).map(rl -> {
+			LineaWithSelectorDto dto = modelMapper.map(rl, LineaWithSelectorDto.class);
+			dto.setSelected(false);
+			return dto;
+		}).collectList().flatMap(rList -> {
+			WrapLineasWithSelectorDto wrap = new WrapLineasWithSelectorDto();
+			wrap.setLineas(rList);
+			return Mono.just(wrap);
+		});
+	}
+	
+	public List<LineaWithSelectorDto> removeNotSelectedFromWrap(WrapLineasWithSelectorDto wrapLineasWithSelectorDto) {
+		List<LineaWithSelectorDto> lineas = wrapLineasWithSelectorDto.getLineas();
+		Iterator<LineaWithSelectorDto> iterator = lineas.iterator();
+		while (iterator.hasNext()) {
+			LineaWithSelectorDto dto = iterator.next();
+			if (!dto.getSelected()) {
+				iterator.remove();
+			}
+		}
+		return lineas;
+	}
+	
+	public Mono<Void> deleteSelectedLinesFromWrap(WrapLineasWithSelectorDto wrapLineasWithSelectorDto) {
+		removeNotSelectedFromWrap(wrapLineasWithSelectorDto);
+		return lineaService
+				.deleteVariasLineas(Flux.fromIterable(wrapLineasWithSelectorDto.getLineas()).map(rLineaDto -> {
+					Linea linea = modelMapper.map(rLineaDto, Linea.class);
+					return linea;
+				}));
 	}
 	
 	public Flux<LineaWithAttListDto> assertBindingResultOfWrappedMultipleLines(MultipleLineaWithAttListDto multipleLineaWithAttListDto, BindingResult bindingResult) {

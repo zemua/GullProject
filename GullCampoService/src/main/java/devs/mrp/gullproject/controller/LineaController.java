@@ -296,7 +296,7 @@ public class LineaController { // TODO reducir a 1 responsabilidad por función
 		return "processBulkAddLineasToPropuesta";
 	}
 	
-	@PostMapping("/of/{propuestaId}/bulk-add/verify") // TODO make single responsibility
+	@PostMapping("/of/{propuestaId}/bulk-add/verify")
 	public Mono<String> verifyBulkAddLineastoPropuesta(StringListOfListsWrapper stringListOfListsWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		// verify that the data for each column is appropiate according to the attribute
 		model.addAttribute("atributos", consultaService.findAttributesByPropuestaId(propuestaId));
@@ -405,15 +405,7 @@ public class LineaController { // TODO reducir a 1 responsabilidad por función
 
 	@GetMapping("/deleteof/propid/{propuestaId}")
 	public String deleteLinesOf(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
-		Mono<WrapLineasWithSelectorDto> lineas = lineaService.findByPropuestaId(propuestaId).map(rl -> {
-			LineaWithSelectorDto dto = modelMapper.map(rl, LineaWithSelectorDto.class);
-			dto.setSelected(false);
-			return dto;
-		}).collectList().flatMap(rList -> {
-			WrapLineasWithSelectorDto wrap = new WrapLineasWithSelectorDto();
-			wrap.setLineas(rList);
-			return Mono.just(wrap);
-		});
+		Mono<WrapLineasWithSelectorDto> lineas = lineaUtilities.getWrappedLinesWithSelectorFromPropuestaId(propuestaId);
 		model.addAttribute("wrapLineasWithSelectorDto", lineas);
 		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
 		model.addAttribute("consulta", consulta);
@@ -423,35 +415,22 @@ public class LineaController { // TODO reducir a 1 responsabilidad por función
 
 	@PostMapping("/deleteof/propid/{propuestaId}")
 	public String processDeleteLinesOf(WrapLineasWithSelectorDto wrapLineasWithSelectorDto, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
-		if (bindingResult.hasErrors()) {
-			model.addAttribute("wrapLineasWithSelectorDto", wrapLineasWithSelectorDto);
-			Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
-			model.addAttribute("consulta", consulta);
-			model.addAttribute("propuestaId", propuestaId);
-			return "deleteLinesOf";
-		}
-		List<LineaWithSelectorDto> lineas = wrapLineasWithSelectorDto.getLineas();
-		Iterator<LineaWithSelectorDto> iterator = lineas.iterator();
-		while (iterator.hasNext()) {
-			LineaWithSelectorDto dto = iterator.next();
-			if (!dto.getSelected()) {
-				iterator.remove();
-			}
-		}
-		model.addAttribute("wrapLineasWithSelectorDto", wrapLineasWithSelectorDto);
 		model.addAttribute("propuestaId", propuestaId);
 		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
 		model.addAttribute("consulta", consulta);
+		
+		if (bindingResult.hasErrors()) {
+			model.addAttribute("wrapLineasWithSelectorDto", wrapLineasWithSelectorDto);
+			return "deleteLinesOf";
+		}
+		lineaUtilities.removeNotSelectedFromWrap(wrapLineasWithSelectorDto);
+		model.addAttribute("wrapLineasWithSelectorDto", wrapLineasWithSelectorDto);
 		return "processDeleteLinesOf";
 	}
 
 	@PostMapping("/deleteof/propid/{propuestaId}/confirmed")
 	public String processConfirmDeleteLinesOf(WrapLineasWithSelectorDto wrapLineasWithSelectorDto, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
-		Mono<Void> delete = lineaService
-				.deleteVariasLineas(Flux.fromIterable(wrapLineasWithSelectorDto.getLineas()).map(rLineaDto -> {
-					Linea linea = modelMapper.map(rLineaDto, Linea.class);
-					return linea;
-				}));
+		Mono<Void> delete = lineaUtilities.deleteSelectedLinesFromWrap(wrapLineasWithSelectorDto);
 		model.addAttribute("delete", delete);
 		return "confirmDeleteLinesOf";
 	}	
