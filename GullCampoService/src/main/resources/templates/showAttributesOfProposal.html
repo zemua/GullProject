@@ -25,12 +25,10 @@
 			<tr>
 				<th>Nombre</th>
 				<th>Tipo</th>
-				<th>Eliminar</th>
 			</tr>
 			<tr th:each="a : ${attributes}">
 				<td th:text="${a.name}"></td>
 				<td th:text="${a.tipo}"></td>
-				<td><a th:href="@{'/attof/propid/' + ${propuestaId} + '/delattid/' + ${a.localIdentifier}}">eliminar</a></td>
 			</tr>
 		</table>
 	</div>

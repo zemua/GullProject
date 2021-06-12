@@ -20,6 +20,9 @@ import org.springframework.cloud.contract.stubrunner.spring.StubRunnerPort;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.function.client.WebClient;
+
 import devs.mrp.gullproject.configuration.ClientProperties;
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.StringWrapper;
@@ -28,6 +31,8 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * Exclude WebClient configuration bean in EnableAutoConfiguration
@@ -36,8 +41,8 @@ import org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK,
-				classes = {AtributoServiceProxyWebClient.class, ClientProperties.class})
-@AutoConfigureWebTestClient
+				classes = {AtributoServiceProxyWebClient.class, ClientProperties.class, WebTestClient.Builder.class})
+//@AutoConfigureWebTestClient
 @AutoConfigureMockMvc
 @AutoConfigureJsonTesters
 @EnableAutoConfiguration
@@ -50,9 +55,20 @@ class AtributoServiceProxyWebClientTest {
 	@Autowired AtributoServiceProxyWebClient service;
 	@Autowired ClientProperties clientProperties;
 	
+	@Configuration
+	class ConfiguraWebTestclient {
+		@Bean
+		WebTestClient pillaWebTestClient() {
+			return WebTestClient.bindToServer().baseUrl("localhost:" + producerPort + "/").build();
+			// TODO if doesnt work, make another entry for MockMvc that points to where those call
+			// TODO run all the tests
+		}
+	}
+	
 	@BeforeEach
 	void setup() {
 		clientProperties.setAtributoServiceUrl("localhost:" + producerPort + "/");
+		clientProperties.setAtributoServiceHost("localhost");
 	}
 
 	@Test

@@ -1,7 +1,10 @@
 package devs.mrp.gullproject.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,12 +31,13 @@ public class AtributoServiceProxyWebClient {
 	}
 	
 	public Mono<Boolean> validateDataFormat(String type, String data){
-		return webClientBuilder.build().get().uri(uriBuilder -> uriBuilder
-				.host(clientProperties.getAtributoServiceHost())
-				.path("api/atributos/data-validator")
-				.queryParam("type", type)
-				.queryParam("data", data)
-				.build())
+		return webClientBuilder.build().get()
+				.uri(uriBuilder -> uriBuilder
+					.host(clientProperties.getAtributoServiceHost())
+					.path("api/atributos/data-validator")
+					.queryParam("type", type)
+					.queryParam("data", data)
+					.build())
 				.header("Content-Type", "text/html")
 				.retrieve().bodyToMono(Boolean.class);
 	}
@@ -71,18 +75,17 @@ public class AtributoServiceProxyWebClient {
 		if (ids.size() == 0) {
 			return Flux.empty();
 		}
-		StringBuilder stringBuilder = new StringBuilder();
+		List<String> params = new ArrayList<>();
 		ListIterator<String> iterator = ids.listIterator();
-		if (iterator.hasNext()) {
-			stringBuilder.append(iterator.next());
-		}
 		while (iterator.hasNext()) {
-			stringBuilder.append(",");
-			stringBuilder.append(iterator.next());
+			params.add(iterator.next());
 		}
 		return webClientBuilder.build().get()
-				.uri(clientProperties.getAtributoServiceUrl().concat("api/atributos/arrayofcampos/byids"))
-				.attribute("ids", stringBuilder.toString())
+				.uri(uriBuilder -> uriBuilder
+						.host(clientProperties.getAtributoServiceHost())
+						.path("api/atributos/arrayofcampos/byids")
+						.queryParam("ids", params)
+						.build())
 				.header("Content-Type", "text/html")
 				.retrieve().bodyToFlux(AtributoForCampo.class);
 	}
