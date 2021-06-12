@@ -285,4 +285,9 @@ public class ConsultaController {
 		return "processEditPropuesta";
 	}
 	
+	@GetMapping("/consultas/revisar/id/{consultaId}/onprop/{propuestaClienteId}/addcotizacionproveedor")
+	public String addProposalProveedorToProposalCliente(Model model, @PathVariable(name = "consultaId") String consultaId, @PathVariable(name = "propuestaClienteId") String propuestaClienteId) {
+		return "addProposalProveedorToProposalCliente";
+	}
+	
 }

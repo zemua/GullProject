@@ -30,7 +30,6 @@ import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
-import devs.mrp.gullproject.domains.PropuestaAbstracta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
@@ -67,9 +66,9 @@ class ConsultaControllerTestB {
 		this.modelMapper = modelMapper;
 	}
 	
-	PropuestaAbstracta prop1;
-	PropuestaAbstracta prop2;
-	PropuestaAbstracta prop3;
+	Propuesta prop1;
+	Propuesta prop2;
+	Propuesta prop3;
 	Consulta consulta1;
 	Consulta consulta2;
 	Mono<Consulta> mono1;
@@ -112,14 +111,16 @@ class ConsultaControllerTestB {
 		linea4.setNombre("l4");
 		
 		prop1 = new PropuestaCliente() {};
-		prop1.addLineaId("linea1");
-		prop1.addLineaId("linea2");
-		prop1.addAttribute(att1);
-		prop1.addAttribute(att2);
+		var op1 = prop1.operations();
+		op1.addLineaId("linea1");
+		op1.addLineaId("linea2");
+		op1.addAttribute(att1);
+		op1.addAttribute(att2);
 		prop1.setNombre("propuesta 1");
 		
 		prop2 = new PropuestaCliente() {};
-		prop2.addLineaId("linea3");
+		var op2 = prop2.operations();
+		op2.addLineaId("linea3");
 		prop2.setNombre("propuesta 2");
 		
 		consulta1 = new Consulta();
@@ -130,7 +131,8 @@ class ConsultaControllerTestB {
 		consulta1.addPropuesta(prop2);
 		
 		prop3 = new PropuestaCliente() {};
-		prop3.addLineaId(linea4.getId());
+		var op3 = prop3.operations();
+		op3.addLineaId(linea4.getId());
 		prop3.setNombre("propuesta 3");
 		
 		consulta2 = new Consulta();
@@ -294,12 +296,14 @@ class ConsultaControllerTestB {
 	@Test
 	void testReviewConsultaById() throws Exception {
 		
-		PropuestaAbstracta prop1 = new PropuestaCliente() {};
-		prop1.addLineaId("linea1");
-		prop1.addLineaId("linea2");
+		Propuesta prop1 = new PropuestaCliente() {};
+		var op1 = prop1.operations();
+		op1.addLineaId("linea1");
+		op1.addLineaId("linea2");
 		prop1.setNombre("propuesta 1");
-		PropuestaAbstracta prop2 = new PropuestaCliente() {};
-		prop2.addLineaId("linea3");
+		Propuesta prop2 = new PropuestaCliente() {};
+		var op2 = prop2.operations();
+		op2.addLineaId("linea3");
 		prop2.setNombre("propuesta 2");
 		
 		Consulta a = new Consulta();
@@ -386,7 +390,7 @@ class ConsultaControllerTestB {
 	void testProcessNewPropuesta() {
 		
 		consulta2.addPropuesta(prop1);
-		when(consultaService.addPropuesta(ArgumentMatchers.eq(consulta2.getId()), ArgumentMatchers.any(PropuestaAbstracta.class))).thenReturn(Mono.just(consulta2));
+		when(consultaService.addPropuesta(ArgumentMatchers.eq(consulta2.getId()), ArgumentMatchers.any(Propuesta.class))).thenReturn(Mono.just(consulta2));
 		
 		webTestClient.post()
 		.uri("/consultas/revisar/id/idConsulta2")

@@ -107,9 +107,9 @@ public class LineaUtilitiesTest {
 		linea2.setPropuestaId(propuesta.getId());
 		linea2o.addCampo(campo3);
 		linea2o.addCampo(campo4);
-		propuesta.addLineaId(linea1.getId());
-		propuesta.addAttribute(att1);
-		propuesta.addAttribute(att2);
+		propuesta.operations().addLineaId(linea1.getId());
+		propuesta.operations().addAttribute(att1);
+		propuesta.operations().addAttribute(att2);
 		lineas = new ArrayList<>();
 		lineas.add(linea1);
 		lineas.add(linea2);

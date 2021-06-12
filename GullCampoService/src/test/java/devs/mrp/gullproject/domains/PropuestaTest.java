@@ -15,11 +15,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import devs.mrp.gullproject.service.LineaOperations;
 import lombok.extern.slf4j.Slf4j;
 
 @ExtendWith(SpringExtension.class)
 @Slf4j
-class PropuestaAbstractaTest {
+class PropuestaTest {
 	
 	List<String> lineas = new ArrayList<>();
 	Linea l1;
@@ -27,7 +28,7 @@ class PropuestaAbstractaTest {
 	Linea l3;
 	Linea l4;
 	
-	PropuestaAbstracta propuesta;
+	Propuesta propuesta;
 	
 	Campo<String> c1;
 	Campo<Integer> c2;
@@ -120,11 +121,11 @@ class PropuestaAbstractaTest {
 		att3.setName("nameAtt3");
 		att3.setTipo("RANDOM");
 		
-		assertEquals(2, propuesta.getCantidadLineaIds());
+		assertEquals(2, propuesta.operations().getCantidadLineaIds());
 		assertEquals(0, propuesta.getAttributeColumns().size());
-		propuesta.addAttribute(att1);
+		propuesta.operations().addAttribute(att1);
 		assertEquals(1, propuesta.getAttributeColumns().size());
-		propuesta.addAttribute(att2);
+		propuesta.operations().addAttribute(att2);
 		assertEquals(2, propuesta.getAttributeColumns().size());
 		assertEquals(att1, propuesta.getAttributeColumns().get(0));
 		assertEquals(att2, propuesta.getAttributeColumns().get(1));
@@ -132,7 +133,7 @@ class PropuestaAbstractaTest {
 
 	@Test
 	void testObjectId() {
-		PropuestaAbstracta sc = new PropuestaCliente();
+		Propuesta sc = new PropuestaCliente();
 		log.debug(sc.getId());
 		
 		Pattern pattern = Pattern.compile("[[a-z]|[A-Z]|[0-9]]{24}");
@@ -150,12 +151,12 @@ class PropuestaAbstractaTest {
 		assertEquals("l1id", lineas.get(0));
 		assertEquals("l2id", lineas.get(1));
 		
-		propuesta.updateLineaId(l1.getId(), l3.getId());
+		propuesta.operations().updateLineaId(l1.getId(), l3.getId());
 		
 		assertEquals("l3id", lineas.get(0));
 		assertEquals("l2id", lineas.get(1));
 		
-		propuesta.updateLineaId(l2.getId(), l3.getId());
+		propuesta.operations().updateLineaId(l2.getId(), l3.getId());
 		
 		assertEquals("l3id", lineas.get(0));
 		assertEquals("l3id", lineas.get(1));
@@ -163,9 +164,9 @@ class PropuestaAbstractaTest {
 	
 	@Test
 	void testConfirmaIguales() {	
-		assertTrue(Propuesta.confirmaIguales(l1, l2));
-		assertFalse(Propuesta.confirmaIguales(l1, l3));
-		assertFalse(Propuesta.confirmaIguales(l1, l4));
+		assertTrue(LineaOperations.confirmaIguales(l1, l2));
+		assertFalse(LineaOperations.confirmaIguales(l1, l3));
+		assertFalse(LineaOperations.confirmaIguales(l1, l4));
 	}
 	
 	@Test
@@ -187,15 +188,15 @@ class PropuestaAbstractaTest {
 		segundoAtributo.add(a2);
 		
 		
-		assertTrue(Propuesta.confirmaIgualesSegunCampos(l1, l2, atributos));
-		assertTrue(Propuesta.confirmaIgualesSegunCampos(l1, l2, primerAtributo));
-		assertTrue(Propuesta.confirmaIgualesSegunCampos(l1, l2, segundoAtributo));
-		assertFalse(Propuesta.confirmaIgualesSegunCampos(l1, l3, atributos));
-		assertFalse(Propuesta.confirmaIgualesSegunCampos(l1, l3, primerAtributo));
-		assertFalse(Propuesta.confirmaIgualesSegunCampos(l1, l3, segundoAtributo));
-		assertFalse(Propuesta.confirmaIgualesSegunCampos(l1, l4, atributos));
-		assertTrue(Propuesta.confirmaIgualesSegunCampos(l1, l4, primerAtributo));
-		assertFalse(Propuesta.confirmaIgualesSegunCampos(l1, l4, segundoAtributo));
+		assertTrue(LineaOperations.confirmaIgualesSegunCampos(l1, l2, atributos));
+		assertTrue(LineaOperations.confirmaIgualesSegunCampos(l1, l2, primerAtributo));
+		assertTrue(LineaOperations.confirmaIgualesSegunCampos(l1, l2, segundoAtributo));
+		assertFalse(LineaOperations.confirmaIgualesSegunCampos(l1, l3, atributos));
+		assertFalse(LineaOperations.confirmaIgualesSegunCampos(l1, l3, primerAtributo));
+		assertFalse(LineaOperations.confirmaIgualesSegunCampos(l1, l3, segundoAtributo));
+		assertFalse(LineaOperations.confirmaIgualesSegunCampos(l1, l4, atributos));
+		assertTrue(LineaOperations.confirmaIgualesSegunCampos(l1, l4, primerAtributo));
+		assertFalse(LineaOperations.confirmaIgualesSegunCampos(l1, l4, segundoAtributo));
 		
 	}
 	
@@ -203,7 +204,7 @@ class PropuestaAbstractaTest {
 	void testAssertMatchesCampos() {
 		Map<String, Object> map = new HashMap<>();
 		map.put("a1", "datos1");
-		assertTrue(Propuesta.assertMatchesCampos(l4, map));
+		assertTrue(LineaOperations.assertMatchesCampos(l4, map));
 		map.put("a2", Integer.valueOf(123));
 		map.put("a3", "");
 		map.put("a4", Integer.valueOf(0));
@@ -212,52 +213,52 @@ class PropuestaAbstractaTest {
 		map.put("a7", Float.valueOf(0));
 		map.put("a8", Boolean.valueOf(false));
 		
-		assertTrue(Propuesta.assertMatchesCampos(l1, map));
-		assertTrue(Propuesta.assertMatchesCampos(l2, map));
-		assertFalse(Propuesta.assertMatchesCampos(l3, map));
-		assertFalse(Propuesta.assertMatchesCampos(l4, map));
+		assertTrue(LineaOperations.assertMatchesCampos(l1, map));
+		assertTrue(LineaOperations.assertMatchesCampos(l2, map));
+		assertFalse(LineaOperations.assertMatchesCampos(l3, map));
+		assertFalse(LineaOperations.assertMatchesCampos(l4, map));
 		
 		map.put("a9", Boolean.valueOf(true));
 		
-		assertFalse(Propuesta.assertMatchesCampos(l1, map));
-		assertFalse(Propuesta.assertMatchesCampos(l2, map));
+		assertFalse(LineaOperations.assertMatchesCampos(l1, map));
+		assertFalse(LineaOperations.assertMatchesCampos(l2, map));
 	}
 	
 	@Test
 	void testAssertMatchesCamposEstricto() {
 		Map<String, Object> map = new HashMap<>();
 		map.put("a1", "datos1");
-		assertTrue(Propuesta.assertMatchesCamposEstricto(l4, map));
+		assertTrue(LineaOperations.assertMatchesCamposEstricto(l4, map));
 		map.put("a2", Integer.valueOf(123));
 		
-		assertTrue(Propuesta.assertMatchesCamposEstricto(l1, map));
-		assertTrue(Propuesta.assertMatchesCamposEstricto(l2, map));
-		assertFalse(Propuesta.assertMatchesCamposEstricto(l3, map));
-		assertFalse(Propuesta.assertMatchesCamposEstricto(l4, map));
+		assertTrue(LineaOperations.assertMatchesCamposEstricto(l1, map));
+		assertTrue(LineaOperations.assertMatchesCamposEstricto(l2, map));
+		assertFalse(LineaOperations.assertMatchesCamposEstricto(l3, map));
+		assertFalse(LineaOperations.assertMatchesCamposEstricto(l4, map));
 		
 		map.put("a3", "");
 		
-		assertFalse(Propuesta.assertMatchesCamposEstricto(l1, map));
-		assertFalse(Propuesta.assertMatchesCamposEstricto(l2, map));
+		assertFalse(LineaOperations.assertMatchesCamposEstricto(l1, map));
+		assertFalse(LineaOperations.assertMatchesCamposEstricto(l2, map));
 	}
 	
 	@Test
 	void testAddAttribute() {
-		propuesta.addAttribute(att3);
+		propuesta.operations().addAttribute(att3);
 		assertEquals(3, propuesta.getAttributeColumns().size());
 		assertEquals(att3, propuesta.getAttributeColumns().get(2));
 	}
 	
 	@Test
 	void testRemoveAttribute() {
-		propuesta.removeAttribute(att2);
+		propuesta.operations().removeAttribute(att2);
 		assertEquals(1, propuesta.getAttributeColumns().size());
 		assertEquals(att1, propuesta.getAttributeColumns().get(0));
 	}
 	
 	@Test
 	void testRemoveAttributeById() {
-		propuesta.removeAttributeById(att1.getId());
+		propuesta.operations().removeAttributeById(att1.getId());
 		assertEquals(1, propuesta.getAttributeColumns().size());
 		assertEquals(att2, propuesta.getAttributeColumns().get(0));
 	}

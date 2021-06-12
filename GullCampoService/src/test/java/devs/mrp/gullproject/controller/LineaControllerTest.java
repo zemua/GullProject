@@ -145,10 +145,11 @@ class LineaControllerTest {
 		linea1.setOrder(0);
 		linea2.setOrder(1);
 		
-		propuesta.addLineaId(linea1.getId());
-		propuesta.addLineaId(linea2.getId());
-		propuesta.addAttribute(atributo1);
-		propuesta.addAttribute(atributo2);
+		var op = propuesta.operations();
+		op.addLineaId(linea1.getId());
+		op.addLineaId(linea2.getId());
+		op.addAttribute(atributo1);
+		op.addAttribute(atributo2);
 		
 		mono1 = Mono.just(linea1);
 		mono2 = Mono.just(linea2);
@@ -362,8 +363,8 @@ class LineaControllerTest {
 	void testRevisarLinea() {
 		when(lineaService.findById(ArgumentMatchers.eq(linea1.getId()))).thenReturn(Mono.just(linea1));
 		propuesta.getAttributeColumns().clear();
-		propuesta.addAttribute(atributo2);
-		propuesta.addAttribute(atributo3);
+		propuesta.operations().addAttribute(atributo2);
+		propuesta.operations().addAttribute(atributo3);
 		when(consultaService.findAttributesByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.fromIterable(propuesta.getAttributeColumns()));
 		
 		// it shows atributo2 and atributo3 from propuesta, value of atributo2 from linea, and hidden value of atributo1 from linea
@@ -388,8 +389,8 @@ class LineaControllerTest {
 	
 	@Test
 	void testProcessRevisarLinea() {
-		propuesta.addAttribute(atributo2);
-		propuesta.addAttribute(atributo3);
+		propuesta.operations().addAttribute(atributo2);
+		propuesta.operations().addAttribute(atributo3);
 		
 		AtributoForLineaFormDto att1 = new AtributoForLineaFormDto();
 		att1.setId(atributo1.getId());
@@ -599,9 +600,9 @@ class LineaControllerTest {
 	
 	@Test
 	void testOrderAllLinesOf() {
-		propuesta.addAttribute(atributo1);
-		propuesta.addAttribute(atributo2);
-		propuesta.addAttribute(atributo3);
+		propuesta.operations().addAttribute(atributo1);
+		propuesta.operations().addAttribute(atributo2);
+		propuesta.operations().addAttribute(atributo3);
 		when(lineaService.findByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(linea1, linea2));
 		when(consultaService.findConsultaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(consulta));
 		webTestClient.get()

@@ -58,9 +58,9 @@ class ConsultaServiceTest {
 		att2.setName("name2");
 		att2.setTipo("tipo2");
 		
-		propuesta1.addAttribute(att1);
+		propuesta1.operations().addAttribute(att1);
 		propuesta1.setNombre("nombre original");
-		propuesta1.addAttribute(att2);
+		propuesta1.operations().addAttribute(att2);
 		
 		consulta.addPropuesta(propuesta1);
 		consulta.addPropuesta(propuesta2);

@@ -68,8 +68,8 @@ public class PropuestaUtilitiesTest {
 		att2.setTipo("DESCRIPCION");
 		att2.setOrder(1);
 		propuesta = new PropuestaCliente();
-		propuesta.addAttribute(att1);
-		propuesta.addAttribute(att2);
+		propuesta.operations().addAttribute(att1);
+		propuesta.operations().addAttribute(att2);
 		
 		att3 = new AtributoForCampo();
 		att3.setId("att3id");

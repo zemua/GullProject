@@ -47,6 +47,7 @@
 				<td th:text="${a.nombre}"></td>
 				<td><a th:href="${'/lineas/allof/propid/' + a.id}"><span th:text="${a.lineaIds.size}">revisar lineas</span></a></td>
 				<td><a th:href="${'/consultas/attof/propid/' + a.id}"><span th:text="${a.attributeColumns.size}">revisar atributos</span></a></td>
+				<td><a th:href="${'/consultas/revisar/id/' + consulta.id + '/onprop/' + a.id + '/addcotizacionproveedor'}"><span>Añadir cotización de proveedor</span></a></td>
 				<td><a th:href="${'/consultas/editar/propcli/' + a.id}">Editar detalles</a></td>
 			</tr>
 		</table>
