@@ -246,7 +246,7 @@ public class ConsultaController {
 	
 	@PostMapping("/attof/propid/{id}/order")
 	public Mono<String> processOrderAttributesOfProposal(WrapAtributosForCampoDto wrapAtributosForCampoDto, BindingResult bindingResult, Model model, @PathVariable(name = "id") String propuestaId) {
-		return propuestaUtilities.atributosFromWrapAndValidate(wrapAtributosForCampoDto, bindingResult, propuestaId)
+		return propuestaUtilities.atributosOrderFromWrapAndValidateBelongsToPropuesta(wrapAtributosForCampoDto, bindingResult, propuestaId)
 			.flatMap(array -> {
 				return consultaService.reOrderAttributesOfPropuesta(propuestaId, array);
 			})

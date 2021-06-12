@@ -31,7 +31,7 @@ public class PropuestaUtilities {
 		this.modelMapper = modelMapper;
 	}
 
-	public Mono<WrapAtributosForCampoDto> wrapAtributos(String propuestaId) { // TODO test
+	public Mono<WrapAtributosForCampoDto> wrapAtributos(String propuestaId) {
 		return consultaService.findAttributesByPropuestaId(propuestaId)
 				.collectList()
 				.map(rList -> {
@@ -41,7 +41,7 @@ public class PropuestaUtilities {
 				});
 	}
 	
-	public Mono<List<AtributoForCampo>> atributosFromWrapAndValidate(WrapAtributosForCampoDto wrapAtributosForCampoDto, BindingResult bindingResult, String propuestaId) { // TODO test
+	public Mono<List<AtributoForCampo>> atributosOrderFromWrapAndValidateBelongsToPropuesta(WrapAtributosForCampoDto wrapAtributosForCampoDto, BindingResult bindingResult, String propuestaId) { // TODO test
 		return consultaService.findAttributesByPropuestaId(propuestaId).index()
 				.collectMap((a)->a.getT2().getLocalIdentifier(),(a)->a)
 				.map(rMap -> {
