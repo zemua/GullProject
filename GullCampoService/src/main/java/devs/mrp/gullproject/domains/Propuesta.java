@@ -22,15 +22,24 @@ public abstract class Propuesta {
 	String nombre;
 	
 	@NotBlank
-	TipoPropuesta tipoPropuesta;
+	final TipoPropuesta tipoPropuesta;
 	
 	/**
 	 * parentId refers to the "previous version" of this proposal
 	 */
 	String parentId;
 	
+	/**
+	 * forProposalId refers to the id of the proposal this is "replying" in case there is any
+	 */
+	String forProposalId;
+	
 	List<String> lineaIds = new ArrayList<>();
 	List<AtributoForCampo> attributeColumns = new ArrayList<>();
+	
+	public Propuesta(TipoPropuesta tipo) {
+		this.tipoPropuesta = tipo;
+	}
 	
 	public PropuestaOperations operations() {
 		return new PropuestaOperations(this);

@@ -15,7 +15,7 @@ import lombok.Data;
 
 @Data
 @Document(collection = "consultas")
-public class Consulta { // TODO separate operations in another class
+public class Consulta {
 	
 	@Id
 	String id  = new ObjectId().toString();

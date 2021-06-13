@@ -22,6 +22,7 @@ import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AttributesListDto;
 import devs.mrp.gullproject.domains.dto.ConsultaPropuestaBorrables;
@@ -287,7 +288,9 @@ public class ConsultaController {
 	
 	@GetMapping("/consultas/revisar/id/{consultaId}/onprop/{propuestaClienteId}/addcotizacionproveedor") // TODO test
 	public String addProposalProveedorToProposalCliente(Model model, @PathVariable(name = "consultaId") String consultaId, @PathVariable(name = "propuestaClienteId") String propuestaClienteId) {
-		return "addProposalProveedorToProposalCliente";
+		model.addAttribute("consultaId", consultaId);
+		PropuestaProveedor propuesta = new PropuestaProveedor(propuestaClienteId);
+		return "addPropuestaToConsulta";
 	}
 	
 }

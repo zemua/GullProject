@@ -6,7 +6,12 @@ import java.util.Map;
 public class PropuestaNuestra extends Propuesta {
 
 	public PropuestaNuestra() {
-		this.setTipoPropuesta(TipoPropuesta.NUESTRA);
+		super(TipoPropuesta.NUESTRA);
+	}
+	
+	public PropuestaNuestra(String customerProposalId) {
+		super(TipoPropuesta.NUESTRA);
+		this.setForProposalId(customerProposalId);
 	}
 
 }

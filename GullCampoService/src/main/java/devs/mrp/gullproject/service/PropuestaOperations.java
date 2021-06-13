@@ -36,18 +36,6 @@ public class PropuestaOperations {
 		return false;
 	}
 
-	protected void setCustomer() {
-		this.propuesta.setTipoPropuesta(TipoPropuesta.CLIENTE);
-	}
-
-	protected void setSupplier() {
-		this.propuesta.setTipoPropuesta(TipoPropuesta.PROVEEDOR);
-	}
-
-	protected void setOurs() {
-		this.propuesta.setTipoPropuesta(TipoPropuesta.NUESTRA);
-	}
-
 	public void addLineaId(String lineaId) {
 		this.propuesta.getLineaIds().add(lineaId);
 		
