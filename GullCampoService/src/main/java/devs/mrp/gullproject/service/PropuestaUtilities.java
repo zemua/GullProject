@@ -12,10 +12,12 @@ import org.springframework.validation.BindingResult;
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AttributesListDto;
 import devs.mrp.gullproject.domains.dto.WrapAtributosForCampoDto;
 import devs.mrp.gullproject.domains.dto.WrapPropuestaClienteAndSelectableAttributes;
+import devs.mrp.gullproject.domains.dto.WrapPropuestaProveedorAndSelectableAttributes;
 import lombok.Data;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -115,6 +117,12 @@ public class PropuestaUtilities {
 				});
 	}
 	
+	/**
+	 * PROPUESTA CLIENTE
+	 * @param propuesta
+	 * @return
+	 */
+	
 	public Mono<WrapPropuestaClienteAndSelectableAttributes> wrapPropuestaClienteWithAlAvailableAttributesAsSelectable(PropuestaCliente propuesta) {
 		return atributoUtilities.getAttributesAsSelectable()
 				.collectList().map(atts -> {
@@ -131,11 +139,24 @@ public class PropuestaUtilities {
 		return propuesta;
 	}
 	
-	public void addErrorForNameOnWrapForProposalWithSelectables(WrapPropuestaClienteAndSelectableAttributes wrapPropuestaClienteAndSelectableAttributes, BindingResult bindingResult) {
-		PropuestaCliente prop = wrapPropuestaClienteAndSelectableAttributes.getPropuestaCliente();
-		if (prop.getNombre() == null || prop.getNombre().equals("")) {
-			bindingResult.rejectValue("propuestaCliente.nombre", "error.propuestaCliente.nombre");
-		}
+	/**
+	 * PROPUESTA PROVEEDOR
+	 */
+	
+	public Mono<WrapPropuestaProveedorAndSelectableAttributes> wrapPropuestaProveedorWithAllAvailableAttributesAsSelectable(PropuestaProveedor propuesta) {
+		return atributoUtilities.getAttributesAsSelectable()
+				.collectList().map(atts -> {
+					var wrap = new WrapPropuestaProveedorAndSelectableAttributes();
+					wrap.setPropuestaProveedor(propuesta);
+					wrap.setAttributes(atts);
+					return wrap;
+				});
+	}
+	
+	public PropuestaProveedor getPropuestaProveedorFromWrapWithSelectableAttributes(WrapPropuestaProveedorAndSelectableAttributes wrap) {
+		PropuestaProveedor propuesta = wrap.getPropuestaProveedor();
+		propuesta.setAttributeColumns(listOfSelectedAttributesPlain(wrap.getAttributes()));
+		return propuesta;
 	}
 	
 }

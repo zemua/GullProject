@@ -29,6 +29,7 @@ import devs.mrp.gullproject.domains.dto.AttributesListDto;
 import devs.mrp.gullproject.domains.dto.ConsultaPropuestaBorrables;
 import devs.mrp.gullproject.domains.dto.WrapAtributosForCampoDto;
 import devs.mrp.gullproject.domains.dto.WrapPropuestaClienteAndSelectableAttributes;
+import devs.mrp.gullproject.domains.dto.WrapPropuestaProveedorAndSelectableAttributes;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaService;
@@ -88,7 +89,7 @@ public class ConsultaController {
 		return "showAllConsultas";
 	}
 	
-	@GetMapping("/revisar/id/{id}")
+	@GetMapping("/revisar/id/{id}") // TODO arrange the table to separate customer/supplier proposals
 	public String reviewConsultaById(Model model, @PathVariable(name = "id") String id) {
 		Mono<Consulta> consulta = consultaService.findById(id);
 		model.addAttribute("consulta", consulta);
@@ -259,7 +260,7 @@ public class ConsultaController {
 			;
 	}
 	
-	@GetMapping("/editar/propcli/{propid}")
+	@GetMapping("/editar/propcli/{propid}") // it is currently used also for supplier objects, because it doesn't change functionality
 	public String editarProposalCliente(Model model, @PathVariable(name = "propid") String propuestaId) {
 		Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
 		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
@@ -268,7 +269,7 @@ public class ConsultaController {
 		return "editPropuesta";
 	}
 	
-	@PostMapping("/editar/propcli/{propid}")
+	@PostMapping("/editar/propcli/{propid}") // it is currently used also for supplier objects, because it doesn't change functionality
 	public String processEditarProposalCliente(@Valid PropuestaCliente propuestaCliente, BindingResult bindingResult, Model model, @PathVariable(name ="propid") String propuestaId) {
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("propuestaCliente", propuestaCliente);
@@ -281,12 +282,28 @@ public class ConsultaController {
 		return "processEditPropuesta";
 	}
 	
-	@GetMapping("/consultas/revisar/id/{consultaId}/onprop/{propuestaClienteId}/addcotizacionproveedor") // TODO test
+	@GetMapping("/revisar/id/{consultaId}/onprop/{propuestaClienteId}/addcotizacionproveedor") // TODO test
 	public String addProposalProveedorToProposalCliente(Model model, @PathVariable(name = "consultaId") String consultaId, @PathVariable(name = "propuestaClienteId") String propuestaClienteId) {
 		model.addAttribute("consultaId", consultaId);
-		Propuesta propuesta = new PropuestaProveedor(propuestaClienteId);
-		model.addAttribute("propuesta", propuesta);
-		return "addPropuestaToConsulta";
+		Mono<WrapPropuestaProveedorAndSelectableAttributes> propuesta = propuestaUtilities.wrapPropuestaProveedorWithAllAvailableAttributesAsSelectable(new PropuestaProveedor(propuestaClienteId));
+		model.addAttribute("wrapPropuestaProveedorAndSelectableAttributes", propuesta);
+		return "addPropuestaProveedorToConsulta";
+	}
+	
+	@PostMapping("/revisar/id/{consultaId}/onprop/{propuestaClienteId}/addcotizacionproveedor") // TODO test
+	public String processAddProposalProveedorToProposalCliente(@Valid WrapPropuestaProveedorAndSelectableAttributes wrapPropuestaProveedorAndSelectableAttributes, BindingResult bindingResult, Model model, @PathVariable(name = "consultaId") String consultaId, @PathVariable(name = "propuestaClienteId") String propuestaClienteId) {
+		log.debug("el wrap que recibimos: " + wrapPropuestaProveedorAndSelectableAttributes.toString());
+		if (bindingResult.hasErrors()) {
+			model.addAttribute("wrapPropuestaProveedorAndSelectableAttributes", wrapPropuestaProveedorAndSelectableAttributes);
+			model.addAttribute("consultaId", consultaId);
+			return "addPropuestaProveedorToConsulta";
+		}
+		Propuesta propuesta = propuestaUtilities.getPropuestaProveedorFromWrapWithSelectableAttributes(wrapPropuestaProveedorAndSelectableAttributes);
+		log.debug("propuesta convertida: " + propuesta.getId());
+		Mono<Propuesta> p = consultaService.addPropuesta(consultaId, propuesta).flatMap(entity -> Mono.just(entity.operations().getPropuestaByIndex(entity.getPropuestas().size()-1)));
+		model.addAttribute("propuesta", p);
+		model.addAttribute("consultaId", consultaId);
+		return "processAddPropuestaToConsulta";
 	}
 	
 }
