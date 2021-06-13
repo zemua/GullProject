@@ -9,9 +9,11 @@ import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.repository.ConsultaRepo;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Service
 public class ConsultaService {
 
@@ -50,7 +52,11 @@ public class ConsultaService {
 		Mono<Consulta> original = findById(idConsulta);
 		Mono<Propuesta> p = original.flatMap(cons -> Mono.just(cons.getPropuestaById(idPropuesta)));
 		Mono<Consulta> c = p.flatMap(pro -> removePropuesta(idConsulta, pro));
-		Mono<Integer> deleted = c.zipWith(original, (item1, item2) -> item2.getCantidadPropuestas() - item1.getCantidadPropuestas());
+		Mono<Integer> deleted = c.zipWith(original, (item1, item2) -> {
+			log.debug("old consulta: " + item1.toString());
+			log.debug("new consulta: " + item2.toString());
+			return item2.getCantidadPropuestas() - item1.getCantidadPropuestas();
+		});
 		return deleted;
 	}
 	

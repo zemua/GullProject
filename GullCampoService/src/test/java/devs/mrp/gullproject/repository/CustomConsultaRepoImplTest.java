@@ -123,12 +123,10 @@ class CustomConsultaRepoImplTest {
 		linea2.setId("linea 2 id");
 		linea2.setNombre("nombre linea 2");
 		
-		oper1 = propuesta1.operations();
-		oper2 = propuesta2.operations();
-		
 		propuesta1 = new PropuestaCliente();
 		propuesta1.setId("propuesta 1 id");
 		propuesta1.setNombre("nombre propuesta 1");
+		oper1 = propuesta1.operations();
 		oper1.addLineaId(linea1.getId());
 		oper1.addLineaId(linea2.getId());
 		oper1.addAttribute(atributo1);
@@ -179,6 +177,7 @@ class CustomConsultaRepoImplTest {
 		propuesta2 = new PropuestaCliente();
 		propuesta2.setId("id propuesta 2");
 		propuesta2.setNombre("nombre propuesta 2");
+		oper2 = propuesta2.operations();
 		oper2.addLineaId(linea3.getId());
 		oper2.addLineaId(linea4.getId());
 		oper2.addAttribute(atributo2);
