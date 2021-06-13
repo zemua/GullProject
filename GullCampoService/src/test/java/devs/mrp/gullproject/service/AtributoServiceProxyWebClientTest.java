@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWeb
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner;
 import org.springframework.cloud.contract.stubrunner.spring.StubRunnerPort;
 import org.springframework.test.annotation.DirtiesContext;
@@ -41,8 +42,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK,
-				classes = {AtributoServiceProxyWebClient.class, ClientProperties.class, WebTestClient.Builder.class})
-//@AutoConfigureWebTestClient
+				classes = {AtributoServiceProxyWebClient.class, ClientProperties.class, ProxyUtils.class})
 @AutoConfigureMockMvc
 @AutoConfigureJsonTesters
 @EnableAutoConfiguration
@@ -51,19 +51,9 @@ import org.springframework.context.annotation.Configuration;
 @ActiveProfiles("test")
 class AtributoServiceProxyWebClientTest {
 	
-	@StubRunnerPort("GullAtributoService") int producerPort;
+	@StubRunnerPort("GullAtributoService") static int producerPort;
 	@Autowired AtributoServiceProxyWebClient service;
 	@Autowired ClientProperties clientProperties;
-	
-	@Configuration
-	class ConfiguraWebTestclient {
-		@Bean
-		WebTestClient pillaWebTestClient() {
-			return WebTestClient.bindToServer().baseUrl("localhost:" + producerPort + "/").build();
-			// TODO if doesnt work, make another entry for MockMvc that points to where those call
-			// TODO run all the tests
-		}
-	}
 	
 	@BeforeEach
 	void setup() {

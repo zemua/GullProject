@@ -66,7 +66,7 @@ public class Linea {
 	public Linea(Linea lin) {
 		this.counterLineId = lin.counterLineId;
 		this.nombre = lin.nombre;
-		this.order = lin.order.intValue();
+		if (lin.order != null) {this.order = lin.order.intValue();}
 		this.parentId = lin.parentId;
 		this.propuestaId = lin.propuestaId;
 		lin.getCampos().stream().forEach(c -> this.campos.add(new Campo<>(c)));
