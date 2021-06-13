@@ -133,7 +133,7 @@ public class LineaService {
 	
 	private Mono<Consulta> deleteAllLineasFromPropuesta(String propuestaId) {
 		return consultaRepo.findByPropuestaId(propuestaId).flatMap(rConsulta -> {
-			Propuesta prop = rConsulta.getPropuestaById(propuestaId);
+			Propuesta prop = rConsulta.operations().getPropuestaById(propuestaId);
 			prop.setLineaIds(new ArrayList<>());
 			return consultaRepo.updateLineasDeUnaPropuesta(rConsulta.getId(), prop);
 		});

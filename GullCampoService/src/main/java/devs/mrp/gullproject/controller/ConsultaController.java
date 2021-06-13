@@ -136,7 +136,7 @@ public class ConsultaController {
 		propuestaCliente.setParentId("-1");
 		propuestaCliente.setId(new ObjectId().toString());
 		log.debug("propuesta id: " + propuestaCliente.getId());
-		Mono<Propuesta> c = consultaService.addPropuesta(id, propuestaCliente).flatMap(entity -> Mono.just(entity.getPropuestaByIndex(entity.getCantidadPropuestas()-1)));
+		Mono<Propuesta> c = consultaService.addPropuesta(id, propuestaCliente).flatMap(entity -> Mono.just(entity.operations().getPropuestaByIndex(entity.operations().getCantidadPropuestas()-1)));
 		model.addAttribute("propuestaCliente", c);
 		model.addAttribute("consultaId", id);
 		
@@ -165,7 +165,7 @@ public class ConsultaController {
 			c = cons.then(consultaService.deleteById(consulta.getId()));
 			
 			remLineas = cons.flatMap(cc -> lineaService.deleteSeveralLineasFromSeveralPropuestas(cc.getPropuestas()));
-			numPropuestas = cons.flatMap(cc -> Mono.just(cc.getCantidadPropuestas()));
+			numPropuestas = cons.flatMap(cc -> Mono.just(cc.operations().getCantidadPropuestas()));
 		} else {
 			log.debug("idConsulta does not equal id");
 			c = Mono.empty();
@@ -184,7 +184,7 @@ public class ConsultaController {
 	public String deletePropuestaById(Model model, @PathVariable(name = "consultaid") String consultaid, @PathVariable(name = "propuestaid") String propuestaid) {
 		model.addAttribute("idConsulta", consultaid);
 		model.addAttribute("idPropuesta", propuestaid);
-		Mono<Propuesta> p = consultaService.findById(consultaid).flatMap(cons -> Mono.just(cons.getPropuestaById(propuestaid)));
+		Mono<Propuesta> p = consultaService.findById(consultaid).flatMap(cons -> Mono.just(cons.operations().getPropuestaById(propuestaid)));
 		model.addAttribute("propuesta", p);
 		return "deletePropuestaById";
 	}
@@ -227,7 +227,7 @@ public class ConsultaController {
 		Flux<AtributoForCampo> attributes = propuestaUtilities.listOfSelectedAttributes(atts);
 		Mono<Consulta> consulta = attributes.collectList()
 				.flatMap(latts -> consultaService.updateAttributesOfPropuesta(propuestaId, latts));
-		Mono<Propuesta> propuesta = consulta.map(c -> c.getPropuestaById(propuestaId));
+		Mono<Propuesta> propuesta = consulta.map(c -> c.operations().getPropuestaById(propuestaId));
 
 		model.addAttribute("atributos", new ReactiveDataDriverContextVariable(attributes, 1));
 		model.addAttribute("propuesta", propuesta);

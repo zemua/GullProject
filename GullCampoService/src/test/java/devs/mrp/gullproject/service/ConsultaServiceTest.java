@@ -62,8 +62,8 @@ class ConsultaServiceTest {
 		propuesta1.setNombre("nombre original");
 		propuesta1.operations().addAttribute(att2);
 		
-		consulta.addPropuesta(propuesta1);
-		consulta.addPropuesta(propuesta2);
+		consulta.operations().addPropuesta(propuesta1);
+		consulta.operations().addPropuesta(propuesta2);
 		
 		consultaRepo.save(consulta).block();
 		
@@ -71,8 +71,8 @@ class ConsultaServiceTest {
 		
 		StepVerifier.create(mono)
 			.assertNext(cons -> {
-				assertEquals(2, cons.getCantidadPropuestas());
-				assertEquals(2, cons.getPropuestaByIndex(0).getAttributeColumns().size());
+				assertEquals(2, cons.operations().getCantidadPropuestas());
+				assertEquals(2, cons.operations().getPropuestaByIndex(0).getAttributeColumns().size());
 			})
 			.expectComplete()
 			.verify();
@@ -85,8 +85,8 @@ class ConsultaServiceTest {
 		
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
-			assertEquals(1, cons.getCantidadPropuestas());
-			assertEquals(propuesta2.getId(), cons.getPropuestaByIndex(0).getId());
+			assertEquals(1, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta2.getId(), cons.operations().getPropuestaByIndex(0).getId());
 			assertEquals(1, cant);
 		})
 		.expectComplete()
@@ -143,7 +143,7 @@ class ConsultaServiceTest {
 		
 		StepVerifier.create(mono)
 		.assertNext(oCons -> {
-			assertEquals("nombre actualizado", oCons.getPropuestaByIndex(0).getNombre());
+			assertEquals("nombre actualizado", oCons.operations().getPropuestaByIndex(0).getNombre());
 		})
 		.expectComplete()
 		.verify();

@@ -110,8 +110,8 @@ class LineaServiceTest {
 		consulta = new Consulta();
 		propuesta = new PropuestaCliente();
 		propuesta2 = new PropuestaCliente();
-		consulta.addPropuesta(propuesta);
-		consulta.addPropuesta(propuesta2);
+		consulta.operations().addPropuesta(propuesta);
+		consulta.operations().addPropuesta(propuesta2);
 		consultaRepo.save(consulta).block();
 		
 		linea3 = new Linea(); linea3.setNombre("linea3"); linea3.setPropuestaId(propuesta.getId());
@@ -126,10 +126,10 @@ class LineaServiceTest {
 		StepVerifier.create(monoConsulta)
 			.assertNext(c -> {
 				assertEquals(consulta.getId(), c.getId());
-				assertEquals(2, c.getCantidadPropuestas());
-				assertEquals(propuesta.getId(), c.getPropuestaByIndex(0).getId());
-				assertEquals(1, c.getPropuestaByIndex(0).operations().getCantidadLineaIds());
-				assertEquals(linea3.getId(),c.getPropuestaByIndex(0).operations().getLineaIdByIndex(0));
+				assertEquals(2, c.operations().getCantidadPropuestas());
+				assertEquals(propuesta.getId(), c.operations().getPropuestaByIndex(0).getId());
+				assertEquals(1, c.operations().getPropuestaByIndex(0).operations().getCantidadLineaIds());
+				assertEquals(linea3.getId(),c.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(0));
 			})
 			.expectComplete()
 			.verify();
@@ -178,8 +178,8 @@ class LineaServiceTest {
 		
 		StepVerifier.create(monoConsulta)
 			.assertNext(cons -> {
-				assertEquals(2, cons.getPropuestaByIndex(0).operations().getCantidadLineaIds());
-				assertEquals(lineaz.getId(), cons.getPropuestaByIndex(0).operations().getLineaIdByIndex(1));
+				assertEquals(2, cons.operations().getPropuestaByIndex(0).operations().getCantidadLineaIds());
+				assertEquals(lineaz.getId(), cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(1));
 			})
 			.expectComplete()
 			.verify();
@@ -193,7 +193,7 @@ class LineaServiceTest {
 		
 		StepVerifier.create(monoConsulta)
 			.assertNext(cons -> {
-				assertEquals(1, cons.getPropuestaByIndex(0).operations().getCantidadLineaIds());
+				assertEquals(1, cons.operations().getPropuestaByIndex(0).operations().getCantidadLineaIds());
 			})
 			.expectComplete()
 			.verify();
@@ -242,9 +242,9 @@ class LineaServiceTest {
 		
 		StepVerifier.create(monoConsulta)
 		.assertNext(cons -> {
-			assertEquals(3, cons.getPropuestaByIndex(0).operations().getCantidadLineaIds());
-			assertTrue(linea4.getId().equals(cons.getPropuestaByIndex(0).operations().getLineaIdByIndex(1)) || linea4.getId().equals(cons.getPropuestaByIndex(0).operations().getLineaIdByIndex(2)));
-			assertTrue(linea5.getId().equals(cons.getPropuestaByIndex(0).operations().getLineaIdByIndex(1)) || linea5.getId().equals(cons.getPropuestaByIndex(0).operations().getLineaIdByIndex(2)));
+			assertEquals(3, cons.operations().getPropuestaByIndex(0).operations().getCantidadLineaIds());
+			assertTrue(linea4.getId().equals(cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(1)) || linea4.getId().equals(cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(2)));
+			assertTrue(linea5.getId().equals(cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(1)) || linea5.getId().equals(cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(2)));
 		})
 		.expectComplete()
 		.verify();
@@ -260,8 +260,8 @@ class LineaServiceTest {
 		.verify();
 
 		StepVerifier.create(monoConsulta).assertNext(cons -> {
-			assertEquals(1, cons.getPropuestaByIndex(0).operations().getCantidadLineaIds());
-			assertEquals(linea3.getId(), cons.getPropuestaByIndex(0).operations().getLineaIdByIndex(0));
+			assertEquals(1, cons.operations().getPropuestaByIndex(0).operations().getCantidadLineaIds());
+			assertEquals(linea3.getId(), cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(0));
 		}).expectComplete().verify();
 		
 		lineaService.deleteVariasLineasById(Flux.just(linea3.getId())).block();
@@ -271,7 +271,7 @@ class LineaServiceTest {
 		.verify();
 		
 		StepVerifier.create(monoConsulta).assertNext(cons -> {
-			assertEquals(0, cons.getPropuestaByIndex(0).operations().getCantidadLineaIds());
+			assertEquals(0, cons.operations().getPropuestaByIndex(0).operations().getCantidadLineaIds());
 		}).expectComplete().verify();
 	}
 	
@@ -293,7 +293,7 @@ class LineaServiceTest {
 		.verify();
 		
 		StepVerifier.create(monoConsulta).assertNext(cons -> {
-			assertEquals(0, cons.getPropuestaByIndex(0).operations().getCantidadLineaIds());
+			assertEquals(0, cons.operations().getPropuestaByIndex(0).operations().getCantidadLineaIds());
 			assertEquals(3, deletecount);
 		}).expectComplete().verify();
 		
@@ -329,8 +329,8 @@ class LineaServiceTest {
 		.verify();
 		
 		StepVerifier.create(monoConsulta).assertNext(cons -> {
-			assertEquals(3, cons.getPropuestaByIndex(0).operations().getCantidadLineaIds());
-			assertEquals(2, cons.getPropuestaByIndex(1).operations().getCantidadLineaIds());
+			assertEquals(3, cons.operations().getPropuestaByIndex(0).operations().getCantidadLineaIds());
+			assertEquals(2, cons.operations().getPropuestaByIndex(1).operations().getCantidadLineaIds());
 		}).expectComplete().verify();
 		
 		List<Propuesta> list = new ArrayList<>();
@@ -339,8 +339,8 @@ class LineaServiceTest {
 		Long deleteCount = lineaService.deleteSeveralLineasFromSeveralPropuestas(list).block();
 		
 		StepVerifier.create(monoConsulta).assertNext(cons -> {
-			assertEquals(0, cons.getPropuestaByIndex(0).operations().getCantidadLineaIds());
-			assertEquals(0, cons.getPropuestaByIndex(1).operations().getCantidadLineaIds());
+			assertEquals(0, cons.operations().getPropuestaByIndex(0).operations().getCantidadLineaIds());
+			assertEquals(0, cons.operations().getPropuestaByIndex(1).operations().getCantidadLineaIds());
 			assertEquals(5, deleteCount);
 		}).expectComplete().verify();
 		

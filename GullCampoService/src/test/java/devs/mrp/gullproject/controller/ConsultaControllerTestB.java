@@ -127,8 +127,8 @@ class ConsultaControllerTestB {
 		consulta1.setNombre("consulta 1");
 		consulta1.setStatus("estado 1");
 		consulta1.setId("idConsulta1");
-		consulta1.addPropuesta(prop1);
-		consulta1.addPropuesta(prop2);
+		consulta1.operations().addPropuesta(prop1);
+		consulta1.operations().addPropuesta(prop2);
 		
 		prop3 = new PropuestaCliente() {};
 		var op3 = prop3.operations();
@@ -139,7 +139,7 @@ class ConsultaControllerTestB {
 		consulta2.setNombre("consulta 2");
 		consulta2.setStatus("estado 2");
 		consulta2.setId("idConsulta2");
-		consulta2.addPropuesta(prop3);
+		consulta2.operations().addPropuesta(prop3);
 		
 		mono1 = Mono.just(consulta1);
 		mono2 = Mono.just(consulta2);
@@ -147,7 +147,7 @@ class ConsultaControllerTestB {
 		
 		
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(prop1.getId()))).thenReturn(Mono.just(prop1));
-		when(consultaService.findAttributesByPropuestaId(prop1.getId())).thenReturn(Flux.fromIterable(consulta1.getPropuestaById(prop1.getId()).getAttributeColumns()));
+		when(consultaService.findAttributesByPropuestaId(prop1.getId())).thenReturn(Flux.fromIterable(consulta1.operations().getPropuestaById(prop1.getId()).getAttributeColumns()));
 	}
 
 	@Test
@@ -310,8 +310,8 @@ class ConsultaControllerTestB {
 		a.setNombre("consulta 1");
 		a.setStatus("estado 1");
 		a.setId("idConsulta1");
-		a.addPropuesta(prop1);
-		a.addPropuesta(prop2);
+		a.operations().addPropuesta(prop1);
+		a.operations().addPropuesta(prop2);
 		
 		
 		Consulta b = new Consulta();
@@ -389,7 +389,7 @@ class ConsultaControllerTestB {
 	@Test
 	void testProcessNewPropuesta() {
 		
-		consulta2.addPropuesta(prop1);
+		consulta2.operations().addPropuesta(prop1);
 		when(consultaService.addPropuesta(ArgumentMatchers.eq(consulta2.getId()), ArgumentMatchers.any(Propuesta.class))).thenReturn(Mono.just(consulta2));
 		
 		webTestClient.post()
@@ -412,7 +412,7 @@ class ConsultaControllerTestB {
 		});
 		
 		prop1.setNombre("");
-		consulta2.addPropuesta(prop1);
+		consulta2.operations().addPropuesta(prop1);
 		
 		webTestClient.post()
 		.uri("/consultas/revisar/id/idConsulta2")
@@ -533,9 +533,9 @@ class ConsultaControllerTestB {
 		
 		when(consultaService.findById(ArgumentMatchers.eq(consulta1.getId()))).thenReturn(mono1);
 		Consulta consulta3 = consulta1;
-		consulta3.removePropuesta(prop1);
+		consulta3.operations().removePropuesta(prop1);
 		when(consultaService.removePropuesta(consulta1.getId(), prop1)).thenReturn(Mono.just(consulta3));
-		when(consultaService.removePropuestaById(consulta1.getId(), prop1.getId())).thenReturn(Mono.just(consulta3.getCantidadPropuestas()));
+		when(consultaService.removePropuestaById(consulta1.getId(), prop1.getId())).thenReturn(Mono.just(consulta3.operations().getCantidadPropuestas()));
 		
 		when(lineaService.deleteSeveralLineasFromPropuestaId(ArgumentMatchers.eq(prop1.getId()))).thenReturn(Mono.just(2L));
 		
@@ -560,10 +560,10 @@ class ConsultaControllerTestB {
 	void testShowAttributesOfProposal() {
 		
 		when(consultaService.findConsultaByPropuestaId(prop1.getId())).thenReturn(Mono.just(consulta1));
-		when(consultaService.findAttributesByPropuestaId(prop1.getId())).thenReturn(Flux.fromIterable(consulta1.getPropuestaById(prop1.getId()).getAttributeColumns()));
+		when(consultaService.findAttributesByPropuestaId(prop1.getId())).thenReturn(Flux.fromIterable(consulta1.operations().getPropuestaById(prop1.getId()).getAttributeColumns()));
 		
 		webTestClient.get()
-		.uri("/consultas/attof/propid/"+consulta1.getPropuestaById(prop1.getId()).getId())
+		.uri("/consultas/attof/propid/"+consulta1.operations().getPropuestaById(prop1.getId()).getId())
 		.accept(MediaType.TEXT_HTML)
 		.exchange()
 		.expectStatus().isOk()
@@ -627,7 +627,7 @@ class ConsultaControllerTestB {
 		list.add(att2);
 		list.add(att3);
 		
-		consulta1.getPropuestaById(prop1.getId()).setAttributeColumns(list);
+		consulta1.operations().getPropuestaById(prop1.getId()).setAttributeColumns(list);
 		
 		when(consultaService.updateAttributesOfPropuesta(ArgumentMatchers.eq(prop1.getId()), ArgumentMatchers.eq(list))).thenReturn(Mono.just(consulta1));
 		

@@ -114,7 +114,7 @@ class LineaControllerTest {
 		propuesta = new PropuestaCliente();
 		propuesta.setNombre("propuestaName");
 		consulta = new Consulta();
-		consulta.addPropuesta(propuesta);
+		consulta.operations().addPropuesta(propuesta);
 		
 		campo1a = new Campo<>();
 		campo1a.setAtributoId(atributo1.getId());

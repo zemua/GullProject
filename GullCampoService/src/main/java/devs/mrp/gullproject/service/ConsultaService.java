@@ -50,18 +50,18 @@ public class ConsultaService {
 	
 	public Mono<Integer> removePropuestaById(String idConsulta, String idPropuesta){
 		Mono<Consulta> original = findById(idConsulta);
-		Mono<Propuesta> p = original.flatMap(cons -> Mono.just(cons.getPropuestaById(idPropuesta)));
+		Mono<Propuesta> p = original.flatMap(cons -> Mono.just(cons.operations().getPropuestaById(idPropuesta)));
 		Mono<Consulta> c = p.flatMap(pro -> removePropuesta(idConsulta, pro));
 		Mono<Integer> deleted = c.zipWith(original, (item1, item2) -> {
 			log.debug("old consulta: " + item1.toString());
 			log.debug("new consulta: " + item2.toString());
-			return item2.getCantidadPropuestas() - item1.getCantidadPropuestas();
+			return item2.operations().getCantidadPropuestas() - item1.operations().getCantidadPropuestas();
 		});
 		return deleted;
 	}
 	
 	public Mono<Propuesta> findPropuestaByPropuestaId(String propuestaId) {
-		Mono<Propuesta> mono = consultaRepo.findByPropuestaId(propuestaId).flatMap(c -> Mono.just(c.getPropuestaById(propuestaId)));
+		Mono<Propuesta> mono = consultaRepo.findByPropuestaId(propuestaId).flatMap(c -> Mono.just(c.operations().getPropuestaById(propuestaId)));
 		return mono;
 	}
 	
@@ -96,7 +96,7 @@ public class ConsultaService {
 	public Mono<Propuesta> reOrderAttributesOfPropuesta(String idPropuesta, List<AtributoForCampo> attributes) {
 		return reOrderAttributesOfPropuestaInConsulta(idPropuesta, attributes)
 				.map(consulta -> {
-					return consulta.getPropuestaById(idPropuesta);
+					return consulta.operations().getPropuestaById(idPropuesta);
 				});
 	}
 }
