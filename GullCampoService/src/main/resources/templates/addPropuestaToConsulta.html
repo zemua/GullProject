@@ -9,7 +9,7 @@
 
 <h1>Nueva Solicitud de Propuesta</h1>
 
-	<form method="POST" th:action="${'/consultas/revisar/id/' + consultaId}" id="propuestaform" th:object="${wrapPropuestaAndSelectableAttributes}">
+	<form method="POST" th:action="${'/consultas/revisar/id/' + consultaId}" id="propuestaform" th:object="${wrapPropuestaClienteAndSelectableAttributes}">
 	
 		<div th:if="${#fields.hasErrors()}">
      	   <span class="validationError">
@@ -18,24 +18,25 @@
     	</div>
     	
     	<span class="validationError"
-      	th:if="${#fields.hasErrors('nombre')}"
-      	th:errors="*{nombre}">Selecciona un nombre</span>
+      	th:if="${#fields.hasErrors('propuestaCliente.nombre')}"
+      	th:errors="*{propuestaCliente.nombre}">Selecciona un nombre</span>
       
 		<div class="grid">
 			<div class="define-group" id="nombre">
 				<h3>Nombre:</h3>
 					<input name="nombre" type="text"
-						th:field="*{nombre}"/>
+						th:field="*{propuestaCliente.nombre}"/>
 			</div>
-			<input type="hidden" th:field="*{forProposalId}">
-			<input type="hidden" th:field="*{tipoPropuesta}">
+			<input type="hidden" th:field="*{propuestaCliente.forProposalId}">
+			<input type="hidden" th:field="*{propuestaCliente.tipoPropuesta}">
 			
 			<table>
 				<tr>
-					<th>Seleccionado</th>
 					<th>Atributos</th>
+					<th>Seleccionado</th>
 				</tr>
 				<tr th:each="t, stat : *{attributes}">
+					<td><span th:text="${t.name}"></span></td>
 					<td>
 						<input type="checkbox" th:field="*{attributes[__${stat.index}__].selected}"/>
 						<input type="hidden" th:field="*{attributes[__${stat.index}__].localIdentifier}"/>
@@ -43,7 +44,6 @@
 						<input type="hidden" th:field="*{attributes[__${stat.index}__].name}"/>
 						<input type="hidden" th:field="*{attributes[__${stat.index}__].tipo}"/>
 					</td>
-					<td><span th:text="${t.name}"></span></td>
 				</tr>
 			</table>
 			

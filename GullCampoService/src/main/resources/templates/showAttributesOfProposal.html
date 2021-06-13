@@ -3,17 +3,17 @@
 	xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="utf-8">
-<title th:text="${'Gull Project - Atributos de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Gull Project - Atributos de la propuesta</title>
+<title th:text="${'Gull Project - Atributos de la propuesta: ' + consulta.operations().getPropuestaById(propuestaId).getNombre()}">Gull Project - Atributos de la propuesta</title>
 <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
 
-<h1 th:text="${'Atributos de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Atributos de la propuesta</h1>
+<h1 th:text="${'Atributos de la propuesta: ' + consulta.operations().getPropuestaById(propuestaId).getNombre()}">Atributos de la propuesta</h1>
 
 	<div>
 		<p>
-			<a th:href="${'/consultas/attof/propid/' + consulta.getPropuestaById(propuestaId).getId() + '/new'}">Modificar atributos</a> -
-			<a th:href="${'/consultas/attof/propid/' + consulta.getPropuestaById(propuestaId).getId() + '/order'}">Ordenar atributos</a> -  
+			<a th:href="${'/consultas/attof/propid/' + consulta.operations().getPropuestaById(propuestaId).getId() + '/new'}">Modificar atributos</a> -
+			<a th:href="${'/consultas/attof/propid/' + consulta.operations().getPropuestaById(propuestaId).getId() + '/order'}">Ordenar atributos</a> -  
 			<a th:href="${'/consultas/revisar/id/' + consulta.id}">Volver</a>
 		</p>
 	</div>

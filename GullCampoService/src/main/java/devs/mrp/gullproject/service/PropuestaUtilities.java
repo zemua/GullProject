@@ -2,6 +2,7 @@ package devs.mrp.gullproject.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,7 @@ import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AttributesListDto;
 import devs.mrp.gullproject.domains.dto.WrapAtributosForCampoDto;
-import devs.mrp.gullproject.domains.dto.WrapPropuestaAndSelectableAttributes;
+import devs.mrp.gullproject.domains.dto.WrapPropuestaClienteAndSelectableAttributes;
 import lombok.Data;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -93,6 +94,19 @@ public class PropuestaUtilities {
 		return attributes;
 	}
 	
+	public List<AtributoForCampo> listOfSelectedAttributesPlain(List<AtributoForFormDto> atts){
+		List<AtributoForCampo> attributes = new ArrayList<>();
+		if (atts == null || atts.size() == 0) {
+			return attributes;
+		} else {
+			attributes = atts.stream()
+					.filter(a -> a.getSelected())
+					.map(a -> modelMapper.map(a, AtributoForCampo.class))
+					.collect(Collectors.toList());
+		}
+		return attributes;
+	}
+	
 	public Mono<Propuesta> addAllAvailableAttributes(Propuesta propuesta) {
 		return atributoService.getAllAtributos()
 				.collectList().map(atts -> {
@@ -101,14 +115,27 @@ public class PropuestaUtilities {
 				});
 	}
 	
-	public Mono<WrapPropuestaAndSelectableAttributes> wrapPropuestaWithAlAvailableAttributesAsSelectable(Propuesta propuesta) {
+	public Mono<WrapPropuestaClienteAndSelectableAttributes> wrapPropuestaClienteWithAlAvailableAttributesAsSelectable(PropuestaCliente propuesta) {
 		return atributoUtilities.getAttributesAsSelectable()
 				.collectList().map(atts -> {
-					var wrap = new WrapPropuestaAndSelectableAttributes();
-					wrap.setPropuesta(propuesta);
+					var wrap = new WrapPropuestaClienteAndSelectableAttributes();
+					wrap.setPropuestaCliente(propuesta);
 					wrap.setAttributes(atts);
 					return wrap;
 				});
+	}
+	
+	public PropuestaCliente getPropuestaClienteFromWrapWithSelectableAttributes(WrapPropuestaClienteAndSelectableAttributes wrap) {
+		PropuestaCliente propuesta = wrap.getPropuestaCliente();
+		propuesta.setAttributeColumns(listOfSelectedAttributesPlain(wrap.getAttributes()));
+		return propuesta;
+	}
+	
+	public void addErrorForNameOnWrapForProposalWithSelectables(WrapPropuestaClienteAndSelectableAttributes wrapPropuestaClienteAndSelectableAttributes, BindingResult bindingResult) {
+		PropuestaCliente prop = wrapPropuestaClienteAndSelectableAttributes.getPropuestaCliente();
+		if (prop.getNombre() == null || prop.getNombre().equals("")) {
+			bindingResult.rejectValue("propuestaCliente.nombre", "error.propuestaCliente.nombre");
+		}
 	}
 	
 }

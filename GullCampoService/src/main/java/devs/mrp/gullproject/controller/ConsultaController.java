@@ -28,7 +28,7 @@ import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AttributesListDto;
 import devs.mrp.gullproject.domains.dto.ConsultaPropuestaBorrables;
 import devs.mrp.gullproject.domains.dto.WrapAtributosForCampoDto;
-import devs.mrp.gullproject.domains.dto.WrapPropuestaAndSelectableAttributes;
+import devs.mrp.gullproject.domains.dto.WrapPropuestaClienteAndSelectableAttributes;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaService;
@@ -116,27 +116,24 @@ public class ConsultaController {
 	@GetMapping("/revisar/id/{id}/addpropuesta")
 	public String addPropuestaToId(Model model, @PathVariable(name= "id") String id) {
 		model.addAttribute("consultaId", id);
-		Mono<WrapPropuestaAndSelectableAttributes> propuesta = propuestaUtilities.wrapPropuestaWithAlAvailableAttributesAsSelectable(new PropuestaCliente());
-		model.addAttribute("wrapPropuestaAndSelectableAttributes", propuesta);
+		Mono<WrapPropuestaClienteAndSelectableAttributes> propuesta = propuestaUtilities.wrapPropuestaClienteWithAlAvailableAttributesAsSelectable(new PropuestaCliente());
+		model.addAttribute("wrapPropuestaClienteAndSelectableAttributes", propuesta);
 		return "addPropuestaToConsulta";
 	}
 	
 	@PostMapping("/revisar/id/{id}")
-	public String processAddPropuestaToId(@Valid PropuestaCliente propuestaCliente, BindingResult bindingResult, Model model, @PathVariable(name ="id") String id) {
-		log.debug(propuestaCliente.toString());
+	public String processAddPropuestaToId(@Valid WrapPropuestaClienteAndSelectableAttributes wrapPropuestaClienteAndSelectableAttributes, BindingResult bindingResult, Model model, @PathVariable(name ="id") String id) {
+		log.debug(wrapPropuestaClienteAndSelectableAttributes.toString());
 		if (bindingResult.hasErrors()) {
 			log.debug("processAddPropuestaToId -> invalid PropuestaCliente received by POST");
 			log.debug(bindingResult.toString());
-			model.addAttribute("propuestaCliente", propuestaCliente);
+			model.addAttribute("wrapPropuestaClienteAndSelectableAttributes", wrapPropuestaClienteAndSelectableAttributes);
 			model.addAttribute("consultaId", id);
 			return "addPropuestaToConsulta";
 		}
-		
-		propuestaCliente.setParentId("-1");
-		propuestaCliente.setId(new ObjectId().toString());
-		log.debug("propuesta id: " + propuestaCliente.getId());
-		Mono<Propuesta> c = consultaService.addPropuesta(id, propuestaCliente).flatMap(entity -> Mono.just(entity.operations().getPropuestaByIndex(entity.operations().getCantidadPropuestas()-1)));
-		model.addAttribute("propuestaCliente", c);
+		Propuesta propuesta = propuestaUtilities.getPropuestaClienteFromWrapWithSelectableAttributes(wrapPropuestaClienteAndSelectableAttributes);
+		Mono<Propuesta> c = consultaService.addPropuesta(id, propuesta).flatMap(entity -> Mono.just(entity.operations().getPropuestaByIndex(entity.operations().getCantidadPropuestas()-1)));
+		model.addAttribute("propuesta", c);
 		model.addAttribute("consultaId", id);
 		
 		return "processAddPropuestaToConsulta";

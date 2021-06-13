@@ -31,8 +31,10 @@ import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.domains.TipoPropuesta;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
+import devs.mrp.gullproject.service.AtributoUtilities;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaService;
 import devs.mrp.gullproject.service.PropuestaUtilities;
@@ -44,7 +46,7 @@ import reactor.core.publisher.Mono;
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = ConsultaController.class)
 @AutoConfigureWebTestClient
-@Import({MapperConfig.class, PropuestaUtilities.class})
+@Import({MapperConfig.class, PropuestaUtilities.class, AtributoUtilities.class})
 @ActiveProfiles("default")
 class ConsultaControllerTestB {
 	
@@ -148,6 +150,7 @@ class ConsultaControllerTestB {
 		
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(prop1.getId()))).thenReturn(Mono.just(prop1));
 		when(consultaService.findAttributesByPropuestaId(prop1.getId())).thenReturn(Flux.fromIterable(consulta1.operations().getPropuestaById(prop1.getId()).getAttributeColumns()));
+		when(atributoService.getAllAtributos()).thenReturn(Flux.just(att1, att2, att3));
 	}
 
 	@Test
@@ -382,7 +385,10 @@ class ConsultaControllerTestB {
 						.contains("Nueva Solicitud de Propuesta")
 						.contains("Nombre")
 						.contains("Ok")
-						.contains("Volver");
+						.contains("Volver")
+						.contains(att1.getName())
+						.contains(att2.getName())
+						.contains(att3.getName());
 			});
 	}
 	
@@ -396,8 +402,27 @@ class ConsultaControllerTestB {
 		.uri("/consultas/revisar/id/idConsulta2")
 		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 		.accept(MediaType.TEXT_HTML)
-		.body(BodyInserters.fromFormData("nombre", prop1.getNombre())
-				.with("parentId", consulta2.getId()))
+		.body(BodyInserters.fromFormData("propuestaCliente.nombre", prop1.getNombre())
+				.with("propuestaCliente.tipoPropuesta", TipoPropuesta.CLIENTE.toString())
+				
+				.with("attributes[0].selected", "true")
+				.with("attributes[0].localIdentifier", att1.getLocalIdentifier())
+				.with("attributes[0].id", att1.getId())
+				.with("attributes[0].name", att1.getName())
+				.with("attributes[0].tipo", att1.getTipo())
+				
+				.with("attributes[1].selected", "false")
+				.with("attributes[1].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[1].id", att2.getId())
+				.with("attributes[1].name", att2.getName())
+				.with("attributes[1].tipo", att2.getTipo())
+				
+				.with("attributes[2].selected", "false")
+				.with("attributes[2].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[2].id", att2.getId())
+				.with("attributes[2].name", att2.getName())
+				.with("attributes[2].tipo", att2.getTipo())
+				)
 		.exchange()
 		.expectStatus().isOk()
 		.expectBody()
@@ -418,8 +443,27 @@ class ConsultaControllerTestB {
 		.uri("/consultas/revisar/id/idConsulta2")
 		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 		.accept(MediaType.TEXT_HTML)
-		.body(BodyInserters.fromFormData("nombre", "")
-				.with("parentId", consulta2.getId()))
+		.body(BodyInserters.fromFormData("propuestaCliente.nombre", "")
+				.with("propuestaCliente.tipoPropuesta", TipoPropuesta.CLIENTE.toString())
+				
+				.with("attributes[0].selected", "true")
+				.with("attributes[0].localIdentifier", att1.getLocalIdentifier())
+				.with("attributes[0].id", att1.getId())
+				.with("attributes[0].name", att1.getName())
+				.with("attributes[0].tipo", att1.getTipo())
+				
+				.with("attributes[1].selected", "false")
+				.with("attributes[1].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[1].id", att2.getId())
+				.with("attributes[1].name", att2.getName())
+				.with("attributes[1].tipo", att2.getTipo())
+				
+				.with("attributes[2].selected", "false")
+				.with("attributes[2].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[2].id", att2.getId())
+				.with("attributes[2].name", att2.getName())
+				.with("attributes[2].tipo", att2.getTipo())
+				)
 		.exchange()
 		.expectStatus().isOk()
 		.expectBody()
@@ -574,7 +618,6 @@ class ConsultaControllerTestB {
 					.contains("Modificar atributos")
 					.contains("Nombre")
 					.contains("Tipo")
-					.contains("Eliminar")
 					.contains(prop1.getNombre())
 					.contains(prop1.getAttributeColumns().get(0).getName())
 					.contains(prop1.getAttributeColumns().get(0).getTipo())
