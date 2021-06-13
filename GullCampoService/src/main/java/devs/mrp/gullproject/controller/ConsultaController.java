@@ -1,6 +1,7 @@
 package devs.mrp.gullproject.controller;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.validation.Valid;
 
@@ -27,6 +28,7 @@ import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AttributesListDto;
 import devs.mrp.gullproject.domains.dto.ConsultaPropuestaBorrables;
 import devs.mrp.gullproject.domains.dto.WrapAtributosForCampoDto;
+import devs.mrp.gullproject.domains.dto.WrapPropuestaAndSelectableAttributes;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaService;
@@ -114,12 +116,8 @@ public class ConsultaController {
 	@GetMapping("/revisar/id/{id}/addpropuesta")
 	public String addPropuestaToId(Model model, @PathVariable(name= "id") String id) {
 		model.addAttribute("consultaId", id);
-		model.addAttribute("propuestaCliente", new PropuestaCliente() {});
-		/** 
-		 * here by default we add an inquiry from the customer first of all, when there are no any inquiry in the database
-		 * our proposals and the offers received from the suppliers, will be added from the customer's inquiry view
-		 * with this we can automatically associate the customer inquiry with the propossals that refer to it and have everything well organized
-		 */
+		Mono<WrapPropuestaAndSelectableAttributes> propuesta = propuestaUtilities.wrapPropuestaWithAlAvailableAttributesAsSelectable(new PropuestaCliente());
+		model.addAttribute("wrapPropuestaAndSelectableAttributes", propuesta);
 		return "addPropuestaToConsulta";
 	}
 	
@@ -289,7 +287,8 @@ public class ConsultaController {
 	@GetMapping("/consultas/revisar/id/{consultaId}/onprop/{propuestaClienteId}/addcotizacionproveedor") // TODO test
 	public String addProposalProveedorToProposalCliente(Model model, @PathVariable(name = "consultaId") String consultaId, @PathVariable(name = "propuestaClienteId") String propuestaClienteId) {
 		model.addAttribute("consultaId", consultaId);
-		PropuestaProveedor propuesta = new PropuestaProveedor(propuestaClienteId);
+		Propuesta propuesta = new PropuestaProveedor(propuestaClienteId);
+		model.addAttribute("propuesta", propuesta);
 		return "addPropuestaToConsulta";
 	}
 	

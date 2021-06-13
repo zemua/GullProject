@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.ListIterator;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.PersistenceConstructor;
 
 import devs.mrp.gullproject.service.PropuestaOperations;
 import lombok.Data;
@@ -21,8 +23,8 @@ public abstract class Propuesta {
 	@NotBlank(message = "Selecciona un nombre")
 	String nombre;
 	
-	@NotBlank
-	final TipoPropuesta tipoPropuesta;
+	@NotNull
+	private final TipoPropuesta tipoPropuesta;
 	
 	/**
 	 * parentId refers to the "previous version" of this proposal

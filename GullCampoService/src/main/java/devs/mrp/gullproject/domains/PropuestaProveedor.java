@@ -3,6 +3,8 @@ package devs.mrp.gullproject.domains;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.annotation.PersistenceConstructor;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +12,11 @@ import lombok.NoArgsConstructor;
 public class PropuestaProveedor extends Propuesta {
 
 	public PropuestaProveedor() {
+		super(TipoPropuesta.PROVEEDOR);
+	}
+	
+	@PersistenceConstructor
+	public PropuestaProveedor(TipoPropuesta tipoPropuesta) { // dummy parameter
 		super(TipoPropuesta.PROVEEDOR);
 	}
 	

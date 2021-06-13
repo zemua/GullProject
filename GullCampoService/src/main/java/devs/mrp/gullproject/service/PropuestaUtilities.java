@@ -9,9 +9,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
 import devs.mrp.gullproject.domains.AtributoForCampo;
+import devs.mrp.gullproject.domains.Propuesta;
+import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AttributesListDto;
 import devs.mrp.gullproject.domains.dto.WrapAtributosForCampoDto;
+import devs.mrp.gullproject.domains.dto.WrapPropuestaAndSelectableAttributes;
 import lombok.Data;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -23,12 +26,14 @@ public class PropuestaUtilities {
 	ConsultaService consultaService;
 	AtributoServiceProxyWebClient atributoService;
 	ModelMapper modelMapper;
+	AtributoUtilities atributoUtilities;
 	
 	@Autowired
-	public PropuestaUtilities(ConsultaService consultaService, AtributoServiceProxyWebClient atributoService, ModelMapper modelMapper) {
+	public PropuestaUtilities(ConsultaService consultaService, AtributoServiceProxyWebClient atributoService, ModelMapper modelMapper, AtributoUtilities atributoUtilities) {
 		this.consultaService = consultaService;
 		this.atributoService = atributoService;
 		this.modelMapper = modelMapper;
+		this.atributoUtilities = atributoUtilities;
 	}
 
 	public Mono<WrapAtributosForCampoDto> wrapAtributos(String propuestaId) {
@@ -86,6 +91,24 @@ public class PropuestaUtilities {
 					.map(a -> modelMapper.map(a, AtributoForCampo.class));
 		}
 		return attributes;
+	}
+	
+	public Mono<Propuesta> addAllAvailableAttributes(Propuesta propuesta) {
+		return atributoService.getAllAtributos()
+				.collectList().map(atts -> {
+					propuesta.setAttributeColumns(atts);
+					return propuesta;
+				});
+	}
+	
+	public Mono<WrapPropuestaAndSelectableAttributes> wrapPropuestaWithAlAvailableAttributesAsSelectable(Propuesta propuesta) {
+		return atributoUtilities.getAttributesAsSelectable()
+				.collectList().map(atts -> {
+					var wrap = new WrapPropuestaAndSelectableAttributes();
+					wrap.setPropuesta(propuesta);
+					wrap.setAttributes(atts);
+					return wrap;
+				});
 	}
 	
 }
