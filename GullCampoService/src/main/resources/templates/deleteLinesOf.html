@@ -3,12 +3,12 @@
 	xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="utf-8">
-<title th:text="${'Gull Project - Lineas de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Gull Project - Lineas de la propuesta</title>
+<title th:text="${'Gull Project - Lineas de la propuesta: ' + consulta.operations().getPropuestaById(propuestaId).getNombre()}">Gull Project - Lineas de la propuesta</title>
 <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
 
-<h1 th:text="${'Lineas de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Lineas de la propuesta</h1>
+<h1 th:text="${'Lineas de la propuesta: ' + consulta.operations().getPropuestaById(propuestaId).getNombre()}">Lineas de la propuesta</h1>
 
 	<div>
 		<p>
@@ -24,7 +24,7 @@
 				<tr>
 					<th>Nombre</th>
 					<th>Borrar</th>
-					<th th:each="t : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${t.getName()}"></span></th>
+					<th th:each="t : ${consulta.operations().getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${t.getName()}"></span></th>
 				</tr>
 				<tr th:each="a, stat : *{lineas}">
 					<td th:text="${a.nombre}"></td>
@@ -39,7 +39,7 @@
 							<input type="hidden" th:field="*{lineas[__${stat.index}__].campos[__${btat.index}__].datos}" />
 						</div>
 					</td>
-					<td th:each="t : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${a.getValueByAttId(t.getId())}"></span></td>
+					<td th:each="t : ${consulta.operations().getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${a.getValueByAttId(t.getId())}"></span></td>
 				</tr>
 			</table>
 		</div>
