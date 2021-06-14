@@ -886,6 +886,113 @@ class ConsultaControllerTestB {
 			})
 			;
 	}
+	
+	@Test
+	void testAddProposalProveedorToProposalCliente() {
+		webTestClient.get()
+		.uri("/consultas/revisar/id/"+consulta1.getId()+"/onprop/"+prop1.getId()+"/addcotizacionproveedor")
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Nueva Propuesta Recibida")
+					.contains("Nombre")
+					.contains("Ok")
+					.contains("Volver")
+					.contains("PROVEEDOR")
+					.contains(att1.getName())
+					.contains(att2.getName())
+					.contains(att3.getName());
+		});
+	}
+	
+	@Test
+	void testProcessAddProposalProveedorToProposalCliente() {
+		consulta2.operations().addPropuesta(prop2);
+		when(consultaService.addPropuesta(ArgumentMatchers.eq(consulta2.getId()), ArgumentMatchers.any(Propuesta.class))).thenReturn(Mono.just(consulta2));
+		
+		log.debug("should be ok");
+		webTestClient.post()
+		.uri("/consultas/revisar/id/"+consulta2.getId()+"/onprop/"+prop1.getId()+"/addcotizacionproveedor")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("propuestaProveedor.nombre", prop1.getNombre())
+				.with("propuestaProveedor.tipoPropuesta", TipoPropuesta.PROVEEDOR.toString())
+				
+				.with("attributes[0].selected", "true")
+				.with("attributes[0].localIdentifier", att1.getLocalIdentifier())
+				.with("attributes[0].id", att1.getId())
+				.with("attributes[0].name", att1.getName())
+				.with("attributes[0].tipo", att1.getTipo())
+				
+				.with("attributes[1].selected", "false")
+				.with("attributes[1].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[1].id", att2.getId())
+				.with("attributes[1].name", att2.getName())
+				.with("attributes[1].tipo", att2.getTipo())
+				
+				.with("attributes[2].selected", "false")
+				.with("attributes[2].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[2].id", att2.getId())
+				.with("attributes[2].name", att2.getName())
+				.with("attributes[2].tipo", att2.getTipo())
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Gull Project - Propuesta Guardada")
+					.contains("Propuesta Guardada Como...")
+					.contains("Nombre:")
+					.doesNotContain("errores")
+					.contains(prop2.getNombre())
+					.contains("Volver a la consulta");
+		});
+		
+		prop1.setNombre("");
+		consulta2.operations().addPropuesta(prop1);
+		
+		log.debug("should have errors");
+		webTestClient.post()
+		.uri("/consultas/revisar/id/"+consulta2.getId()+"/onprop/"+prop1.getId()+"/addcotizacionproveedor")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("propuestaProveedor.nombre", "")
+				.with("propuestaProveedor.tipoPropuesta", TipoPropuesta.PROVEEDOR.toString())
+				
+				.with("attributes[0].selected", "true")
+				.with("attributes[0].localIdentifier", att1.getLocalIdentifier())
+				.with("attributes[0].id", att1.getId())
+				.with("attributes[0].name", att1.getName())
+				.with("attributes[0].tipo", att1.getTipo())
+				
+				.with("attributes[1].selected", "false")
+				.with("attributes[1].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[1].id", att2.getId())
+				.with("attributes[1].name", att2.getName())
+				.with("attributes[1].tipo", att2.getTipo())
+				
+				.with("attributes[2].selected", "false")
+				.with("attributes[2].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[2].id", att2.getId())
+				.with("attributes[2].name", att2.getName())
+				.with("attributes[2].tipo", att2.getTipo())
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Nueva Propuesta Recibida")
+					.contains("Corrige los errores y reenvía.")
+					.contains("Selecciona un nombre")
+					.contains("Nombre:")
+					.contains("Volver");
+		});
+	}
 
 }
 

@@ -260,8 +260,9 @@ public class ConsultaController {
 			;
 	}
 	
-	@GetMapping("/editar/propcli/{propid}") // it is currently used also for supplier objects, because it doesn't change functionality
+	@GetMapping("/editar/propcli/{propid}")
 	public String editarProposalCliente(Model model, @PathVariable(name = "propid") String propuestaId) {
+		// Beware, it is currently used also for supplier objects, because it doesn't change functionality as the "type" is not altered
 		Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
 		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
 		model.addAttribute("propuestaCliente", propuesta);
@@ -269,8 +270,9 @@ public class ConsultaController {
 		return "editPropuesta";
 	}
 	
-	@PostMapping("/editar/propcli/{propid}") // it is currently used also for supplier objects, because it doesn't change functionality
+	@PostMapping("/editar/propcli/{propid}")
 	public String processEditarProposalCliente(@Valid PropuestaCliente propuestaCliente, BindingResult bindingResult, Model model, @PathVariable(name ="propid") String propuestaId) {
+		// Beware, it is currently used also for supplier objects, because it doesn't change functionality as the "type" is not altered
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("propuestaCliente", propuestaCliente);
 			Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
@@ -282,7 +284,7 @@ public class ConsultaController {
 		return "processEditPropuesta";
 	}
 	
-	@GetMapping("/revisar/id/{consultaId}/onprop/{propuestaClienteId}/addcotizacionproveedor") // TODO test
+	@GetMapping("/revisar/id/{consultaId}/onprop/{propuestaClienteId}/addcotizacionproveedor")
 	public String addProposalProveedorToProposalCliente(Model model, @PathVariable(name = "consultaId") String consultaId, @PathVariable(name = "propuestaClienteId") String propuestaClienteId) {
 		model.addAttribute("consultaId", consultaId);
 		Mono<WrapPropuestaProveedorAndSelectableAttributes> propuesta = propuestaUtilities.wrapPropuestaProveedorWithAllAvailableAttributesAsSelectable(new PropuestaProveedor(propuestaClienteId));
@@ -290,7 +292,7 @@ public class ConsultaController {
 		return "addPropuestaProveedorToConsulta";
 	}
 	
-	@PostMapping("/revisar/id/{consultaId}/onprop/{propuestaClienteId}/addcotizacionproveedor") // TODO test
+	@PostMapping("/revisar/id/{consultaId}/onprop/{propuestaClienteId}/addcotizacionproveedor")
 	public String processAddProposalProveedorToProposalCliente(@Valid WrapPropuestaProveedorAndSelectableAttributes wrapPropuestaProveedorAndSelectableAttributes, BindingResult bindingResult, Model model, @PathVariable(name = "consultaId") String consultaId, @PathVariable(name = "propuestaClienteId") String propuestaClienteId) {
 		log.debug("el wrap que recibimos: " + wrapPropuestaProveedorAndSelectableAttributes.toString());
 		if (bindingResult.hasErrors()) {
