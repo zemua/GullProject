@@ -26,6 +26,8 @@ public abstract class Propuesta {
 	@NotNull
 	private final TipoPropuesta tipoPropuesta;
 	
+	long createdTime; // TODO to set on creation of new ones only
+	
 	/**
 	 * parentId refers to the "previous version" of this proposal
 	 */

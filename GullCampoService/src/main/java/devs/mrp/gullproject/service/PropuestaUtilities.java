@@ -199,9 +199,11 @@ public class PropuestaUtilities {
 					proposalPieFeast.add(pie);
 				});
 				
-				// Add related proposals from suppliers and us
+				// Add related proposals
 				proposalPieFeast.stream().forEach(pie -> {
+					// from suppliers
 					pie.setPropuestasProveedores(extractPropuestasProveedorForThisPropuestaCustomer(rList, pie.getPropuestaCliente().getId()));
+					// and us
 					pie.setPropuestasNuestras(extractPropuestasNuestrasForThisPropuestaCustomer(rList, pie.getPropuestaCliente().getId()));
 				});
 				

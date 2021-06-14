@@ -51,6 +51,30 @@
 				<td><a th:href="${'/consultas/editar/propcli/' + a.id}">Editar detalles</a></td>
 			</tr>
 		</table>
+		
+		<div th:each="pie : ${proposalPieFeast}">
+			<table>
+				<tr>
+					<th>Nombre Propuesta</th>
+					<th>Lineas</th>
+					<th>Atributos</th>
+				</tr>
+				<tr>
+					<td th:text="${pie.propuestaCliente.nombre}"></td>
+					<td><a th:href="${'/lineas/allof/propid/' + pie.propuestaCliente.id}"><span th:text="${pie.propuestaCliente.lineaIds.size}">revisar lineas</span></a></td>
+					<td><a th:href="${'/consultas/attof/propid/' + pie.propuestaCliente.id}"><span th:text="${pie.propuestaCliente.attributeColumns.size}">revisar atributos</span></a></td>
+					<td><a th:href="${'/consultas/editar/propcli/' + pie.propuestaCliente.id}">Editar detalles</a></td>
+				</tr>
+				<tr><td><a th:href="${'/consultas/revisar/id/' + consulta.id + '/onprop/' + pie.propuestaCliente.id + '/addcotizacionproveedor'}"><span>Añadir cotización de proveedor</span></a></td></tr>
+				<tr th:each="proveedor : ${pie}">
+					<td th:text="${proveedor.propuestaProveedor.nombre}"></td>
+					<td><a th:href="${'/lineas/allof/propid/' + proveedor.propuestaProveedor.id}"><span th:text="${proveedor.propuestaProveedor.lineaIds.size}">revisar lineas</span></a></td>
+					<td><a th:href="${'/consultas/attof/propid/' + proveedor.propuestaProveedor.id}"><span th:text="${proveedor.propuestaProveedor.attributeColumns.size}">revisar atributos</span></a></td>
+					<td><a th:href="${'/consultas/editar/propcli/' + proveedor.propuestaProveedor.id}">Editar detalles</a></td>
+				</tr>
+			</table>
+		</div>
+		
 	</div>
 
 </body>

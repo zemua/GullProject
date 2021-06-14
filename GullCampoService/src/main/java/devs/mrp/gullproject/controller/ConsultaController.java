@@ -27,6 +27,7 @@ import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AttributesListDto;
 import devs.mrp.gullproject.domains.dto.ConsultaPropuestaBorrables;
+import devs.mrp.gullproject.domains.dto.ProposalPie;
 import devs.mrp.gullproject.domains.dto.WrapAtributosForCampoDto;
 import devs.mrp.gullproject.domains.dto.WrapPropuestaClienteAndSelectableAttributes;
 import devs.mrp.gullproject.domains.dto.WrapPropuestaProveedorAndSelectableAttributes;
@@ -90,9 +91,11 @@ public class ConsultaController {
 	}
 	
 	@GetMapping("/revisar/id/{id}") // TODO arrange the table to separate customer/supplier proposals
-	public String reviewConsultaById(Model model, @PathVariable(name = "id") String id) {
+	public String reviewConsultaById(Model model, @PathVariable(name = "id") String id) { // TODO update test for changes
 		Mono<Consulta> consulta = consultaService.findById(id);
 		model.addAttribute("consulta", consulta);
+		Flux<ProposalPie> proposalPieFeast = propuestaUtilities.getProposalPieFeast(id);
+		model.addAttribute("proposalPieFeast", new ReactiveDataDriverContextVariable(proposalPieFeast, 1));
 		return "reviewConsulta";
 	}
 	
