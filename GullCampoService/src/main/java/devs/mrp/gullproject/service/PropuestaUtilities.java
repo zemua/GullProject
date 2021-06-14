@@ -146,13 +146,33 @@ public class PropuestaUtilities {
 	 * PROPUESTA PROVEEDOR
 	 */
 	
+	public Mono<List<AtributoForFormDto>> setSelectedSameAsCustomerOne(List<AtributoForFormDto> atributos, String propuestaClienteId) {
+		return consultaService.findPropuestaByPropuestaId(propuestaClienteId)
+			.map(prop -> {
+				var operations = prop.operations();
+				atributos.forEach(att -> {
+					if (operations.ifHasAttributeColumn(att.getId())) {
+						att.setSelected(true);
+					} else {
+						att.setSelected(false);
+					}
+				});
+				return atributos;
+			})
+			;
+	}
+	
 	public Mono<WrapPropuestaProveedorAndSelectableAttributes> wrapPropuestaProveedorWithAllAvailableAttributesAsSelectable(PropuestaProveedor propuesta) {
 		return atributoUtilities.getAttributesAsSelectable()
-				.collectList().map(atts -> {
-					var wrap = new WrapPropuestaProveedorAndSelectableAttributes();
-					wrap.setPropuestaProveedor(propuesta);
-					wrap.setAttributes(atts);
-					return wrap;
+				.collectList().flatMap(atts -> {
+					return setSelectedSameAsCustomerOne(atts, propuesta.getForProposalId())
+						.map(attSelected -> {
+							var wrap = new WrapPropuestaProveedorAndSelectableAttributes();
+							wrap.setPropuestaProveedor(propuesta);
+							wrap.setAttributes(attSelected);
+							return wrap;
+						})
+						;
 				});
 	}
 	

@@ -2,6 +2,7 @@ package devs.mrp.gullproject.service;
 
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Optional;
 
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Propuesta;
@@ -88,6 +89,11 @@ public class PropuestaOperations {
 	
 	public List<AtributoForCampo> getAttributeColumns(){
 		return this.propuesta.getAttributeColumns();
+	}
+	
+	public boolean ifHasAttributeColumn(String atributoId) {
+		Optional<Boolean> match = this.getAttributeColumns().stream().filter(att -> att.getId().equals(atributoId)).map(att -> true).findFirst();
+		return match.orElse(false);
 	}
 	
 	public void addAttribute(AtributoForCampo att) {
