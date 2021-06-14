@@ -414,6 +414,7 @@ class ConsultaControllerTestB {
 		.accept(MediaType.TEXT_HTML)
 		.body(BodyInserters.fromFormData("propuestaCliente.nombre", prop1.getNombre())
 				.with("propuestaCliente.tipoPropuesta", TipoPropuesta.CLIENTE.toString())
+				.with("propuestaCliente.forProposalId", consulta1.getId())
 				
 				.with("attributes[0].selected", "true")
 				.with("attributes[0].localIdentifier", att1.getLocalIdentifier())
@@ -808,7 +809,8 @@ class ConsultaControllerTestB {
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.accept(MediaType.TEXT_HTML)
 			.body(BodyInserters.fromFormData("nombre", newname)
-				.with("id", prop1.getId()))
+				.with("id", prop1.getId())
+				.with("forProposalId", prop2.getId()))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody()
@@ -899,8 +901,11 @@ class ConsultaControllerTestB {
 	
 	@Test
 	void testAddProposalProveedorToProposalCliente() {
+		Propuesta propB = new PropuestaProveedor(prop1.getId());
+		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propB.getId()))).thenReturn(Mono.just(propB));
+		
 		webTestClient.get()
-		.uri("/consultas/revisar/id/"+consulta1.getId()+"/onprop/"+prop1.getId()+"/addcotizacionproveedor")
+		.uri("/consultas/revisar/id/"+consulta1.getId()+"/onprop/"+propB.getId()+"/addcotizacionproveedor")
 		.accept(MediaType.TEXT_HTML)
 		.exchange()
 		.expectStatus().isOk()
@@ -930,6 +935,7 @@ class ConsultaControllerTestB {
 		.accept(MediaType.TEXT_HTML)
 		.body(BodyInserters.fromFormData("propuestaProveedor.nombre", prop1.getNombre())
 				.with("propuestaProveedor.tipoPropuesta", TipoPropuesta.PROVEEDOR.toString())
+				.with("propuestaProveedor.forProposalId", prop2.getId())
 				
 				.with("attributes[0].selected", "true")
 				.with("attributes[0].localIdentifier", att1.getLocalIdentifier())
