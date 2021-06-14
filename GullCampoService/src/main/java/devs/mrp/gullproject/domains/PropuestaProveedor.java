@@ -5,24 +5,30 @@ import java.util.Map;
 
 import org.springframework.data.annotation.PersistenceConstructor;
 
+import devs.mrp.gullproject.service.PropuestaProveedorOperations;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 public class PropuestaProveedor extends Propuesta {
+	
+	List<CosteProveedor> costes;
 
 	public PropuestaProveedor() {
 		super(TipoPropuesta.PROVEEDOR);
+		operationsProveedor().initializeStandardCosts();
 	}
 	
 	@PersistenceConstructor
 	public PropuestaProveedor(TipoPropuesta tipoPropuesta) { // dummy parameter
 		super(TipoPropuesta.PROVEEDOR);
+		operationsProveedor().initializeStandardCosts();
 	}
 	
 	public PropuestaProveedor(String idPropuestaCliente) {
 		super(TipoPropuesta.PROVEEDOR);
 		this.setForProposalId(idPropuestaCliente);
+		operationsProveedor().initializeStandardCosts();
 	}
 	
 	public PropuestaProveedor(Propuesta propuesta) {
@@ -33,6 +39,11 @@ public class PropuestaProveedor extends Propuesta {
 		this.lineaIds = propuesta.lineaIds;
 		this.nombre = propuesta.nombre;
 		this.parentId = propuesta.parentId;
+		operationsProveedor().initializeStandardCosts();
+	}
+	
+	public PropuestaProveedorOperations operationsProveedor() {
+		return new PropuestaProveedorOperations(this);
 	}
 
 }

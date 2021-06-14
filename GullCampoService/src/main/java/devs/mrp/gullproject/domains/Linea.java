@@ -58,6 +58,18 @@ public class Linea {
 	 */
 	private List<Campo<?>> campos = new ArrayList<>();
 	
+	/**
+	 * For specific uses, not required fields
+	 */
+	
+	private List<CosteLineaProveedor> costesProveedor;
+	
+	/**
+	 * Methods and constructors
+	 * @param l
+	 * @return
+	 */
+	
 	public boolean equals(Linea l) {
 		LineaOperations op = new LineaOperations(this);
 		return op.equals(l);
