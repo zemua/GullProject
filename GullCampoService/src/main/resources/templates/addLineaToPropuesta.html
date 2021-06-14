@@ -4,6 +4,7 @@
 <head>
 <meta charset="utf-8">
 <title th:text="${'Gull Project - Nueva Linea en Propuesta: ' + propuesta.getNombre()}">Gull Project - Nueva Linea en Propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
 
@@ -18,24 +19,36 @@
     	</div>
     	
 		<div class="grid">
-			<div class="define-group" id="nombre-linea">
-				<h3>Nombre:</h3>
-					<input type="text" th:field="*{linea.nombre}"/>
+			
+			<table>
+				<tr>
+					<td><span>Nombre:</span></td>
+					<td>
+						<input type="text" th:field="*{linea.nombre}"/>
 						<span class="validationError"
       							th:if="${#fields.hasErrors('${lineaWithAttListDto.linea.nombre}')}"
       							th:errors="*{linea.nombre}">Selecciona un nombre</span>
-			</div>
-			<div class="atribute-group" th:each="t, stat : *{attributes}">
-				<h3 th:text="${t.name}">Atributo:</h3>
-					<input type="text" th:field="*{attributes[__${stat.index}__].value}"/>
+      				</td>
+				</tr>
+				<tr class="texto-centro"><td colspan="2">ATRIBUTOS</td></tr>
+				<tr class="atribute-group" th:each="t, stat : *{attributes}">
+					<td>
+						<span th:text="${t.name}">Atributo:</span>
+					</td>
+					<td>
+						<input type="text" th:field="*{attributes[__${stat.index}__].value}"/>
 						<span class="validationError"
       							th:if="${#fields.hasErrors('*{attributes[__${stat.index}__].id}')}"
       							th:errors="*{attributes[__${stat.index}__].id}">El valor no es correcto para este atributo</span>
-					<input type="hidden" th:field="*{attributes[__${stat.index}__].localIdentifier}"/>
-					<input type="hidden" th:field="*{attributes[__${stat.index}__].id}"/>
-					<input type="hidden" th:field="*{attributes[__${stat.index}__].name}"/>
-					<input type="hidden" th:field="*{attributes[__${stat.index}__].tipo}"/>
-			</div>
+						<input type="hidden" th:field="*{attributes[__${stat.index}__].localIdentifier}"/>
+						<input type="hidden" th:field="*{attributes[__${stat.index}__].id}"/>
+						<input type="hidden" th:field="*{attributes[__${stat.index}__].name}"/>
+						<input type="hidden" th:field="*{attributes[__${stat.index}__].tipo}"/>
+					</td>
+				</tr>
+				<tr class="texto-centro" th:if="${propuesta.tipoPropuesta == 'PROVEEDOR'}"><td colspan="2">COSTES</td></tr>
+			</table>
+		
 			<div>
 				<h3>¿Cuántas líneas como esta quieres añadir?</h3>
 				<input type="number" th:field="*{qty}" min="1"/>

@@ -37,6 +37,7 @@ import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.domains.StringListOfListsWrapper;
 import devs.mrp.gullproject.domains.StringListWrapper;
 import devs.mrp.gullproject.domains.StringWrapper;
+import devs.mrp.gullproject.domains.TipoPropuesta;
 import devs.mrp.gullproject.domains.WrapLineasDto;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AttributesListDto;
@@ -56,6 +57,7 @@ import devs.mrp.gullproject.service.LineaService;
 import devs.mrp.gullproject.service.LineaUtilities;
 import devs.mrp.gullproject.validator.AttributeValueValidator;
 import devs.mrp.gullproject.validator.ValidList;
+import devs.mrp.gullproject.domains.PropuestaProveedor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -221,15 +223,30 @@ public class LineaController {
 	}
 
 	@GetMapping("/of/{propuestaId}/new")
-	public String addLineToPropuesta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
-		Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
+	public Mono<String> addLineToPropuesta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		Linea lLinea = new Linea();
 		lLinea.setPropuestaId(propuestaId);
 		Mono<LineaWithAttListDto> atributosDePropuesta = lineaUtilities.getAttributesOfProposal(lLinea, propuestaId, 1);
-		model.addAttribute("propuesta", propuesta);
 		model.addAttribute("propuestaId", propuestaId);
 		model.addAttribute("lineaWithAttListDto", atributosDePropuesta);
-		return "addLineaToPropuesta";
+		
+		return consultaService.findPropuestaByPropuestaId(propuestaId)
+			.map(rProp -> {
+				switch (rProp.getTipoPropuesta()) {
+					case PROVEEDOR:
+						Mono<PropuestaProveedor> propuestab = consultaService.findPropuestaByPropuestaId(propuestaId).map(p -> new PropuestaProveedor(p));
+						model.addAttribute("propuesta", propuestab);
+						log.debug("added PropuestaProveedor");
+						break;
+					default:
+						Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
+						model.addAttribute("propuesta", propuesta);
+						log.debug("added Propuesta (básica)");
+						break;
+				}
+				return "addLineaToPropuesta";
+			})
+			;
 	}
 
 	@PostMapping("/of/{propuestaId}/new")

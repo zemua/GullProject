@@ -39,7 +39,11 @@ public class PropuestaProveedor extends Propuesta {
 		this.lineaIds = propuesta.lineaIds;
 		this.nombre = propuesta.nombre;
 		this.parentId = propuesta.parentId;
-		operationsProveedor().initializeStandardCosts();
+		if (propuesta instanceof PropuestaProveedor) {
+			this.costes = ((PropuestaProveedor)propuesta).costes;
+		} else {
+			operationsProveedor().initializeStandardCosts();
+		}
 	}
 	
 	public PropuestaProveedorOperations operationsProveedor() {
