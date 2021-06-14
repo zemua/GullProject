@@ -8,6 +8,11 @@ public class PropuestaCliente extends Propuesta {
 		super(TipoPropuesta.CLIENTE);
 	}
 	
+	public PropuestaCliente(String consultaId) {
+		super(TipoPropuesta.CLIENTE);
+		this.setForProposalId(consultaId);
+	}
+	
 	@PersistenceConstructor
 	public PropuestaCliente(TipoPropuesta tipoPropuesta) { // dummy parameter
 		super(TipoPropuesta.CLIENTE);

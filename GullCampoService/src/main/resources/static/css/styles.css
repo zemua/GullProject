@@ -16,3 +16,11 @@ table .error {
 	background-color: red;
 	font: bold;
 }
+
+.texto-centro {
+	text-align: center;
+}
+
+.texto-derecha {
+	text-align: right;
+}

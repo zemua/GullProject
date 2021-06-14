@@ -31,6 +31,7 @@ import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.domains.TipoPropuesta;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
@@ -308,6 +309,10 @@ class ConsultaControllerTestB {
 		var op2 = prop2.operations();
 		op2.addLineaId("linea3");
 		prop2.setNombre("propuesta 2");
+		Propuesta prop3 = new PropuestaProveedor(prop1.getId());
+		prop3.setNombre("propuesta 3");
+		Propuesta prop4 = new PropuestaProveedor(prop2.getId());
+		prop4.setNombre("propuesta 4");
 		
 		Consulta a = new Consulta();
 		a.setNombre("consulta 1");
@@ -315,6 +320,7 @@ class ConsultaControllerTestB {
 		a.setId("idConsulta1");
 		a.operations().addPropuesta(prop1);
 		a.operations().addPropuesta(prop2);
+		a.operations().addPropuesta(prop3);
 		
 		
 		Consulta b = new Consulta();
@@ -326,6 +332,8 @@ class ConsultaControllerTestB {
 		Mono<Consulta> mono2 = Mono.just(b);
 		when(consultaService.findById(ArgumentMatchers.eq(a.getId()))).thenReturn(mono1);
 		when(consultaService.findById(ArgumentMatchers.eq(b.getId()))).thenReturn(mono2);
+		when(consultaService.findAllPropuestasOfConsulta(ArgumentMatchers.eq(a.getId()))).thenReturn(Flux.fromIterable(a.getPropuestas()));
+		when(consultaService.findAllPropuestasOfConsulta(ArgumentMatchers.eq(b.getId()))).thenReturn(Flux.just());
 		
 		webTestClient.get()
 			.uri("/consultas/revisar/id/idConsulta1")
@@ -338,15 +346,17 @@ class ConsultaControllerTestB {
 						.contains("Nombre")
 						.contains("Estado")
 						.contains("Creado")
-						.contains("Editado")
-						.contains("Nombre Propuesta")
+						.contains("Propuesta de Cliente")
 						.contains("Lineas")
 						.contains("Atributos")
 						.contains("consulta 1")
 						.contains("estado 1")
 						.contains("propuesta 1")
 						.contains("propuesta 2")
-						.doesNotContain("Añadir una solicitud de propuesta del cliente");
+						.contains("Respuestas de Proveedores")
+						.contains(prop3.getNombre())
+						.doesNotContain(prop4.getNombre())
+						.contains("Añadir una solicitud o revisión del cliente");
 			});
 		
 		webTestClient.get()
@@ -360,14 +370,14 @@ class ConsultaControllerTestB {
 					.contains("Nombre")
 					.contains("Estado")
 					.contains("Creado")
-					.contains("Editado")
-					.contains("Nombre Propuesta")
-					.contains("Lineas")
+					.doesNotContain("Propuesta de Cliente")
+					.doesNotContain("Lineas")
 					.contains("consulta 2")
 					.contains("estado 2")
 					.doesNotContain("propuesta 1")
 					.doesNotContain("propuesta 2")
-					.contains("Añadir una solicitud de propuesta del cliente");
+					.doesNotContain("Respuestas de Proveedores")
+					.contains("Añadir una solicitud o revisión del cliente");
 		});
 	}
 	

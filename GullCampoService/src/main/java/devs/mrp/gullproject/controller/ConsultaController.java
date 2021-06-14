@@ -90,8 +90,8 @@ public class ConsultaController {
 		return "showAllConsultas";
 	}
 	
-	@GetMapping("/revisar/id/{id}") // TODO arrange the table to separate customer/supplier proposals
-	public String reviewConsultaById(Model model, @PathVariable(name = "id") String id) { // TODO update test for changes
+	@GetMapping("/revisar/id/{id}")
+	public String reviewConsultaById(Model model, @PathVariable(name = "id") String id) {
 		Mono<Consulta> consulta = consultaService.findById(id);
 		model.addAttribute("consulta", consulta);
 		Flux<ProposalPie> proposalPieFeast = propuestaUtilities.getProposalPieFeast(id);
@@ -120,7 +120,7 @@ public class ConsultaController {
 	@GetMapping("/revisar/id/{id}/addpropuesta")
 	public String addPropuestaToId(Model model, @PathVariable(name= "id") String id) {
 		model.addAttribute("consultaId", id);
-		Mono<WrapPropuestaClienteAndSelectableAttributes> propuesta = propuestaUtilities.wrapPropuestaClienteWithAlAvailableAttributesAsSelectable(new PropuestaCliente());
+		Mono<WrapPropuestaClienteAndSelectableAttributes> propuesta = propuestaUtilities.wrapPropuestaClienteWithAlAvailableAttributesAsSelectable(new PropuestaCliente(id));
 		model.addAttribute("wrapPropuestaClienteAndSelectableAttributes", propuesta);
 		return "addPropuestaToConsulta";
 	}
@@ -136,6 +136,7 @@ public class ConsultaController {
 			return "addPropuestaToConsulta";
 		}
 		Propuesta propuesta = propuestaUtilities.getPropuestaClienteFromWrapWithSelectableAttributes(wrapPropuestaClienteAndSelectableAttributes);
+		propuesta.setCreatedTime(System.currentTimeMillis());
 		Mono<Propuesta> c = consultaService.addPropuesta(id, propuesta).flatMap(entity -> Mono.just(entity.operations().getPropuestaByIndex(entity.operations().getCantidadPropuestas()-1)));
 		model.addAttribute("propuesta", c);
 		model.addAttribute("consultaId", id);
@@ -295,7 +296,7 @@ public class ConsultaController {
 		return "addPropuestaProveedorToConsulta";
 	}
 	
-	@PostMapping("/revisar/id/{consultaId}/onprop/{propuestaClienteId}/addcotizacionproveedor")
+	@PostMapping("/revisar/id/{consultaId}/onprop/{propuestaClienteId}/addcotizacionproveedor") // TODO check attributes of customer proposal by default
 	public String processAddProposalProveedorToProposalCliente(@Valid WrapPropuestaProveedorAndSelectableAttributes wrapPropuestaProveedorAndSelectableAttributes, BindingResult bindingResult, Model model, @PathVariable(name = "consultaId") String consultaId, @PathVariable(name = "propuestaClienteId") String propuestaClienteId) {
 		log.debug("el wrap que recibimos: " + wrapPropuestaProveedorAndSelectableAttributes.toString());
 		if (bindingResult.hasErrors()) {
@@ -304,6 +305,7 @@ public class ConsultaController {
 			return "addPropuestaProveedorToConsulta";
 		}
 		Propuesta propuesta = propuestaUtilities.getPropuestaProveedorFromWrapWithSelectableAttributes(wrapPropuestaProveedorAndSelectableAttributes);
+		propuesta.setCreatedTime(System.currentTimeMillis());
 		log.debug("propuesta convertida: " + propuesta.getId());
 		Mono<Propuesta> p = consultaService.addPropuesta(consultaId, propuesta).flatMap(entity -> Mono.just(entity.operations().getPropuestaByIndex(entity.getPropuestas().size()-1)));
 		model.addAttribute("propuesta", p);

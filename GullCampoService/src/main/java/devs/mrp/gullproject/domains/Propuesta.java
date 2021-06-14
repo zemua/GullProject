@@ -35,7 +35,9 @@ public abstract class Propuesta {
 	
 	/**
 	 * forProposalId refers to the id of the proposal this is "replying" in case there is any
+	 * if it is a customer proposal, it refers to the consulta
 	 */
+	@NotBlank
 	String forProposalId;
 	
 	List<String> lineaIds = new ArrayList<>();

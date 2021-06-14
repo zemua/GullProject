@@ -167,23 +167,29 @@ public class PropuestaUtilities {
 	 */
 	
 	private List<PropuestaCliente> extractPropuestasCliente(List<Propuesta> propuestas) {
-		return propuestas.stream()
+		List<PropuestaCliente> list =  propuestas.stream()
 			.filter(p->p.getTipoPropuesta().equals(TipoPropuesta.CLIENTE))
 			.map(pr -> new PropuestaCliente(pr))
 			.collect(Collectors.toList());
+		list.sort((p1, p2) -> Long.valueOf(p1.getCreatedTime()).compareTo(p2.getCreatedTime()));
+		return list;
 	}
 	
 	private List<PropuestaProveedor> extractPropuestasProveedorForThisPropuestaCustomer(List<Propuesta> propuestas, String idPropuestaCliente) {
-		return propuestas.stream()
+		List<PropuestaProveedor> list = propuestas.stream()
 				.filter(p-> p.getTipoPropuesta().equals(TipoPropuesta.PROVEEDOR) && p.getForProposalId().equals(idPropuestaCliente))
 				.map(pr -> new PropuestaProveedor(pr))
 				.collect(Collectors.toList());
+		list.sort((p1, p2) -> Long.valueOf(p1.getCreatedTime()).compareTo(p2.getCreatedTime()));
+		return list;
 	}
 	private List<PropuestaNuestra> extractPropuestasNuestrasForThisPropuestaCustomer(List<Propuesta> propuestas, String idPropuestaCliente) {
-		return propuestas.stream()
+		List<PropuestaNuestra> list = propuestas.stream()
 				.filter(p -> p.getTipoPropuesta().equals(TipoPropuesta.NUESTRA) && p.getForProposalId().equals(idPropuestaCliente))
 				.map(pr -> new PropuestaNuestra(pr))
 				.collect(Collectors.toList());
+		list.sort((p1, p2) -> Long.valueOf(p1.getCreatedTime()).compareTo(p2.getCreatedTime()));
+		return list;
 	}
 	
 	public Flux<ProposalPie> getProposalPieFeast(String consultaId) {
