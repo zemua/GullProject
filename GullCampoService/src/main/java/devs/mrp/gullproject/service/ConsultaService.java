@@ -60,6 +60,11 @@ public class ConsultaService {
 		return deleted;
 	}
 	
+	public Flux<Propuesta> findAllPropuestasOfConsulta(String consultaId) {
+		return findById(consultaId)
+			.flatMapMany(c -> Flux.fromIterable(c.getPropuestas()));
+	}
+	
 	public Mono<Propuesta> findPropuestaByPropuestaId(String propuestaId) {
 		Mono<Propuesta> mono = consultaRepo.findByPropuestaId(propuestaId).flatMap(c -> Mono.just(c.operations().getPropuestaById(propuestaId)));
 		return mono;

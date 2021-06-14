@@ -12,9 +12,12 @@ import org.springframework.validation.BindingResult;
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.domains.PropuestaNuestra;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
+import devs.mrp.gullproject.domains.TipoPropuesta;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AttributesListDto;
+import devs.mrp.gullproject.domains.dto.ProposalPie;
 import devs.mrp.gullproject.domains.dto.WrapAtributosForCampoDto;
 import devs.mrp.gullproject.domains.dto.WrapPropuestaClienteAndSelectableAttributes;
 import devs.mrp.gullproject.domains.dto.WrapPropuestaProveedorAndSelectableAttributes;
@@ -157,6 +160,54 @@ public class PropuestaUtilities {
 		PropuestaProveedor propuesta = wrap.getPropuestaProveedor();
 		propuesta.setAttributeColumns(listOfSelectedAttributesPlain(wrap.getAttributes()));
 		return propuesta;
+	}
+	
+	/*
+	 * Wrap and Organize propuestas
+	 */
+	
+	private List<PropuestaCliente> extractPropuestasCliente(List<Propuesta> propuestas) {
+		return propuestas.stream()
+			.filter(p->p.getTipoPropuesta().equals(TipoPropuesta.CLIENTE))
+			.map(pr -> new PropuestaCliente(pr))
+			.collect(Collectors.toList());
+	}
+	
+	private List<PropuestaProveedor> extractPropuestasProveedorForThisPropuestaCustomer(List<Propuesta> propuestas, String idPropuestaCliente) {
+		return propuestas.stream()
+				.filter(p-> p.getTipoPropuesta().equals(TipoPropuesta.PROVEEDOR) && p.getForProposalId().equals(idPropuestaCliente))
+				.map(pr -> new PropuestaProveedor(pr))
+				.collect(Collectors.toList());
+	}
+	private List<PropuestaNuestra> extractPropuestasNuestrasForThisPropuestaCustomer(List<Propuesta> propuestas, String idPropuestaCliente) {
+		return propuestas.stream()
+				.filter(p -> p.getTipoPropuesta().equals(TipoPropuesta.NUESTRA) && p.getForProposalId().equals(idPropuestaCliente))
+				.map(pr -> new PropuestaNuestra(pr))
+				.collect(Collectors.toList());
+	}
+	
+	public Flux<ProposalPie> getProposalPieFeast(String consultaId) {
+		return consultaService.findAllPropuestasOfConsulta(consultaId)
+			.collectList().flatMapMany(rList -> {
+				List<ProposalPie> proposalPieFeast = new ArrayList<>();
+				
+				// Add proposals from custumers
+				List<PropuestaCliente> proCli = extractPropuestasCliente(rList);
+				proCli.stream().forEach(sProCli -> {
+					ProposalPie pie = new ProposalPie();
+					pie.setPropuestaCliente(sProCli);
+					proposalPieFeast.add(pie);
+				});
+				
+				// Add related proposals from suppliers and us
+				proposalPieFeast.stream().forEach(pie -> {
+					pie.setPropuestasProveedores(extractPropuestasProveedorForThisPropuestaCustomer(rList, pie.getPropuestaCliente().getId()));
+					pie.setPropuestasNuestras(extractPropuestasNuestrasForThisPropuestaCustomer(rList, pie.getPropuestaCliente().getId()));
+				});
+				
+				return Flux.fromIterable(proposalPieFeast);
+			})
+			;
 	}
 	
 }

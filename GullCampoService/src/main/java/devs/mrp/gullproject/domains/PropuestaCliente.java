@@ -12,5 +12,15 @@ public class PropuestaCliente extends Propuesta {
 	public PropuestaCliente(TipoPropuesta tipoPropuesta) { // dummy parameter
 		super(TipoPropuesta.CLIENTE);
 	}
+	
+	public PropuestaCliente(Propuesta propuesta) {
+		super(TipoPropuesta.CLIENTE);
+		this.attributeColumns = propuesta.attributeColumns;
+		this.forProposalId = propuesta.forProposalId;
+		this.id = propuesta.id;
+		this.lineaIds = propuesta.lineaIds;
+		this.nombre = propuesta.nombre;
+		this.parentId = propuesta.parentId;
+	}
 
 }

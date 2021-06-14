@@ -148,5 +148,20 @@ class ConsultaServiceTest {
 		.expectComplete()
 		.verify();
 	}
+	
+	@Test
+	void testFindAllPropuestasOfConsulta() {
+		Flux<Propuesta> props  = consultaService.findAllPropuestasOfConsulta(consulta.getId());
+		StepVerifier.create(props)
+			.assertNext(pro1 -> {
+				assertEquals(propuesta1.getId(), pro1.getId());
+			})
+			.assertNext(pro2 -> {
+				assertEquals(propuesta2.getId(), pro2.getId());
+			})
+			.expectComplete()
+			.verify()
+			;
+	}
 
 }

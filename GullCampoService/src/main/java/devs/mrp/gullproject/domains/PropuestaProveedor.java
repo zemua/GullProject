@@ -24,5 +24,15 @@ public class PropuestaProveedor extends Propuesta {
 		super(TipoPropuesta.PROVEEDOR);
 		this.setForProposalId(idPropuestaCliente);
 	}
+	
+	public PropuestaProveedor(Propuesta propuesta) {
+		super(TipoPropuesta.PROVEEDOR);
+		this.attributeColumns = propuesta.attributeColumns;
+		this.forProposalId = propuesta.forProposalId;
+		this.id = propuesta.id;
+		this.lineaIds = propuesta.lineaIds;
+		this.nombre = propuesta.nombre;
+		this.parentId = propuesta.parentId;
+	}
 
 }
