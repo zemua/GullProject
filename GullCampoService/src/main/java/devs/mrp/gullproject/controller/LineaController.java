@@ -222,7 +222,7 @@ public class LineaController {
 				});
 	}
 
-	@GetMapping("/of/{propuestaId}/new") // TODO test updates
+	@GetMapping("/of/{propuestaId}/new")
 	public String addLineToPropuesta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		Linea lLinea = new Linea();
 		lLinea.setPropuestaId(propuestaId);
@@ -236,7 +236,7 @@ public class LineaController {
 		return "addLineaToPropuesta";
 	}
 
-	@PostMapping("/of/{propuestaId}/new") // TODO test updates
+	@PostMapping("/of/{propuestaId}/new")
 	public Mono<String> processAddLineaToPropuesta(@Valid LineaWithAttListDto lineaWithAttListDto, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		return lineaUtilities.assertBindingResultOfListDto(lineaWithAttListDto, bindingResult, "attributes")
 				.then(Mono.just(bindingResult))

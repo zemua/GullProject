@@ -27,9 +27,12 @@ import devs.mrp.gullproject.configuration.MapperConfig;
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.CosteLineaProveedor;
+import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AtributoForLineaFormDto;
 import devs.mrp.gullproject.domains.dto.LineaWithSelectorDto;
@@ -90,6 +93,7 @@ class LineaControllerTest {
 	Flux<AtributoForCampo> fluxAttsPropuesta;
 	
 	Propuesta propuesta;
+	Propuesta propuestaProveedor;
 	Consulta consulta;
 	
 	@BeforeEach
@@ -155,6 +159,15 @@ class LineaControllerTest {
 		mono2 = Mono.just(linea2);
 		flux = Flux.just(linea1, linea2);
 		
+		propuestaProveedor = new PropuestaProveedor(propuesta.getId());
+		propuestaProveedor.setAttributeColumns(propuesta.getAttributeColumns());
+		propuestaProveedor.setLineaIds(propuesta.getLineaIds());
+		propuestaProveedor.setNombre("propuesta proveedor name");
+		List<CosteProveedor> costes = new ArrayList<>();
+		CosteProveedor cos1 = new CosteProveedor();
+		cos1.setName("COSTE BASE");
+		costes.add(cos1);
+		((PropuestaProveedor)propuestaProveedor).setCostes(costes);
 		
 		
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
@@ -184,6 +197,8 @@ class LineaControllerTest {
 		when(lineaService.updateVariasLineas(ArgumentMatchers.any(Flux.class))).thenReturn(Flux.just(linea1, linea2));
 		when(atributoService.validateDataFormat(atributo1.getTipo(), campo1a.getDatosText() + "after")).thenReturn(Mono.just(true));
 		when(atributoService.validateDataFormat(atributo1.getTipo(), campo2a.getDatosText() + "after")).thenReturn(Mono.just(true));
+		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuestaProveedor.getId()))).thenReturn(Mono.just(propuestaProveedor));
+		when(consultaService.findAttributesByPropuestaId(ArgumentMatchers.eq(propuestaProveedor.getId()))).thenReturn(fluxAttsPropuesta);
 	}
 
 	@Test
@@ -229,7 +244,29 @@ class LineaControllerTest {
 					.contains("atributo2")
 					.contains("atributo3")
 					.contains("atributo4")
+					.doesNotContain("COSTES")
 					.contains(propuesta.getNombre());
+		});
+		
+		webTestClient.get()
+		.uri("/lineas/of/" + propuestaProveedor.getId() + "/new")
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Nueva Linea en Propuesta: " + propuestaProveedor.getNombre())
+					.contains("Nombre")
+					.contains("Ok")
+					.contains("Volver")
+					.contains("atributo1")
+					.contains("atributo2")
+					.contains("atributo3")
+					.contains("atributo4")
+					.contains("COSTES")
+					.contains("COSTE BASE")
+					.contains(propuestaProveedor.getNombre());
 		});
 	}
 	
@@ -357,6 +394,43 @@ class LineaControllerTest {
 							.contains("Corrige los errores y reenvía").contains("El valor no es correcto para este atributo").contains("Ok")
 							.doesNotContain("Volver a la propuesta");
 				});
+		
+		when(lineaService.addVariasLineas(ArgumentMatchers.any(Flux.class), ArgumentMatchers.eq(propuestaProveedor.getId()))).thenReturn(Flux.fromIterable(lns));
+		log.debug("adding linea to propuestaProveedor");
+		webTestClient.post()
+		.uri("/lineas/of/" + propuestaProveedor.getId() + "/new")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("linea.nombre", "nombre")
+				.with("linea.id", "lineaid")
+				.with("linea.propuestaId", propuestaProveedor.getId())
+				
+				.with("attributes[0].id", "idatt1")
+				.with("attributes[0].value", "valor de att 1")
+				.with("attributes[0].localIdentifier", "localIdentifier")
+				.with("attributes[0].name", "nombre att 1")
+				.with("attributes[0].tipo", "DESCRIPCION")
+				
+				.with("costesProveedor[0].id", ((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getId())
+				.with("costesProveedor[0].name", ((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getName())
+				.with("costesProveedor[0].value", "123.5")
+				
+				.with("qty", "1")
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Gull Project - Linea Guardada")
+					.contains("Linea Guardada Como...")
+					.contains(String.valueOf(linea1Operations.getCampoByIndex(0).getDatos()))
+					.contains(String.valueOf(linea1Operations.getCampoByIndex(1).getDatos()))
+					.doesNotContain("errores")
+					.contains(propuestaProveedor.getNombre())
+					.contains(linea1.getNombre())
+					.contains("Volver a la propuesta");
+		});
 	}
 	
 	@Test
@@ -382,8 +456,8 @@ class LineaControllerTest {
 			.doesNotContain(atributo1.getName())
 			.contains(propuesta.getAttributeColumns().get(0).getName())
 			.contains(propuesta.getAttributeColumns().get(1).getName())
-			.contains(String.valueOf(linea1Operations.getCampoByIndex(0).getDatos()))
-			.contains(String.valueOf(linea1Operations.getCampoByIndex(1).getDatos()));
+			.contains(String.valueOf(linea1Operations.getCampoByAttId(propuesta.getAttributeColumns().get(0).getId()).getDatos()))
+			.contains(String.valueOf(linea1Operations.getCampoByAttId(propuesta.getAttributeColumns().get(1).getId()).getDatos()));
 		});
 	}
 	

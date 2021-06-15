@@ -58,7 +58,7 @@ public class LineaOperations {
 				return campo;
 			}
 		}
-		return null;
+		return new Campo<String>(attId, "");
 	}
 	
 	public String getValueByAttId(String attId) {
