@@ -275,8 +275,8 @@ public class LineaController {
 		return "bulkAddLineastoPropuesta";
 	}
 	
-	@PostMapping("/of/{propuestaId}/bulk-add")
-	public String processBulkAddLineastoPropuesta(StringWrapper stringWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+	@PostMapping("/of/{propuestaId}/bulk-add") // TODO add costesProveedor
+	public Mono<String> processBulkAddLineastoPropuesta(StringWrapper stringWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		String texto = stringWrapper.getString();
 		if (texto == null || texto.equals("")) {
 			bindingResult.rejectValue("string", "error.stringWrapper.string", "Debes introducir un texto");
@@ -288,15 +288,24 @@ public class LineaController {
 			model.addAttribute("stringWrapper", stringWrapper);
 			return "bulkAddLineastoPropuesta";
 		}
-		
-		model.addAttribute("stringListOfListsWrapper", lineaUtilities.excelTextToLineObject(texto));
-		
-		model.addAttribute("atributos", consultaService.findAttributesByPropuestaId(propuestaId));
 		Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
+		return propuesta.map(rPro -> {
+			model.addAttribute("stringListOfListsWrapper", lineaUtilities.excelTextToLineObject(texto));
+			model.addAttribute("atributos", rPro.getAttributeColumns());
+			if (rPro instanceof PropuestaProveedor) {
+				model.addAttribute("costes", ((PropuestaProveedor)rPro).getCostes());
+			}
+			model.addAttribute("propuesta", rPro);
+			model.addAttribute("propuestaId", rPro.getId());
+			return "processBulkAddLineasToPropuesta";
+		});
+		
+		/*model.addAttribute("stringListOfListsWrapper", lineaUtilities.excelTextToLineObject(texto));
+		model.addAttribute("atributos", consultaService.findAttributesByPropuestaId(propuestaId));
 		model.addAttribute("propuesta", propuesta);
 		model.addAttribute("propuestaId", propuestaId);
 		
-		return "processBulkAddLineasToPropuesta";
+		return "processBulkAddLineasToPropuesta";*/
 	}
 	
 	@PostMapping("/of/{propuestaId}/bulk-add/verify")

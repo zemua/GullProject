@@ -169,6 +169,8 @@ class LineaControllerTest {
 		costes.add(cos1);
 		((PropuestaProveedor)propuestaProveedor).setCostes(costes);
 		
+		consulta.getPropuestas().add(propuestaProveedor);
+		
 		
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
 		when(lineaService.addVariasLineas(ArgumentMatchers.any(Flux.class), ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(linea1, linea2));
@@ -220,8 +222,40 @@ class LineaControllerTest {
 						.contains("Crear nueva linea")
 						.contains("Nombre")
 						.contains("Enlace")
+						.contains(linea1.getCampos().get(0).getDatosText())
+						.contains(linea2.getCampos().get(1).getDatosText())
 						.contains(propuesta.getNombre());
 			});
+		
+		
+		
+		when(lineaService.findByPropuestaId(ArgumentMatchers.eq(propuestaProveedor.getId()))).thenReturn(flux);
+		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuestaProveedor.getId()))).thenReturn(Mono.just(propuestaProveedor));
+		when(consultaService.findConsultaByPropuestaId(ArgumentMatchers.eq(propuestaProveedor.getId()))).thenReturn(Mono.just(consulta));
+		
+		List<CosteLineaProveedor> csts = new ArrayList<>();
+		CosteLineaProveedor cst = new CosteLineaProveedor(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getId(), 123.45);
+		csts.add(cst);
+		linea1.setCostesProveedor(csts);
+		
+		webTestClient.get()
+		.uri("/lineas/allof/propid/" + propuestaProveedor.getId())
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Lineas de la propuesta")
+					.contains("Crear nueva linea")
+					.contains("Nombre")
+					.contains("Enlace")
+					.contains(linea1.getCampos().get(0).getDatosText())
+					.contains(linea2.getCampos().get(1).getDatosText())
+					.contains(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getName())
+					.contains("123.45")
+					.contains(propuestaProveedor.getNombre());
+		});
 	}
 	
 	@Test
