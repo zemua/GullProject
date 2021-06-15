@@ -46,7 +46,7 @@
 						<input type="hidden" th:field="*{attributes[__${stat.index}__].tipo}"/>
 					</td>
 				</tr>
-				<tr class="texto-centro" th:if="${propuesta.tipoPropuesta == 'PROVEEDOR'}"><td colspan="2">COSTES</td></tr>
+				<tr class="texto-centro" th:if="${propuesta.tipoPropuesta.toString() == 'PROVEEDOR' and lineaWithAttListDto.costesProveedor != null and lineaWithAttListDto.costesProveedor.size() > 0}"><td colspan="2">COSTES</td></tr>
 			</table>
 		
 			<div>

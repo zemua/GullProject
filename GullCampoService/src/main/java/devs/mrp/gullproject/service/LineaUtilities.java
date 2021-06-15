@@ -20,6 +20,7 @@ import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
+import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.domains.StringListOfListsWrapper;
 import devs.mrp.gullproject.domains.StringListWrapper;
 import devs.mrp.gullproject.domains.WrapLineasDto;
@@ -28,6 +29,7 @@ import devs.mrp.gullproject.domains.dto.AtributoForLineaFormDto;
 import devs.mrp.gullproject.domains.dto.AttRemaper;
 import devs.mrp.gullproject.domains.dto.AttRemapersWrapper;
 import devs.mrp.gullproject.domains.dto.BooleanWrapper;
+import devs.mrp.gullproject.domains.dto.CosteLineaProveedorDto;
 import devs.mrp.gullproject.domains.dto.LineaWithAttListDto;
 import devs.mrp.gullproject.domains.dto.LineaWithSelectorDto;
 import devs.mrp.gullproject.domains.dto.MultipleLineaWithAttListDto;
@@ -55,6 +57,16 @@ public class LineaUtilities {
 		this.atributoService = atributoService;
 		this.lineaService = lineaService;
 	}
+	
+	private Mono<LineaWithAttListDto> addCostsIfApplies(LineaWithAttListDto dto) {
+		return consultaService.findPropuestaByPropuestaId(dto.getLinea().getPropuestaId())
+			.map(rProp -> {
+				if (rProp instanceof PropuestaProveedor) {
+					dto.setCostesProveedor(((PropuestaProveedor)rProp).getCostes().stream().map(cost -> modelMapper.map(cost, CosteLineaProveedorDto.class)).collect(Collectors.toList()));
+				}
+				return dto;
+			});
+	}
 
 	public Mono<LineaWithAttListDto> getAttributesOfProposal(Linea lLinea, String propuestaId, Integer qtyLineas) {
 		return consultaService.findAttributesByPropuestaId(propuestaId)
@@ -63,7 +75,8 @@ public class LineaUtilities {
 					rAttForForm.setValue(operations.getValueByAttId(rAttForForm.getId()));
 					return rAttForForm;
 				}).collectList().flatMap(rAttFormList -> Mono
-						.just(new LineaWithAttListDto(lLinea, new ValidList<AtributoForLineaFormDto>(rAttFormList), qtyLineas)));
+						.just(new LineaWithAttListDto(lLinea, new ValidList<AtributoForLineaFormDto>(rAttFormList), qtyLineas)))
+						.flatMap(dto -> addCostsIfApplies(dto));
 	}
 
 	public Mono<LineaWithAttListDto> getAttributesOfProposal(Mono<Linea> lLinea, Integer qtyLineas) {
