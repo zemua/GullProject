@@ -286,7 +286,7 @@ public class LineaController {
 			model.addAttribute("propuesta", propuesta);
 			model.addAttribute("propuestaId", propuestaId);
 			model.addAttribute("stringWrapper", stringWrapper);
-			return "bulkAddLineastoPropuesta";
+			return Mono.just("bulkAddLineastoPropuesta");
 		}
 		Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
 		return propuesta.map(rPro -> {
