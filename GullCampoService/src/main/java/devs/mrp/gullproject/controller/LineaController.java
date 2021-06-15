@@ -349,7 +349,7 @@ public class LineaController {
 		}
 	}
 
-	@GetMapping("/revisar/id/{lineaid}") // TODO test updates
+	@GetMapping("/revisar/id/{lineaid}")
 	public Mono<String> revisarLinea(Model model, @PathVariable(name = "lineaid") String lineaId) {
 		Mono<Linea> linea = lineaService.findById(lineaId);
 		Mono<LineaWithAttListDto> lineaDto = lineaUtilities.getAttributesOfProposal(linea, 1);
@@ -363,7 +363,7 @@ public class LineaController {
 				});
 	}
 
-	@PostMapping("/revisar/id/{lineaid}") // TODO test updates
+	@PostMapping("/revisar/id/{lineaid}")
 	public Mono<String> processRevisarLinea(@Valid LineaWithAttListDto lineaWithAttListDto, BindingResult bindingResult,
 			Model model, @PathVariable(name = "lineaid") String lineaId) {
 		return lineaUtilities.assertBindingResultOfListDto(lineaWithAttListDto, bindingResult, "attributes").then(Mono.just(bindingResult))

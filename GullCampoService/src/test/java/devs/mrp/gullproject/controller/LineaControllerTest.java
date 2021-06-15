@@ -199,6 +199,7 @@ class LineaControllerTest {
 		when(atributoService.validateDataFormat(atributo1.getTipo(), campo2a.getDatosText() + "after")).thenReturn(Mono.just(true));
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuestaProveedor.getId()))).thenReturn(Mono.just(propuestaProveedor));
 		when(consultaService.findAttributesByPropuestaId(ArgumentMatchers.eq(propuestaProveedor.getId()))).thenReturn(fluxAttsPropuesta);
+		when(consultaService.findAttributesByPropuestaId(ArgumentMatchers.eq(propuestaProveedor.getId()))).thenReturn(Flux.fromIterable(propuestaProveedor.getAttributeColumns()));
 	}
 
 	@Test
@@ -262,8 +263,8 @@ class LineaControllerTest {
 					.contains("Volver")
 					.contains("atributo1")
 					.contains("atributo2")
-					.contains("atributo3")
-					.contains("atributo4")
+					//.contains("atributo3")
+					//.contains("atributo4")
 					.contains("COSTES")
 					.contains("COSTE BASE")
 					.contains(propuestaProveedor.getNombre());
@@ -397,6 +398,10 @@ class LineaControllerTest {
 		
 		when(lineaService.addVariasLineas(ArgumentMatchers.any(Flux.class), ArgumentMatchers.eq(propuestaProveedor.getId()))).thenReturn(Flux.fromIterable(lns));
 		log.debug("adding linea to propuestaProveedor");
+		List<CosteLineaProveedor> csts = new ArrayList<>();
+		CosteLineaProveedor cst = new CosteLineaProveedor(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getId(), 123.45);
+		csts.add(cst);
+		linea1.setCostesProveedor(csts);
 		webTestClient.post()
 		.uri("/lineas/of/" + propuestaProveedor.getId() + "/new")
 		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -413,7 +418,7 @@ class LineaControllerTest {
 				
 				.with("costesProveedor[0].id", ((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getId())
 				.with("costesProveedor[0].name", ((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getName())
-				.with("costesProveedor[0].value", "123.5")
+				.with("costesProveedor[0].value", "123.45")
 				
 				.with("qty", "1")
 				)
@@ -429,6 +434,7 @@ class LineaControllerTest {
 					.doesNotContain("errores")
 					.contains(propuestaProveedor.getNombre())
 					.contains(linea1.getNombre())
+					.contains("123.45")
 					.contains("Volver a la propuesta");
 		});
 	}
@@ -458,6 +464,34 @@ class LineaControllerTest {
 			.contains(propuesta.getAttributeColumns().get(1).getName())
 			.contains(String.valueOf(linea1Operations.getCampoByAttId(propuesta.getAttributeColumns().get(0).getId()).getDatos()))
 			.contains(String.valueOf(linea1Operations.getCampoByAttId(propuesta.getAttributeColumns().get(1).getId()).getDatos()));
+		});
+		
+		
+		log.debug("going to test for propuesta proveedor");
+		linea1.setPropuestaId(propuestaProveedor.getId());
+		propuestaProveedor.getAttributeColumns().clear();
+		propuestaProveedor.operations().addAttribute(atributo2);
+		propuestaProveedor.operations().addAttribute(atributo3);
+		when(consultaService.findAttributesByPropuestaId(ArgumentMatchers.eq(propuestaProveedor.getId()))).thenReturn(Flux.fromIterable(propuestaProveedor.getAttributeColumns()));
+		
+		webTestClient.get()
+		.uri("/lineas/revisar/id/" + linea1.getId())
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+			.contains("Editar Linea")
+			.doesNotContain("Corrige los errores y reenvía")
+			.contains(linea1.getNombre())
+			.doesNotContain(atributo1.getName())
+			.contains(propuestaProveedor.getAttributeColumns().get(0).getName())
+			.contains(propuestaProveedor.getAttributeColumns().get(1).getName())
+			.contains(String.valueOf(linea1Operations.getCampoByAttId(propuestaProveedor.getAttributeColumns().get(0).getId()).getDatos()))
+			.contains(String.valueOf(linea1Operations.getCampoByAttId(propuestaProveedor.getAttributeColumns().get(1).getId()).getDatos()))
+			.contains("COSTES")
+			.contains(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getName());
 		});
 	}
 	
@@ -535,6 +569,62 @@ class LineaControllerTest {
 					.contains(String.valueOf(linea1Operations.getCampoByIndex(0).getDatos()))
 					.contains(String.valueOf(linea1Operations.getCampoByIndex(1).getDatos()))
 					.contains(String.valueOf(linea1Operations.getCampoByIndex(2).getDatos()))
+					;
+		});
+		
+		
+		log.debug("going for propuestaProveedor");
+		when(lineaService.updateLinea(ArgumentMatchers.any(Linea.class))).thenReturn(Mono.just(linea1));
+		linea1.setPropuestaId(propuestaProveedor.getId());
+		List<CosteLineaProveedor> csts = new ArrayList<>();
+		CosteLineaProveedor cst = new CosteLineaProveedor(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getId(), 123.45);
+		csts.add(cst);
+		linea1.setCostesProveedor(csts);
+		
+		webTestClient.post()
+		.uri("/lineas/revisar/id/" + linea1.getId())
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("linea.nombre", linea1.getNombre())
+				.with("linea.id", linea1.getId())
+				.with("linea.propuestaId", linea1.getPropuestaId())
+				
+				.with("linea.campos[0].id", campo1a.getId())
+				.with("linea.campos[0].atributoId", campo1a.getAtributoId())
+				.with("linea.campos[0].datos", campo1a.getDatos())
+				
+				.with("linea.campos[1].id", campo1b.getId())
+				.with("linea.campos[1].atributoId", campo1b.getAtributoId())
+				.with("linea.campos[1].datos", String.valueOf(campo1b.getDatos()))
+				
+				.with("attributes[0].id", att2.getId())
+				.with("attributes[0].value", att2.getValue())
+				.with("attributes[0].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[0].name", att2.getName())
+				.with("attributes[0].tipo", att2.getTipo())
+				
+				.with("attributes[1].id", att3.getId())
+				.with("attributes[1].value", att3.getValue())
+				.with("attributes[1].localIdentifier", att3.getLocalIdentifier())
+				.with("attributes[1].name", att3.getName())
+				.with("attributes[1].tipo", att3.getTipo())
+				
+				.with("costesProveedor[0].id", ((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getId())
+				.with("costesProveedor[0].name", ((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getName())
+				.with("costesProveedor[0].value", "123.45")
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Linea Actualizada")
+					.contains("Linea Guardada Como...")
+					.contains(linea1.getNombre())
+					.contains(String.valueOf(linea1Operations.getCampoByIndex(0).getDatos()))
+					.contains(String.valueOf(linea1Operations.getCampoByIndex(1).getDatos()))
+					.contains(String.valueOf(linea1Operations.getCampoByIndex(2).getDatos()))
+					.contains("123.45")
 					;
 		});
 	}

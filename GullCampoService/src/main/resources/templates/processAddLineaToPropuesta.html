@@ -21,9 +21,10 @@
 			</p>
 		</div>
 		<table class="grid">
-			<tr th:each="l, stat : ${lineas}" class="define-group" id="${'nombrelinea' + stat.index}">
+			<tr th:each="l, stat : ${lineas}" class="define-group">
 				<td th:text="${l.nombre}">Nombre</td>
 				<td th:each="c : ${l.campos}" th:text="${c.getDatos()}"></td>
+				<td th:each="coste : ${l.costesProveedor}" th:text="${coste.getValue()}"></td>
 			</tr>
 		</table>
 
