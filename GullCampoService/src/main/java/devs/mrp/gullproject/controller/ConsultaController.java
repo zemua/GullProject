@@ -305,6 +305,7 @@ public class ConsultaController {
 		}
 		Propuesta propuesta = propuestaUtilities.getPropuestaProveedorFromWrapWithSelectableAttributes(wrapPropuestaProveedorAndSelectableAttributes);
 		propuesta.setCreatedTime(System.currentTimeMillis());
+		((PropuestaProveedor)propuesta).operationsProveedor().initializeStandardCosts();
 		log.debug("propuesta convertida: " + propuesta.getId());
 		Mono<Propuesta> p = consultaService.addPropuesta(consultaId, propuesta).flatMap(entity -> Mono.just(entity.operations().getPropuestaByIndex(entity.getPropuestas().size()-1)));
 		model.addAttribute("propuesta", p);

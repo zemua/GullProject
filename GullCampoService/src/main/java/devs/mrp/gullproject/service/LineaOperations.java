@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Campo;
+import devs.mrp.gullproject.domains.CosteLineaProveedor;
 import devs.mrp.gullproject.domains.Linea;
 import lombok.Data;
 import lombok.Getter;
@@ -119,6 +121,14 @@ public class LineaOperations {
 	
 	public void removeCamposByAttId(List<String> attIds) {
 		attIds.stream().forEach(att -> removeCampoByAttId(att));
+	}
+	
+	public CosteLineaProveedor getCosteByCosteId(String costeId) {
+		if (linea.getCostesProveedor() == null) {
+			return new CosteLineaProveedor(costeId);
+		}
+		Optional<CosteLineaProveedor> cos = linea.getCostesProveedor().stream().filter(c -> c.getCosteProveedorId().equals(costeId)).findFirst();
+		return cos.orElse(new CosteLineaProveedor(costeId));
 	}
 	
 	public boolean equals(Linea nLinea) {

@@ -82,6 +82,10 @@ public class Linea {
 		this.parentId = lin.parentId;
 		this.propuestaId = lin.propuestaId;
 		lin.getCampos().stream().forEach(c -> this.campos.add(new Campo<>(c)));
+		if (lin.getCostesProveedor() != null) {
+			this.costesProveedor = new ArrayList<>();
+			lin.getCostesProveedor().stream().forEach(c -> this.costesProveedor.add(new CosteLineaProveedor(c)));
+		}
 	}
 	
 	public LineaOperations operations() {

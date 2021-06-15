@@ -1,5 +1,6 @@
 package devs.mrp.gullproject.domains;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -16,19 +17,16 @@ public class PropuestaProveedor extends Propuesta {
 
 	public PropuestaProveedor() {
 		super(TipoPropuesta.PROVEEDOR);
-		operationsProveedor().initializeStandardCosts();
 	}
 	
 	@PersistenceConstructor
 	public PropuestaProveedor(TipoPropuesta tipoPropuesta) { // dummy parameter
 		super(TipoPropuesta.PROVEEDOR);
-		operationsProveedor().initializeStandardCosts();
 	}
 	
 	public PropuestaProveedor(String idPropuestaCliente) {
 		super(TipoPropuesta.PROVEEDOR);
 		this.setForProposalId(idPropuestaCliente);
-		operationsProveedor().initializeStandardCosts();
 	}
 	
 	public PropuestaProveedor(Propuesta propuesta) {
@@ -42,7 +40,7 @@ public class PropuestaProveedor extends Propuesta {
 		if (propuesta instanceof PropuestaProveedor) {
 			this.costes = ((PropuestaProveedor)propuesta).costes;
 		} else {
-			operationsProveedor().initializeStandardCosts();
+			this.costes = new ArrayList<>();
 		}
 	}
 	

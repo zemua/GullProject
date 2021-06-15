@@ -18,6 +18,7 @@ import org.springframework.validation.BindingResult;
 
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Campo;
+import devs.mrp.gullproject.domains.CosteLineaProveedor;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
@@ -62,13 +63,23 @@ public class LineaUtilities {
 		return consultaService.findPropuestaByPropuestaId(dto.getLinea().getPropuestaId())
 			.map(rProp -> {
 				if (rProp instanceof PropuestaProveedor) {
+					log.debug("going to set costs on dto of: " + rProp.toString());
 					dto.setCostesProveedor(((PropuestaProveedor)rProp).getCostes().stream().map(cost -> modelMapper.map(cost, CosteLineaProveedorDto.class)).collect(Collectors.toList()));
+					log.debug("costs set on dto as: ");
+					dto.getCostesProveedor().stream().forEach(c -> log.debug(c.toString()));
+					var lineaOp = dto.getLinea().operations();
+					log.debug("going to retrieve costes from: " + dto.getLinea().toString());
+					dto.getCostesProveedor().forEach(cozte -> {
+						log.debug("going to set for: " + cozte + " the value: " + lineaOp.getCosteByCosteId(cozte.getId()).getValue());
+						cozte.setValue(lineaOp.getCosteByCosteId(cozte.getId()).getValue());
+					});
 				}
 				return dto;
 			});
 	}
 
 	public Mono<LineaWithAttListDto> getAttributesOfProposal(Linea lLinea, String propuestaId, Integer qtyLineas) {
+		log.debug("going to create dto from: " + lLinea.toString());
 		return consultaService.findAttributesByPropuestaId(propuestaId)
 				.map(rAttProp -> modelMapper.map(rAttProp, AtributoForLineaFormDto.class)).map(rAttForForm -> {
 					LineaOperations operations = new LineaOperations(lLinea);
@@ -76,7 +87,10 @@ public class LineaUtilities {
 					return rAttForForm;
 				}).collectList().flatMap(rAttFormList -> Mono
 						.just(new LineaWithAttListDto(lLinea, new ValidList<AtributoForLineaFormDto>(rAttFormList), qtyLineas)))
-						.flatMap(dto -> addCostsIfApplies(dto));
+						.flatMap(dto -> {
+							log.debug("going to add costs for: " + lLinea.toString());
+							return addCostsIfApplies(dto);
+						});
 	}
 
 	public Mono<LineaWithAttListDto> getAttributesOfProposal(Mono<Linea> lLinea, Integer qtyLineas) {
@@ -170,9 +184,10 @@ public class LineaUtilities {
 		Mono<List<Linea>> llineas = reconstructLine(lineaWithAttListDto)
 				.map(rLine -> {
 					List<Linea> lista = new ArrayList<>();
+					LineaOperations operationsRline = new LineaOperations(rLine);
 					for (int i=0; i<lineaWithAttListDto.getQty(); i++) {
-						LineaOperations operationsRline = new LineaOperations(rLine);
 						Linea dLine = operationsRline.clonar();
+						log.debug("añadimos linea: " + dLine.toString());
 						lista.add(dLine);
 					}
 					return lista;
@@ -181,8 +196,7 @@ public class LineaUtilities {
 		return l1;
 	}
 
-	public Flux<Boolean> assertBindingResultOfListDto(LineaWithAttListDto lineaWithAttListDto,
-			BindingResult bindingResult, String attsRoute) {
+	public Flux<Boolean> assertBindingResultOfListDto(LineaWithAttListDto lineaWithAttListDto, BindingResult bindingResult, String attsRoute) {
 		/**
 		 * BindingResult checks out of the box if there is any error in the line, but
 		 * not in the attributes (we removed the validation in that class) To check if
@@ -237,6 +251,18 @@ public class LineaUtilities {
 
 	public Mono<Linea> reconstructLine(LineaWithAttListDto lineaWithAttListDto) {
 		Linea nLinea = lineaWithAttListDto.getLinea();
+		List<CosteLineaProveedorDto> costesDto = lineaWithAttListDto.getCostesProveedor();
+		if (costesDto != null) {
+			if (nLinea.getCostesProveedor() == null) {
+				nLinea.setCostesProveedor(new ArrayList<>());
+			}
+			costesDto.stream().forEach(dto -> {
+				CosteLineaProveedor coste = new CosteLineaProveedor();
+				coste.setCosteProveedorId(dto.getId());
+				coste.setValue(dto.getValue());
+				nLinea.getCostesProveedor().add(coste);
+			});
+		}
 		List<AtributoForLineaFormDto> nAtts = lineaWithAttListDto.getAttributes();
 		if (nAtts == null) {
 			nAtts = new ValidList<>();

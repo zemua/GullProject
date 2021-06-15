@@ -8,7 +8,7 @@ import lombok.Data;
 public class CosteLineaProveedorDto {
 
 	@NotBlank
-	String costeProveedorId;
+	String id; // the id of the cost in the proposal
 	String name;
 	Double value;
 	

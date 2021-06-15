@@ -47,6 +47,16 @@
 					</td>
 				</tr>
 				<tr class="texto-centro" th:if="${propuesta.tipoPropuesta.toString() == 'PROVEEDOR' and lineaWithAttListDto.costesProveedor != null and lineaWithAttListDto.costesProveedor.size() > 0}"><td colspan="2">COSTES</td></tr>
+				<tr th:each="coste, cstat : *{costesProveedor}">
+					<td>
+						<span th:text="${coste.name}"></span>
+						<input type="hidden" th:field="*{costesProveedor[__${cstat.index}__].id}"/>
+						<input type="hidden" th:field="*{costesProveedor[__${cstat.index}__].name}"/>
+					</td>
+					<td>
+						<input type="number" step="any" th:field="*{costesProveedor[__${cstat.index}__].value}"/>
+					</td>
+				</tr>
 			</table>
 		
 			<div>

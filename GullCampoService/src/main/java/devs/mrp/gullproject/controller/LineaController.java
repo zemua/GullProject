@@ -222,36 +222,22 @@ public class LineaController {
 				});
 	}
 
-	@GetMapping("/of/{propuestaId}/new")
-	public Mono<String> addLineToPropuesta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+	@GetMapping("/of/{propuestaId}/new") // TODO test updates
+	public String addLineToPropuesta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		Linea lLinea = new Linea();
 		lLinea.setPropuestaId(propuestaId);
 		Mono<LineaWithAttListDto> atributosDePropuesta = lineaUtilities.getAttributesOfProposal(lLinea, propuestaId, 1);
 		model.addAttribute("propuestaId", propuestaId);
 		model.addAttribute("lineaWithAttListDto", atributosDePropuesta);
 		
-		return consultaService.findPropuestaByPropuestaId(propuestaId)
-			.map(rProp -> {
-				switch (rProp.getTipoPropuesta()) {
-					case PROVEEDOR:
-						Mono<PropuestaProveedor> propuestab = consultaService.findPropuestaByPropuestaId(propuestaId).map(p -> new PropuestaProveedor(p));
-						model.addAttribute("propuesta", propuestab);
-						log.debug("added PropuestaProveedor");
-						break;
-					default:
-						Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
-						model.addAttribute("propuesta", propuesta);
-						log.debug("added Propuesta (básica)");
-						break;
-				}
-				return "addLineaToPropuesta";
-			})
-			;
+		Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
+		model.addAttribute("propuesta", propuesta);
+		log.debug("added Propuesta");
+		return "addLineaToPropuesta";
 	}
 
-	@PostMapping("/of/{propuestaId}/new")
-	public Mono<String> processAddLineaToPropuesta(@Valid LineaWithAttListDto lineaWithAttListDto,
-			BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+	@PostMapping("/of/{propuestaId}/new") // TODO test updates
+	public Mono<String> processAddLineaToPropuesta(@Valid LineaWithAttListDto lineaWithAttListDto, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		return lineaUtilities.assertBindingResultOfListDto(lineaWithAttListDto, bindingResult, "attributes")
 				.then(Mono.just(bindingResult))
 				.flatMap(rBindingResult -> {
@@ -363,17 +349,21 @@ public class LineaController {
 		}
 	}
 
-	@GetMapping("/revisar/id/{lineaid}")
-	public String revisarLinea(Model model, @PathVariable(name = "lineaid") String lineaId) {
+	@GetMapping("/revisar/id/{lineaid}") // TODO test updates
+	public Mono<String> revisarLinea(Model model, @PathVariable(name = "lineaid") String lineaId) {
 		Mono<Linea> linea = lineaService.findById(lineaId);
 		Mono<LineaWithAttListDto> lineaDto = lineaUtilities.getAttributesOfProposal(linea, 1);
 
 		model.addAttribute("lineaWithAttListDto", lineaDto);
 
-		return "reviewLinea";
+		return linea.map(l -> consultaService.findPropuestaByPropuestaId(l.getPropuestaId()))
+				.map(prop -> {
+					model.addAttribute("propuesta", prop);
+					return "reviewLinea";
+				});
 	}
 
-	@PostMapping("/revisar/id/{lineaid}")
+	@PostMapping("/revisar/id/{lineaid}") // TODO test updates
 	public Mono<String> processRevisarLinea(@Valid LineaWithAttListDto lineaWithAttListDto, BindingResult bindingResult,
 			Model model, @PathVariable(name = "lineaid") String lineaId) {
 		return lineaUtilities.assertBindingResultOfListDto(lineaWithAttListDto, bindingResult, "attributes").then(Mono.just(bindingResult))

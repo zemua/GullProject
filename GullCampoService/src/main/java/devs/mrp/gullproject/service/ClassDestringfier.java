@@ -45,4 +45,8 @@ public class ClassDestringfier {
 		return value;
 	}
 	
+	public static boolean ifDouble(String value) {
+		return value.replace(",", ".").matches("^-?\\d*\\.?\\d*$");
+	}
+	
 }

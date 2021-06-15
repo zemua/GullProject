@@ -4,6 +4,7 @@
 <head>
 <meta charset="utf-8">
 <title th:text="${'Gull Project - Editar Linea: ' + lineaWithAttListDto.linea.getNombre()}">Gull Project - Editar Linea</title>
+<link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
 
@@ -18,29 +19,45 @@
     	</div>
     	
 		<div class="grid">
-			<div class="define-group" id="nombre-linea">
-				<h3>Nombre:</h3>
-					<input type="text" th:field="*{linea.nombre}"/>
+			
+			<table>
+				<tr>
+					<td><span>Nombre:</span></td>
+					<td>
+						<input type="text" th:field="*{linea.nombre}"/>
 						<span class="validationError"
       							th:if="${#fields.hasErrors('${lineaWithAttListDto.linea.nombre}')}"
       							th:errors="*{linea.nombre}">Selecciona un nombre</span>
-      				<div th:each="y , ystat : *{linea.campos}">
-      					<input type="hidden" th:field="*{linea.campos[__${ystat.index}__].id}"/>
-      					<input type="hidden" th:field="*{linea.campos[__${ystat.index}__].atributoId}"/>
-      					<input type="hidden" th:field="*{linea.campos[__${ystat.index}__].datos}"/>
-      				</div>
-			</div>
-			<div class="atribute-group" th:each="t, stat : *{attributes}">
-				<h3 th:text="${t.name}">Atributo:</h3>
-					<input type="text" th:field="*{attributes[__${stat.index}__].value}"/>
+      				</td>
+				</tr>
+				<tr class="texto-centro"><td colspan="2">ATRIBUTOS</td></tr>
+				<tr class="atribute-group" th:each="t, stat : *{attributes}">
+					<td>
+						<span th:text="${t.name}">Atributo:</span>
+					</td>
+					<td>
+						<input type="text" th:field="*{attributes[__${stat.index}__].value}"/>
 						<span class="validationError"
       							th:if="${#fields.hasErrors('*{attributes[__${stat.index}__].id}')}"
       							th:errors="*{attributes[__${stat.index}__].id}">El valor no es correcto para este atributo</span>
-					<input type="hidden" th:field="*{attributes[__${stat.index}__].localIdentifier}"/>
-					<input type="hidden" th:field="*{attributes[__${stat.index}__].id}"/>
-					<input type="hidden" th:field="*{attributes[__${stat.index}__].name}"/>
-					<input type="hidden" th:field="*{attributes[__${stat.index}__].tipo}"/>
-			</div>
+						<input type="hidden" th:field="*{attributes[__${stat.index}__].localIdentifier}"/>
+						<input type="hidden" th:field="*{attributes[__${stat.index}__].id}"/>
+						<input type="hidden" th:field="*{attributes[__${stat.index}__].name}"/>
+						<input type="hidden" th:field="*{attributes[__${stat.index}__].tipo}"/>
+					</td>
+				</tr>
+				<tr class="texto-centro" th:if="${propuesta.tipoPropuesta.toString() == 'PROVEEDOR' and lineaWithAttListDto.costesProveedor != null and lineaWithAttListDto.costesProveedor.size() > 0}"><td colspan="2">COSTES</td></tr>
+				<tr th:each="coste, cstat : *{costesProveedor}">
+					<td>
+						<span th:text="${coste.name}"></span>
+						<input type="hidden" th:field="*{costesProveedor[__${cstat.index}__].id}"/>
+						<input type="hidden" th:field="*{costesProveedor[__${cstat.index}__].name}"/>
+					</td>
+					<td>
+						<input type="number" step="any" th:field="*{costesProveedor[__${cstat.index}__].value}"/>
+					</td>
+				</tr>
+			</table>
 			<input type="hidden" th:value="*{linea.id}" th:field="*{linea.id}">
 			<input type="hidden" th:value="*{linea.propuestaId}" th:field="*{linea.propuestaId}">
 		</div>
