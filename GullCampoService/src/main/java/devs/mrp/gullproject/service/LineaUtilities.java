@@ -456,6 +456,12 @@ public class LineaUtilities {
 												return Mono.just(fTupla);
 											}
 											else { // if neither of these, then we don't know what it is, reject
+												log.debug("este campo no encontramos a qué se refiere");
+												if (rPro instanceof PropuestaProveedor) {
+													log.debug("la propuesta es instancia de PropuestaProveedor");
+													log.debug("la id de la tupla es " + fTupla.attId);
+													log.debug("los costes de la propuesta son: " + ((PropuestaProveedor)rPro).getCostes().toString());
+												}
 												fTupla.validado = false;
 												return Mono.just(fTupla);
 											}

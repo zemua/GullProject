@@ -301,7 +301,7 @@ public class LineaController {
 		});
 	}
 	
-	@PostMapping("/of/{propuestaId}/bulk-add/verify") // TODO test costes
+	@PostMapping("/of/{propuestaId}/bulk-add/verify")
 	public Mono<String> verifyBulkAddLineastoPropuesta(StringListOfListsWrapper stringListOfListsWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		// verify that the data for each column is appropiate according to the attribute
 		model.addAttribute("atributos", consultaService.findAttributesByPropuestaId(propuestaId));

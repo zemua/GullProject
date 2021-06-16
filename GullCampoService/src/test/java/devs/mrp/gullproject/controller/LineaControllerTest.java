@@ -1017,6 +1017,84 @@ class LineaControllerTest {
 			.contains("Corrige los errores")
 			.contains("Estas filas necesitan un nombre");
 		});
+		
+		CosteLineaProveedor cost = new CosteLineaProveedor();
+		cost.setValue(123.45);
+		cost.setCosteProveedorId(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getId());
+		List<CosteLineaProveedor> costs = new ArrayList<>();
+		costs.add(cost);
+		linea1.setCostesProveedor(costs);
+		linea2.setCostesProveedor(costs);
+		when(consultaService.findAttributesByPropuestaId(ArgumentMatchers.eq(propuestaProveedor.getId()))).thenReturn(Flux.just(atributo1, atributo2));
+		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuestaProveedor.getId()))).thenReturn(Mono.just(propuestaProveedor));
+		when(lineaService.addVariasLineas(ArgumentMatchers.any(Flux.class), ArgumentMatchers.eq(propuestaProveedor.getId()))).thenReturn(Flux.just(linea1, linea2));
+		when(atributoService.getClassTypeOfFormat(ArgumentMatchers.eq("NUMERO"))).thenReturn(Mono.just("Integer"));
+		when(atributoService.getClassTypeOfFormat(ArgumentMatchers.eq("DESCRIPCION"))).thenReturn(Mono.just("String"));
+		when(atributoService.validateDataFormat(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(Mono.just(false));
+		when(atributoService.validateDataFormat(ArgumentMatchers.eq(atributo1.getTipo()), ArgumentMatchers.eq(campo1a.getDatosText()))).thenReturn(Mono.just(true));
+		when(atributoService.validateDataFormat(ArgumentMatchers.eq(atributo2.getTipo()), ArgumentMatchers.eq(campo1b.getDatosText()))).thenReturn(Mono.just(true));
+		when(atributoService.validateDataFormat(ArgumentMatchers.eq(atributo1.getTipo()), ArgumentMatchers.eq(campo2a.getDatosText()))).thenReturn(Mono.just(true));
+		when(atributoService.validateDataFormat(ArgumentMatchers.eq(atributo2.getTipo()), ArgumentMatchers.eq(campo2b.getDatosText()))).thenReturn(Mono.just(true));
+		
+		log.debug("should be ok with costs");
+		webTestClient.post()
+			.uri("/lineas/of/" + propuestaProveedor.getId() + "/bulk-add/verify")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("name[0]", "")
+					.with("name[1]", "2")
+					.with("name[2]" , "")
+					.with("strings[0]", propuesta.getAttributeColumns().get(0).getId())
+					.with("strings[1]", propuesta.getAttributeColumns().get(1).getId())
+					.with("strings[2]", cost.getCosteProveedorId())
+					.with("stringListWrapper[0].string[0]", campo1a.getDatosText())
+					.with("stringListWrapper[0].string[1]", campo1b.getDatosText())
+					.with("stringListWrapper[0].string[2]", "123.45")
+					.with("stringListWrapper[1].string[0]", campo2a.getDatosText())
+					.with("stringListWrapper[1].string[1]", campo2b.getDatosText())
+					.with("stringListWrapper[1].string[2]", "123.45")
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+				.contains(campo1a.getDatosText())
+				.contains(campo1b.getDatosText())
+				.contains(campo2a.getDatosText())
+				.contains(campo2b.getDatosText())
+				.contains("123.45")
+				.contains(linea1.getNombre())
+				.contains("Lineas añadidas")
+				.doesNotContain("Corrige los errores");
+			});
+		
+		log.debug("should give error on cost validation");
+		webTestClient.post()
+			.uri("/lineas/of/" + propuestaProveedor.getId() + "/bulk-add/verify")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("name[0]", "")
+					.with("name[1]", "2")
+					.with("name[2]" , "")
+					.with("strings[0]", propuesta.getAttributeColumns().get(0).getId())
+					.with("strings[1]", propuesta.getAttributeColumns().get(1).getId())
+					.with("strings[2]", cost.getCosteProveedorId())
+					.with("stringListWrapper[0].string[0]", campo1a.getDatosText())
+					.with("stringListWrapper[0].string[1]", campo1b.getDatosText())
+					.with("stringListWrapper[0].string[2]", "incorrect cost")
+					.with("stringListWrapper[1].string[0]", campo2a.getDatosText())
+					.with("stringListWrapper[1].string[1]", campo2b.getDatosText())
+					.with("stringListWrapper[1].string[2]", "123.45")
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+				.contains("Corrige los errores")
+				.contains("Estos campos tienen un valor incorrecto");
+			});
 	}
 	
 	@Test
