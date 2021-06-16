@@ -905,6 +905,30 @@ class LineaControllerTest {
 			.contains("Corrige los errores y reenvía.")
 			.contains("Debes introducir un texto");
 		});
+		
+		log.debug("should show costs in select options");
+		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuestaProveedor.getId()))).thenReturn(Mono.just(propuestaProveedor));
+		when(consultaService.findAttributesByPropuestaId(ArgumentMatchers.eq(propuestaProveedor.getId()))).thenReturn(Flux.just(atributo1, atributo2));
+		webTestClient.post()
+			.uri("/lineas/of/" + propuestaProveedor.getId() + "/bulk-add")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("string", "asdf	qwer	zxcv")
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+				.contains("asdf")
+				.contains("qwer")
+				.contains("zxcv")
+				.contains(propuestaProveedor.getAttributeColumns().get(0).getName())
+				.contains(propuestaProveedor.getAttributeColumns().get(1).getName())
+				.contains(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getName())
+				.contains("mono-name")
+				.contains("mono-option");
+			});
 	}
 	
 	@Test

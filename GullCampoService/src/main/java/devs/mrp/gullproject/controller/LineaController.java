@@ -275,7 +275,7 @@ public class LineaController {
 		return "bulkAddLineastoPropuesta";
 	}
 	
-	@PostMapping("/of/{propuestaId}/bulk-add") // TODO test costes
+	@PostMapping("/of/{propuestaId}/bulk-add")
 	public Mono<String> processBulkAddLineastoPropuesta(StringWrapper stringWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		String texto = stringWrapper.getString();
 		if (texto == null || texto.equals("")) {
@@ -299,13 +299,6 @@ public class LineaController {
 			model.addAttribute("propuestaId", rPro.getId());
 			return "processBulkAddLineasToPropuesta";
 		});
-		
-		/*model.addAttribute("stringListOfListsWrapper", lineaUtilities.excelTextToLineObject(texto));
-		model.addAttribute("atributos", consultaService.findAttributesByPropuestaId(propuestaId));
-		model.addAttribute("propuesta", propuesta);
-		model.addAttribute("propuestaId", propuestaId);
-		
-		return "processBulkAddLineasToPropuesta";*/
 	}
 	
 	@PostMapping("/of/{propuestaId}/bulk-add/verify") // TODO test costes
