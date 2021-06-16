@@ -27,6 +27,11 @@
 							<th th:each="t : ${consulta.operations().getPropuestaById(propuestaId).getAttributeColumns()}">
 								<span th:text="${t.getName()}"></span>
 							</th>
+							<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'PROVEEDOR'}">
+							<th th:each="cost : ${consulta.operations().getPropuestaById(propuestaId).getCostes()}">
+								<span th:text="${cost.name}"></span>
+							</th>
+							</th:block>
 						</tr>
 					</thead>
 					<tbody>
@@ -37,6 +42,11 @@
 								<input type="hidden" th:field="*{lineas[__${ystat.index}__].order}" class="linea-order"/>
 							</td>
 							<td th:each="t : ${consulta.operations().getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${a.operations().getValueByAttId(t.getId())}"></span></td>
+							<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'PROVEEDOR'}">
+							<td th:each="cost : ${consulta.operations().getPropuestaById(propuestaId).getCostes()}">
+								<span th:text="${a.operations().getCosteByCosteId(cost.getId()).value}"></span>
+							</td>
+							</th:block>
 						</tr>
 					</tbody>
 				</table>
