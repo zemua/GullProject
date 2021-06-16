@@ -115,4 +115,9 @@ public class PropuestaOperations {
 		}
 	}
 	
+	public boolean ifIsAttributeId(String id) {
+		Optional<AtributoForCampo> at = propuesta.getAttributeColumns().stream().filter(a -> a.getId().equals(id)).findAny();
+		return at.isPresent();
+	}
+	
 }
