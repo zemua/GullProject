@@ -34,20 +34,18 @@
 								<select th:field="*{name[__${ntat.index}__]}" class="name-selector">
 									<option th:value="''"></option>
 									<option th:each="x, row : *{strings}" th:value="${row.index + 1}" th:text="${row.index + 1}" class="mono-name"></option>
-									<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'PROVEEDOR'}">
-									<option th:each="coste, costeStat : ${consulta.operations().getPropuestaById(propuestaId).getCostes()}" th:value="${stringListOfListsWrapper.strings.size() + costeStat.index + 1}" th:text="${stringListOfListsWrapper.strings.size() + costeStat.index + 1}" class="mono-name"></option>
-									</th:block>
+									<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'PROVEEDOR'}"><option th:each="coste, costeStat : ${consulta.operations().getPropuestaById(propuestaId).getCostes()}" th:value="${stringListOfListsWrapper.strings.size() + costeStat.index + 1}" th:text="${stringListOfListsWrapper.strings.size() + costeStat.index + 1}" class="mono-name"></option></th:block>
 								</select>
 								<input type="hidden" th:field="*{strings[__${ntat.index}__]}"/>
 							</th>
 							<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'PROVEEDOR'}">
-							<th th:each="n, ntat : ${consulta.operations().getPropuestaById(propuestaId).getCostes()}" th:id="'name' + ${ntat.index + stringListOfListsWrapper.strings.size()}" class="header" th:classappend="${#fields.hasErrors('*{name[__${ntat.index + stringListOfListsWrapper.strings.size()}__]}') ? 'error' : '' }">
-								<select th:field="*{name[__${ntat.index}__]}" class="name-selector">
+							<th th:each="n, ntat : ${consulta.operations().getPropuestaById(propuestaId).getCostes()}" th:id="'name' + ${ntat.index + stringListOfListsWrapper.strings.size()}" class="header" th:classappend="${#fields.hasErrors('*{name[__${stringListOfListsWrapper.strings.size() + ntat.index}__]}') ? 'error' : '' }">
+								<select th:field="*{name[__${(stringListOfListsWrapper.strings.size() + ntat.index)}__]}" class="name-selector">
 									<option th:value="''"></option>
 									<option th:each="x, row : *{strings}" th:value="${row.index + 1}" th:text="${row.index + 1}" class="mono-name"></option>
 									<option th:each="coste, costeStat : ${consulta.operations().getPropuestaById(propuestaId).getCostes()}" th:value="${stringListOfListsWrapper.strings.size() + costeStat.index + 1}" th:text="${stringListOfListsWrapper.strings.size() + costeStat.index + 1}" class="mono-name"></option>
 								</select>
-								<input type="hidden" th:field="*{strings[__${ntat.index}__]}"/>
+								<input type="hidden" th:field="*{strings[__${stringListOfListsWrapper.strings.size() + ntat.index}__]}"/>
 							</th>
 							</th:block>
 						</tr>
