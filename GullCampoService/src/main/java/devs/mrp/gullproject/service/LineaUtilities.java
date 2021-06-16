@@ -528,6 +528,7 @@ public class LineaUtilities {
 					rAllDuplas.stream().forEach(sDupla ->{
 						log.debug("vamos a pasar estas duplas a linea: " + sDupla.toString());
 						Linea linea = new Linea();
+						linea.setCostesProveedor(new ArrayList<>());
 						sDupla.stream().forEach(sField -> {
 							if (sField.clase.equals(tipoCoste)){
 								CosteLineaProveedor coste = new CosteLineaProveedor();
