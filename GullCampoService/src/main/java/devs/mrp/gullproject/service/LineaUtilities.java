@@ -51,6 +51,8 @@ public class LineaUtilities {
 	ModelMapper modelMapper;
 	LineaService lineaService;
 	
+	String tipoCoste = "COSTE";
+	
 	@Autowired
 	public LineaUtilities(ConsultaService consultaService, ModelMapper modelMapper, AtributoServiceProxyWebClient atributoService, LineaService lineaService) {
 		this.consultaService = consultaService;
@@ -437,15 +439,29 @@ public class LineaUtilities {
 						.flatMap(fTupla -> {
 							fTupla.tipo = rAttToTipo.get(fTupla.attId);
 							if (fTupla.attId != null && !fTupla.attId.equals("")) {
+									return consultaService.findPropuestaByPropuestaId(propuestaId)
+										.flatMap(rPro -> {
+											var operations = rPro.operations();
+											if (operations.ifIsAttributeId(fTupla.attId)) { // if it is an attribute validate it
+											return atributoService.validateDataFormat(fTupla.tipo, fTupla.valor)
+													.map(rBool -> {
+														log.debug("respuesta de atributo service para tipo " + fTupla.tipo + " y valor " + fTupla.valor + " es " + rBool);
+														fTupla.validado = rBool;
+														return fTupla;
+													});
+											} else if (rPro instanceof PropuestaProveedor && ((PropuestaProveedor)rPro).operationsProveedor().ifIsCosteProveedorId(fTupla.attId)) { // if it is a cost validate double value
+												log.debug("es un costeProveedor, vamos a validarlo: " + ((PropuestaProveedor)rPro).operationsProveedor().ifValidCosteValue(fTupla.valor));
+												log.debug("de la propuesta: " + rPro.toString());
+												fTupla.validado = ((PropuestaProveedor)rPro).operationsProveedor().ifValidCosteValue(fTupla.valor);
+												return Mono.just(fTupla);
+											}
+											else { // if neither of these, then we don't know what it is, reject
+												fTupla.validado = false;
+												return Mono.just(fTupla);
+											}
+										});
 									
-										return atributoService.validateDataFormat(fTupla.tipo, fTupla.valor)
-												.map(rBool -> {
-													log.debug("respuesta de atributo service para tipo " + fTupla.tipo + " y valor " + fTupla.valor + " es " + rBool);
-													fTupla.validado = rBool;
-													return fTupla;
-												});
-									
-							} else { // it is a field that we are not going to use
+							} else { // it is a field that we are not going to use, so any value is ok
 								fTupla.validado = true;
 								return Mono.just(fTupla);
 							}
@@ -513,13 +529,20 @@ public class LineaUtilities {
 						log.debug("vamos a pasar estas duplas a linea: " + sDupla.toString());
 						Linea linea = new Linea();
 						sDupla.stream().forEach(sField -> {
-							Campo<Object> campo = new Campo<>();
-							campo.setAtributoId(sField.attId);
-							log.debug("vamos a llamar a classDestringfier con clase " + sField.clase + " y valor " + sField.valor);
-							campo.setDatos(ClassDestringfier.toObject(sField.clase, sField.valor));
-							log.debug("hemos obtenido los datos " + campo.getDatosText());
-							LineaOperations operations = new LineaOperations(linea);
-							operations.addCampo(campo);
+							if (sField.clase.equals(tipoCoste)){
+								CosteLineaProveedor coste = new CosteLineaProveedor();
+								coste.setCosteProveedorId(sField.attId);
+								coste.setValue(Double.parseDouble(sField.valor.replace(",", ".")));
+								linea.getCostesProveedor().add(coste);
+							} else {
+								Campo<Object> campo = new Campo<>();
+								campo.setAtributoId(sField.attId);
+								log.debug("vamos a llamar a classDestringfier con clase " + sField.clase + " y valor " + sField.valor);
+								campo.setDatos(ClassDestringfier.toObject(sField.clase, sField.valor));
+								log.debug("hemos obtenido los datos " + campo.getDatosText());
+								LineaOperations operations = new LineaOperations(linea);
+								operations.addCampo(campo);
+							}
 						});
 						linea.setPropuestaId(propuestaId);
 						linea.setNombre(names.get(sDupla.get(0).linea));
@@ -533,39 +556,47 @@ public class LineaUtilities {
 		List<List<DuplaAttVal>> duplas = allLineasInDuplaWithAttidAndValor(wrapper);
 		return mapOfAttIdsToTipo(propuestaId)
 			.flatMap(rAttIdToTipo -> {
-				
-				log.debug("tenemos este mapa de Atributo.id a Atributo.tipo " + rAttIdToTipo.toString());
-				
-				Map<String, String> attIdToClass = new HashMap<>();
-				
-				log.debug("vamos a crear un flux desde el set: " + rAttIdToTipo.keySet().toString());
-				return Flux.fromIterable(rAttIdToTipo.keySet())
-						// first we map the classes vs ids so we just need to make one query per att to the db
-					.flatMap(rAttId -> {
-						log.debug("vamos a obtener el classType del id " + rAttId + " para el tipo " + rAttIdToTipo.get(rAttId));
-						return atributoService.getClassTypeOfFormat(rAttIdToTipo.get(rAttId))
-								.map(rClass -> {
-									log.debug("del id " +rAttId.toString() + " obtenemos el tipo " + rClass.toString() + " y lo añadimos al mapa");
-									attIdToClass.put(rAttId, rClass);
-									return rClass;
+				return consultaService.findPropuestaByPropuestaId(propuestaId)
+					.flatMap(rProp -> {
+						var operations = rProp.operations();
+						log.debug("tenemos este mapa de Atributo.id a Atributo.tipo " + rAttIdToTipo.toString());
+						Map<String, String> attIdToClass = new HashMap<>();
+						log.debug("vamos a crear un flux desde el set: " + rAttIdToTipo.keySet().toString());
+						return Flux.fromIterable(rAttIdToTipo.keySet())
+								// first we map the classes vs ids so we just need to make one query per att to the db
+							.flatMap(rAttId -> {
+								log.debug("vamos a obtener el classType del id " + rAttId + " para el tipo " + rAttIdToTipo.get(rAttId));
+								return atributoService.getClassTypeOfFormat(rAttIdToTipo.get(rAttId))
+										.map(rClass -> {
+											log.debug("del id " +rAttId.toString() + " obtenemos el tipo " + rClass.toString() + " y lo añadimos al mapa");
+											attIdToClass.put(rAttId, rClass);
+											return rClass;
+										});
+							})
+							// then we use the map to fill the remaining data
+							.then(Mono.just(duplas).map(rDuplas -> {
+								log.debug("tenemos este mapa de Atributo.id a Atributo.class " + attIdToClass.toString());
+								rDuplas.forEach(rLinea -> {
+									log.debug("en esta linea " + rLinea.toString());
+									rLinea.forEach(rCampo -> {
+										if (operations.ifHasAttributeColumn(rCampo.attId)) {
+											log.debug("es un atributo");
+											log.debug("vamor a recoger del tipo de " + rCampo.attId + " desde el mapa " + rAttIdToTipo.toString());
+											rCampo.tipo = rAttIdToTipo.get(rCampo.attId);
+											log.debug("vamos a recoger la clase de " + rCampo.attId + " desde el mapa " + attIdToClass.toString());
+											rCampo.clase = attIdToClass.get(rCampo.attId);
+											log.debug("añadimos tipo " + rCampo.tipo + " y clase " + rCampo.clase + " a este campo: ");
+										} else if (rProp instanceof PropuestaProveedor && ((PropuestaProveedor)rProp).operationsProveedor().ifIsCosteProveedorId(rCampo.attId)) {
+											log.debug("es un coste, ponemos tipo y clase a COSTE");
+											rCampo.tipo = tipoCoste;
+											rCampo.clase = tipoCoste;
+										}
+									});
 								});
-					})
-					// then we use the map to fill the remaining data
-					.then(Mono.just(duplas).map(rDuplas -> {
-						log.debug("tenemos este mapa de Atributo.id a Atributo.class " + attIdToClass.toString());
-						rDuplas.forEach(rLinea -> {
-							log.debug("en esta linea " + rLinea.toString());
-							rLinea.forEach(rCampo -> {
-								log.debug("vamor a recoger del tipo de " + rCampo.attId + " desde el mapa " + rAttIdToTipo.toString());
-								rCampo.tipo = rAttIdToTipo.get(rCampo.attId);
-								log.debug("vamos a recoger la clase de " + rCampo.attId + " desde el mapa " + attIdToClass.toString());
-								rCampo.clase = attIdToClass.get(rCampo.attId);
-								log.debug("añadimos tipo " + rCampo.tipo + " y clase " + rCampo.clase + " a este campo: ");
-							});
-						});
-						log.debug("devolvemos estas duplas en allLineasInDuplaCompleta: " + rDuplas.toString());
-						return rDuplas;
-					}));
+								log.debug("devolvemos estas duplas en allLineasInDuplaCompleta: " + rDuplas.toString());
+								return rDuplas;
+							}));
+					});
 			});
 	}
 	

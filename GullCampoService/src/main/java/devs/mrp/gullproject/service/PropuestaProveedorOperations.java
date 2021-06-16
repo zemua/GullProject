@@ -30,4 +30,8 @@ public class PropuestaProveedorOperations {
 		return cos.isPresent();
 	}
 	
+	public boolean ifValidCosteValue(String valor) {
+		return valor.matches("^[+-]?\\d+[[,\\.]\\d]*$");
+	}
+	
 }

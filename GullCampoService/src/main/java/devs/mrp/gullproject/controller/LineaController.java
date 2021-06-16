@@ -323,8 +323,14 @@ public class LineaController {
 					log.debug("to choose between if bindingResult has errors or not");
 					if (binding.hasErrors()) {
 						log.debug("binding result has errors and we go back to the same view highlighting errors");
+						log.debug("adding attribute stringListOfListsWrapper: " + stringListOfListsWrapper.toString());
 						model.addAttribute("stringListOfListsWrapper", stringListOfListsWrapper);
-						return Mono.just("processBulkAddLineasToPropuesta");
+						return propuesta.map(rPro -> {
+							if (rPro instanceof PropuestaProveedor) {
+								model.addAttribute("costes", ((PropuestaProveedor)rPro).getCostes());
+							}
+							return "processBulkAddLineasToPropuesta";
+						});
 					} else {
 						try {
 							log.debug("binding result has no errors");
