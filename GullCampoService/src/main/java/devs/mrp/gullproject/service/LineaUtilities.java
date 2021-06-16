@@ -328,6 +328,9 @@ public class LineaUtilities {
 		StringListOfListsWrapper wrap = new StringListOfListsWrapper();
 		wrap.setStrings(propuesta.getAttributeColumns().stream().map(att -> att.getName()).collect(Collectors.toList()));
 		propuesta.getAttributeColumns().stream().forEach(att -> wrap.getName().add(null));
+		if (propuesta instanceof PropuestaProveedor) {
+			((PropuestaProveedor)propuesta).getCostes().stream().forEach(cos -> wrap.getName().add(null));
+		}
 		lineas.stream().forEach(sLine -> {
 			LineaOperations sLineOp = sLine.operations();
 			StringListWrapper stringListWrapper = new StringListWrapper();
@@ -337,6 +340,9 @@ public class LineaUtilities {
 			propuesta.getAttributeColumns().stream().forEach(att -> {
 				stringListWrapper.add(sLineOp.getCampoByAttId(att.getId()).getDatosText());
 			});
+			if (propuesta instanceof PropuestaProveedor) {
+				((PropuestaProveedor)propuesta).getCostes().stream().forEach(cos -> stringListWrapper.add(String.valueOf(sLineOp.getCosteByCosteId(cos.getId()).getValue())));
+			}
 			wrap.getStringListWrapper().add(stringListWrapper);
 		});
 		return wrap;
