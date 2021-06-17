@@ -149,7 +149,7 @@ public class LineaController {
 				.then(Mono.just("processRenameAllLinesOf"));
 	}
 	
-	@GetMapping("/allof/propid/{propuestaId}/remap")
+	@GetMapping("/allof/propid/{propuestaId}/remap") // TODO test with costs
 	public String remapValuesGeneral(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		Flux<Linea> lineas = lineaService.findByPropuestaId(propuestaId);
 		model.addAttribute("lineas", new ReactiveDataDriverContextVariable(lineas, 1));
@@ -186,6 +186,12 @@ public class LineaController {
 								.then(Mono.just("processRemapValuesAttcolumn"));
 						}
 					});
+	}
+	
+	@GetMapping("/allof/propid/{propuestaId}/remapcost/{costeId}")
+	public Mono<String> remapCost(Model model, @PathVariable(name = "propuestaId") String propuestaId, @PathVariable(name = "localIdentifier") String costeId){
+		
+		return Mono.just("remapCost");
 	}
 	
 	@GetMapping("/allof/propid/{propuestaId}/edit")

@@ -19,6 +19,7 @@ import org.springframework.validation.BindingResult;
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.CosteLineaProveedor;
+import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
@@ -30,6 +31,8 @@ import devs.mrp.gullproject.domains.dto.AtributoForLineaFormDto;
 import devs.mrp.gullproject.domains.dto.AttRemaper;
 import devs.mrp.gullproject.domains.dto.AttRemapersWrapper;
 import devs.mrp.gullproject.domains.dto.BooleanWrapper;
+import devs.mrp.gullproject.domains.dto.CostRemapper;
+import devs.mrp.gullproject.domains.dto.CostRemappersWrapper;
 import devs.mrp.gullproject.domains.dto.CosteLineaProveedorDto;
 import devs.mrp.gullproject.domains.dto.LineaWithAttListDto;
 import devs.mrp.gullproject.domains.dto.LineaWithSelectorDto;
@@ -706,6 +709,27 @@ public class LineaUtilities {
 							return new AttRemapersWrapper(rList);
 						});
 				});
+	}
+	
+	public Mono<CostRemappersWrapper> getRemappersFromPropuestaAndCost(String propuestaId, String costeId){
+		return consultaService.findPropuestaByPropuestaId(propuestaId)
+				.flatMap(rProp -> {
+					if (!(rProp instanceof PropuestaProveedor)) {
+						return Mono.empty();
+					}
+					PropuestaProveedor propuesta = (PropuestaProveedor)rProp;
+					Optional<CosteProveedor> cost = propuesta.getCostes().stream().filter(co -> co.getId().equals(costeId)).findFirst();
+					return lineaService.findByPropuestaId(propuestaId)
+						.map(rLine -> {
+							CostRemapper maper = new CostRemapper();
+							CosteLineaProveedor coste = rLine.operations().getCosteByCosteId(costeId);
+							if (coste != null) {
+								maper.setBefore(coste.getValue());
+								maper.setAfter(coste.getValue());
+							}
+						});
+				})
+				;
 	}
 	
 }
