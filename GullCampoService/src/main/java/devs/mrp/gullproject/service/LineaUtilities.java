@@ -388,7 +388,7 @@ public class LineaUtilities {
 				log.debug("no encontramos error");
 			}
 		}
-		
+		log.debug("vamos a mirar errores en los campos");
 		BooleanWrapper addedErrorToFields = new BooleanWrapper(false);
 		return bulkTableWrapperToTuplaTabla(wrapper, propuestaId)
 				.map(rTupla -> {
@@ -674,6 +674,7 @@ public class LineaUtilities {
 	public Flux<Linea> updateNombresFromStringListOfListsWrapper(StringListOfListsWrapper stringListOfListsWrapper) {
 		return Flux.fromIterable(stringListOfListsWrapper.getStringListWrapper())
 				.flatMap(rWrap -> {
+					log.debug("vamos a llamar updateNombre con " + rWrap.toString());
 					return lineaService.updateNombre(rWrap.getId(), rWrap.getName());
 				});
 	}
@@ -681,12 +682,14 @@ public class LineaUtilities {
 	public Mono<AttRemapersWrapper> getRemappersFromPropuestaAndAttId(String propuestaId, String localIdentifier) {
 		return consultaService.findPropuestaByPropuestaId(propuestaId)
 				.flatMap(rProp -> {
+					log.debug("en la propuesta " + rProp.toString());
 					Optional<AtributoForCampo> att = rProp.getAttributeColumns().stream().filter(at -> at.getLocalIdentifier().equals(localIdentifier)).findFirst();
 					AtributoForCampo attb = new AtributoForCampo();
 					attb.setTipo("DESCRIPCION");
 					attb.setName("DESCRIPCION");
 					return lineaService.findByPropuestaId(propuestaId)
 						.map(rLine -> {
+							log.debug("para la linea" + rLine.toString());
 							AttRemaper maper = new AttRemaper();
 							Campo<?> campo = rLine.operations().getCampoByAttId(att.orElse(attb).getId());
 							if (campo != null) {

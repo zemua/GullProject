@@ -121,7 +121,7 @@ public class LineaController {
 		return "processOrderLineasOfPropuesta";
 	}
 	
-	@GetMapping("/allof/propid/{propuestaId}/rename") // TODO test with costs
+	@GetMapping("/allof/propid/{propuestaId}/rename")
 	public String renameAllLinesOf(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		Mono<StringListOfListsWrapper> lineas = lineaUtilities.stringListOfListsFromPropuestaId(propuestaId);
 		model.addAttribute("stringListOfListsWrapper", lineas);
@@ -131,7 +131,7 @@ public class LineaController {
 		return "renameAllLinesOf";
 	}
 	
-	@PostMapping("/allof/propid/{propuestaId}/rename") // TODO test with costs
+	@PostMapping("/allof/propid/{propuestaId}/rename")
 	public Mono<String> processRenameAllLinesOf(StringListOfListsWrapper stringListOfListsWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		
 		model.addAttribute("stringListOfListsWrapper", stringListOfListsWrapper);
@@ -149,12 +149,12 @@ public class LineaController {
 		if (bindingResult.hasErrors()) {
 			return Mono.just("renameAllLinesOf");
 		}
-		
+		log.debug("prepare to update names and return template");
 		return lineaUtilities.updateNombresFromStringListOfListsWrapper(stringListOfListsWrapper)
 				.then(Mono.just("processRenameAllLinesOf"));
 	}
 	
-	@GetMapping("/allof/propid/{propuestaId}/remap") // TODO test with costs
+	@GetMapping("/allof/propid/{propuestaId}/remap")
 	public String remapValuesGeneral(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		Flux<Linea> lineas = lineaService.findByPropuestaId(propuestaId);
 		model.addAttribute("lineas", new ReactiveDataDriverContextVariable(lineas, 1));
