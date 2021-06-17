@@ -193,7 +193,7 @@ public class LineaController {
 					});
 	}
 	
-	@GetMapping("/allof/propid/{propuestaId}/remapcost/{costeId}") // TODO test
+	@GetMapping("/allof/propid/{propuestaId}/remapcost/{costeId}")
 	public Mono<String> remapCost(Model model, @PathVariable(name = "propuestaId") String propuestaId, @PathVariable(name = "costeId") String costeId){
 		Mono<CostRemappersWrapper> remapers = lineaUtilities.getRemappersFromPropuestaAndCost(propuestaId, costeId);
 		model.addAttribute("costRemappersWrapper", remapers);
@@ -203,8 +203,8 @@ public class LineaController {
 		return Mono.just("remapCost");
 	}
 	
-	@PostMapping("/allof/propid/{propuestaId}/remapcost/{costeId}") // TODO test
-	public Mono<String> processRemapCost(CostRemappersWrapper costRemappersWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId, @PathVariable(name = "costeId") String costeId) {
+	@PostMapping("/allof/propid/{propuestaId}/remapcost/{costeId}")
+	public Mono<String> processRemapCost(@Valid CostRemappersWrapper costRemappersWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId, @PathVariable(name = "costeId") String costeId) {
 		model.addAttribute("costRemappersWrapper", costRemappersWrapper);
 		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
 		model.addAttribute("consulta", consulta);

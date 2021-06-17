@@ -1630,9 +1630,75 @@ class LineaControllerTest {
 			.doesNotContain(linea1.getCampos().get(1).getDatosText())
 			.doesNotContain(linea2.getCampos().get(1).getDatosText())
 			.contains("error")
+			.doesNotContain("Remapeado")
 			;
 		})
 		;
+	}
+	
+	@Test
+	void testRemapCosts() {
+		addCosteToLineas();
+		webTestClient.get()
+			.uri("/lineas/allof/propid/"+propuestaProveedor.getId()+"/remapcost/"+linea1.getCostesProveedor().get(0).getCosteProveedorId())
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+				.contains(String.valueOf(linea1.getCostesProveedor().get(0).getValue()))
+				.contains(String.valueOf(linea2.getCostesProveedor().get(0).getValue()))
+				.doesNotContain(linea1.getCampos().get(1).getDatosText())
+				.doesNotContain(linea2.getCampos().get(1).getDatosText())
+				;
+			})
+			;
+	}
+	
+	@Test
+	void testProcessRemapCost() {
+		addCosteToLineas();
+		CosteLineaProveedor coste = linea1.getCostesProveedor().get(0);
+		
+		Linea lineaA;
+		lineaA = linea1.operations().clonar();
+		LineaOperations opa = lineaA.operations();
+		opa.getCosteByCosteId(coste.getCosteProveedorId()).setValue(999.99);
+		log.debug("linea1: " + linea1.toString());
+		log.debug("lineaA: " + lineaA.toString());
+		
+		Linea lineaB;
+		lineaB = linea2.operations().clonar();
+		LineaOperations opb = lineaB.operations();
+		opa.getCosteByCosteId(coste.getCosteProveedorId()).setValue(888.88);
+		log.debug("linea2: " + linea2.toString());
+		log.debug("lineaB: " + lineaB.toString());
+		
+		when(lineaService.updateLinea(ArgumentMatchers.any(Linea.class))).thenReturn(Mono.just(lineaA));
+		
+		log.debug("should be ok");
+		webTestClient.post()
+		.uri("/lineas/allof/propid/" + propuestaProveedor.getId() + "/remapcost/" + coste.getCosteProveedorId())
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("remapers[0].before", String.valueOf(linea1.getCostesProveedor().get(0).getValue()))
+				.with("remappers[0].after", "999.99")
+				.with("remappers[0].costeProveedorId", coste.getCosteProveedorId())
+				
+				.with("remappers[1].after", "888.88")
+				.with("remappers[1].before", String.valueOf(linea2.getCostesProveedor().get(0).getValue()))
+				.with("remappers[1].costeProveedorId", coste.getCosteProveedorId())
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+			.contains("Remapeado");
+		});
+		
+		log.debug("no test with validation error, because if it is not a valid number it just jumps it");
 	}
 
 }
