@@ -3,7 +3,6 @@ function forceDouble(klase, forn, boton) {
 	var button = $(boton);
 	button.click(function(event) {
 		event.preventDefault();
-		console.log("class to validate " + klase);
 		if (validateDouble(klase)) {
 			formulario.submit();
 		}
@@ -12,15 +11,14 @@ function forceDouble(klase, forn, boton) {
 
 function validateDouble(klase) {
 	var valores = $(klase);
-	console.log("valores: " + valores);
 	var resultado = true;
 	valores.each(function(){
+		$(this).text($(this).text().replace(",", "."));
+		this.dispatchEvent(new Event('input'));
 		if (!$.isNumeric($(this).text())){
-			console.log($(this).text() + " no es numerico");
 			$(this).parent().css("background-color", "red");
 			resultado = false;
 		} else {
-			console.log("si es numerico");
 			$(this).parent().css("background-color", "");
 		}
 	});

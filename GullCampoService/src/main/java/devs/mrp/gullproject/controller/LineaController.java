@@ -53,6 +53,7 @@ import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.AttRemaperUtilities;
 import devs.mrp.gullproject.service.ClassDestringfier;
 import devs.mrp.gullproject.service.ConsultaService;
+import devs.mrp.gullproject.service.CostRemapperUtilities;
 import devs.mrp.gullproject.service.LineaOperations;
 import devs.mrp.gullproject.service.LineaService;
 import devs.mrp.gullproject.service.LineaUtilities;
@@ -74,16 +75,19 @@ public class LineaController {
 	AtributoServiceProxyWebClient atributoService;
 	LineaUtilities lineaUtilities;
 	AttRemaperUtilities attRemaperUtilities;
+	CostRemapperUtilities costRemapperUtilities;
 
 	@Autowired
 	public LineaController(LineaService lineaService, ConsultaService consultaService, ModelMapper modelMapper,
-			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities, AttRemaperUtilities attRemaperUtilities) {
+			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities, AttRemaperUtilities attRemaperUtilities,
+			CostRemapperUtilities costRemapperUtilities) {
 		this.lineaService = lineaService;
 		this.consultaService = consultaService;
 		this.modelMapper = modelMapper;
 		this.atributoService = atributoService;
 		this.lineaUtilities = lineaUtilities;
 		this.attRemaperUtilities = attRemaperUtilities;
+		this.costRemapperUtilities = costRemapperUtilities;
 	}
 	
 	// TODO for excels where one sheet = one product, first map fields in the sheet row/column=attribute, then extract data from several sheets following this map.
@@ -205,8 +209,8 @@ public class LineaController {
 		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
 		model.addAttribute("consulta", consulta);
 		model.addAttribute("propuestaId", propuestaId);
-		
-		return Mono.empty();
+		return costRemapperUtilities.remapLineasCost(costRemappersWrapper.getRemappers(), propuestaId)
+			.then(Mono.just("processRemapCost"));
 	}
 	
 	@GetMapping("/allof/propid/{propuestaId}/edit")
