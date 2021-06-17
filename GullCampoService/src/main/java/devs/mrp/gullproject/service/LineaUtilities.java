@@ -726,8 +726,20 @@ public class LineaUtilities {
 							if (coste != null) {
 								maper.setBefore(coste.getValue());
 								maper.setAfter(coste.getValue());
+							} else {
+								maper.setBefore(0D);
+								maper.setAfter(0D);
 							}
-						});
+							maper.setCosteProveedorId(costeId);
+							log.debug("devolviendo cost maper: " + maper.toString());
+							return maper;
+						})
+						.distinct(CostRemapper::getBefore).collectList()
+						.map(rList -> {
+							log.debug("después de filtrado: " + rList.toString());
+							return new CostRemappersWrapper(rList);
+						})
+						;
 				})
 				;
 	}

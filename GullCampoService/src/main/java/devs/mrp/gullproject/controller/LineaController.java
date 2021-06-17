@@ -41,6 +41,7 @@ import devs.mrp.gullproject.domains.TipoPropuesta;
 import devs.mrp.gullproject.domains.WrapLineasDto;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AttributesListDto;
+import devs.mrp.gullproject.domains.dto.CostRemappersWrapper;
 import devs.mrp.gullproject.domains.dto.AtributoForLineaFormDto;
 import devs.mrp.gullproject.domains.dto.AttRemaper;
 import devs.mrp.gullproject.domains.dto.AttRemapersWrapper;
@@ -188,10 +189,24 @@ public class LineaController {
 					});
 	}
 	
-	@GetMapping("/allof/propid/{propuestaId}/remapcost/{costeId}")
-	public Mono<String> remapCost(Model model, @PathVariable(name = "propuestaId") String propuestaId, @PathVariable(name = "localIdentifier") String costeId){
-		
+	@GetMapping("/allof/propid/{propuestaId}/remapcost/{costeId}") // TODO test
+	public Mono<String> remapCost(Model model, @PathVariable(name = "propuestaId") String propuestaId, @PathVariable(name = "costeId") String costeId){
+		Mono<CostRemappersWrapper> remapers = lineaUtilities.getRemappersFromPropuestaAndCost(propuestaId, costeId);
+		model.addAttribute("costRemappersWrapper", remapers);
+		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+		model.addAttribute("consulta", consulta);
+		model.addAttribute("propuestaId", propuestaId);
 		return Mono.just("remapCost");
+	}
+	
+	@PostMapping("/allof/propid/{propuestaId}/remapcost/{costeId}") // TODO test
+	public Mono<String> processRemapCost(CostRemappersWrapper costRemappersWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId, @PathVariable(name = "costeId") String costeId) {
+		model.addAttribute("costRemappersWrapper", costRemappersWrapper);
+		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+		model.addAttribute("consulta", consulta);
+		model.addAttribute("propuestaId", propuestaId);
+		
+		return Mono.empty();
 	}
 	
 	@GetMapping("/allof/propid/{propuestaId}/edit")
