@@ -213,7 +213,7 @@ public class LineaController {
 			.then(Mono.just("processRemapCost"));
 	}
 	
-	@GetMapping("/allof/propid/{propuestaId}/edit")
+	@GetMapping("/allof/propid/{propuestaId}/edit") // TODO test with costs
 	public String editAllLinesOf(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		Mono<MultipleLineaWithAttListDto> lineaDtos = lineaUtilities.getWrappedLineasWithAttListDtoFromPropuestaId(propuestaId);
 		model.addAttribute("multipleLineaWithAttListDto", lineaDtos);
@@ -223,7 +223,7 @@ public class LineaController {
 		return "editAllLinesOf";
 	}
 	
-	@PostMapping("/allof/propid/{propuestaId}/edit")
+	@PostMapping("/allof/propid/{propuestaId}/edit") // TODO test with costs
 	public Mono<String> processEditAllLinesOf(MultipleLineaWithAttListDto multipleLineaWithAttListDto, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
 		model.addAttribute("consulta", consulta);

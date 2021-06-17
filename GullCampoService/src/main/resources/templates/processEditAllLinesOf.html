@@ -24,6 +24,11 @@
 					<th th:each="t : ${consulta.operations().getPropuestaById(propuestaId).getAttributeColumns()}">
 						<span th:text="${t.getName()}"></span>
 					</th>
+					<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'PROVEEDOR'}">
+					<th th:each="t, tstat : ${consulta.operations().getPropuestaById(propuestaId).getCostes()}">
+						<span th:text="${t.name}"></span>
+					</th>
+					</th:block>
 				</tr>
 			</thead>
 			<tbody>
@@ -34,6 +39,11 @@
 					<td th:each="t, tstat : ${consulta.operations().getPropuestaById(propuestaId).getAttributeColumns()}" class="field">
 						<span th:text="${a.linea.operations().getValueByAttId(t.getId())}" class="field-text"></span>
 					</td>
+					<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'PROVEEDOR'}">
+					<td th:each="t, tstat : ${consulta.operations().getPropuestaById(propuestaId).getCostes()}">
+						<span th:text="${a.linea.operations().getCosteByCosteId(t.getId()).value}"></span>
+					</td>
+					</th:block>
 				</tr>
 			</tbody>
 		</table>
