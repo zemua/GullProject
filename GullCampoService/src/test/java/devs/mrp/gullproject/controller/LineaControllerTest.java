@@ -741,6 +741,29 @@ class LineaControllerTest {
 			.contains(linea2Operations.getCampoByIndex(0).getDatosText())
 			.contains(linea2Operations.getCampoByIndex(1).getDatosText());
 		});
+		
+		addCosteToLineas();
+		webTestClient.get()
+		.uri("/lineas/deleteof/propid/" + propuestaProveedor.getId())
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+			.contains(propuestaProveedor.getNombre())
+			.contains("Lineas de la propuesta")
+			.contains("Borrar")
+			.contains(linea1.getNombre())
+			.contains(linea1Operations.getCampoByIndex(0).getDatosText())
+			.contains(linea1Operations.getCampoByIndex(1).getDatosText())
+			.contains(String.valueOf(linea1.getCostesProveedor().get(0).getValue()))
+			.contains(linea2.getNombre())
+			.contains(linea2Operations.getCampoByIndex(0).getDatosText())
+			.contains(linea2Operations.getCampoByIndex(1).getDatosText())
+			.contains(String.valueOf(linea2.getCostesProveedor().get(0).getValue()))
+			;
+		});
 	}
 	
 	@Test
@@ -774,6 +797,55 @@ class LineaControllerTest {
 				.with("lineas[1].campos[0].id", linea2.getCampos().get(1).getId())
 				.with("lineas[1].campos[0].atributoId", linea2.getCampos().get(1).getAtributoId())
 				.with("lineas[1].campos[0].datos", linea2.getCampos().get(1).getDatosText())
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+				.contains("Borrar Líneas")
+				.contains(linea1.getNombre())
+				.contains(String.valueOf(linea1.getCampos().size()))
+				.doesNotContain(linea2.getNombre())
+				.doesNotContain(linea1.getCampos().get(0).getDatosText())
+				;
+		});
+		
+		addCosteToLineas();
+		webTestClient.post()
+		.uri("/lineas/deleteof/propid/" + propuestaProveedor.getId())
+		.contentType(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("lineas[0].selected", "true")
+				.with("lineas[0].id", linea1.getId())
+				.with("lineas[0].nombre", linea1.getNombre())
+				.with("lineas[0].propuestaId", linea1.getPropuestaId())
+				
+				.with("lineas[0].campos[0].id", linea1.getCampos().get(0).getId())
+				.with("lineas[0].campos[0].atributoId", linea1.getCampos().get(0).getAtributoId())
+				.with("lineas[0].campos[0].datos", linea1.getCampos().get(0).getDatosText())
+				
+				.with("lineas[0].campos[0].id", linea1.getCampos().get(1).getId())
+				.with("lineas[0].campos[0].atributoId", linea1.getCampos().get(1).getAtributoId())
+				.with("lineas[0].campos[0].datos", linea1.getCampos().get(1).getDatosText())
+				
+				.with("lineas[0].costesProveedor[0].value", String.valueOf(linea1.getCostesProveedor().get(0).getValue()))
+				.with("lineas[0].costesProveedor[0].costeProveedorId", linea1.getCostesProveedor().get(0).getCosteProveedorId())
+				
+				.with("lineas[1].selected", "false")
+				.with("lineas[1].id", linea2.getId())
+				.with("lineas[1].nombre", linea2.getNombre())
+				.with("lineas[1].propuestaId", linea2.getPropuestaId())
+				
+				.with("lineas[1].campos[0].id", linea2.getCampos().get(0).getId())
+				.with("lineas[1].campos[0].atributoId", linea2.getCampos().get(0).getAtributoId())
+				.with("lineas[1].campos[0].datos", linea2.getCampos().get(0).getDatosText())
+				
+				.with("lineas[1].campos[0].id", linea2.getCampos().get(1).getId())
+				.with("lineas[1].campos[0].atributoId", linea2.getCampos().get(1).getAtributoId())
+				.with("lineas[1].campos[0].datos", linea2.getCampos().get(1).getDatosText())
+				
+				.with("lineas[1].costesProveedor[0].value", String.valueOf(linea2.getCostesProveedor().get(0).getValue()))
+				.with("lineas[1].costesProveedor[0].costeProveedorId", linea2.getCostesProveedor().get(0).getCosteProveedorId())
 				)
 		.exchange()
 		.expectStatus().isOk()

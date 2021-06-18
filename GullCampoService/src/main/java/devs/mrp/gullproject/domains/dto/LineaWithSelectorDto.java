@@ -18,7 +18,7 @@ public class LineaWithSelectorDto {
 	String counterLineId;
 	Integer order;
 	List<Campo<?>> campos;
-	List<CosteLineaProveedor> costes;
+	List<CosteLineaProveedor> costesProveedor;
 	
 	Boolean selected;
 	
@@ -43,7 +43,7 @@ public class LineaWithSelectorDto {
 	}
 	
 	public CosteLineaProveedor getCosteByCosteId(String costeId) {
-		Optional<CosteLineaProveedor> csot = costes.stream().filter(c -> c.getCosteProveedorId().equals(costeId)).findAny();
+		Optional<CosteLineaProveedor> csot = costesProveedor.stream().filter(c -> c.getCosteProveedorId().equals(costeId)).findAny();
 		return csot.orElse(new CosteLineaProveedor(costeId));
 	}
 	
