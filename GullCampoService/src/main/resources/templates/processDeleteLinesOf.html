@@ -24,6 +24,9 @@
 				<tr>
 					<th>Nombre</th>
 					<th th:each="t : ${consulta.operations().getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${t.getName()}"></span></th>
+					<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'PROVEEDOR'}">
+					<td th:each="t : ${consulta.operations().getPropuestaById(propuestaId).costes}"><span th:text="${t.name}"></span></td>
+					</th:block>
 				</tr>
 				<tr th:each="a, stat : *{lineas}">
 					<td>
@@ -34,6 +37,9 @@
 						<input type="hidden" th:field="*{lineas[__${stat.index}__].propuestaId}" />
 					</td>
 					<td th:each="t : ${consulta.operations().getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${a.getValueByAttId(t.getId())}"></span></td>
+					<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'PROVEEDOR'}">
+					<td th:each="t : ${consulta.operations().getPropuestaById(propuestaId).costes}"><span th:text="${a.getCosteByCosteId(t.getId()).value}"></span></td>
+					</th:block>
 				</tr>
 			</table>
 		</div>

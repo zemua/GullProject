@@ -25,6 +25,9 @@
 					<th>Nombre</th>
 					<th>Borrar</th>
 					<th th:each="t : ${consulta.operations().getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${t.getName()}"></span></th>
+					<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'PROVEEDOR'}">
+					<td th:each="t : ${consulta.operations().getPropuestaById(propuestaId).costes}"><span th:text="${t.name}"></span></td>
+					</th:block>
 				</tr>
 				<tr th:each="a, stat : *{lineas}">
 					<td th:text="${a.nombre}"></td>
@@ -40,6 +43,13 @@
 						</div>
 					</td>
 					<td th:each="t : ${consulta.operations().getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${a.getValueByAttId(t.getId())}"></span></td>
+					<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'PROVEEDOR'}">
+					<td th:each="t, tstat : ${consulta.operations().getPropuestaById(propuestaId).costes}">
+						<span th:text="${a.getCosteByCosteId(t.getId()).value}"></span>
+						<input type="hidden" th:field="*{lineas[__${stat.index}__].costes[__${tstat.index}__].value}"/>
+						<input type="hidden" th:field="*{lineas[__${stat.index}__].costes[__${tstat.index}__].costeProveedorId}"/>
+					</td>
+					</th:block>
 				</tr>
 			</table>
 		</div>

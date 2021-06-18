@@ -443,7 +443,7 @@ public class LineaController {
 		return "processDeleteLinea";
 	}
 
-	@GetMapping("/deleteof/propid/{propuestaId}")
+	@GetMapping("/deleteof/propid/{propuestaId}") // TODO test with costs
 	public String deleteLinesOf(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		Mono<WrapLineasWithSelectorDto> lineas = lineaUtilities.getWrappedLinesWithSelectorFromPropuestaId(propuestaId);
 		model.addAttribute("wrapLineasWithSelectorDto", lineas);
@@ -453,7 +453,7 @@ public class LineaController {
 		return "deleteLinesOf";
 	}
 
-	@PostMapping("/deleteof/propid/{propuestaId}")
+	@PostMapping("/deleteof/propid/{propuestaId}") // TODO test with costs
 	public String processDeleteLinesOf(WrapLineasWithSelectorDto wrapLineasWithSelectorDto, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		model.addAttribute("propuestaId", propuestaId);
 		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
