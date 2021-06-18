@@ -25,13 +25,11 @@
 					<th>Nombre</th>
 					<th>Estado</th>
 					<th>Creado</th>
-					<!-- <th>Editado</th> -->
 				</tr>
 				<tr>
 					<td th:text="${consulta.nombre}"></td>
 					<td th:text="${consulta.status}"></td>
 					<td th:text="${consulta.createdTime} ? ${#dates.format(new java.util.Date(consulta.createdTime), 'dd/MM/yyyy - HH:mm')} : '-'"></td>
-					<!-- <td th:text="${consulta.editedTime} ? ${#dates.format(new java.util.Date(consulta.editedTime), 'dd/MM/yyyy - HH:mm')} : '-'"></td> -->
 					<td><a th:href="${'/consultas/revisar/id/' + consulta.id + '/edit'}">Editar detalles</a></td>
 				</tr>
 			</table>
@@ -44,21 +42,24 @@
 					<th>Propuesta de Cliente</th>
 					<th>Lineas</th>
 					<th>Atributos</th>
+					<th>Costes</th>
 				</tr>
 				<tr>
 					<td><a th:href="${'/consultas/editar/propcli/' + pie.propuestaCliente.id}" th:text="${pie.propuestaCliente.nombre}">Consulta Cliente</a></td>
 					<td><a th:href="${'/lineas/allof/propid/' + pie.propuestaCliente.id}"><span th:text="${pie.propuestaCliente.lineaIds.size}">revisar lineas</span></a></td>
 					<td><a th:href="${'/consultas/attof/propid/' + pie.propuestaCliente.id}"><span th:text="${pie.propuestaCliente.attributeColumns.size}">revisar atributos</span></a></td>
+					<td><span>-</span></td>
 				</tr>
 				<tr>
 					<td colspan="1"><a th:href="${'/consultas/revisar/id/' + consulta.id + '/onprop/' + pie.propuestaCliente.id + '/addcotizacionproveedor'}"><span>Añadir cotización de proveedor</span></a></td>
-					<td colspan="2"><a th:href="${'/consultas/revisar/id/' + consulta.id + '/onprop/' + pie.propuestaCliente.id + '/addcotizacionnuestra'}"><span>Añadir oferta nuestra</span></a></td>
+					<td colspan="3"><a th:href="${'/consultas/revisar/id/' + consulta.id + '/onprop/' + pie.propuestaCliente.id + '/addcotizacionnuestra'}"><span>Añadir oferta nuestra</span></a></td>
 				</tr>
-				<tr th:if="${pie.propuestasProveedores.size() > 0}"><td colspan="3" class="texto-centro"><span>Respuestas de Proveedores</span></td></tr>
+				<tr th:if="${pie.propuestasProveedores.size() > 0}"><td colspan="4" class="texto-centro"><span>Respuestas de Proveedores</span></td></tr>
 				<tr th:each="proveedor : ${pie.propuestasProveedores}">
 					<td><a th:text="${proveedor.nombre}" th:href="${'/consultas/editar/propcli/' + proveedor.id}"></a></td>
 					<td><a th:href="${'/lineas/allof/propid/' + proveedor.id}"><span th:text="${proveedor.lineaIds.size}">revisar lineas</span></a></td>
 					<td><a th:href="${'/consultas/attof/propid/' + proveedor.id}"><span th:text="${proveedor.attributeColumns.size}">revisar atributos</span></a></td>
+					<td><a th:href="${'/consultas/costof/propid/' + proveedor.id}"><span th:text="${proveedor.costes.size}">revisar costes</span></a></td>
 				</tr>
 			</table>
 		</div>

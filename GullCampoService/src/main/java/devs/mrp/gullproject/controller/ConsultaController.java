@@ -21,12 +21,14 @@ import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AttributesListDto;
 import devs.mrp.gullproject.domains.dto.ConsultaPropuestaBorrables;
+import devs.mrp.gullproject.domains.dto.CostesWrapper;
 import devs.mrp.gullproject.domains.dto.ProposalPie;
 import devs.mrp.gullproject.domains.dto.WrapAtributosForCampoDto;
 import devs.mrp.gullproject.domains.dto.WrapPropuestaClienteAndSelectableAttributes;
@@ -34,6 +36,7 @@ import devs.mrp.gullproject.domains.dto.WrapPropuestaProveedorAndSelectableAttri
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaService;
+import devs.mrp.gullproject.service.PropuestaProveedorOperations;
 import devs.mrp.gullproject.service.PropuestaUtilities;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -311,6 +314,49 @@ public class ConsultaController {
 		model.addAttribute("propuesta", p);
 		model.addAttribute("consultaId", consultaId);
 		return "processAddPropuestaToConsulta";
+	}
+	
+	@GetMapping("/costof/propid/{id}") // TODO test
+	public String showCostsOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
+		model.addAttribute("propuestaId", proposalId);
+		Flux<CosteProveedor> afc = consultaService.findCostesByPropuestaId(proposalId);
+		model.addAttribute("costes", new ReactiveDataDriverContextVariable(afc, 1));
+		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(proposalId);
+		model.addAttribute("consulta", consulta);
+		return "showCostsOfProposal";
+	}
+	
+	@GetMapping("/costof/propid/{id}/edit") // TODO test
+	public Mono<String> editCostsOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
+		model.addAttribute("propuestaId", proposalId);
+		return consultaService.findConsultaByPropuestaId(proposalId)
+			.map(cons -> {
+				Propuesta prop = cons.operations().getPropuestaById(proposalId);
+				model.addAttribute("consulta", cons);
+				model.addAttribute("propuesta", prop);
+				model.addAttribute("costesWrapper", new CostesWrapper(((PropuestaProveedor)prop).getCostes()));
+				return "editCostOfProposal";
+			})
+			;
+	}
+	
+	@PostMapping("/costof/propid/{id}/edit") // TODO test
+	public Mono<String> editCostOfProposal(CostesWrapper costesWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "id") String proposalId) {
+		model.addAttribute("propuestaId", proposalId);
+		PropuestaProveedorOperations.validateCosts(costesWrapper, bindingResult);
+		if (bindingResult.hasErrors()) {
+			return consultaService.findConsultaByPropuestaId(proposalId)
+					.map(cons -> {
+						Propuesta prop = cons.operations().getPropuestaById(proposalId);
+						model.addAttribute("consulta", cons);
+						model.addAttribute("propuesta", prop);
+						model.addAttribute("costesWrapper", costesWrapper);
+						return "editCostOfProposal";
+					})
+					;
+		} else {
+			return Mono.just("");
+		}
 	}
 	
 }

@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Propuesta;
+import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.repository.ConsultaRepo;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -77,6 +79,17 @@ public class ConsultaService {
 	public Flux<AtributoForCampo> findAttributesByPropuestaId(String propuestaId) {
 		Flux<AtributoForCampo> flux = findPropuestaByPropuestaId(propuestaId).flatMapMany(prop -> Flux.fromIterable(prop.getAttributeColumns()));
 		return flux;
+	}
+	
+	public Flux<CosteProveedor> findCostesByPropuestaId(String propuestaId) {
+		return findPropuestaByPropuestaId(propuestaId).flatMapMany(prop -> {
+			if (prop instanceof PropuestaProveedor) {
+				return Flux.fromIterable(((PropuestaProveedor)prop).getCostes());
+			}
+			else {
+				return Flux.empty();
+			}
+		});
 	}
 	
 	public Mono<Consulta> updateAttributesOfPropuesta(String idPropuesta, List<AtributoForCampo> attributes) {
