@@ -1131,6 +1131,27 @@ class LineaControllerTest {
 				;
 			})
 			;
+		
+		addCosteToLineas();
+		webTestClient.get()
+		.uri("/lineas/allof/propid/" + propuestaProveedor.getId() + "/edit")
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+			.contains(propuestaProveedor.getNombre())
+			.contains("Editar lineas de la propuesta")
+			.contains(linea1.getNombre())
+			.contains(linea1Operations.getCampoByIndex(0).getDatosText())
+			.contains(String.valueOf(linea1.getCostesProveedor().get(0).getValue()))
+			.contains(linea2.getNombre())
+			.contains(linea2Operations.getCampoByIndex(1).getDatosText())
+			.contains(String.valueOf(linea2.getCostesProveedor().get(0).getValue()))
+			;
+		})
+		;
 	}
 	
 	@Test
@@ -1208,150 +1229,233 @@ class LineaControllerTest {
 			;
 			
 			
-			log.debug("should fail name validation");
-			webTestClient.post()
-				.uri("/lineas/allof/propid/" + propuesta.getId() + "/edit")
-				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-				.accept(MediaType.TEXT_HTML)
-				.body(BodyInserters.fromFormData("lineaWithAttListDtos[0].linea.nombre", "")
-						.with("lineaWithAttListDtos[0].linea.id", linea1.getId())
-						.with("lineaWithAttListDtos[0].linea.propuestaId", linea1.getPropuestaId())
-						.with("lineaWithAttListDtos[0].linea.order", String.valueOf(linea1.getOrder()))
-						
-						.with("lineaWithAttListDtos[1].linea.nombre", linea2.getNombre())
-						.with("lineaWithAttListDtos[1].linea.id", linea2.getId())
-						.with("lineaWithAttListDtos[1].linea.propuestaId", linea2.getPropuestaId())
-						.with("lineaWithAttListDtos[1].linea.order", String.valueOf(linea2.getOrder()))
-						
-						.with("lineaWithAttListDtos[0].attributes[0].value", campo1a.getDatosText())
-						.with("lineaWithAttListDtos[0].attributes[0].localIdentifier", atributo1.getLocalIdentifier())
-						.with("lineaWithAttListDtos[0].attributes[0].id", atributo1.getId())
-						.with("lineaWithAttListDtos[0].attributes[0].name", atributo1.getName())
-						.with("lineaWithAttListDtos[0].attributes[0].tipo", atributo1.getTipo())
-						
-						.with("lineaWithAttListDtos[0].attributes[1].value", campo1b.getDatosText())
-						.with("lineaWithAttListDtos[0].attributes[1].localIdentifier", atributo2.getLocalIdentifier())
-						.with("lineaWithAttListDtos[0].attributes[1].id", atributo2.getId())
-						.with("lineaWithAttListDtos[0].attributes[1].name", atributo2.getName())
-						.with("lineaWithAttListDtos[0].attributes[1].tipo", atributo2.getTipo())
-						
-						.with("lineaWithAttListDtos[1].attributes[0].value", campo2a.getDatosText())
-						.with("lineaWithAttListDtos[1].attributes[0].localIdentifier", atributo1.getLocalIdentifier())
-						.with("lineaWithAttListDtos[1].attributes[0].id", atributo1.getId())
-						.with("lineaWithAttListDtos[1].attributes[0].name", atributo1.getName())
-						.with("lineaWithAttListDtos[1].attributes[0].tipo", atributo1.getTipo())
-						
-						.with("lineaWithAttListDtos[1].attributes[1].value", campo2b.getDatosText())
-						.with("lineaWithAttListDtos[1].attributes[1].localIdentifier", atributo2.getLocalIdentifier())
-						.with("lineaWithAttListDtos[1].attributes[1].id", atributo2.getId())
-						.with("lineaWithAttListDtos[1].attributes[1].name", atributo2.getName())
-						.with("lineaWithAttListDtos[1].attributes[1].tipo", atributo2.getTipo())
-						
-						.with("lineaWithAttListDtos[0].linea.campos[0].id", campo1a.getId())
-						.with("lineaWithAttListDtos[0].linea.campos[0].atributoId", campo1a.getAtributoId())
-						.with("lineaWithAttListDtos[0].linea.campos[0].datos", campo1a.getDatosText())
-						
-						.with("lineaWithAttListDtos[0].linea.campos[1].id", campo1b.getId())
-						.with("lineaWithAttListDtos[0].linea.campos[1].atributoId", campo1b.getAtributoId())
-						.with("lineaWithAttListDtos[0].linea.campos[1].datos", campo1b.getDatosText())
-						
-						.with("lineaWithAttListDtos[1].linea.campos[0].id", campo2a.getId())
-						.with("lineaWithAttListDtos[1].linea.campos[0].atributoId", campo2a.getAtributoId())
-						.with("lineaWithAttListDtos[1].linea.campos[0].datos", campo2a.getDatosText())
-						
-						.with("lineaWithAttListDtos[1].linea.campos[1].id", campo2b.getId())
-						.with("lineaWithAttListDtos[1].linea.campos[1].atributoId", campo2b.getAtributoId())
-						.with("lineaWithAttListDtos[1].linea.campos[1].datos", campo2b.getDatosText())
-						)
-				.exchange()
-				.expectStatus().isOk()
-				.expectBody()
-				.consumeWith(response -> {
-					Assertions.assertThat(response.getResponseBody()).asString()
-					.doesNotContain(linea1.getNombre())
-					.contains(linea2.getNombre())
-					.contains(campo1a.getDatosText())
-					.contains(campo1b.getDatosText())
-					.contains(campo2a.getDatosText())
-					.contains(campo2b.getDatosText())
-					.contains("Editar lineas de la propuesta")
-					.contains("Corrige los errores")
-					.contains("Guardar");
-				});
-				;
-				
-				
-				log.debug("should fail field validation");
-				webTestClient.post()
-					.uri("/lineas/allof/propid/" + propuesta.getId() + "/edit")
-					.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-					.accept(MediaType.TEXT_HTML)
-					.body(BodyInserters.fromFormData("lineaWithAttListDtos[0].linea.nombre", linea1.getNombre())
-							.with("lineaWithAttListDtos[0].linea.id", linea1.getId())
-							.with("lineaWithAttListDtos[0].linea.propuestaId", linea1.getPropuestaId())
-							.with("lineaWithAttListDtos[0].linea.order", String.valueOf(linea1.getOrder()))
-							
-							.with("lineaWithAttListDtos[1].linea.nombre", linea2.getNombre())
-							.with("lineaWithAttListDtos[1].linea.id", linea2.getId())
-							.with("lineaWithAttListDtos[1].linea.propuestaId", linea2.getPropuestaId())
-							.with("lineaWithAttListDtos[1].linea.order", String.valueOf(linea2.getOrder()))
-							
-							.with("lineaWithAttListDtos[0].attributes[0].value", campo1a.getDatosText())
-							.with("lineaWithAttListDtos[0].attributes[0].localIdentifier", atributo1.getLocalIdentifier())
-							.with("lineaWithAttListDtos[0].attributes[0].id", atributo1.getId())
-							.with("lineaWithAttListDtos[0].attributes[0].name", atributo1.getName())
-							.with("lineaWithAttListDtos[0].attributes[0].tipo", atributo1.getTipo())
-							
-							.with("lineaWithAttListDtos[0].attributes[1].value", "asdf")
-							.with("lineaWithAttListDtos[0].attributes[1].localIdentifier", atributo2.getLocalIdentifier())
-							.with("lineaWithAttListDtos[0].attributes[1].id", atributo2.getId())
-							.with("lineaWithAttListDtos[0].attributes[1].name", atributo2.getName())
-							.with("lineaWithAttListDtos[0].attributes[1].tipo", atributo2.getTipo())
-							
-							.with("lineaWithAttListDtos[1].attributes[0].value", campo2a.getDatosText())
-							.with("lineaWithAttListDtos[1].attributes[0].localIdentifier", atributo1.getLocalIdentifier())
-							.with("lineaWithAttListDtos[1].attributes[0].id", atributo1.getId())
-							.with("lineaWithAttListDtos[1].attributes[0].name", atributo1.getName())
-							.with("lineaWithAttListDtos[1].attributes[0].tipo", atributo1.getTipo())
-							
-							.with("lineaWithAttListDtos[1].attributes[1].value", campo2b.getDatosText())
-							.with("lineaWithAttListDtos[1].attributes[1].localIdentifier", atributo2.getLocalIdentifier())
-							.with("lineaWithAttListDtos[1].attributes[1].id", atributo2.getId())
-							.with("lineaWithAttListDtos[1].attributes[1].name", atributo2.getName())
-							.with("lineaWithAttListDtos[1].attributes[1].tipo", atributo2.getTipo())
-							
-							.with("lineaWithAttListDtos[0].linea.campos[0].id", campo1a.getId())
-							.with("lineaWithAttListDtos[0].linea.campos[0].atributoId", campo1a.getAtributoId())
-							.with("lineaWithAttListDtos[0].linea.campos[0].datos", campo1a.getDatosText())
-							
-							.with("lineaWithAttListDtos[0].linea.campos[1].id", campo1b.getId())
-							.with("lineaWithAttListDtos[0].linea.campos[1].atributoId", campo1b.getAtributoId())
-							.with("lineaWithAttListDtos[0].linea.campos[1].datos", "asdf")
-							
-							.with("lineaWithAttListDtos[1].linea.campos[0].id", campo2a.getId())
-							.with("lineaWithAttListDtos[1].linea.campos[0].atributoId", campo2a.getAtributoId())
-							.with("lineaWithAttListDtos[1].linea.campos[0].datos", campo2a.getDatosText())
-							
-							.with("lineaWithAttListDtos[1].linea.campos[1].id", campo2b.getId())
-							.with("lineaWithAttListDtos[1].linea.campos[1].atributoId", campo2b.getAtributoId())
-							.with("lineaWithAttListDtos[1].linea.campos[1].datos", campo2b.getDatosText())
-							)
-					.exchange()
-					.expectStatus().isOk()
-					.expectBody()
-					.consumeWith(response -> {
-						Assertions.assertThat(response.getResponseBody()).asString()
-						.contains(linea1.getNombre())
-						.contains(linea2.getNombre())
-						.contains(campo1a.getDatosText())
-						.contains("asdf")
-						.contains(campo2a.getDatosText())
-						.contains(campo2b.getDatosText())
-						.contains("Editar lineas de la propuesta")
-						.contains("Corrige los errores")
-						.contains("Guardar");
-					});
-					;
+		log.debug("should fail name validation");
+		webTestClient.post()
+			.uri("/lineas/allof/propid/" + propuesta.getId() + "/edit")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("lineaWithAttListDtos[0].linea.nombre", "")
+					.with("lineaWithAttListDtos[0].linea.id", linea1.getId())
+					.with("lineaWithAttListDtos[0].linea.propuestaId", linea1.getPropuestaId())
+					.with("lineaWithAttListDtos[0].linea.order", String.valueOf(linea1.getOrder()))
+					
+					.with("lineaWithAttListDtos[1].linea.nombre", linea2.getNombre())
+					.with("lineaWithAttListDtos[1].linea.id", linea2.getId())
+					.with("lineaWithAttListDtos[1].linea.propuestaId", linea2.getPropuestaId())
+					.with("lineaWithAttListDtos[1].linea.order", String.valueOf(linea2.getOrder()))
+					
+					.with("lineaWithAttListDtos[0].attributes[0].value", campo1a.getDatosText())
+					.with("lineaWithAttListDtos[0].attributes[0].localIdentifier", atributo1.getLocalIdentifier())
+					.with("lineaWithAttListDtos[0].attributes[0].id", atributo1.getId())
+					.with("lineaWithAttListDtos[0].attributes[0].name", atributo1.getName())
+					.with("lineaWithAttListDtos[0].attributes[0].tipo", atributo1.getTipo())
+					
+					.with("lineaWithAttListDtos[0].attributes[1].value", campo1b.getDatosText())
+					.with("lineaWithAttListDtos[0].attributes[1].localIdentifier", atributo2.getLocalIdentifier())
+					.with("lineaWithAttListDtos[0].attributes[1].id", atributo2.getId())
+					.with("lineaWithAttListDtos[0].attributes[1].name", atributo2.getName())
+					.with("lineaWithAttListDtos[0].attributes[1].tipo", atributo2.getTipo())
+					
+					.with("lineaWithAttListDtos[1].attributes[0].value", campo2a.getDatosText())
+					.with("lineaWithAttListDtos[1].attributes[0].localIdentifier", atributo1.getLocalIdentifier())
+					.with("lineaWithAttListDtos[1].attributes[0].id", atributo1.getId())
+					.with("lineaWithAttListDtos[1].attributes[0].name", atributo1.getName())
+					.with("lineaWithAttListDtos[1].attributes[0].tipo", atributo1.getTipo())
+					
+					.with("lineaWithAttListDtos[1].attributes[1].value", campo2b.getDatosText())
+					.with("lineaWithAttListDtos[1].attributes[1].localIdentifier", atributo2.getLocalIdentifier())
+					.with("lineaWithAttListDtos[1].attributes[1].id", atributo2.getId())
+					.with("lineaWithAttListDtos[1].attributes[1].name", atributo2.getName())
+					.with("lineaWithAttListDtos[1].attributes[1].tipo", atributo2.getTipo())
+					
+					.with("lineaWithAttListDtos[0].linea.campos[0].id", campo1a.getId())
+					.with("lineaWithAttListDtos[0].linea.campos[0].atributoId", campo1a.getAtributoId())
+					.with("lineaWithAttListDtos[0].linea.campos[0].datos", campo1a.getDatosText())
+					
+					.with("lineaWithAttListDtos[0].linea.campos[1].id", campo1b.getId())
+					.with("lineaWithAttListDtos[0].linea.campos[1].atributoId", campo1b.getAtributoId())
+					.with("lineaWithAttListDtos[0].linea.campos[1].datos", campo1b.getDatosText())
+					
+					.with("lineaWithAttListDtos[1].linea.campos[0].id", campo2a.getId())
+					.with("lineaWithAttListDtos[1].linea.campos[0].atributoId", campo2a.getAtributoId())
+					.with("lineaWithAttListDtos[1].linea.campos[0].datos", campo2a.getDatosText())
+					
+					.with("lineaWithAttListDtos[1].linea.campos[1].id", campo2b.getId())
+					.with("lineaWithAttListDtos[1].linea.campos[1].atributoId", campo2b.getAtributoId())
+					.with("lineaWithAttListDtos[1].linea.campos[1].datos", campo2b.getDatosText())
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+				.doesNotContain(linea1.getNombre())
+				.contains(linea2.getNombre())
+				.contains(campo1a.getDatosText())
+				.contains(campo1b.getDatosText())
+				.contains(campo2a.getDatosText())
+				.contains(campo2b.getDatosText())
+				.contains("Editar lineas de la propuesta")
+				.contains("Corrige los errores")
+				.contains("Guardar");
+			});
+			;
+			
+			
+		log.debug("should fail field validation");
+		webTestClient.post()
+			.uri("/lineas/allof/propid/" + propuesta.getId() + "/edit")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("lineaWithAttListDtos[0].linea.nombre", linea1.getNombre())
+					.with("lineaWithAttListDtos[0].linea.id", linea1.getId())
+					.with("lineaWithAttListDtos[0].linea.propuestaId", linea1.getPropuestaId())
+					.with("lineaWithAttListDtos[0].linea.order", String.valueOf(linea1.getOrder()))
+					
+					.with("lineaWithAttListDtos[1].linea.nombre", linea2.getNombre())
+					.with("lineaWithAttListDtos[1].linea.id", linea2.getId())
+					.with("lineaWithAttListDtos[1].linea.propuestaId", linea2.getPropuestaId())
+					.with("lineaWithAttListDtos[1].linea.order", String.valueOf(linea2.getOrder()))
+					
+					.with("lineaWithAttListDtos[0].attributes[0].value", campo1a.getDatosText())
+					.with("lineaWithAttListDtos[0].attributes[0].localIdentifier", atributo1.getLocalIdentifier())
+					.with("lineaWithAttListDtos[0].attributes[0].id", atributo1.getId())
+					.with("lineaWithAttListDtos[0].attributes[0].name", atributo1.getName())
+					.with("lineaWithAttListDtos[0].attributes[0].tipo", atributo1.getTipo())
+					
+					.with("lineaWithAttListDtos[0].attributes[1].value", "asdf")
+					.with("lineaWithAttListDtos[0].attributes[1].localIdentifier", atributo2.getLocalIdentifier())
+					.with("lineaWithAttListDtos[0].attributes[1].id", atributo2.getId())
+					.with("lineaWithAttListDtos[0].attributes[1].name", atributo2.getName())
+					.with("lineaWithAttListDtos[0].attributes[1].tipo", atributo2.getTipo())
+					
+					.with("lineaWithAttListDtos[1].attributes[0].value", campo2a.getDatosText())
+					.with("lineaWithAttListDtos[1].attributes[0].localIdentifier", atributo1.getLocalIdentifier())
+					.with("lineaWithAttListDtos[1].attributes[0].id", atributo1.getId())
+					.with("lineaWithAttListDtos[1].attributes[0].name", atributo1.getName())
+					.with("lineaWithAttListDtos[1].attributes[0].tipo", atributo1.getTipo())
+					
+					.with("lineaWithAttListDtos[1].attributes[1].value", campo2b.getDatosText())
+					.with("lineaWithAttListDtos[1].attributes[1].localIdentifier", atributo2.getLocalIdentifier())
+					.with("lineaWithAttListDtos[1].attributes[1].id", atributo2.getId())
+					.with("lineaWithAttListDtos[1].attributes[1].name", atributo2.getName())
+					.with("lineaWithAttListDtos[1].attributes[1].tipo", atributo2.getTipo())
+					
+					.with("lineaWithAttListDtos[0].linea.campos[0].id", campo1a.getId())
+					.with("lineaWithAttListDtos[0].linea.campos[0].atributoId", campo1a.getAtributoId())
+					.with("lineaWithAttListDtos[0].linea.campos[0].datos", campo1a.getDatosText())
+					
+					.with("lineaWithAttListDtos[0].linea.campos[1].id", campo1b.getId())
+					.with("lineaWithAttListDtos[0].linea.campos[1].atributoId", campo1b.getAtributoId())
+					.with("lineaWithAttListDtos[0].linea.campos[1].datos", "asdf")
+					
+					.with("lineaWithAttListDtos[1].linea.campos[0].id", campo2a.getId())
+					.with("lineaWithAttListDtos[1].linea.campos[0].atributoId", campo2a.getAtributoId())
+					.with("lineaWithAttListDtos[1].linea.campos[0].datos", campo2a.getDatosText())
+					
+					.with("lineaWithAttListDtos[1].linea.campos[1].id", campo2b.getId())
+					.with("lineaWithAttListDtos[1].linea.campos[1].atributoId", campo2b.getAtributoId())
+					.with("lineaWithAttListDtos[1].linea.campos[1].datos", campo2b.getDatosText())
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+				.contains(linea1.getNombre())
+				.contains(linea2.getNombre())
+				.contains(campo1a.getDatosText())
+				.contains("asdf")
+				.contains(campo2a.getDatosText())
+				.contains(campo2b.getDatosText())
+				.contains("Editar lineas de la propuesta")
+				.contains("Corrige los errores")
+				.contains("Guardar");
+			});
+			;
+					
+		addCosteToLineas();
+		log.debug("should be ok with costs");
+		webTestClient.post()
+			.uri("/lineas/allof/propid/" + propuestaProveedor.getId() + "/edit")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("lineaWithAttListDtos[0].linea.nombre", linea1.getNombre())
+					.with("lineaWithAttListDtos[0].linea.id", linea1.getId())
+					.with("lineaWithAttListDtos[0].linea.propuestaId", linea1.getPropuestaId())
+					.with("lineaWithAttListDtos[0].linea.order", String.valueOf(linea1.getOrder()))
+					
+					.with("lineaWithAttListDtos[1].linea.nombre", linea2.getNombre())
+					.with("lineaWithAttListDtos[1].linea.id", linea2.getId())
+					.with("lineaWithAttListDtos[1].linea.propuestaId", linea2.getPropuestaId())
+					.with("lineaWithAttListDtos[1].linea.order", String.valueOf(linea2.getOrder()))
+					
+					.with("lineaWithAttListDtos[0].attributes[0].value", campo1a.getDatosText())
+					.with("lineaWithAttListDtos[0].attributes[0].localIdentifier", atributo1.getLocalIdentifier())
+					.with("lineaWithAttListDtos[0].attributes[0].id", atributo1.getId())
+					.with("lineaWithAttListDtos[0].attributes[0].name", atributo1.getName())
+					.with("lineaWithAttListDtos[0].attributes[0].tipo", atributo1.getTipo())
+					
+					.with("lineaWithAttListDtos[0].attributes[1].value", campo1b.getDatosText())
+					.with("lineaWithAttListDtos[0].attributes[1].localIdentifier", atributo2.getLocalIdentifier())
+					.with("lineaWithAttListDtos[0].attributes[1].id", atributo2.getId())
+					.with("lineaWithAttListDtos[0].attributes[1].name", atributo2.getName())
+					.with("lineaWithAttListDtos[0].attributes[1].tipo", atributo2.getTipo())
+					
+					.with("lineaWithAttListDtos[0].costesProveedor[0].value", "963.85")
+					.with("lineaWithAttListDtos[0].costesProveedor[0].id", linea1.getCostesProveedor().get(0).getCosteProveedorId())
+					.with("lineaWithAttListDtos[0].costesProveedor[0].name", ((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getName())
+					
+					.with("lineaWithAttListDtos[1].attributes[0].value", campo2a.getDatosText())
+					.with("lineaWithAttListDtos[1].attributes[0].localIdentifier", atributo1.getLocalIdentifier())
+					.with("lineaWithAttListDtos[1].attributes[0].id", atributo1.getId())
+					.with("lineaWithAttListDtos[1].attributes[0].name", atributo1.getName())
+					.with("lineaWithAttListDtos[1].attributes[0].tipo", atributo1.getTipo())
+					
+					.with("lineaWithAttListDtos[1].attributes[1].value", campo2b.getDatosText())
+					.with("lineaWithAttListDtos[1].attributes[1].localIdentifier", atributo2.getLocalIdentifier())
+					.with("lineaWithAttListDtos[1].attributes[1].id", atributo2.getId())
+					.with("lineaWithAttListDtos[1].attributes[1].name", atributo2.getName())
+					.with("lineaWithAttListDtos[1].attributes[1].tipo", atributo2.getTipo())
+					
+					.with("lineaWithAttListDtos[0].costesProveedor[0].value", "741.85")
+					.with("lineaWithAttListDtos[0].costesProveedor[0].id", linea1.getCostesProveedor().get(0).getCosteProveedorId())
+					.with("lineaWithAttListDtos[0].costesProveedor[0].name", ((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getName())
+					
+					.with("lineaWithAttListDtos[0].linea.campos[0].id", campo1a.getId())
+					.with("lineaWithAttListDtos[0].linea.campos[0].atributoId", campo1a.getAtributoId())
+					.with("lineaWithAttListDtos[0].linea.campos[0].datos", campo1a.getDatosText())
+					
+					.with("lineaWithAttListDtos[0].linea.campos[1].id", campo1b.getId())
+					.with("lineaWithAttListDtos[0].linea.campos[1].atributoId", campo1b.getAtributoId())
+					.with("lineaWithAttListDtos[0].linea.campos[1].datos", campo1b.getDatosText())
+					
+					.with("lineaWithAttListDtos[1].linea.campos[0].id", campo2a.getId())
+					.with("lineaWithAttListDtos[1].linea.campos[0].atributoId", campo2a.getAtributoId())
+					.with("lineaWithAttListDtos[1].linea.campos[0].datos", campo2a.getDatosText())
+					
+					.with("lineaWithAttListDtos[1].linea.campos[1].id", campo2b.getId())
+					.with("lineaWithAttListDtos[1].linea.campos[1].atributoId", campo2b.getAtributoId())
+					.with("lineaWithAttListDtos[1].linea.campos[1].datos", campo2b.getDatosText())
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+				.contains(linea1.getNombre())
+				.contains(linea2.getNombre())
+				.contains(campo1a.getDatosText())
+				.contains(campo1b.getDatosText())
+				.contains(campo2a.getDatosText())
+				.contains(campo2b.getDatosText())
+				.contains(String.valueOf(linea1.getCostesProveedor().get(0).getValue()))
+				.contains(String.valueOf(linea2.getCostesProveedor().get(0).getValue()))
+				.contains("Editar lineas de la propuesta")
+				.doesNotContain("Corrige los errores")
+				.doesNotContain("Guardar");
+			});
+			;
 	}
 	
 	@Test
