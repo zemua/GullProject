@@ -1,7 +1,9 @@
 package devs.mrp.gullproject.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +12,7 @@ import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
+import devs.mrp.gullproject.domains.dto.CostesCheckboxWrapper;
 import devs.mrp.gullproject.repository.ConsultaRepo;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -20,10 +23,12 @@ import reactor.core.publisher.Mono;
 public class ConsultaService {
 
 	ConsultaRepo consultaRepo;
+	ModelMapper modelMapper;
 	
 	@Autowired
-	public ConsultaService(ConsultaRepo consultaRepo) {
+	public ConsultaService(ConsultaRepo consultaRepo, ModelMapper modelMapper) {
 		this.consultaRepo = consultaRepo;
+		this.modelMapper = modelMapper;
 	}
 	
 	public Mono<Consulta> save(Consulta consulta) {
@@ -124,5 +129,10 @@ public class ConsultaService {
 	
 	public Mono<Consulta> addCostToList(String idPropuesta, CosteProveedor coste) {
 		return consultaRepo.addCostToList(idPropuesta, coste);
+	}
+	
+	public Mono<Consulta> keepUnselectedCosts(String idPropuesta, CostesCheckboxWrapper wrapper) { // TODO test
+		List<CosteProveedor> costs = wrapper.getCostes().stream().filter(c -> !c.isSelected()).map(c -> modelMapper.map(c, CosteProveedor.class)).collect(Collectors.toList());
+		return updateCostesOfPropuesta(idPropuesta, costs);
 	}
 }

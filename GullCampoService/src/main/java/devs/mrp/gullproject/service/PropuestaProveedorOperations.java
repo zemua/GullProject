@@ -3,12 +3,17 @@ package devs.mrp.gullproject.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 
 import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
+import devs.mrp.gullproject.domains.dto.CostesCheckbox;
 import devs.mrp.gullproject.domains.dto.CostesWrapper;
+import devs.mrp.gullproject.domains.dto.IntegerWrap;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,6 +56,10 @@ public class PropuestaProveedorOperations {
 				bindingResult.rejectValue("costes[" + i + "].name", "error.costes[" + i + "].name");
 			}
 		}
+	}
+	
+	public List<CostesCheckbox> getCostesCheckbox(ModelMapper modelMapper) {
+		return propuesta.getCostes().stream().map(c -> modelMapper.map(c, CostesCheckbox.class)).collect(Collectors.toList());
 	}
 	
 }

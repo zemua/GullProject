@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Borrar costes de la propuesta: ' + propuesta.getNombre()}">Gull Project - Borrar costes de la propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1 th:text="${'Borrar costes de la propuesta: ' + propuesta.getNombre()}">Borrar costes de la propuesta</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/consultas/costof/propid/' + propuesta.id}">Volver</a>
+		</p>
+	</div>
+	
+	<form method="POST" th:object="${costesCheckboxWrapper}">
+		<div>
+			<table>
+				<tr>
+					<th>Nombre</th>
+					<th>Borrar</th>
+				</tr>
+				<tr th:each="a, stat : *{costes}">
+					<td th:text="${a.name}"></td>
+					<td>
+						<input type="checkbox" th:field="*{costes[__${stat.index}__].selected}" />
+						<input type="hidden" th:field="*{costes[__${stat.index}__].id}" />
+						<input type="hidden" th:field="*{costes[__${stat.index}__].name}" />
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div>
+			<p>
+				<button>Borrar los costes seleccionados</button>
+			</p>
+		</div>
+	</form>
+
+</body>
+</html>

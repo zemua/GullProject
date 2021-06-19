@@ -28,6 +28,7 @@ import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AttributesListDto;
 import devs.mrp.gullproject.domains.dto.ConsultaPropuestaBorrables;
+import devs.mrp.gullproject.domains.dto.CostesCheckboxWrapper;
 import devs.mrp.gullproject.domains.dto.CostesWrapper;
 import devs.mrp.gullproject.domains.dto.ProposalPie;
 import devs.mrp.gullproject.domains.dto.WrapAtributosForCampoDto;
@@ -56,13 +57,15 @@ public class ConsultaController {
 	LineaService lineaService;
 	AtributoServiceProxyWebClient atributoService;
 	PropuestaUtilities propuestaUtilities;
+	ModelMapper modelMapper;
 	
 	@Autowired
-	public ConsultaController(ConsultaService consultaService, LineaService lineaService, AtributoServiceProxyWebClient atributoService, PropuestaUtilities propuestaUtilities) {
+	public ConsultaController(ConsultaService consultaService, LineaService lineaService, AtributoServiceProxyWebClient atributoService, PropuestaUtilities propuestaUtilities, ModelMapper modelMapper) {
 		this.consultaService = consultaService;
 		this.lineaService = lineaService;
 		this.atributoService = atributoService;
 		this.propuestaUtilities = propuestaUtilities;
+		this.modelMapper = modelMapper;
 	}
 	
 	@GetMapping("/nuevo")
@@ -394,6 +397,39 @@ public class ConsultaController {
 					model.addAttribute("propuesta", prop);
 					model.addAttribute("costeProveedor", costeProveedor);
 					return "processNewCostOfProposal";
+				})
+				;
+	}
+	
+	@GetMapping("/costof/propid/{id}/delete") // TODO test
+	public Mono<String> deleteCostsOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
+		model.addAttribute("propuestaId", proposalId);
+		return consultaService.findConsultaByPropuestaId(proposalId)
+			.map(cons -> {
+				Propuesta prop = cons.operations().getPropuestaById(proposalId);
+				model.addAttribute("consulta", cons);
+				model.addAttribute("propuesta", prop);
+				model.addAttribute("costesCheckboxWrapper", new CostesCheckboxWrapper(((PropuestaProveedor)prop).operationsProveedor().getCostesCheckbox(modelMapper)));
+				return "deleteCostsOfProposal";
+			})
+			;
+	}
+	
+	@PostMapping("/costof/propid/{id}/delete") // TODO test
+	public Mono<String> confirmDeleteCostsOfProposal() {
+		
+	}
+	
+	@PostMapping("/costof/propid/{id}/delete/confirm") // TODO test
+	public Mono<String> processDeleteCostsOfProposal(CostesCheckboxWrapper costesCheckboxWraper, Model model, @PathVariable(name = "id") String proposalId) {
+		model.addAttribute("propuestaId", proposalId);
+		return consultaService.keepUnselectedCosts(proposalId, costesCheckboxWraper)
+				.map(cons -> {
+					Propuesta prop = cons.operations().getPropuestaById(proposalId);
+					model.addAttribute("consulta", cons);
+					model.addAttribute("propuesta", prop);
+					model.addAttribute("costesCheckboxWrapper", new CostesCheckboxWrapper(((PropuestaProveedor)prop).operationsProveedor().getCostesCheckbox(modelMapper)));
+					return "processDeleteCostsOfProposal";
 				})
 				;
 	}
