@@ -49,4 +49,6 @@ public interface CustomConsultaRepo {
 	
 	public Mono<Consulta> updateCostesOfPropuesta(String idPropuesta, List<CosteProveedor> costes);
 	
+	public Mono<Consulta> addCostToList(String idPropuesta, CosteProveedor coste);
+	
 }

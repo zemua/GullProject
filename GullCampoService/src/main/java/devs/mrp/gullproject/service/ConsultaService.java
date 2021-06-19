@@ -121,4 +121,8 @@ public class ConsultaService {
 	public Mono<Consulta> updateCostesOfPropuesta(String idPropuesta, List<CosteProveedor> costes) {
 		return consultaRepo.updateCostesOfPropuesta(idPropuesta, costes);
 	}
+	
+	public Mono<Consulta> addCostToList(String idPropuesta, CosteProveedor coste) {
+		return consultaRepo.addCostToList(idPropuesta, coste);
+	}
 }

@@ -170,6 +170,7 @@ class ConsultaControllerTestB {
 		when(consultaService.findCostesByPropuestaId(ArgumentMatchers.eq(propuestaProveedor.getId()))).thenReturn(Flux.just(cos1));
 		when(consultaService.findConsultaByPropuestaId(ArgumentMatchers.eq(propuestaProveedor.getId()))).thenReturn(Mono.just(consulta1));
 		when(consultaService.updateCostesOfPropuesta(ArgumentMatchers.eq(propuestaProveedor.getId()), ArgumentMatchers.anyList())).thenReturn(Mono.just(consulta1));
+		when(consultaService.addCostToList(ArgumentMatchers.eq(propuestaProveedor.getId()), ArgumentMatchers.any(CosteProveedor.class))).thenReturn(Mono.just(consulta1));
 	}
 	
 	private void addCosts() {
@@ -1117,6 +1118,62 @@ class ConsultaControllerTestB {
 					.contains("error")
 					.doesNotContain(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getName());
 		});
+	}
+	
+	@Test
+	void testNewCostOfProposal() {
+		addCosts();
+		webTestClient.get()
+			.uri("/consultas/costof/propid/" + propuestaProveedor.getId() + "/new")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Nuevo coste de la propuesta")
+						.contains("Nombre");
+			});
+	}
+	
+	@Test
+	void testProcessNewCostOfProposal() {
+		addCosts();
+		
+		webTestClient.post()
+			.uri("/consultas/costof/propid/" + propuestaProveedor.getId() + "/new")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("id", ((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getId())
+					.with("name", "nombre nuevo"))
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Nuevo coste de la propuesta")
+						.contains("Con nombre")
+						.contains("nombre nuevo");
+			})
+			;
+		
+		webTestClient.post()
+		.uri("/consultas/costof/propid/" + propuestaProveedor.getId() + "/new")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("id", ((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getId())
+				.with("name", ""))
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Nuevo coste de la propuesta")
+					.doesNotContain("Con nombre")
+					.contains("El nombre no debe estar vacío")
+					.doesNotContain("nombre nuevo");
+		})
+		;
 	}
 
 }

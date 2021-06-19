@@ -24,3 +24,8 @@ table .error {
 .texto-derecha {
 	text-align: right;
 }
+
+.margentb {
+	margin-top: 15px;
+	margin-bottom: 15px;
+}

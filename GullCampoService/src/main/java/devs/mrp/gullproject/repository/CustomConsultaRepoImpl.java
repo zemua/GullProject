@@ -180,4 +180,12 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
 	}
 	
+	@Override
+	public Mono<Consulta> addCostToList(String idPropuesta, CosteProveedor coste) {
+		Query query = new Query(Criteria.where("propuestas.id").is(idPropuesta));
+		Update update = new Update().addToSet("propuestas.$.costes", coste);
+		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
+		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
+	}
+	
 }

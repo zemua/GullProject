@@ -361,7 +361,7 @@ public class ConsultaController {
 		}
 	}
 	
-	@GetMapping("/costof/propid/{id}/new") // TODO test
+	@GetMapping("/costof/propid/{id}/new")
 	public Mono<String> newCostOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
 		return consultaService.findConsultaByPropuestaId(proposalId)
@@ -369,9 +369,33 @@ public class ConsultaController {
 					Propuesta prop = cons.operations().getPropuestaById(proposalId);
 					model.addAttribute("consulta", cons);
 					model.addAttribute("propuesta", prop);
-					model.addAttribute("coste", new CosteProveedor());
+					model.addAttribute("costeProveedor", new CosteProveedor());
 					return "newCostOfProposal";
 				});
+	}
+	
+	@PostMapping("/costof/propid/{id}/new")
+	public Mono<String> processNewCostOfProposal(@Valid CosteProveedor costeProveedor, BindingResult bindingResult, Model model, @PathVariable(name = "id") String proposalId) {
+		model.addAttribute("propuestaId", proposalId);
+		if (bindingResult.hasErrors()) {
+			return consultaService.findConsultaByPropuestaId(proposalId)
+					.map(cons -> {
+						Propuesta prop = cons.operations().getPropuestaById(proposalId);
+						model.addAttribute("consulta", cons);
+						model.addAttribute("propuesta", prop);
+						model.addAttribute("costeProveedor", costeProveedor);
+						return "newCostOfProposal";
+					});
+		}
+		return consultaService.addCostToList(proposalId, costeProveedor)
+				.map(cons -> {
+					Propuesta prop = cons.operations().getPropuestaById(proposalId);
+					model.addAttribute("consulta", cons);
+					model.addAttribute("propuesta", prop);
+					model.addAttribute("costeProveedor", costeProveedor);
+					return "processNewCostOfProposal";
+				})
+				;
 	}
 	
 }

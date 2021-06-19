@@ -16,24 +16,12 @@
 		</p>
 	</div>
 	
-	<form method="POST" th:object="${costeProveedor}" id="val-form">
-	
-		<span class="validationError margentb"
-      	th:if="${#fields.hasErrors('name')}"
-      	th:errors="*{name}">Selecciona un nombre</span>
 		<div>
-			<span>Nombre:</span>
+			<span>Con nombre:</span>
 		</div>
 		<div>
-			<input type="text" th:field="*{name}"/>
-			<input type="hidden" th:field="*{id}"/>
+			<span th:text="${costeProveedor.name}"></span>
 		</div>
-		
-		<div class="margentb">
-			<div><button id="submit-button">Guardar</button></div>
-		</div>
-	
-	</form>	
 	
 </body>
 </html>
