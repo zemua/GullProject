@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.query.Update;
 
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Propuesta;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -167,6 +168,14 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 	public Mono<Consulta> updateAttributesOfPropuesta(String idPropuesta, List<AtributoForCampo> attributes) {
 		Query query = new Query(Criteria.where("propuestas.id").is(idPropuesta));
 		Update update = new Update().set("propuestas.$.attributeColumns", attributes);
+		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
+		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
+	}
+	
+	@Override
+	public Mono<Consulta> updateCostesOfPropuesta(String idPropuesta, List<CosteProveedor> costes) {
+		Query query = new Query(Criteria.where("propuestas.id").is(idPropuesta));
+		Update update = new Update().set("propuestas.$.costes", costes);
 		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
 		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
 	}

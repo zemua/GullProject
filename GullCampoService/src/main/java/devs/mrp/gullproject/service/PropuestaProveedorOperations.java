@@ -10,7 +10,9 @@ import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.domains.dto.CostesWrapper;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Data
 public class PropuestaProveedorOperations {
 
@@ -43,11 +45,12 @@ public class PropuestaProveedorOperations {
 	}
 	
 	public static void validateCosts(CostesWrapper costes, BindingResult bindingResult) {
-		 for(int i=0; i<costes.getCostes().size(); i++) {
-			 if (costes.getCostes().get(i).getName() == null || costes.getCostes().get(i).getName().equals("")) {
-				 bindingResult.rejectValue("costes[" + i + "].name", "error.costes[" + i + "].name");
-			 }
-		 }
+		log.debug("a validar costes: " + costes.toString() + " con binding " + bindingResult.toString());
+		for(int i=0; i<costes.getCostes().size(); i++) {
+			if (costes.getCostes().get(i).getName() == null || costes.getCostes().get(i).getName().equals("")) {
+				bindingResult.rejectValue("costes[" + i + "].name", "error.costes[" + i + "].name");
+			}
+		}
 	}
 	
 }

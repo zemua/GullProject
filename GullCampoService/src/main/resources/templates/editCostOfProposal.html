@@ -3,12 +3,12 @@
 	xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="utf-8">
-<title th:text="${'Gull Project - Atributos de la propuesta: ' + propuesta.getNombre()}">Gull Project - Atributos de la propuesta</title>
+<title th:text="${'Gull Project - Costes de la propuesta: ' + propuesta.getNombre()}">Gull Project - Costes de la propuesta</title>
 <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
 
-<h1 th:text="${'Atributos de la propuesta: ' + propuesta.getNombre()}">Atributos de la propuesta</h1>
+<h1 th:text="${'Costes de la propuesta: ' + propuesta.getNombre()}">Costes de la propuesta</h1>
 
 	<div>
 		<p>
@@ -37,10 +37,10 @@
 			</table>
 		</div>
 	
-	</form>
+	</form>	
 	
 	<script type="text/javascript" th:src="@{/js/jquery/jquery-3.6.0.min.js}"></script>
 	<script type="text/javascript" th:src="@{/js/scripts/tableEditable.js}"></script>
-
+	
 </body>
 </html>

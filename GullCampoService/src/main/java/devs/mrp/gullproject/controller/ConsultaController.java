@@ -198,11 +198,9 @@ public class ConsultaController {
 		log.debug("id propuesta: " + data.getIdPropuesta());
 		Mono<Integer> c = consultaService.removePropuestaById(data.getIdConsulta(), data.getIdPropuesta());
 		Mono<Long> lineas = lineaService.deleteSeveralLineasFromPropuestaId(data.getIdPropuesta());
-		
 		model.addAttribute("idConsulta", data.getIdConsulta());
 		model.addAttribute("propuestasBorradas", c);
 		model.addAttribute("lineasBorradas", lineas);
-		
 		return "processDeletePropuestaById";
 	}
 	
@@ -226,15 +224,12 @@ public class ConsultaController {
 	
 	@PostMapping("/attof/propid/{id}/new")
 	public String processAddAttributeToProposal(@ModelAttribute AttributesListDto atts, BindingResult bindingResult, Model model, @PathVariable(name = "id") String propuestaId) {
-		
 		Flux<AtributoForCampo> attributes = propuestaUtilities.listOfSelectedAttributes(atts);
 		Mono<Consulta> consulta = attributes.collectList()
 				.flatMap(latts -> consultaService.updateAttributesOfPropuesta(propuestaId, latts));
 		Mono<Propuesta> propuesta = consulta.map(c -> c.operations().getPropuestaById(propuestaId));
-
 		model.addAttribute("atributos", new ReactiveDataDriverContextVariable(attributes, 1));
 		model.addAttribute("propuesta", propuesta);
-		
 		return "processAddAttributeToProposal";
 	}
 	
@@ -316,7 +311,7 @@ public class ConsultaController {
 		return "processAddPropuestaToConsulta";
 	}
 	
-	@GetMapping("/costof/propid/{id}") // TODO test
+	@GetMapping("/costof/propid/{id}")
 	public String showCostsOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
 		Flux<CosteProveedor> afc = consultaService.findCostesByPropuestaId(proposalId);
@@ -326,7 +321,7 @@ public class ConsultaController {
 		return "showCostsOfProposal";
 	}
 	
-	@GetMapping("/costof/propid/{id}/edit") // TODO test
+	@GetMapping("/costof/propid/{id}/edit")
 	public Mono<String> editCostsOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
 		return consultaService.findConsultaByPropuestaId(proposalId)
@@ -340,8 +335,8 @@ public class ConsultaController {
 			;
 	}
 	
-	@PostMapping("/costof/propid/{id}/edit") // TODO test
-	public Mono<String> editCostOfProposal(CostesWrapper costesWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "id") String proposalId) {
+	@PostMapping("/costof/propid/{id}/edit")
+	public Mono<String> processEditCostsOfProposal(CostesWrapper costesWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
 		PropuestaProveedorOperations.validateCosts(costesWrapper, bindingResult);
 		if (bindingResult.hasErrors()) {
@@ -355,7 +350,14 @@ public class ConsultaController {
 					})
 					;
 		} else {
-			return Mono.just("");
+			return consultaService.updateCostesOfPropuesta(proposalId, costesWrapper.getCostes())
+					.map(cons -> {
+						Propuesta prop = cons.operations().getPropuestaById(proposalId);
+						model.addAttribute("consulta", cons);
+						model.addAttribute("propuesta", prop);
+						model.addAttribute("costesWrapper", costesWrapper);
+						return "processEditCostOfProposal";
+					});
 		}
 	}
 	

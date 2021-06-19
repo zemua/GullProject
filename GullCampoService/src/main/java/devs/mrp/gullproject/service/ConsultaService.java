@@ -117,4 +117,8 @@ public class ConsultaService {
 					return consulta.operations().getPropuestaById(idPropuesta);
 				});
 	}
+	
+	public Mono<Consulta> updateCostesOfPropuesta(String idPropuesta, List<CosteProveedor> costes) {
+		return consultaRepo.updateCostesOfPropuesta(idPropuesta, costes);
+	}
 }
