@@ -361,4 +361,17 @@ public class ConsultaController {
 		}
 	}
 	
+	@GetMapping("/costof/propid/{id}/new") // TODO test
+	public Mono<String> newCostOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
+		model.addAttribute("propuestaId", proposalId);
+		return consultaService.findConsultaByPropuestaId(proposalId)
+				.map(cons -> {
+					Propuesta prop = cons.operations().getPropuestaById(proposalId);
+					model.addAttribute("consulta", cons);
+					model.addAttribute("propuesta", prop);
+					model.addAttribute("coste", new CosteProveedor());
+					return "newCostOfProposal";
+				});
+	}
+	
 }
