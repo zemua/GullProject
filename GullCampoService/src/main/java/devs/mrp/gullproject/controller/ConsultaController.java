@@ -401,7 +401,7 @@ public class ConsultaController {
 				;
 	}
 	
-	@GetMapping("/costof/propid/{id}/delete") // TODO test
+	@GetMapping("/costof/propid/{id}/delete")
 	public Mono<String> deleteCostsOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
 		return consultaService.findConsultaByPropuestaId(proposalId)
@@ -415,7 +415,7 @@ public class ConsultaController {
 			;
 	}
 	
-	@PostMapping("/costof/propid/{id}/delete") // TODO test
+	@PostMapping("/costof/propid/{id}/delete")
 	public Mono<String> confirmDeleteCostsOfProposal(CostesCheckboxWrapper costesCheckboxWraper, Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
 		return consultaService.findConsultaByPropuestaId(proposalId)
@@ -429,7 +429,7 @@ public class ConsultaController {
 			;
 	}
 	
-	@PostMapping("/costof/propid/{id}/delete/confirm") // TODO test
+	@PostMapping("/costof/propid/{id}/delete/confirm")
 	public Mono<String> processDeleteCostsOfProposal(CostesCheckboxWrapper costesCheckboxWraper, Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
 		return consultaService.keepUnselectedCosts(proposalId, costesCheckboxWraper)

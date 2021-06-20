@@ -38,6 +38,7 @@ import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.domains.TipoPropuesta;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
+import devs.mrp.gullproject.domains.dto.CostesCheckboxWrapper;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.AtributoUtilities;
 import devs.mrp.gullproject.service.ConsultaService;
@@ -171,6 +172,7 @@ class ConsultaControllerTestB {
 		when(consultaService.findConsultaByPropuestaId(ArgumentMatchers.eq(propuestaProveedor.getId()))).thenReturn(Mono.just(consulta1));
 		when(consultaService.updateCostesOfPropuesta(ArgumentMatchers.eq(propuestaProveedor.getId()), ArgumentMatchers.anyList())).thenReturn(Mono.just(consulta1));
 		when(consultaService.addCostToList(ArgumentMatchers.eq(propuestaProveedor.getId()), ArgumentMatchers.any(CosteProveedor.class))).thenReturn(Mono.just(consulta1));
+		when(consultaService.keepUnselectedCosts(ArgumentMatchers.eq(propuestaProveedor.getId()), ArgumentMatchers.any(CostesCheckboxWrapper.class))).thenReturn(Mono.just(consulta1));
 	}
 	
 	private void addCosts() {
@@ -1172,6 +1174,77 @@ class ConsultaControllerTestB {
 					.doesNotContain("Con nombre")
 					.contains("El nombre no debe estar vacío")
 					.doesNotContain("nombre nuevo");
+		})
+		;
+	}
+	
+	@Test
+	void testDeleteCostsOfProposal() {
+		addCosts();
+		webTestClient.get()
+			.uri("/consultas/costof/propid/" + propuestaProveedor.getId() + "/delete")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Borrar costes de la propuesta")
+						.contains("Nombre")
+						.contains(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getName());
+			})
+			;
+	}
+	
+	@Test
+	void testConfirmDeleteCostsOfProposal() {
+		addCosts();
+		webTestClient.post()
+			.uri("/consultas/costof/propid/" + propuestaProveedor.getId() + "/delete")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("costes[0].selected", "true")
+					.with("costes[0].id", "idcoste1")
+					.with("costes[0].name" , "nombre coste 1")
+					
+					.with("costes[1].selected" , "false")
+					.with("costes[1].id", "idcoste2")
+					.with("costes[1].name", "nombre coste 2")
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("idcoste1")
+						.contains("nombre coste 2")
+						.contains("Borrar costes de la propuesta");
+			})
+			;
+	}
+	
+	@Test
+	void testProcessDeleteCostsOfProposal() {
+		addCosts();
+		webTestClient.post()
+		.uri("/consultas/costof/propid/" + propuestaProveedor.getId() + "/delete/confirm")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("costes[0].selected", "true")
+				.with("costes[0].id", "idcoste1")
+				.with("costes[0].name" , "nombre coste 1")
+				
+				.with("costes[1].selected" , "false")
+				.with("costes[1].id", "idcoste2")
+				.with("costes[1].name", "nombre coste 2")
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getName())
+					.contains("Borrados");
 		})
 		;
 	}
