@@ -29,6 +29,7 @@ import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AttributesListDto;
 import devs.mrp.gullproject.domains.dto.ConsultaPropuestaBorrables;
 import devs.mrp.gullproject.domains.dto.CostesCheckboxWrapper;
+import devs.mrp.gullproject.domains.dto.CostesOrdenablesWrapper;
 import devs.mrp.gullproject.domains.dto.CostesWrapper;
 import devs.mrp.gullproject.domains.dto.ProposalPie;
 import devs.mrp.gullproject.domains.dto.WrapAtributosForCampoDto;
@@ -439,6 +440,34 @@ public class ConsultaController {
 					model.addAttribute("propuesta", prop);
 					model.addAttribute("costesCheckboxWrapper", new CostesCheckboxWrapper(((PropuestaProveedor)prop).operationsProveedor().getCostesCheckbox(modelMapper)));
 					return "processDeleteCostsOfProposal";
+				})
+				;
+	}
+	
+	@GetMapping("/costof/propid/{id}/order") // TODO test
+	public Mono<String> orderCostsOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
+		model.addAttribute("propuestaId", proposalId);
+		return consultaService.findConsultaByPropuestaId(proposalId)
+			.map(cons -> {
+				Propuesta prop = cons.operations().getPropuestaById(proposalId);
+				model.addAttribute("consulta", cons);
+				model.addAttribute("propuesta", prop);
+				model.addAttribute("costesOrdenablesWrapper", new CostesOrdenablesWrapper(((PropuestaProveedor)prop).operationsProveedor().getCostesOrdenables(modelMapper)));
+				return "orderCostsOfProposal";
+			})
+			;
+	}
+	
+	@PostMapping("/costof/propid/{id}/order") // TODO test
+	public Mono<String> processOrderCostsOfProposal(CostesOrdenablesWrapper costesOrdenablesWraper, Model model, @PathVariable(name = "id") String proposalId) {
+		model.addAttribute("propuestaId", proposalId);
+		return consultaService.updateCostesOfPropuesta(proposalId, PropuestaProveedorOperations.fromCostesOrdenablesToCostesProveedor(modelMapper, costesOrdenablesWraper.getCostes()))
+				.map(cons -> {
+					Propuesta prop = cons.operations().getPropuestaById(proposalId);
+					model.addAttribute("consulta", cons);
+					model.addAttribute("propuesta", prop);
+					model.addAttribute("costes", ((PropuestaProveedor)prop).getCostes());
+					return "processOrderCostsOfProposal";
 				})
 				;
 	}

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Ordenar costes de la propuesta: ' + propuesta.getNombre()}">Gull Project - Ordenar costes de la propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1 th:text="${'Ordenar costes de la propuesta: ' + propuesta.getNombre()}">Ordenar costes de la propuesta</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/consultas/costof/propid/' + propuesta.id}">Volver</a>
+		</p>
+	</div>
+	
+	<form method="POST" th:object="${costesOrdenablesWrapper}">
+		<div>
+			<table id="tabla-ordenable" class="tablesorter">
+				<thead>
+					<tr class="nodrop nodrag" id="1">
+						<th>Nombre</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="a, stat : *{costes}" th:id="${stat.index + 2}">
+						<td class="handle">
+							<span th:text="${a.name}"></span>
+							<input type="hidden" th:field="*{costes[__${stat.index}__].id}" class="linea-id"/>
+							<input type="hidden" th:field="*{costes[__${stat.index}__].name}" />
+							<input type="hidden" th:field="*{costes[__${stat.index}__].order}" class="linea-order"/>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div>
+			<p>
+				<button>Guardar orden</button>
+			</p>
+		</div>
+	</form>
+	
+	<script type="text/javascript" th:src="@{/js/jquery/jquery-3.6.0.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/jquery/jquery.tablednd.js}"></script>
+	<script type="text/javascript" th:src="@{/js/jquery/jquery.tablesorter.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/scripts/setTableOrdenable.js}"></script>
+
+</body>
+</html>

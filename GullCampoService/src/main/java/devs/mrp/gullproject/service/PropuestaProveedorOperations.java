@@ -11,6 +11,7 @@ import org.springframework.validation.BindingResult;
 
 import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
+import devs.mrp.gullproject.domains.dto.CosteOrdenable;
 import devs.mrp.gullproject.domains.dto.CostesCheckbox;
 import devs.mrp.gullproject.domains.dto.CostesWrapper;
 import devs.mrp.gullproject.domains.dto.IntegerWrap;
@@ -60,6 +61,17 @@ public class PropuestaProveedorOperations {
 	
 	public List<CostesCheckbox> getCostesCheckbox(ModelMapper modelMapper) {
 		return propuesta.getCostes().stream().map(c -> modelMapper.map(c, CostesCheckbox.class)).collect(Collectors.toList());
+	}
+	
+	public List<CosteOrdenable> getCostesOrdenables(ModelMapper modelMapper) {
+		return propuesta.getCostes().stream().map(c -> modelMapper.map(c, CosteOrdenable.class)).collect(Collectors.toList());
+	}
+	
+	public static List<CosteProveedor> fromCostesOrdenablesToCostesProveedor(ModelMapper modelMapper, List<CosteOrdenable> costes) {
+		log.debug("costes antes de ordenar: " + costes.toString());
+		costes.sort((c1, c2) -> Integer.valueOf(c1.getOrder()).compareTo(c2.getOrder()));
+		log.debug("costes después de ordenar: " + costes.toString());
+		return costes.stream().map(c -> modelMapper.map(c, CosteProveedor.class)).collect(Collectors.toList());
 	}
 	
 }
