@@ -1248,6 +1248,49 @@ class ConsultaControllerTestB {
 		})
 		;
 	}
+	
+	@Test
+	void testOrderCostsOfProposal() {
+		addCosts();
+		webTestClient.get()
+		.uri("/consultas/costof/propid/" + propuestaProveedor.getId() + "/order")
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Ordenar costes de la propuesta")
+					.contains("Nombre")
+					.contains(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getName());
+		});
+	}
+	
+	@Test
+	void testProcessOrderCostsOfProposal() {
+		addCosts();
+		webTestClient.post()
+			.uri("/consultas/costof/propid/" + propuestaProveedor.getId() + "/order")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("costes[0].id", ((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getId())
+					.with("costes[0].name", ((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getName())
+					.with("costes[0].order" , "2")
+					
+					.with("costes[1].id", "otroid")
+					.with("costes[1].name", "otro name")
+					.with("costes[1].order" , "1")
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getName())
+						.contains("Ordenar costes de la propuesta");
+			})
+			;
+	}
 
 }
 

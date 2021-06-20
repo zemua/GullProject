@@ -444,7 +444,7 @@ public class ConsultaController {
 				;
 	}
 	
-	@GetMapping("/costof/propid/{id}/order") // TODO test
+	@GetMapping("/costof/propid/{id}/order")
 	public Mono<String> orderCostsOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
 		return consultaService.findConsultaByPropuestaId(proposalId)
@@ -458,7 +458,7 @@ public class ConsultaController {
 			;
 	}
 	
-	@PostMapping("/costof/propid/{id}/order") // TODO test
+	@PostMapping("/costof/propid/{id}/order")
 	public Mono<String> processOrderCostsOfProposal(CostesOrdenablesWrapper costesOrdenablesWraper, Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
 		return consultaService.updateCostesOfPropuesta(proposalId, PropuestaProveedorOperations.fromCostesOrdenablesToCostesProveedor(modelMapper, costesOrdenablesWraper.getCostes()))
