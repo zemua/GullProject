@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Borrar costes de la propuesta: ' + propuesta.getNombre()}">Gull Project - Borrar costes de la propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1 th:text="${'Borrar costes de la propuesta: ' + propuesta.getNombre()}">Borrar costes de la propuesta</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/consultas/costof/propid/' + propuesta.id}">Volver</a>
+		</p>
+	</div>
+	
+	<form method="POST" th:action="${'/consultas/costof/propid/' + propuesta.id + '/delete/confirm'}" th:object="${costesCheckboxWrapper}" id="myForm">
+		<div>
+			<table>
+				<tr>
+					<th>Nombre</th>
+					<th>Borrar</th>
+				</tr>
+				<tr th:each="a, stat : *{costes}">
+					<td th:text="${a.name}" th:classappend="*{costes[__${stat.index}__].selected ? 'tachado' : '' }"></td>
+					<td>
+						<span th:text="*{costes[__${stat.index}__].selected ? 'X' : '' }"></span>
+						<input type="hidden" th:field="*{costes[__${stat.index}__].selected}" />
+						<input type="hidden" th:field="*{costes[__${stat.index}__].id}" />
+						<input type="hidden" th:field="*{costes[__${stat.index}__].name}" />
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div>
+			<p>
+				<span>Introduce "borrar" en el siguiente campo y pulsa el botón</span>
+				<br />
+				<input id="confirmaBorrar" type="text"/>
+				<button id="botonBorrar">Borrar</button>
+			</p>
+		</div>
+	</form>
+	
+	<script type="text/javascript" th:src="@{/js/scripts/confirmDelete.js}"></script>
+
+</body>
+</html>

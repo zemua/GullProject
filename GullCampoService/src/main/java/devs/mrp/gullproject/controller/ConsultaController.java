@@ -416,8 +416,17 @@ public class ConsultaController {
 	}
 	
 	@PostMapping("/costof/propid/{id}/delete") // TODO test
-	public Mono<String> confirmDeleteCostsOfProposal() {
-		
+	public Mono<String> confirmDeleteCostsOfProposal(CostesCheckboxWrapper costesCheckboxWraper, Model model, @PathVariable(name = "id") String proposalId) {
+		model.addAttribute("propuestaId", proposalId);
+		return consultaService.findConsultaByPropuestaId(proposalId)
+			.map(cons -> {
+				Propuesta prop = cons.operations().getPropuestaById(proposalId);
+				model.addAttribute("consulta", cons);
+				model.addAttribute("propuesta", prop);
+				model.addAttribute("costesCheckboxWrapper", costesCheckboxWraper);
+				return "confirmDeleteCostsOfProposal";
+			})
+			;
 	}
 	
 	@PostMapping("/costof/propid/{id}/delete/confirm") // TODO test

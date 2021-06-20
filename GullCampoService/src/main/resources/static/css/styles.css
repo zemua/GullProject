@@ -29,3 +29,7 @@ table .error {
 	margin-top: 15px;
 	margin-bottom: 15px;
 }
+
+.tachado {
+	text-decoration: line-through;
+}
