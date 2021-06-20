@@ -2,6 +2,7 @@ package devs.mrp.gullproject.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -9,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 
+import devs.mrp.gullproject.domains.CosteLineaProveedor;
 import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.domains.dto.CosteOrdenable;

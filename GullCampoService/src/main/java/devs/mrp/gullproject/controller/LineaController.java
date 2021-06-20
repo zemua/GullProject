@@ -57,6 +57,7 @@ import devs.mrp.gullproject.service.CostRemapperUtilities;
 import devs.mrp.gullproject.service.LineaOperations;
 import devs.mrp.gullproject.service.LineaService;
 import devs.mrp.gullproject.service.LineaUtilities;
+import devs.mrp.gullproject.service.PropuestaProveedorUtilities;
 import devs.mrp.gullproject.validator.AttributeValueValidator;
 import devs.mrp.gullproject.validator.ValidList;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
@@ -76,11 +77,12 @@ public class LineaController {
 	LineaUtilities lineaUtilities;
 	AttRemaperUtilities attRemaperUtilities;
 	CostRemapperUtilities costRemapperUtilities;
+	PropuestaProveedorUtilities propuestaProveedorUtilities;
 
 	@Autowired
 	public LineaController(LineaService lineaService, ConsultaService consultaService, ModelMapper modelMapper,
 			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities, AttRemaperUtilities attRemaperUtilities,
-			CostRemapperUtilities costRemapperUtilities) {
+			CostRemapperUtilities costRemapperUtilities, PropuestaProveedorUtilities propuestaProveedorUtilities) {
 		this.lineaService = lineaService;
 		this.consultaService = consultaService;
 		this.modelMapper = modelMapper;
@@ -88,6 +90,7 @@ public class LineaController {
 		this.lineaUtilities = lineaUtilities;
 		this.attRemaperUtilities = attRemaperUtilities;
 		this.costRemapperUtilities = costRemapperUtilities;
+		this.propuestaProveedorUtilities = propuestaProveedorUtilities;
 	}
 	
 	// TODO for excels where one sheet = one product, first map fields in the sheet row/column=attribute, then extract data from several sheets following this map.
@@ -473,6 +476,21 @@ public class LineaController {
 		Mono<Void> delete = lineaUtilities.deleteSelectedLinesFromWrap(wrapLineasWithSelectorDto);
 		model.addAttribute("delete", delete);
 		return "confirmDeleteLinesOf";
-	}	
+	}
+	
+	@GetMapping("/allof/propid/{id}/counter-assign") // TODO test
+	public Mono<String> assignCounterLine(Model model, @PathVariable(name = "id") String propuestaId) {
+		return consultaService.findPropuestaByPropuestaId(propuestaId)
+			.flatMap(rProThis -> {
+				return consultaService.findPropuestaByPropuestaId(rProThis.getForProposalId())
+				.map(rProCounter -> {
+					model.addAttribute("ifSameLinesSize", rProThis.getLineaIds().size() == rProCounter.getLineaIds().size());
+					model.addAttribute("ifSameNameSameCost", propuestaProveedorUtilities.ifSameNameSameCosts(propuestaId));
+					model.addAttribute("propuesta", rProThis);
+					return "assignCounterLine";
+				});
+			})
+			;
+	}
 
 }

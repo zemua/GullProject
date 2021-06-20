@@ -15,6 +15,7 @@
 			<a th:href="${'/consultas/revisar/id/' + consulta.id}">Volver</a> -
 			<a th:href="${'/lineas/of/' + propuestaId + '/new'}">Crear nueva linea</a> -
 			<a th:href="${'/lineas/of/' + propuestaId + '/bulk-add'}">Crear en bloque</a> -
+			<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'PROVEEDOR'}"><a th:href="${'/lineas/allof/propid/' + propuestaId + '/counter-assign'}">Asignar contra-línea</a> -</th:block>
 			<a th:href="${'/lineas/allof/propid/' + propuestaId + '/order'}">Ordenar líneas</a> -
 			<a th:href="${'/lineas/allof/propid/' + propuestaId + '/rename'}">Reasignar nombres</a> -
 			<a th:href="${'/lineas/allof/propid/' + propuestaId + '/remap'}">Remapear</a> -

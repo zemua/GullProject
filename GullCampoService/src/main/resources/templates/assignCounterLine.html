@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Asignar contra-líneas de la propuesta: ' + propuesta.getNombre()}">Gull Project - Asignar contra-líneas de la propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1 th:text="${'Asignar contra-líneas de la propuesta: ' + propuesta.getNombre()}">Asignar contra-líneas de la propuesta</h1>
+
+	<div>
+		<p>
+			<a th:href="@{/lineas/allof/propid/{id}(id=${propuesta.id})}">Volver</a>
+		</p>
+	</div>
+	
+	<hr>
+	
+	<form method="POST" th:object="${propuesta}" th:action="@{/lineas/allof/propid/{id}/counter-line(id=${propuesta.id})}" class="margentb">
+		<div th:switch="${ifSameLinesSize}">
+			<p th:case="true">Las propuesta tiene el mismo número de líneas que la solicitud del cliente, puedes asignar contra-líneas siguiendo el orden una a una.</p>
+			<p th:case="*">La propuesta no tiene el mismo número de líneas que la solicitud del cliente, por lo que no se puede realizar asignación de contra-línea por posición.</p>
+		</div>
+		<div class="margentb" th:if="${ifSameLinesSize}">
+			<div><button>Asignar por posicion</button></div>
+		</div>
+	</form>
+	
+	<hr>
+	
+	<form method="POST" th:object="${propuesta}" th:action="@{/lineas/allof/propid/{id}/counter-name(id=${propuesta.id})}" class="margentb">
+		<div th:switch="${ifSameNameSameCost}">
+			<p th:case="true">Todas las líneas de esta propuesta que comparten nombre tienen los mismos costes, se puede hacer asignación por coincidencia de nombres.</p>
+			<p th:case="*">Hay algunas líneas de esta propuesta que comparten nombre y no tienen lo mismos costes, po lo que NO se puede hacer asignación en base a nombre.</p>
+		</div>
+		<div class="margentb" th:if="${ifSameNameSameCost}">
+			<div><button>Asignar por nombre</button></div>
+		</div>
+	</form>
+	
+	<hr>
+	
+</body>
+</html>
