@@ -131,7 +131,7 @@ public class ConsultaService {
 		return consultaRepo.addCostToList(idPropuesta, coste);
 	}
 	
-	public Mono<Consulta> keepUnselectedCosts(String idPropuesta, CostesCheckboxWrapper wrapper) { // TODO test
+	public Mono<Consulta> keepUnselectedCosts(String idPropuesta, CostesCheckboxWrapper wrapper) {
 		List<CosteProveedor> costs = wrapper.getCostes().stream().filter(c -> !c.isSelected()).map(c -> modelMapper.map(c, CosteProveedor.class)).collect(Collectors.toList());
 		return updateCostesOfPropuesta(idPropuesta, costs);
 	}
