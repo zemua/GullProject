@@ -197,15 +197,21 @@ public class ConsultaController {
 	}
 	
 	@PostMapping("/delete/id/{consultaid}/propuesta/{propuestaid}")
-	public String processDeletePropuestaById(ConsultaPropuestaBorrables data, Model model) {
+	public Mono<String> processDeletePropuestaById(ConsultaPropuestaBorrables data, Model model) {
 		log.debug("id consulta: " + data.getIdConsulta());
 		log.debug("id propuesta: " + data.getIdPropuesta());
-		Mono<Integer> c = consultaService.removePropuestaById(data.getIdConsulta(), data.getIdPropuesta());
 		Mono<Long> lineas = lineaService.deleteSeveralLineasFromPropuestaId(data.getIdPropuesta());
+		Mono<Integer> c = consultaService.removePropuestaById(data.getIdConsulta(), data.getIdPropuesta());
 		model.addAttribute("idConsulta", data.getIdConsulta());
-		model.addAttribute("propuestasBorradas", c);
-		model.addAttribute("lineasBorradas", lineas);
-		return "processDeletePropuestaById";
+		return lineas.map(rLineas -> {
+			model.addAttribute("lineasBorradas", rLineas);
+			return true;
+		})
+			.then(c).map(rConsulta -> {
+				model.addAttribute("propuestasBorradas", rConsulta);
+				return true;
+			})
+			.then(Mono.just("processDeletePropuestaById"));
 	}
 	
 	@GetMapping("/attof/propid/{id}")

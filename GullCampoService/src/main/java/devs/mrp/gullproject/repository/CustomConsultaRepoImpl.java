@@ -9,13 +9,17 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
+import com.mongodb.BasicDBObject;
+
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Propuesta;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 
 	private final ReactiveMongoTemplate mongoTemplate;
@@ -51,8 +55,12 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 
 	@Override
 	public Mono<Consulta> removePropuesta(String idConsulta, Propuesta propuesta) {
-		Query query = new Query(Criteria.where("id").is(idConsulta));
-		Update update = new Update().pull("propuestas", propuesta);
+		log.debug("going to remove " + propuesta.toString());
+		// Query query = new Query(Criteria.where("id").is(idConsulta));
+		Query query = new Query(Criteria.where("propuestas.id").is(propuesta.getId()));
+		// Update update = new Update().pull("propuestas", propuesta);
+		// Update update = new Update().pull("propuestas", Query.query(Criteria.where("propuesta.id").is(propuesta.getId())));
+		Update update = new Update().pull("propuestas", new BasicDBObject("id", propuesta.getId()));
 		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
 		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
 	}
