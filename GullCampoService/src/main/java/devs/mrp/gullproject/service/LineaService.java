@@ -158,4 +158,16 @@ public class LineaService {
 		return lineaRepo.updateNombre(idLinea, nombre);
 	}
 	
+	public Mono<Linea> updateCounterLineId(String idLinea, List<String> counterLineId) {
+		return lineaRepo.updateCounterLineId(idLinea, counterLineId);
+	}
+	
+	public Mono<Linea> addCounterLineId(String idLinea, String counterLineId) {
+		return lineaRepo.addCounterLineId(idLinea, counterLineId);
+	}
+	
+	public Mono<Linea> removeCounterLineId(String idLinea, String counterLineId) {
+		return lineaRepo.removeCounterLineId(idLinea, counterLineId);
+	}
+	
 }

@@ -46,7 +46,7 @@ public class Linea {
 	/**
 	 * When creating an offer of suppliers or ours, this will refer to the customer line
 	 */
-	private String counterLineId;
+	private List<String> counterLineId;
 	
 	private Integer order;
 	

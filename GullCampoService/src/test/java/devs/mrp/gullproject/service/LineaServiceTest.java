@@ -71,13 +71,16 @@ class LineaServiceTest {
 	@BeforeEach
 	void setUp() {
 		lineaRepo.deleteAll().block();
+		
+		List<String> counter = new ArrayList<>();
+		counter.add("counter line id");
 			
 		linea1 = new Linea();
 		linea1.setId("id1");
 		linea1.setNombre("name1");
 		linea1.setOrder(1);
 		linea1.setParentId("parent id 1");
-		linea1.setCounterLineId("counter line id 1");
+		linea1.setCounterLineId(counter);
 		
 		lineaRepo.save(linea1).block();
 		
@@ -86,7 +89,7 @@ class LineaServiceTest {
 		linea2.setNombre("name2");
 		linea2.setOrder(2);
 		linea2.setParentId("parent id 2");
-		linea2.setCounterLineId("counter line id 2");
+		linea2.setCounterLineId(counter);
 		
 		lineaRepo.save(linea2).block();
 		

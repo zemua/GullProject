@@ -24,6 +24,9 @@
 			<p th:case="*">La propuesta no tiene el mismo número de líneas que la solicitud del cliente, por lo que no se puede realizar asignación de contra-línea por posición.</p>
 		</div>
 		<div class="margentb" th:if="${ifSameLinesSize}">
+			<input type="hidden" th:field="*{id}"/>
+			<input type="hidden" th:field="*{nombre}"/>
+			<input type="hidden" th:field="*{tipoPropuesta}"/>
 			<div><button>Asignar por posicion</button></div>
 		</div>
 	</form>
@@ -36,6 +39,9 @@
 			<p th:case="*">Hay algunas líneas de esta propuesta que comparten nombre y no tienen lo mismos costes, po lo que NO se puede hacer asignación en base a nombre.</p>
 		</div>
 		<div class="margentb" th:if="${ifSameNameSameCost}">
+			<input type="hidden" th:field="*{id}"/>
+			<input type="hidden" th:field="*{nombre}"/>
+			<input type="hidden" th:field="*{tipoPropuesta}"/>
 			<div><button>Asignar por nombre</button></div>
 		</div>
 	</form>

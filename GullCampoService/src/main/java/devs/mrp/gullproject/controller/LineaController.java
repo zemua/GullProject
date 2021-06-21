@@ -492,5 +492,51 @@ public class LineaController {
 			})
 			;
 	}
+	
+	@PostMapping("/allof/propid/{id}/counter-line") // TODO test
+	public Mono<String> processAssignCounterLineByOrder(PropuestaProveedor propuesta, Model model, @PathVariable(name = "id") String propuestaId) {
+		model.addAttribute("propuesta", propuesta);
+		return consultaService.findPropuestaByPropuestaId(propuestaId)
+				.flatMapMany(rProThis -> {
+					var lineasThis = lineaService.findByPropuestaId(rProThis.getId());
+					var lineasCounter = lineaService.findByPropuestaId(rProThis.getForProposalId());
+					return Flux.zip(lineasThis, lineasCounter)
+					.flatMap(tuple -> {
+						List<String> counter = new ArrayList<>();
+						counter.add(tuple.getT2().getId());
+						return lineaService.updateCounterLineId(tuple.getT1().getId(), counter);
+					});
+				})
+				.then(Mono.just("assignCounterLineByOrder"))
+				;
+	}
+	
+	@PostMapping("/allof/propid/{id}/counter-name") // TODO test
+	public Mono<String> processAssignCounterLineByName(PropuestaProveedor propuesta, Model model, @PathVariable(name = "id") String propuestaId) {
+		model.addAttribute("propuesta", propuesta);
+		return consultaService.findPropuestaByPropuestaId(propuestaId)
+				.flatMapMany(rProThis -> {
+					var lineasThis = lineaService.findByPropuestaId(rProThis.getId());
+					var lineasCounter = lineaService.findByPropuestaId(rProThis.getForProposalId());
+					Map<String, String> nameVSlineid = new HashMap<>();
+					List<String> counter = new ArrayList<>();
+					return lineasThis.flatMap(rLine -> {
+						if (!nameVSlineid.containsKey(rLine.getNombre())) {
+							nameVSlineid.put(rLine.getNombre(), rLine.getId());
+						}
+						return lineaService.updateCounterLineId(rLine.getId(), counter);
+					})
+					.thenMany(lineasCounter)
+					.flatMap(rLine -> {
+						if (nameVSlineid.containsKey(rLine.getNombre())) {
+							return lineaService.addCounterLineId(nameVSlineid.get(rLine.getNombre()), rLine.getId());
+						} else {
+							return Mono.empty();
+						}
+					});
+				})
+				.then(Mono.just("assignCounterLineByName"))
+				;
+	}
 
 }

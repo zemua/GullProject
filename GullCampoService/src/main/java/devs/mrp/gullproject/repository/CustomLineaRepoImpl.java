@@ -101,9 +101,23 @@ public class CustomLineaRepoImpl implements CustomLineaRepo {
 	}
 	
 	@Override
-	public Mono<Linea> updateCounterLineId(String idLinea, String counterLineId) {
+	public Mono<Linea> updateCounterLineId(String idLinea, List<String> counterLineId) {
 		Query query = new Query(Criteria.where("id").is(idLinea));
 		Update update = new Update().set("counterLineId", counterLineId);
+		FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true);
+		return mongoTemplate.findAndModify(query, update, options, Linea.class);
+	}
+	
+	public Mono<Linea> addCounterLineId(String idLinea, String counterLineId) { // TODO test
+		Query query = new Query(Criteria.where("id").is(idLinea));
+		Update update = new Update().push("counterLineId", counterLineId);
+		FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true);
+		return mongoTemplate.findAndModify(query, update, options, Linea.class);
+	}
+	
+	public Mono<Linea> removeCounterLineId(String idLinea, String counterLineId) { // TODO test
+		Query query = new Query(Criteria.where("id").is(idLinea));
+		Update update = new Update().pull("counterLineId", counterLineId);
 		FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true);
 		return mongoTemplate.findAndModify(query, update, options, Linea.class);
 	}

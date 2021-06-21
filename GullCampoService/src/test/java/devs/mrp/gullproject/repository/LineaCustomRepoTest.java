@@ -100,7 +100,9 @@ class LineaCustomRepoTest {
 		linea.setNombre(name);
 		linea.setOrder(2);
 		linea.setParentId("parent id");
-		linea.setCounterLineId("counter line id");
+		List<String> counter = new ArrayList<>();
+		counter.add("counter line id");
+		linea.setCounterLineId(counter);
 		
 		repo.save(linea).block();
 		
@@ -661,13 +663,15 @@ class LineaCustomRepoTest {
 	
 	@Test
 	void testUpdateCounterLineId() {
-		Linea resultado = repo.updateCounterLineId(linea.getId(), "new counter id").block();
+		List<String> list = new ArrayList<>();
+		list.add("new counter id");
+		Linea resultado = repo.updateCounterLineId(linea.getId(), list).block();
 		LineaOperations resultadoO = new LineaOperations(resultado);
 		
 		StepVerifier.create(mono)
 		.assertNext(line -> {
 			assertEquals(3, resultadoO.getCantidadCampos());
-			assertEquals("new counter id", line.getCounterLineId());
+			assertEquals("new counter id", line.getCounterLineId().get(0));
 		})
 		.expectComplete()
 		.verify();
