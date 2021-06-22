@@ -44,6 +44,7 @@ import devs.mrp.gullproject.service.CostRemapperUtilities;
 import devs.mrp.gullproject.service.LineaOperations;
 import devs.mrp.gullproject.service.LineaService;
 import devs.mrp.gullproject.service.LineaUtilities;
+import devs.mrp.gullproject.service.PropuestaProveedorUtilities;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -52,7 +53,7 @@ import reactor.core.publisher.Mono;
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = LineaController.class)
 @AutoConfigureWebTestClient
-@Import({MapperConfig.class, LineaUtilities.class, AttRemaperUtilities.class, CostRemapperUtilities.class})
+@Import({MapperConfig.class, LineaUtilities.class, AttRemaperUtilities.class, CostRemapperUtilities.class, PropuestaProveedorUtilities.class})
 class LineaControllerTest {
 	
 	WebTestClient webTestClient;
@@ -160,10 +161,14 @@ class LineaControllerTest {
 		mono2 = Mono.just(linea2);
 		flux = Flux.just(linea1, linea2);
 		
+		
 		propuestaProveedor = new PropuestaProveedor(propuesta.getId());
 		propuestaProveedor.setAttributeColumns(propuesta.getAttributeColumns());
-		propuestaProveedor.setLineaIds(propuesta.getLineaIds());
+		propuestaProveedor.setLineaIds(new ArrayList<>());
+		propuestaProveedor.getLineaIds().add(propuesta.getLineaIds().get(0));
+		propuestaProveedor.getLineaIds().add(propuesta.getLineaIds().get(1));
 		propuestaProveedor.setNombre("propuesta proveedor name");
+		propuestaProveedor.setForProposalId(propuesta.getId());
 		List<CosteProveedor> costes = new ArrayList<>();
 		CosteProveedor cos1 = new CosteProveedor();
 		cos1.setName("COSTE BASE");
@@ -1875,6 +1880,133 @@ class LineaControllerTest {
 		});
 		
 		log.debug("no test with validation error, because if it is not a valid number it just jumps it");
+	}
+	
+	@Test
+	void testAssignCounterLine() {
+		addCosteToLineas();
+		webTestClient.get()
+			.uri("/lineas/allof/propid/"+propuestaProveedor.getId()+"/counter-assign")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+				.contains("La propuesta tiene el mismo número de líneas")
+				.contains("Asignar por posicion")
+				.contains("Todas las líneas de esta propuesta que comparten nombre tienen los mismos costes")
+				.contains("Asignar por nombre")
+				.doesNotContain("La propuesta no tiene el mismo número de líneas")
+				.doesNotContain("Hay algunas líneas de esta propuesta que comparten nombre y no tienen lo mismos costes")
+				;
+			})
+			;
+		
+		propuestaProveedor.getLineaIds().add("otra");
+		webTestClient.get()
+		.uri("/lineas/allof/propid/"+propuestaProveedor.getId()+"/counter-assign")
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+			.doesNotContain("La propuesta tiene el mismo número de líneas")
+			.doesNotContain("Asignar por posicion")
+			.contains("Todas las líneas de esta propuesta que comparten nombre tienen los mismos costes")
+			.contains("Asignar por nombre")
+			.contains("La propuesta no tiene el mismo número de líneas")
+			.doesNotContain("Hay algunas líneas de esta propuesta que comparten nombre y no tienen lo mismos costes")
+			;
+		})
+		;
+		
+		Linea lineaco = new Linea();
+		lineaco.setCampos(linea1.getCampos());
+		lineaco.setCostesProveedor(new ArrayList<>());
+		lineaco.getCostesProveedor().add(new CosteLineaProveedor(linea1.getCostesProveedor().get(0)));
+		lineaco.getCostesProveedor().get(0).setValue(12369.85);
+		lineaco.setNombre(linea1.getNombre());
+		lineaco.setPropuestaId(propuestaProveedor.getId());
+		
+		when(lineaService.findByPropuestaId(ArgumentMatchers.eq(propuestaProveedor.getId()))).thenReturn(Flux.just(linea1, linea2, lineaco));
+		
+		webTestClient.get()
+		.uri("/lineas/allof/propid/"+propuestaProveedor.getId()+"/counter-assign")
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+			.doesNotContain("La propuesta tiene el mismo número de líneas")
+			.doesNotContain("Asignar por posicion")
+			.doesNotContain("Todas las líneas de esta propuesta que comparten nombre tienen los mismos costes")
+			.doesNotContain("Asignar por nombre")
+			.contains("La propuesta no tiene el mismo número de líneas")
+			.contains("Hay algunas líneas de esta propuesta que comparten nombre y no tienen lo mismos costes")
+			;
+		})
+		;
+	}
+	
+	@Test
+	void testProcessAssignCounterLineByOrder() {
+		addCosteToLineas();
+		
+		Linea lineawithcounter = new Linea(linea1);
+		List<String> list = new ArrayList<>();
+		list.add("counterLineId");
+		lineawithcounter.setCounterLineId(list);
+		when(lineaService.updateCounterLineId(ArgumentMatchers.eq(linea1.getId()), ArgumentMatchers.anyList())).thenReturn(Mono.just(lineawithcounter));
+		when(lineaService.updateCounterLineId(ArgumentMatchers.eq(linea2.getId()), ArgumentMatchers.anyList())).thenReturn(Mono.just(lineawithcounter));
+		
+		webTestClient.post()
+		.uri("/lineas/allof/propid/" + propuestaProveedor.getId() + "/counter-line")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("id", propuestaProveedor.getId())
+				.with("nombre", propuestaProveedor.getNombre())
+				.with("tipoPropuesta", propuestaProveedor.getTipoPropuesta().toString())
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+			.contains("Asignadas");
+		});
+	}
+	
+	@Test
+	void testProcessAssignCounterLineByName() {
+		addCosteToLineas();
+		
+		Linea lineawithcounter = new Linea(linea1);
+		List<String> list = new ArrayList<>();
+		list.add("counterLineId");
+		lineawithcounter.setCounterLineId(list);
+		when(lineaService.updateCounterLineId(ArgumentMatchers.eq(linea1.getId()), ArgumentMatchers.anyList())).thenReturn(Mono.just(lineawithcounter));
+		when(lineaService.updateCounterLineId(ArgumentMatchers.eq(linea2.getId()), ArgumentMatchers.anyList())).thenReturn(Mono.just(lineawithcounter));
+		when(lineaService.addCounterLineId(ArgumentMatchers.eq(linea1.getId()), ArgumentMatchers.anyString())).thenReturn(Mono.just(lineawithcounter));
+		when(lineaService.addCounterLineId(ArgumentMatchers.eq(linea2.getId()), ArgumentMatchers.anyString())).thenReturn(Mono.just(lineawithcounter));
+		
+		webTestClient.post()
+		.uri("/lineas/allof/propid/" + propuestaProveedor.getId() + "/counter-name")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("id", propuestaProveedor.getId())
+				.with("nombre", propuestaProveedor.getNombre())
+				.with("tipoPropuesta", propuestaProveedor.getTipoPropuesta().toString())
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+			.contains("Asignadas");
+		});
 	}
 
 }

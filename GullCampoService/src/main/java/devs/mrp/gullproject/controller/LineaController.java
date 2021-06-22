@@ -478,7 +478,7 @@ public class LineaController {
 		return "confirmDeleteLinesOf";
 	}
 	
-	@GetMapping("/allof/propid/{id}/counter-assign") // TODO test
+	@GetMapping("/allof/propid/{id}/counter-assign")
 	public Mono<String> assignCounterLine(Model model, @PathVariable(name = "id") String propuestaId) {
 		return consultaService.findPropuestaByPropuestaId(propuestaId)
 			.flatMap(rProThis -> {
@@ -493,15 +493,17 @@ public class LineaController {
 			;
 	}
 	
-	@PostMapping("/allof/propid/{id}/counter-line") // TODO test
+	@PostMapping("/allof/propid/{id}/counter-line")
 	public Mono<String> processAssignCounterLineByOrder(PropuestaProveedor propuesta, Model model, @PathVariable(name = "id") String propuestaId) {
 		model.addAttribute("propuesta", propuesta);
 		return consultaService.findPropuestaByPropuestaId(propuestaId)
 				.flatMapMany(rProThis -> {
+					log.debug("propuesta es: " + rProThis.toString());
 					var lineasThis = lineaService.findByPropuestaId(rProThis.getId());
 					var lineasCounter = lineaService.findByPropuestaId(rProThis.getForProposalId());
 					return Flux.zip(lineasThis, lineasCounter)
 					.flatMap(tuple -> {
+						log.debug("tupla es: " + tuple.toString());
 						List<String> counter = new ArrayList<>();
 						counter.add(tuple.getT2().getId());
 						return lineaService.updateCounterLineId(tuple.getT1().getId(), counter);
@@ -511,7 +513,7 @@ public class LineaController {
 				;
 	}
 	
-	@PostMapping("/allof/propid/{id}/counter-name") // TODO test
+	@PostMapping("/allof/propid/{id}/counter-name")
 	public Mono<String> processAssignCounterLineByName(PropuestaProveedor propuesta, Model model, @PathVariable(name = "id") String propuestaId) {
 		model.addAttribute("propuesta", propuesta);
 		return consultaService.findPropuestaByPropuestaId(propuestaId)

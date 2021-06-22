@@ -20,7 +20,7 @@
 	
 	<form method="POST" th:object="${propuesta}" th:action="@{/lineas/allof/propid/{id}/counter-line(id=${propuesta.id})}" class="margentb">
 		<div th:switch="${ifSameLinesSize}">
-			<p th:case="true">Las propuesta tiene el mismo número de líneas que la solicitud del cliente, puedes asignar contra-líneas siguiendo el orden una a una.</p>
+			<p th:case="true">La propuesta tiene el mismo número de líneas que la solicitud del cliente, puedes asignar contra-líneas siguiendo el orden una a una.</p>
 			<p th:case="*">La propuesta no tiene el mismo número de líneas que la solicitud del cliente, por lo que no se puede realizar asignación de contra-línea por posición.</p>
 		</div>
 		<div class="margentb" th:if="${ifSameLinesSize}">
