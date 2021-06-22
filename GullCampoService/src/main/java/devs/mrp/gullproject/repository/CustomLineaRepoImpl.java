@@ -108,14 +108,16 @@ public class CustomLineaRepoImpl implements CustomLineaRepo {
 		return mongoTemplate.findAndModify(query, update, options, Linea.class);
 	}
 	
-	public Mono<Linea> addCounterLineId(String idLinea, String counterLineId) { // TODO test
+	@Override
+	public Mono<Linea> addCounterLineId(String idLinea, String counterLineId) {
 		Query query = new Query(Criteria.where("id").is(idLinea));
 		Update update = new Update().push("counterLineId", counterLineId);
 		FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true);
 		return mongoTemplate.findAndModify(query, update, options, Linea.class);
 	}
 	
-	public Mono<Linea> removeCounterLineId(String idLinea, String counterLineId) { // TODO test
+	@Override
+	public Mono<Linea> removeCounterLineId(String idLinea, String counterLineId) {
 		Query query = new Query(Criteria.where("id").is(idLinea));
 		Update update = new Update().pull("counterLineId", counterLineId);
 		FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true);
