@@ -25,10 +25,12 @@ import devs.mrp.gullproject.domains.dto.CostesCheckboxWrapper;
 import devs.mrp.gullproject.repository.ConsultaRepo;
 import devs.mrp.gullproject.repository.CustomConsultaRepo;
 import devs.mrp.gullproject.repository.LineaRepo;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+@Slf4j
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 class ConsultaServiceTest {
@@ -52,7 +54,7 @@ class ConsultaServiceTest {
 	Consulta consulta;
 	Propuesta propuesta1;
 	Propuesta propuesta2;
-	Propuesta propuestaProveedor;
+	PropuestaProveedor propuestaProveedor;
 	Mono<Consulta> mono;
 	AtributoForCampo att1;
 	AtributoForCampo att2;
@@ -106,9 +108,15 @@ class ConsultaServiceTest {
 	
 	private void addCosts() {
 		propuestaProveedor = new PropuestaProveedor();
+		log.debug("new propuesta: " + propuestaProveedor.toString());
+		propuestaProveedor.setForProposalId(propuesta1.getId());
+		log.debug("with for proposal id: " + propuestaProveedor.toString());
 		propuestaProveedor.operations().addAttribute(att1);
+		log.debug("with att1: " + propuestaProveedor.toString());
 		propuestaProveedor.setNombre("nombre propuesta proveedor");
+		log.debug("with nombre: " + propuestaProveedor.toString());
 		propuestaProveedor.operations().addAttribute(att2);
+		log.debug("with att2: " + propuestaProveedor.toString());
 		cost1 = new CosteProveedor();
 		cost1.setName("coste 1");
 		cost2 = new CosteProveedor();
@@ -117,6 +125,7 @@ class ConsultaServiceTest {
 		costs.add(cost1);
 		costs.add(cost2);
 		((PropuestaProveedor)propuestaProveedor).setCostes(costs);
+		log.debug("with costs: " + propuestaProveedor.toString());
 		consultaService.addPropuesta(consulta.getId(), propuestaProveedor).block();
 	}
 	
@@ -221,6 +230,28 @@ class ConsultaServiceTest {
 			.assertNext(p ->{
 				assertEquals(1, ((PropuestaProveedor)p).getCostes().size());
 				assertEquals(cost2.getName(), ((PropuestaProveedor)p).getCostes().get(0).getName());
+			})
+			.expectComplete()
+			.verify()
+			;
+	}
+	
+	@Test
+	void testGetAllPropuestaProveedorAsignedTo() throws Exception {
+		addCosts();
+		Propuesta p2 = new PropuestaProveedor(propuestaProveedor);
+		p2.setForProposalId("otro");
+		Propuesta p3 = new PropuestaProveedor(propuestaProveedor);
+		consultaService.addPropuesta(consulta.getId(), p2).block();
+		consultaService.addPropuesta(consulta.getId(), p3).block();
+		
+		Flux<Propuesta> props = consultaService.getAllPropuestaProveedorAsignedTo(propuesta1.getId());
+		StepVerifier.create(props)
+			.assertNext(p -> {
+				assertEquals(propuestaProveedor.getId(), p.getId());
+			})
+			.assertNext(p -> {
+				assertEquals(p3.getId(), p.getId());
 			})
 			.expectComplete()
 			.verify()

@@ -14,7 +14,7 @@ public class PropuestaCliente extends Propuesta {
 	}
 	
 	@PersistenceConstructor
-	public PropuestaCliente(TipoPropuesta tipoPropuesta) { // dummy parameter
+	public PropuestaCliente(TipoPropuesta tipoPropuesta) { // dummy parameter for Thymeleaf
 		super(TipoPropuesta.CLIENTE);
 	}
 	

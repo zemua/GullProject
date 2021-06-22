@@ -37,6 +37,7 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 	
 	@Override
 	public Mono<Consulta> addPropuesta(String idConsulta, Propuesta propuesta) {
+		log.debug("propuesta to add: " + propuesta.toString());
 		Query query = new Query(Criteria.where("id").is(idConsulta));
 		Update update = new Update().addToSet("propuestas", propuesta);
 		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);

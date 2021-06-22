@@ -10,10 +10,18 @@ import devs.mrp.gullproject.service.PropuestaProveedorOperations;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
+
 public class PropuestaProveedor extends Propuesta {
 	
 	List<CosteProveedor> costes;
+	
+	public void setCostes(List<CosteProveedor> costes) {
+		this.costes = costes;
+	}
+	
+	public List<CosteProveedor> getCostes() {
+		return this.costes;
+	}
 
 	public PropuestaProveedor() {
 		super(TipoPropuesta.PROVEEDOR);
@@ -29,19 +37,12 @@ public class PropuestaProveedor extends Propuesta {
 		this.setForProposalId(idPropuestaCliente);
 	}
 	
-	public PropuestaProveedor(Propuesta propuesta) {
-		super(TipoPropuesta.PROVEEDOR);
-		this.attributeColumns = propuesta.attributeColumns;
-		this.forProposalId = propuesta.forProposalId;
-		this.id = propuesta.id;
-		this.lineaIds = propuesta.lineaIds;
-		this.nombre = propuesta.nombre;
-		this.parentId = propuesta.parentId;
-		if (propuesta instanceof PropuestaProveedor) {
-			this.costes = ((PropuestaProveedor)propuesta).costes;
-		} else {
-			this.costes = new ArrayList<>();
+	public PropuestaProveedor(Propuesta propuesta) throws Exception {
+		super(propuesta);
+		if (!(propuesta instanceof PropuestaProveedor)) {
+			throw new Exception();
 		}
+		this.costes = ((PropuestaProveedor)propuesta).costes;
 	}
 	
 	public PropuestaProveedorOperations operationsProveedor() {

@@ -137,12 +137,13 @@ public class ConsultaService {
 		return updateCostesOfPropuesta(idPropuesta, costs);
 	}
 	
-	public Flux<Propuesta> getAllPropuestaProveedorAsignedTo(String propClienteId) { // TODO test
+	public Flux<Propuesta> getAllPropuestaProveedorAsignedTo(String propClienteId) {
 		return findConsultaByPropuestaId(propClienteId)
 			.flatMapMany(rCons -> {
+				log.debug("consulta: " + rCons.toString());
 				return Flux.fromIterable(rCons.getPropuestas().stream()
-						.filter(p -> p.getForProposalId().equals(propClienteId))
 						.filter(p -> p.getTipoPropuesta().equals(TipoPropuesta.PROVEEDOR))
+						.filter(p -> p.getForProposalId().equals(propClienteId))
 						.collect(Collectors.toList()));
 			})
 			;
