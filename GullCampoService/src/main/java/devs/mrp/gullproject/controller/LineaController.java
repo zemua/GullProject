@@ -69,6 +69,8 @@ import reactor.core.publisher.Mono;
 @Controller
 @RequestMapping(path = "/lineas")
 public class LineaController {
+	
+	// TODO for excels where one sheet = one product, first map fields in the sheet row/column=attribute, then extract data from several sheets following this map.
 
 	private LineaService lineaService;
 	private ConsultaService consultaService;
@@ -92,8 +94,6 @@ public class LineaController {
 		this.costRemapperUtilities = costRemapperUtilities;
 		this.propuestaProveedorUtilities = propuestaProveedorUtilities;
 	}
-	
-	// TODO for excels where one sheet = one product, first map fields in the sheet row/column=attribute, then extract data from several sheets following this map.
 
 	@GetMapping("/allof/propid/{propuestaId}")
 	public String showAllLinesOf(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
@@ -102,6 +102,7 @@ public class LineaController {
 		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
 		model.addAttribute("consulta", consulta);
 		model.addAttribute("propuestaId", propuestaId);
+		model.addAttribute("mapa", lineaUtilities.get_ProposalId_VS_SetOfCounterLineId(propuestaId));
 		return "showAllLineasOfPropuesta";
 	}
 	

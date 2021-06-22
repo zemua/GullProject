@@ -89,7 +89,7 @@ public class ConsultaController {
 		return "processNewConsulta";
 	}
 	
-	@GetMapping("/all")
+	@GetMapping("/all") // TODO show more recent up
 	public String showAllConsultas(Model model) {
 		Flux<Consulta> consultas = consultaService.findAll();
 		model.addAttribute("consultas", new ReactiveDataDriverContextVariable(consultas, 1));

@@ -25,11 +25,13 @@ public class LineaService {
 
 	private LineaRepo lineaRepo;
 	private ConsultaRepo consultaRepo;
+	private ConsultaService consultaService;
 	
 	@Autowired
-	public LineaService(LineaRepo lineaRepo, ConsultaRepo consultaRepo) {
+	public LineaService(LineaRepo lineaRepo, ConsultaRepo consultaRepo, ConsultaService consultaService) {
 		this.lineaRepo = lineaRepo;
 		this.consultaRepo = consultaRepo;
+		this.consultaService = consultaService;
 	}
 	
 	public Mono<Linea> findById(String id){
@@ -168,6 +170,11 @@ public class LineaService {
 	
 	public Mono<Linea> removeCounterLineId(String idLinea, String counterLineId) {
 		return lineaRepo.removeCounterLineId(idLinea, counterLineId);
+	}
+	
+	public Flux<Linea> getAllLineasOfPropuestasAssignedTo(String propuestaClienteId) { // TODO test
+		return consultaService.getAllPropuestaProveedorAsignedTo(propuestaClienteId)
+			.flatMap(rProp -> findByPropuestaId(rProp.getId()));
 	}
 	
 }

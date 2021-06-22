@@ -12,6 +12,7 @@ import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
+import devs.mrp.gullproject.domains.TipoPropuesta;
 import devs.mrp.gullproject.domains.dto.CostesCheckboxWrapper;
 import devs.mrp.gullproject.repository.ConsultaRepo;
 import lombok.extern.slf4j.Slf4j;
@@ -134,5 +135,16 @@ public class ConsultaService {
 	public Mono<Consulta> keepUnselectedCosts(String idPropuesta, CostesCheckboxWrapper wrapper) {
 		List<CosteProveedor> costs = wrapper.getCostes().stream().filter(c -> !c.isSelected()).map(c -> modelMapper.map(c, CosteProveedor.class)).collect(Collectors.toList());
 		return updateCostesOfPropuesta(idPropuesta, costs);
+	}
+	
+	public Flux<Propuesta> getAllPropuestaProveedorAsignedTo(String propClienteId) { // TODO test
+		return findConsultaByPropuestaId(propClienteId)
+			.flatMapMany(rCons -> {
+				return Flux.fromIterable(rCons.getPropuestas().stream()
+						.filter(p -> p.getForProposalId().equals(propClienteId))
+						.filter(p -> p.getTipoPropuesta().equals(TipoPropuesta.PROVEEDOR))
+						.collect(Collectors.toList()));
+			})
+			;
 	}
 }

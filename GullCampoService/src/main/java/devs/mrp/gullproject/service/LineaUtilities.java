@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -745,6 +747,24 @@ public class LineaUtilities {
 						;
 				})
 				;
+	}
+	
+	public Mono<Map<String, Set<String>>> get_ProposalId_VS_SetOfCounterLineId(String customerProposalId) {
+		return lineaService.getAllLineasOfPropuestasAssignedTo(customerProposalId)
+			.collectList().map(lineas -> {
+				Map<String, Set<String>> map = new HashMap<>();
+				lineas.stream().forEach(linea -> {
+					if (!map.containsKey(linea.getPropuestaId())) {
+						map.put(linea.getPropuestaId(), ConcurrentHashMap.newKeySet());
+					}
+					if (linea.getCounterLineId() != null) {
+						linea.getCounterLineId().stream().forEach(counter -> {
+							map.get(linea.getPropuestaId()).add(counter);
+						});
+					}
+				});
+				return map;
+			});
 	}
 	
 }
