@@ -37,7 +37,7 @@ public class ConsultaService {
 	}
 	
 	public Flux<Consulta> findAll() {
-		return consultaRepo.findAll();
+		return consultaRepo.findAllByOrderByCreatedTimeDesc();
 	}
 	
 	public Mono<Consulta> findById(String id) {

@@ -49,7 +49,6 @@ import reactor.core.publisher.Mono;
 @RequestMapping(path = "/consultas")
 public class ConsultaController {
 	
-	// TODO create supplier proposals from customer ones (discriminar lineas con el mismo nombre y distinto precio)
 	// TODO create our proposals from customer and supplier ones
 	// TODO adapt old supplier proposals for updated customer inquiry
 	// TODO make a "compare" view to check supplier vs customer table and ours vs customer table
@@ -89,7 +88,7 @@ public class ConsultaController {
 		return "processNewConsulta";
 	}
 	
-	@GetMapping("/all") // TODO show more recent up
+	@GetMapping("/all")
 	public String showAllConsultas(Model model) {
 		Flux<Consulta> consultas = consultaService.findAll();
 		model.addAttribute("consultas", new ReactiveDataDriverContextVariable(consultas, 1));
