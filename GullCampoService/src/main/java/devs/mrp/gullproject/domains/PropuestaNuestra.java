@@ -9,13 +9,22 @@ import org.springframework.data.annotation.PersistenceConstructor;
 public class PropuestaNuestra extends Propuesta {
 	
 	List<Pvper> pvps = new ArrayList<>();
+	List<PvperSum> sums = new ArrayList<>();
 	
 	public List<Pvper> getPvps() {
-		return pvps;
+		return this.pvps;
 	}
 	
 	public void setPvps(List<Pvper> pvps) {
 		this.pvps = pvps;
+	}
+	
+	public List<PvperSum> getSums() {
+		return this.sums;
+	}
+	
+	public void setSums(List<PvperSum> sums) {
+		this.sums = sums;
 	}
 
 	public PropuestaNuestra() {

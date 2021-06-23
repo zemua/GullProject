@@ -1,12 +1,16 @@
 package devs.mrp.gullproject.domains;
 
+import java.util.List;
+
+import org.bson.types.ObjectId;
+
 import lombok.Data;
 
 @Data
 public class Pvper {
 
-	String idCoste;
-	double margen;
-	double pvp;
+	String id = new ObjectId().toString();
+	List<String> idCostes;
+	String name;
 	
 }

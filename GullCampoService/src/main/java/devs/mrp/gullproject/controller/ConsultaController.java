@@ -97,7 +97,7 @@ public class ConsultaController {
 		return "showAllConsultas";
 	}
 	
-	@GetMapping("/revisar/id/{id}")
+	@GetMapping("/revisar/id/{id}") // TODO test shows our offer
 	public String reviewConsultaById(Model model, @PathVariable(name = "id") String id) {
 		Mono<Consulta> consulta = consultaService.findById(id);
 		model.addAttribute("consulta", consulta);
@@ -487,7 +487,7 @@ public class ConsultaController {
 	 * OUR PROPOSALS
 	 */
 	
-	@GetMapping("/revisar/id/{consultaId}/onprop/{propuestaClienteId}/addofertanuestra") // TODO test
+	@GetMapping("/revisar/id/{consultaId}/onprop/{propuestaClienteId}/addofertanuestra")
 	public String addOurOfferToProposalCliente(Model model, @PathVariable(name = "consultaId") String consultaId, @PathVariable(name = "propuestaClienteId") String propuestaClienteId) {
 		model.addAttribute("consultaId", consultaId);
 		Mono<WrapPropuestaNuestraAndSelectableAttributes> propuesta = propuestaUtilities.wrapPropuestaNuestraAndSelectableAttributes(new PropuestaNuestra(propuestaClienteId));
@@ -495,7 +495,7 @@ public class ConsultaController {
 		return "addOurOfferToConsulta";
 	}
 	
-	@PostMapping("/revisar/id/{consultaId}/onprop/{propuestaClienteId}/addofertanuestra") // TODO test
+	@PostMapping("/revisar/id/{consultaId}/onprop/{propuestaClienteId}/addofertanuestra")
 	public String processAddOurOfferToProposalCliente(@Valid WrapPropuestaNuestraAndSelectableAttributes wrapPropuestaNuestraAndSelectableAttributes, BindingResult bindingResult, Model model, @PathVariable(name = "consultaId") String consultaId, @PathVariable(name = "propuestaClienteId") String propuestaClienteId) {
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("wrapPropuestaNuestraAndSelectableAttributes", wrapPropuestaNuestraAndSelectableAttributes);

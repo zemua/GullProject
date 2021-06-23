@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
+import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,7 +36,11 @@ import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.domains.PropuestaNuestra;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
+import devs.mrp.gullproject.domains.Pvper;
+import devs.mrp.gullproject.domains.PvperLinea;
+import devs.mrp.gullproject.domains.PvperSum;
 import devs.mrp.gullproject.domains.TipoPropuesta;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.CostesCheckboxWrapper;
@@ -78,6 +83,7 @@ class ConsultaControllerTestB {
 	Propuesta prop2;
 	Propuesta prop3;
 	Propuesta propuestaProveedor;
+	Propuesta propuestaNuestra;
 	Consulta consulta1;
 	Consulta consulta2;
 	Mono<Consulta> mono1;
@@ -163,6 +169,22 @@ class ConsultaControllerTestB {
 		costes.add(cos1);
 		((PropuestaProveedor)propuestaProveedor).setCostes(costes);
 		
+		propuestaNuestra = new PropuestaNuestra(prop1.getId());
+		propuestaNuestra.setAttributeColumns(prop1.getAttributeColumns());
+		propuestaNuestra.setLineaIds(prop1.getLineaIds());
+		propuestaNuestra.setNombre("propuesta nuestra name");
+		List<Pvper> pvpers = new ArrayList<>();
+		Pvper pvp1 = new Pvper();
+		pvp1.setIdCostes(new ArrayList<String>() {{add(cos1.getId());}});
+		pvp1.setName("pvp1 name");
+		pvpers.add(pvp1);
+		((PropuestaNuestra)propuestaNuestra).setPvps(pvpers);
+		List<PvperSum> sums = new ArrayList<>();
+		PvperSum sum1 = new PvperSum();
+		sum1.setPvperIds(new ArrayList<String>() {{add(pvp1.getId());}});
+		sum1.setName("sum1 name");
+		sums.add(sum1);
+		((PropuestaNuestra)propuestaNuestra).setSums(sums);
 		
 		
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(prop1.getId()))).thenReturn(Mono.just(prop1));
@@ -184,6 +206,12 @@ class ConsultaControllerTestB {
 		costs.add(cost);
 		linea1.setCostesProveedor(costs);
 		linea2.setCostesProveedor(costs);
+		
+		consulta1.getPropuestas().add(propuestaNuestra);
+		PvperLinea pvp = new PvperLinea();
+		pvp.setMargen(28.5);
+		pvp.setPvp(126.53);
+		pvp.setPvperId(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId());
 	}
 
 	@Test
@@ -479,7 +507,7 @@ class ConsultaControllerTestB {
 		.consumeWith(response -> {
 				Assertions.assertThat(response.getResponseBody()).asString()
 					.contains("Gull Project - Propuesta Guardada")
-					.contains("Propuesta Guardada Como...")
+					.contains("Guardando...")
 					.contains("Nombre:")
 					.doesNotContain("errores")
 					.contains(prop1.getNombre())
@@ -1000,7 +1028,7 @@ class ConsultaControllerTestB {
 		.consumeWith(response -> {
 				Assertions.assertThat(response.getResponseBody()).asString()
 					.contains("Gull Project - Propuesta Guardada")
-					.contains("Propuesta Guardada Como...")
+					.contains("Guardando...")
 					.contains("Nombre:")
 					.doesNotContain("errores")
 					.contains(prop2.getNombre())
@@ -1290,6 +1318,117 @@ class ConsultaControllerTestB {
 						.contains("Ordenar costes de la propuesta");
 			})
 			;
+	}
+	
+	@Test
+	void testAddOurOfferToProposalCliente() {
+		Propuesta propB = new PropuestaNuestra(prop1.getId());
+		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propB.getId()))).thenReturn(Mono.just(propB));
+		
+		webTestClient.get()
+		.uri("/consultas/revisar/id/"+consulta1.getId()+"/onprop/"+propB.getId()+"/addofertanuestra")
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Nueva oferta para el cliente")
+					.contains("Nombre")
+					.contains("Ok")
+					.contains("Volver")
+					.contains("NUESTRA")
+					.contains(att1.getName())
+					.contains(att2.getName())
+					.contains(att3.getName());
+		});
+	}
+	
+	@Test
+	void testProcessAddOurOfferToProposalCliente() {
+		consulta2.operations().addPropuesta(prop2);
+		when(consultaService.addPropuesta(ArgumentMatchers.eq(consulta2.getId()), ArgumentMatchers.any(Propuesta.class))).thenReturn(Mono.just(consulta2));
+		
+		log.debug("should be ok");
+		webTestClient.post()
+		.uri("/consultas/revisar/id/"+consulta2.getId()+"/onprop/"+prop1.getId()+"/addofertanuestra")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("propuestaNuestra.nombre", prop1.getNombre())
+				.with("propuestaNuestra.tipoPropuesta", TipoPropuesta.NUESTRA.toString())
+				.with("propuestaNuestra.forProposalId", prop2.getId())
+				
+				.with("attributes[0].selected", "true")
+				.with("attributes[0].localIdentifier", att1.getLocalIdentifier())
+				.with("attributes[0].id", att1.getId())
+				.with("attributes[0].name", att1.getName())
+				.with("attributes[0].tipo", att1.getTipo())
+				
+				.with("attributes[1].selected", "false")
+				.with("attributes[1].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[1].id", att2.getId())
+				.with("attributes[1].name", att2.getName())
+				.with("attributes[1].tipo", att2.getTipo())
+				
+				.with("attributes[2].selected", "false")
+				.with("attributes[2].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[2].id", att2.getId())
+				.with("attributes[2].name", att2.getName())
+				.with("attributes[2].tipo", att2.getTipo())
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Gull Project - Propuesta Guardada")
+					.contains("Guardando...")
+					.contains("Nombre:")
+					.doesNotContain("errores")
+					.contains(prop2.getNombre())
+					.contains("Volver a la consulta");
+		});
+		
+		prop1.setNombre("");
+		consulta2.operations().addPropuesta(prop1);
+		
+		log.debug("should have errors");
+		webTestClient.post()
+		.uri("/consultas/revisar/id/"+consulta2.getId()+"/onprop/"+prop1.getId()+"/addofertanuestra")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("propuestaNuestra.nombre", "")
+				.with("propuestaNuestra.tipoPropuesta", TipoPropuesta.NUESTRA.toString())
+				
+				.with("attributes[0].selected", "true")
+				.with("attributes[0].localIdentifier", att1.getLocalIdentifier())
+				.with("attributes[0].id", att1.getId())
+				.with("attributes[0].name", att1.getName())
+				.with("attributes[0].tipo", att1.getTipo())
+				
+				.with("attributes[1].selected", "false")
+				.with("attributes[1].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[1].id", att2.getId())
+				.with("attributes[1].name", att2.getName())
+				.with("attributes[1].tipo", att2.getTipo())
+				
+				.with("attributes[2].selected", "false")
+				.with("attributes[2].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[2].id", att2.getId())
+				.with("attributes[2].name", att2.getName())
+				.with("attributes[2].tipo", att2.getTipo())
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Nueva oferta para el cliente")
+					.contains("Corrige los errores y reenvía.")
+					.contains("Selecciona un nombre")
+					.contains("Nombre:")
+					.contains("Volver");
+		});
 	}
 
 }

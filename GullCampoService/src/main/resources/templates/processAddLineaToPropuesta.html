@@ -7,10 +7,8 @@
 </head>
 <body>
 
-<h1>Linea Guardada</h1>
-
 	<div>
-		<span class="success" th:if="${lineas != null && propuesta != null}">Linea Guardada Como...</span>
+		<span class="success" th:if="${lineas != null && propuesta != null}">Guardando...</span>
 		<span class="failure" th:unless="${lineas != null && propuesta != null}">Algo no ha ido bien...</span>
 	</div>
 
