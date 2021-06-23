@@ -47,15 +47,6 @@ public abstract class Propuesta {
 		this.tipoPropuesta = tipo;
 	}
 	
-	public Propuesta(Propuesta propuesta) {
-		this.tipoPropuesta = propuesta.getTipoPropuesta();
-		this.attributeColumns = propuesta.attributeColumns;
-		this.forProposalId = propuesta.forProposalId;
-		this.lineaIds = propuesta.lineaIds;
-		this.nombre = propuesta.nombre;
-		this.parentId = propuesta.parentId;
-	}
-	
 	public PropuestaOperations operations() {
 		return new PropuestaOperations(this);
 	}

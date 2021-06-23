@@ -224,14 +224,7 @@ public class PropuestaUtilities {
 	private List<PropuestaProveedor> extractPropuestasProveedorForThisPropuestaCustomer(List<Propuesta> propuestas, String idPropuestaCliente) {
 		List<PropuestaProveedor> list = propuestas.stream()
 				.filter(p-> p.getTipoPropuesta().equals(TipoPropuesta.PROVEEDOR) && p.getForProposalId().equals(idPropuestaCliente))
-				.map(pr -> {
-					try {
-						return new PropuestaProveedor(pr);
-					} catch(Exception e) {
-						e.printStackTrace();
-						return null;
-					}
-				})
+				.map(pr -> new PropuestaProveedor(pr))
 				.collect(Collectors.toList());
 		list.sort((p1, p2) -> Long.valueOf(p1.getCreatedTime()).compareTo(p2.getCreatedTime()));
 		return list;

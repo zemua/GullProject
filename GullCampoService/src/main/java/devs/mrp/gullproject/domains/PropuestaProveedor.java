@@ -37,11 +37,14 @@ public class PropuestaProveedor extends Propuesta {
 		this.setForProposalId(idPropuestaCliente);
 	}
 	
-	public PropuestaProveedor(Propuesta propuesta) throws Exception {
-		super(propuesta);
-		if (!(propuesta instanceof PropuestaProveedor)) {
-			throw new Exception();
-		}
+	public PropuestaProveedor(Propuesta propuesta) {
+		super(TipoPropuesta.PROVEEDOR);
+		this.id = propuesta.id;
+		this.attributeColumns = propuesta.attributeColumns;
+		this.forProposalId = propuesta.forProposalId;
+		this.lineaIds = propuesta.lineaIds;
+		this.nombre = propuesta.nombre;
+		this.parentId = propuesta.parentId;
 		this.costes = ((PropuestaProveedor)propuesta).costes;
 	}
 	
