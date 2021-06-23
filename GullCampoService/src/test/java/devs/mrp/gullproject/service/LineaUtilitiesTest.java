@@ -6,7 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +29,7 @@ import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.domains.StringListOfListsWrapper;
 import devs.mrp.gullproject.domains.StringListWrapper;
 import devs.mrp.gullproject.domains.dto.AtributoForLineaFormDto;
@@ -401,6 +405,40 @@ public class LineaUtilitiesTest {
 			})
 			.expectComplete()
 			.verify();
+	}
+	
+	@Test
+	void test_get_ProposalId_VS_SetOfCounterLineId() {
+		var pp1 = new PropuestaProveedor();
+		pp1.setForProposalId(propuesta.getId());
+		var pp2 = new PropuestaProveedor();
+		pp2.setForProposalId(propuesta.getId());
+		
+		var lp1a = new Linea();
+		lp1a.setPropuestaId(pp1.getId());
+		lp1a.setCounterLineId(new ArrayList<String>(Arrays.asList("counter1a")));
+		var lp1b = new Linea();
+		lp1b.setPropuestaId(pp1.getId());
+		lp1b.setCounterLineId(new ArrayList<String>(Arrays.asList("counter1b")));
+		
+		var lp2a = new Linea();
+		lp2a.setPropuestaId(pp2.getId());
+		lp2a.setCounterLineId(new ArrayList<String>(Arrays.asList("counter2a")));
+		var lp2b = new Linea();
+		lp2b.setPropuestaId(pp2.getId());
+		lp2b.setCounterLineId(new ArrayList<String>(Arrays.asList("counter2b")));
+		
+		when(lineaService.getAllLineasOfPropuestasAssignedTo(propuesta.getId())).thenReturn(Flux.just(lp1a, lp1b, lp2a, lp2b));
+		
+		Map<String, Set<String>> map = lineaUtilities.get_ProposalId_VS_SetOfCounterLineId(propuesta.getId()).block();
+		
+		assertEquals(2, map.keySet().size());
+		assertTrue(map.keySet().contains(pp1.getId()));
+		assertTrue(map.keySet().contains(pp2.getId()));
+		assertTrue(map.get(pp1.getId()).contains("counter1a"));
+		assertTrue(map.get(pp1.getId()).contains("counter1b"));
+		assertTrue(map.get(pp2.getId()).contains("counter2a"));
+		assertTrue(map.get(pp2.getId()).contains("counter2b"));
 	}
 
 }
