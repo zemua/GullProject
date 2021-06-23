@@ -373,6 +373,10 @@ class ConsultaControllerTestB {
 		prop3.setNombre("propuesta 3");
 		Propuesta prop4 = new PropuestaProveedor(prop2.getId());
 		prop4.setNombre("propuesta 4");
+		Propuesta prop5 = new PropuestaNuestra(prop1.getId());
+		prop5.setNombre("propuesta 5");
+		Propuesta prop6 = new PropuestaNuestra(prop2.getId());
+		prop6.setNombre("propuesta 6");
 		
 		List<CosteProveedor> costes = new ArrayList<>();
 		CosteProveedor cos1 = new CosteProveedor();
@@ -381,6 +385,21 @@ class ConsultaControllerTestB {
 		((PropuestaProveedor)prop3).setCostes(costes);
 		((PropuestaProveedor)prop4).setCostes(costes);
 		
+		List<Pvper> pvpers = new ArrayList<>();
+		Pvper pvp1 = new Pvper();
+		pvp1.setIdCostes(new ArrayList<String>() {{add(cos1.getId());}});
+		pvp1.setName("PVP BASE");
+		pvpers.add(pvp1);
+		((PropuestaNuestra)prop5).setPvps(pvpers);
+		((PropuestaNuestra)prop6).setPvps(pvpers);
+		List<PvperSum> sums = new ArrayList<>();
+		PvperSum sum1 = new PvperSum();
+		sum1.setName("SUM BASE");
+		sum1.setPvperIds(new ArrayList<String>() {{add(pvp1.getId());}});
+		sums.add(sum1);
+		((PropuestaNuestra)prop5).setSums(sums);
+		((PropuestaNuestra)prop6).setSums(sums);
+		
 		Consulta a = new Consulta();
 		a.setNombre("consulta 1");
 		a.setStatus("estado 1");
@@ -388,7 +407,7 @@ class ConsultaControllerTestB {
 		a.operations().addPropuesta(prop1);
 		a.operations().addPropuesta(prop2);
 		a.operations().addPropuesta(prop3);
-		
+		a.operations().addPropuesta(prop5);
 		
 		Consulta b = new Consulta();
 		b.setNombre("consulta 2");
@@ -423,6 +442,9 @@ class ConsultaControllerTestB {
 						.contains("Respuestas de Proveedores")
 						.contains(prop3.getNombre())
 						.doesNotContain(prop4.getNombre())
+						.contains("Ofertas Nuestras")
+						.contains(prop5.getNombre())
+						.doesNotContain(prop6.getNombre())
 						.contains("Añadir una solicitud o revisión del cliente");
 			});
 		
