@@ -172,7 +172,7 @@ public class LineaService {
 		return lineaRepo.removeCounterLineId(idLinea, counterLineId);
 	}
 	
-	public Flux<Linea> getAllLineasOfPropuestasAssignedTo(String propuestaClienteId) { // TODO test
+	public Flux<Linea> getAllLineasOfPropuestasAssignedTo(String propuestaClienteId) {
 		return consultaService.getAllPropuestaProveedorAsignedTo(propuestaClienteId)
 			.flatMap(rProp -> findByPropuestaId(rProp.getId()));
 	}

@@ -25,6 +25,7 @@ import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.repository.ConsultaRepo;
 import devs.mrp.gullproject.repository.CustomLineaRepo;
 import devs.mrp.gullproject.repository.LineaRepo;
@@ -39,15 +40,17 @@ class LineaServiceTest {
 	LineaService lineaService;
 	LineaRepo lineaRepo;
 	ConsultaRepo consultaRepo;
+	ConsultaService consultaService;
 	
 	@Autowired
-	public LineaServiceTest(LineaService lineaService, LineaRepo lineaRepo, ConsultaRepo consultaRepo) {
+	public LineaServiceTest(LineaService lineaService, LineaRepo lineaRepo, ConsultaRepo consultaRepo, ConsultaService consultaService) {
 		this.lineaService = lineaService;
 		this.lineaRepo = lineaRepo;
 		if (!(lineaRepo instanceof CustomLineaRepo)) {
 			fail("LineaRepo no extiende CustomLineaRepo");
 		}
 		this.consultaRepo = consultaRepo;
+		this.consultaService = consultaService;
 	}
 	
 	Campo<Integer> campo1;
@@ -366,6 +369,49 @@ class LineaServiceTest {
 		StepVerifier.create(lineaService.findById(linea7.getId()))
 		.expectComplete()
 		.verify();
+	}
+	
+	@Test
+	void testGetAllLineasOfPropuestasAssignedTo() {
+		var pp1 = new PropuestaProveedor();
+		pp1.setForProposalId(propuesta.getId());
+		var pp2 = new PropuestaProveedor();
+		pp2.setForProposalId(propuesta.getId());
+		consultaRepo.addPropuesta(consulta.getId(), pp1).block();
+		consultaRepo.addPropuesta(consulta.getId(), pp2).block();
+		
+		var lp1a = new Linea();
+		lp1a.setPropuestaId(pp1.getId());
+		var lp1b = new Linea();
+		lp1b.setPropuestaId(pp1.getId());
+		
+		var lp2a = new Linea();
+		lp2a.setPropuestaId(pp2.getId());
+		var lp2b = new Linea();
+		lp2b.setPropuestaId(pp2.getId());
+		
+		lineaRepo.save(lp1a).block();
+		lineaRepo.save(lp1b).block();
+		lineaRepo.save(lp2a).block();
+		lineaRepo.save(lp2b).block();
+		
+		Flux<Linea> lineas = lineaService.getAllLineasOfPropuestasAssignedTo(propuesta.getId());
+		StepVerifier.create(lineas)
+			.assertNext(l -> {
+				assertEquals(lp1a.getId(), l.getId());
+			})
+			.assertNext(l -> {
+				assertEquals(lp1b.getId(), l.getId());
+			})
+			.assertNext(l -> {
+				assertEquals(lp2a.getId(), l.getId());
+			})
+			.assertNext(l -> {
+				assertEquals(lp2b.getId(), l.getId());
+			})
+			.expectComplete()
+			.verify()
+			;
 	}
 
 }
