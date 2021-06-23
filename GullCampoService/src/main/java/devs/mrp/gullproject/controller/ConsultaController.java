@@ -24,6 +24,7 @@ import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.domains.PropuestaNuestra;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AttributesListDto;
@@ -34,6 +35,7 @@ import devs.mrp.gullproject.domains.dto.CostesWrapper;
 import devs.mrp.gullproject.domains.dto.ProposalPie;
 import devs.mrp.gullproject.domains.dto.WrapAtributosForCampoDto;
 import devs.mrp.gullproject.domains.dto.WrapPropuestaClienteAndSelectableAttributes;
+import devs.mrp.gullproject.domains.dto.WrapPropuestaNuestraAndSelectableAttributes;
 import devs.mrp.gullproject.domains.dto.WrapPropuestaProveedorAndSelectableAttributes;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.ConsultaService;
@@ -294,6 +296,10 @@ public class ConsultaController {
 		return "processEditPropuesta";
 	}
 	
+	/**
+	 * SUPPLIER PROPOSALS
+	 */
+	
 	@GetMapping("/revisar/id/{consultaId}/onprop/{propuestaClienteId}/addcotizacionproveedor")
 	public String addProposalProveedorToProposalCliente(Model model, @PathVariable(name = "consultaId") String consultaId, @PathVariable(name = "propuestaClienteId") String propuestaClienteId) {
 		model.addAttribute("consultaId", consultaId);
@@ -475,6 +481,33 @@ public class ConsultaController {
 					return "processOrderCostsOfProposal";
 				})
 				;
+	}
+	
+	/**
+	 * OUR PROPOSALS
+	 */
+	
+	@GetMapping("/revisar/id/{consultaId}/onprop/{propuestaClienteId}/addofertanuestra") // TODO test
+	public String addOurOfferToProposalCliente(Model model, @PathVariable(name = "consultaId") String consultaId, @PathVariable(name = "propuestaClienteId") String propuestaClienteId) {
+		model.addAttribute("consultaId", consultaId);
+		Mono<WrapPropuestaNuestraAndSelectableAttributes> propuesta = propuestaUtilities.wrapPropuestaNuestraAndSelectableAttributes(new PropuestaNuestra(propuestaClienteId));
+		model.addAttribute("wrapPropuestaNuestraAndSelectableAttributes", propuesta);
+		return "addOurOfferToConsulta";
+	}
+	
+	@PostMapping("/revisar/id/{consultaId}/onprop/{propuestaClienteId}/addofertanuestra") // TODO test
+	public String processAddOurOfferToProposalCliente(@Valid WrapPropuestaNuestraAndSelectableAttributes wrapPropuestaNuestraAndSelectableAttributes, BindingResult bindingResult, Model model, @PathVariable(name = "consultaId") String consultaId, @PathVariable(name = "propuestaClienteId") String propuestaClienteId) {
+		if (bindingResult.hasErrors()) {
+			model.addAttribute("wrapPropuestaNuestraAndSelectableAttributes", wrapPropuestaNuestraAndSelectableAttributes);
+			model.addAttribute("consultaId", consultaId);
+			return "addOurOfferToConsulta";
+		}
+		Propuesta propuesta = propuestaUtilities.getPropuestaNuestraFromWrapWithSelectableAttributes(wrapPropuestaNuestraAndSelectableAttributes);
+		propuesta.setCreatedTime(System.currentTimeMillis());
+		Mono<Propuesta> p = consultaService.addPropuesta(consultaId, propuesta).flatMap(entity -> Mono.just(entity.operations().getPropuestaByIndex(entity.getPropuestas().size()-1)));
+		model.addAttribute("propuesta", p);
+		model.addAttribute("consultaId", consultaId);
+		return "processAddPropuestaToConsulta";
 	}
 	
 }

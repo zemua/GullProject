@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>Gull Project - Nueva oferta para el cliente</title>
+</head>
+<body>
+
+<h1>Nueva oferta para el cliente</h1>
+
+	<form method="POST" id="propuestaform" th:object="${wrapPropuestaNuestraAndSelectableAttributes}">
+	
+		<div th:if="${#fields.hasErrors()}">
+     	   <span class="validationError">
+      	  Corrige los errores y reenvía.
+     	   </span>
+    	</div>
+    	
+    	<span class="validationError"
+      	th:if="${#fields.hasErrors('propuestaNuestra.nombre')}"
+      	th:errors="*{propuestaNuestra.nombre}">Selecciona un nombre</span>
+      
+		<div class="grid">
+			<div class="define-group" id="nombre">
+				<h3>Nombre:</h3>
+					<input name="nombre" type="text"
+						th:field="*{propuestaNuestra.nombre}"/>
+			</div>
+			<input type="hidden" th:field="*{propuestaNuestra.forProposalId}">
+			<input type="hidden" th:field="*{propuestaNuestra.tipoPropuesta}">
+			
+			<table>
+				<tr>
+					<th>Atributos</th>
+					<th>Seleccionado</th>
+				</tr>
+				<tr th:each="t, stat : *{attributes}">
+					<td><span th:text="${t.name}"></span></td>
+					<td>
+						<input type="checkbox" th:field="*{attributes[__${stat.index}__].selected}"/>
+						<input type="hidden" th:field="*{attributes[__${stat.index}__].localIdentifier}"/>
+						<input type="hidden" th:field="*{attributes[__${stat.index}__].id}"/>
+						<input type="hidden" th:field="*{attributes[__${stat.index}__].name}"/>
+						<input type="hidden" th:field="*{attributes[__${stat.index}__].tipo}"/>
+					</td>
+				</tr>
+			</table>
+			
+		</div>
+
+		<div>
+			<p>
+				<button>Ok</button>
+			</p>
+		</div>
+		
+		<div>
+			<p>
+				<a th:href="${'/consultas/revisar/id/' + consultaId}">Volver</a>
+			</p>
+		</div>
+		
+	</form>
+
+</body>
+</html>

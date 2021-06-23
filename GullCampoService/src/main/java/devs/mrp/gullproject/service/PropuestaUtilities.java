@@ -20,6 +20,7 @@ import devs.mrp.gullproject.domains.dto.AttributesListDto;
 import devs.mrp.gullproject.domains.dto.ProposalPie;
 import devs.mrp.gullproject.domains.dto.WrapAtributosForCampoDto;
 import devs.mrp.gullproject.domains.dto.WrapPropuestaClienteAndSelectableAttributes;
+import devs.mrp.gullproject.domains.dto.WrapPropuestaNuestraAndSelectableAttributes;
 import devs.mrp.gullproject.domains.dto.WrapPropuestaProveedorAndSelectableAttributes;
 import lombok.Data;
 import reactor.core.publisher.Flux;
@@ -178,6 +179,31 @@ public class PropuestaUtilities {
 	
 	public PropuestaProveedor getPropuestaProveedorFromWrapWithSelectableAttributes(WrapPropuestaProveedorAndSelectableAttributes wrap) {
 		PropuestaProveedor propuesta = wrap.getPropuestaProveedor();
+		propuesta.setAttributeColumns(listOfSelectedAttributesPlain(wrap.getAttributes()));
+		return propuesta;
+	}
+	
+	/**
+	 * PROPUESTA NUESTRA
+	 */
+	
+	public Mono<WrapPropuestaNuestraAndSelectableAttributes> wrapPropuestaNuestraAndSelectableAttributes(PropuestaNuestra propuesta) {
+		return atributoUtilities.getAttributesAsSelectable()
+				.collectList().flatMap(atts -> {
+					return setSelectedSameAsCustomerOne(atts, propuesta.getForProposalId())
+							.map(attSelected -> {
+								var wrap = new WrapPropuestaNuestraAndSelectableAttributes();
+								wrap.setPropuestaNuestra(propuesta);
+								wrap.setAttributes(attSelected);
+								return wrap;
+							})
+							;
+				})
+				;
+	}
+	
+	public PropuestaNuestra getPropuestaNuestraFromWrapWithSelectableAttributes(WrapPropuestaNuestraAndSelectableAttributes wrap) {
+		PropuestaNuestra propuesta = wrap.getPropuestaNuestra();
 		propuesta.setAttributeColumns(listOfSelectedAttributesPlain(wrap.getAttributes()));
 		return propuesta;
 	}

@@ -1,11 +1,22 @@
 package devs.mrp.gullproject.domains;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.annotation.PersistenceConstructor;
 
 public class PropuestaNuestra extends Propuesta {
+	
+	List<Pvper> pvps = new ArrayList<>();
+	
+	public List<Pvper> getPvps() {
+		return pvps;
+	}
+	
+	public void setPvps(List<Pvper> pvps) {
+		this.pvps = pvps;
+	}
 
 	public PropuestaNuestra() {
 		super(TipoPropuesta.NUESTRA);

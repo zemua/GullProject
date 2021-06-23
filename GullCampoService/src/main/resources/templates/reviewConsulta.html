@@ -52,7 +52,7 @@
 				</tr>
 				<tr>
 					<td colspan="1"><a th:href="${'/consultas/revisar/id/' + consulta.id + '/onprop/' + pie.propuestaCliente.id + '/addcotizacionproveedor'}"><span>Añadir cotización de proveedor</span></a></td>
-					<td colspan="3"><a th:href="${'/consultas/revisar/id/' + consulta.id + '/onprop/' + pie.propuestaCliente.id + '/addcotizacionnuestra'}"><span>Añadir oferta nuestra</span></a></td>
+					<td colspan="3"><a th:href="${'/consultas/revisar/id/' + consulta.id + '/onprop/' + pie.propuestaCliente.id + '/addofertanuestra'}" th:if="${pie.propuestasProveedores.size() > 0}"><span>Añadir oferta nuestra</span></a></td>
 				</tr>
 				<tr th:if="${pie.propuestasProveedores.size() > 0}"><td colspan="4" class="texto-centro"><span>Respuestas de Proveedores</span></td></tr>
 				<tr th:each="proveedor : ${pie.propuestasProveedores}">
@@ -60,6 +60,13 @@
 					<td><a th:href="${'/lineas/allof/propid/' + proveedor.id}"><span th:text="${proveedor.lineaIds.size}">revisar lineas</span></a></td>
 					<td><a th:href="${'/consultas/attof/propid/' + proveedor.id}"><span th:text="${proveedor.attributeColumns.size}">revisar atributos</span></a></td>
 					<td><a th:href="${'/consultas/costof/propid/' + proveedor.id}"><span th:text="${proveedor.costes.size}">revisar costes</span></a></td>
+				</tr>
+				<tr th:if="${pie.propuestasNuestras.size() > 0}"><td colspan="4" class="texto-centro"><span>Ofertas Nuestras</span></td></tr>
+				<tr th:each="oferta : ${pie.propuestasNuestras}">
+					<td><a th:text="${oferta.nombre}" th:href="${'/consultas/editar/propcli/' + oferta.id}"></a></td>
+					<td><a th:href="${'/lineas/allof/propid/' + oferta.id}"><span th:text="${oferta.lineaIds.size}">revisar lineas</span></a></td>
+					<td><a th:href="${'/consultas/attof/propid/' + oferta.id}"><span th:text="${oferta.attributeColumns.size}">revisar atributos</span></a></td>
+					<td><a th:href="${'/consultas/costof/propid/' + oferta.id}"><span th:text="${oferta.pvps.size}">revisar costes</span></a></td>
 				</tr>
 			</table>
 		</div>
