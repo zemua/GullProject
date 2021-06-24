@@ -19,9 +19,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.service.PropuestaOperations;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -695,6 +697,30 @@ class CustomConsultaRepoImplTest {
 			assertEquals(2, cons.operations().getPropuestaById(propuesta1.getId()).getAttributeColumns().size());
 			assertEquals(atributo2.getId(), cons.operations().getPropuestaById(propuesta1.getId()).getAttributeColumns().get(0).getId());
 			assertEquals(atributo3.getId(), cons.operations().getPropuestaById(propuesta1.getId()).getAttributeColumns().get(1).getId());
+		})
+		.expectComplete()
+		.verify();
+	}
+	
+	@Test
+	void testAddCostToList() {
+		PropuestaProveedor p = new PropuestaProveedor();
+		p.setCostes(new ArrayList<>());
+		var cos = new CosteProveedor();
+		repo.addPropuesta(consulta.getId(), p).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals(0, ((PropuestaProveedor)cons.operations().getPropuestaById(p.getId())).getCostes().size());
+		})
+		.expectComplete()
+		.verify();
+		
+		repo.addCostToList(p.getId(), cos).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals(1, ((PropuestaProveedor)cons.operations().getPropuestaById(p.getId())).getCostes().size());
 		})
 		.expectComplete()
 		.verify();
