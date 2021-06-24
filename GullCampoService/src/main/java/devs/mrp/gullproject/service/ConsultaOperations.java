@@ -1,11 +1,16 @@
 package devs.mrp.gullproject.service;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Propuesta;
+import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.domains.TipoPropuesta;
 
 public class ConsultaOperations {
@@ -63,6 +68,18 @@ public class ConsultaOperations {
 	
 	public List<Propuesta> getPropuestasProveedor() {
 		return consulta.getPropuestas().stream().filter(p-> p.getTipoPropuesta().equals(TipoPropuesta.PROVEEDOR)).collect(Collectors.toList());
+	}
+	
+	public List<CosteProveedor> getCostesOfPropuestasProveedor() {
+		List<CosteProveedor> costes = new ArrayList<>();
+		getPropuestasProveedor().stream().forEach(p -> {
+			costes.addAll(((PropuestaProveedor)p).getCostes());
+		});
+		return costes;
+	}
+	
+	public Map<String, CosteProveedor> mapIdToCosteProveedor() {
+		return getCostesOfPropuestasProveedor().stream().collect(Collectors.toMap(CosteProveedor::getId, Function.identity()));
 	}
 	
 }

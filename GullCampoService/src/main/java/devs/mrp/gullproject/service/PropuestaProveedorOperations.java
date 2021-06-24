@@ -22,12 +22,13 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Data
-public class PropuestaProveedorOperations {
-
-	private final PropuestaProveedor propuesta;
+public class PropuestaProveedorOperations extends PropuestaOperations {
+	
+	protected final PropuestaProveedor propuestaProveedor;
 	
 	public PropuestaProveedorOperations(PropuestaProveedor prop) {
-		this.propuesta = prop;
+		super(prop);
+		propuestaProveedor = (PropuestaProveedor)propuesta;
 	}
 	
 	public void initializeStandardCosts() {
@@ -35,11 +36,11 @@ public class PropuestaProveedorOperations {
 		coste.setName("COSTE BASE");
 		List<CosteProveedor> list = new ArrayList<>();
 		list.add(coste);
-		propuesta.setCostes(list);
+		propuestaProveedor.setCostes(list);
 	}
 	
 	public boolean ifIsCosteProveedorId(String id) {
-		Optional<CosteProveedor> cos = propuesta.getCostes().stream().filter(c -> c.getId().equals(id)).findAny();
+		Optional<CosteProveedor> cos = propuestaProveedor.getCostes().stream().filter(c -> c.getId().equals(id)).findAny();
 		return cos.isPresent();
 	}
 	
@@ -48,7 +49,7 @@ public class PropuestaProveedorOperations {
 	}
 	
 	public CosteProveedor getCosteByCosteId(String id) {
-		Optional<CosteProveedor> cos = propuesta.getCostes().stream().filter(c -> c.getId().equals(id)).findAny();
+		Optional<CosteProveedor> cos = propuestaProveedor.getCostes().stream().filter(c -> c.getId().equals(id)).findAny();
 		return cos.orElse(null);
 	}
 	
@@ -62,11 +63,11 @@ public class PropuestaProveedorOperations {
 	}
 	
 	public List<CostesCheckbox> getCostesCheckbox(ModelMapper modelMapper) {
-		return propuesta.getCostes().stream().map(c -> modelMapper.map(c, CostesCheckbox.class)).collect(Collectors.toList());
+		return propuestaProveedor.getCostes().stream().map(c -> modelMapper.map(c, CostesCheckbox.class)).collect(Collectors.toList());
 	}
 	
 	public List<CosteOrdenable> getCostesOrdenables(ModelMapper modelMapper) {
-		return propuesta.getCostes().stream().map(c -> modelMapper.map(c, CosteOrdenable.class)).collect(Collectors.toList());
+		return propuestaProveedor.getCostes().stream().map(c -> modelMapper.map(c, CosteOrdenable.class)).collect(Collectors.toList());
 	}
 	
 	public static List<CosteProveedor> fromCostesOrdenablesToCostesProveedor(ModelMapper modelMapper, List<CosteOrdenable> costes) {

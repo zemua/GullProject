@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
 import devs.mrp.gullproject.domains.AtributoForCampo;
@@ -429,7 +430,7 @@ public class ConsultaController {
 			;
 	}
 	
-	@PostMapping("/costof/propid/{id}/delete")
+	@PostMapping("/costof/propid/{id}/delete") // TODO delete also reference from PVPs
 	public Mono<String> confirmDeleteCostsOfProposal(CostesCheckboxWrapper costesCheckboxWraper, Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
 		return consultaService.findConsultaByPropuestaId(proposalId)
@@ -543,6 +544,30 @@ public class ConsultaController {
 					model.addAttribute("propuesta", prop);
 					model.addAttribute("pvper", new Pvper());
 					return "newPvpOfProposal";
+				});
+	}
+	
+	@PostMapping("/pvpsof/propid/{id}/new") // TODO test
+	public Mono<String> processNewPvpOfPropuesta(@Valid @ModelAttribute("pvper") Pvper pvper, BindingResult bindingResult, Model model, @PathVariable(name = "id") String proposalId) {
+		var idCostes = pvper.getIdCostes();
+		if (idCostes == null || idCostes.size() == 0) {bindingResult.rejectValue("idCostes", "error.idCostes", "Selecciona al menos un coste");}
+		model.addAttribute("propuestaId", proposalId);
+		if (idCostes == null) {log.debug("costes es nulo");} else {log.debug("los costes del checkbox: " + idCostes.toString());}
+		return consultaService.findConsultaByPropuestaId(proposalId)
+				.flatMap(cons -> {
+					Propuesta prop = cons.operations().getPropuestaById(proposalId);
+					model.addAttribute("consulta", cons);
+					model.addAttribute("propuesta", prop);
+					if (bindingResult.hasErrors()) {
+						log.debug("has errors: " + bindingResult.toString());
+						model.addAttribute("pvper", pvper);
+						model.addAttribute("proveedores", cons.operations().getPropuestasProveedor());
+						return Mono.just("newPvpOfProposal");
+					}
+					model.addAttribute("pvper", pvper);
+					model.addAttribute("mapa", cons.operations().mapIdToCosteProveedor());
+					return consultaService.addPvpToList(proposalId, pvper)
+						.map(c -> "processNewPvpOfProposal");
 				});
 	}
 	

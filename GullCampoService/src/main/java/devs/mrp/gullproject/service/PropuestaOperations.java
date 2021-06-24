@@ -10,7 +10,7 @@ import devs.mrp.gullproject.domains.TipoPropuesta;
 
 public class PropuestaOperations {
 
-	private final Propuesta propuesta;
+	protected final Propuesta propuesta;
 	
 	public PropuestaOperations(Propuesta propuesta) {
 		this.propuesta = propuesta;

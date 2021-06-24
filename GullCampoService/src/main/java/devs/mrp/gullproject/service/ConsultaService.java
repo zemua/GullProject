@@ -149,4 +149,8 @@ public class ConsultaService {
 			})
 			;
 	}
+	
+	public Mono<Consulta> addPvpToList(String idPropuesta, Pvper pvp) {
+		return consultaRepo.addPvpToList(idPropuesta, pvp);
+	}
 }

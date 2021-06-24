@@ -30,13 +30,19 @@
 		</div>
 		
 		<div class="margentb">
+		<span class="validationError margentb"
+      	th:if="${#fields.hasErrors('idCostes')}"
+      	th:errors="*{idCostes}">Selecciona al menos un coste</span>
+      	</div>
+		<div class="margentb">
 			<span>El cual contempla estos costes:</span>
 		</div>
 		<th:block th:each="proveedor : ${proveedores}">
 		<div class="margentb">
 			<div><span th:text="|De la propuesta ${proveedor.nombre}|"></span></div>
 			<div th:each="cost, cstat : ${proveedor.costes}">
-				<input type="checkbox" th:name="costs" th:value="${cost.id}" th:text="${cost.name}">
+				<label th:for="${#ids.next('idCostes')}" th:text="${cost.name}"></label>
+				<input type="checkbox" th:field="*{idCostes}" th:value="${cost.id}">
 			</div>
 		</div>
 		</th:block>

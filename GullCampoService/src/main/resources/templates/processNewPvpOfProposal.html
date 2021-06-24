@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Nuevo pvp de la propuesta: ' + propuesta.getNombre()}">Gull Project - Nuevo pvp de la propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1 th:text="${'Nuevo pvp de la propuesta: ' + propuesta.getNombre()}">Nuevo pvp de la propuesta</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/consultas/pvpsof/propid/' + propuesta.id}">Volver</a>
+		</p>
+	</div>
+	
+		<div class="margentb">
+			<span>Con nombre:</span>
+		</div>
+		<div>
+			<span th:text="${pvper.name}"></span>
+		</div>
+		
+		<div class="margentb">
+			<span>Contempla los costes:</span>
+		</div>
+		<div th:each="cid : ${pvper.idCostes}">
+			<span th:text="${mapa.get(cid).name}"></span>
+		</div>
+	
+</body>
+</html>

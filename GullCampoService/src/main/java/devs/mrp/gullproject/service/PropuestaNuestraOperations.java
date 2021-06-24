@@ -7,12 +7,13 @@ import devs.mrp.gullproject.domains.Pvper;
 import lombok.Data;
 
 @Data
-public class PropuestaNuestraOperations {
+public class PropuestaNuestraOperations extends PropuestaOperations {
 
-	private final PropuestaNuestra propuesta;
+	protected final PropuestaNuestra propuestaNuestra;
 	
-	public PropuestaNuestraOperations(PropuestaNuestra propuesta) {
-		this.propuesta = propuesta;
+	public PropuestaNuestraOperations(PropuestaNuestra prop) {
+		super(prop);
+		propuestaNuestra = (PropuestaNuestra)propuesta;
 	}
 	
 }

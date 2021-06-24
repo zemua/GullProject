@@ -6,6 +6,7 @@ import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Propuesta;
+import devs.mrp.gullproject.domains.Pvper;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -50,5 +51,7 @@ public interface CustomConsultaRepo {
 	public Mono<Consulta> updateCostesOfPropuesta(String idPropuesta, List<CosteProveedor> costes);
 	
 	public Mono<Consulta> addCostToList(String idPropuesta, CosteProveedor coste);
+	
+	public Mono<Consulta> addPvpToList(String idPropuesta, Pvper pvp);
 	
 }
