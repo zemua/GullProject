@@ -26,6 +26,8 @@ import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.domains.PropuestaNuestra;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
+import devs.mrp.gullproject.domains.Pvper;
+import devs.mrp.gullproject.domains.PvperSum;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AttributesListDto;
 import devs.mrp.gullproject.domains.dto.ConsultaPropuestaBorrables;
@@ -508,6 +510,40 @@ public class ConsultaController {
 		model.addAttribute("propuesta", p);
 		model.addAttribute("consultaId", consultaId);
 		return "processAddPropuestaToConsulta";
+	}
+	
+	@GetMapping("/pvpsof/propid/{id}") // TODO test
+	public Mono<String> showPvpsOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
+		model.addAttribute("propuestaId", proposalId);
+		return consultaService.findConsultaByPropuestaId(proposalId)
+				.map(cons -> {
+					var prop = cons.operations().getPropuestaById(proposalId);
+					model.addAttribute("consulta", cons);
+					if (prop instanceof PropuestaNuestra) {
+						List<Pvper> pvps = ((PropuestaNuestra)prop).getPvps();
+						List<PvperSum> sums = ((PropuestaNuestra)prop).getSums();
+						model.addAttribute("pvps", pvps);
+						model.addAttribute("sums", sums);
+						return "showPvpsOfProposal";
+					} else {
+						return "redirect:/consultas/revisar/id/" + cons.getId();
+					}
+				})
+				;
+	}
+	
+	@GetMapping("/pvpsof/propid/{id}/new") // TODO test
+	public Mono<String> newPvpOfPropuesta(Model model, @PathVariable(name = "id") String proposalId) {
+		model.addAttribute("propuestaId", proposalId);
+		return consultaService.findConsultaByPropuestaId(proposalId)
+				.map(cons -> {
+					Propuesta prop = cons.operations().getPropuestaById(proposalId);
+					model.addAttribute("consulta", cons);
+					model.addAttribute("proveedores", cons.operations().getPropuestasProveedor());
+					model.addAttribute("propuesta", prop);
+					model.addAttribute("pvper", new Pvper());
+					return "newPvpOfProposal";
+				});
 	}
 	
 }

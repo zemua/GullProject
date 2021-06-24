@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - PVPs de la propuesta: ' + consulta.operations().getPropuestaById(propuestaId).getNombre()}">Gull Project - PVPs de la propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1 th:text="${'PVPs de la propuesta: ' + consulta.operations().getPropuestaById(propuestaId).getNombre()}">PVPs de la propuesta</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/consultas/pvpsof/propid/' + consulta.operations().getPropuestaById(propuestaId).getId() + '/new'}">Añadir PVP</a> -
+			<a th:href="${'/consultas/pvpsof/propid/' + consulta.operations().getPropuestaById(propuestaId).getId() + '/order'}">Ordenar PVP</a> -  
+			<a th:href="${'/consultas/pvpsof/propid/' + consulta.operations().getPropuestaById(propuestaId).getId() + '/edit'}">Editar PVP</a> -  
+			<a th:href="${'/consultas/pvpsof/propid/' + consulta.operations().getPropuestaById(propuestaId).getId() + '/delete'}">Borrar PVP</a> -
+			<a th:href="${'/consultas/revisar/id/' + consulta.id}">Volver</a>
+		</p>
+	</div>
+	
+	<div>
+		<table>
+			<tr>
+				<th>Nombre</th>
+			</tr>
+			<tr th:each="a : ${pvps}">
+				<td><span th:text="${a.name}"></span></td>
+			</tr>
+		</table>
+	</div>
+
+</body>
+</html>

@@ -1,9 +1,12 @@
 package devs.mrp.gullproject.service;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Propuesta;
+import devs.mrp.gullproject.domains.TipoPropuesta;
 
 public class ConsultaOperations {
 
@@ -56,6 +59,10 @@ public class ConsultaOperations {
 			}
 		}
 		return null;
+	}
+	
+	public List<Propuesta> getPropuestasProveedor() {
+		return consulta.getPropuestas().stream().filter(p-> p.getTipoPropuesta().equals(TipoPropuesta.PROVEEDOR)).collect(Collectors.toList());
 	}
 	
 }

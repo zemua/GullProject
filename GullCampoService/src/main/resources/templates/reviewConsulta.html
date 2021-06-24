@@ -66,7 +66,7 @@
 					<td><a th:text="${oferta.nombre}" th:href="${'/consultas/editar/propcli/' + oferta.id}"></a></td>
 					<td><a th:href="${'/lineas/allof/propid/' + oferta.id}"><span th:text="${oferta.lineaIds.size}">revisar lineas</span></a></td>
 					<td><a th:href="${'/consultas/attof/propid/' + oferta.id}"><span th:text="${oferta.attributeColumns.size}">revisar atributos</span></a></td>
-					<td><a th:href="${'/consultas/pvpsof/propid/' + oferta.id}"><span th:text="${oferta.pvps.size + '/' + oferta.sums.size}">revisar costes</span></a></td>
+					<td><a th:href="${'/consultas/pvpsof/propid/' + oferta.id}"><span th:text="${oferta.pvps.size}">revisar costes</span></a><th:block th:if="${oferta.pvps.size > 0}"><span> / </span><a th:href="${'/consultas/pvpsumsof/propid/' + oferta.id}"><span th:text="${oferta.sums.size}"></span></a></th:block></td>
 				</tr>
 			</table>
 		</div>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Nuevo pvp de la propuesta: ' + propuesta.getNombre()}">Gull Project - Nuevo pvp de la propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1 th:text="${'Nuevo pvp de la propuesta: ' + propuesta.getNombre()}">Nuevo pvp de la propuesta</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/consultas/pvpsof/propid/' + propuesta.id}">Volver</a>
+		</p>
+	</div>
+	
+	<form method="POST" th:object="${pvper}" id="val-form">
+	
+		<span class="validationError margentb"
+      	th:if="${#fields.hasErrors('name')}"
+      	th:errors="*{name}">Selecciona un nombre</span>
+		<div>
+			<span>Nombre:</span>
+		</div>
+		<div>
+			<input type="text" th:field="*{name}"/>
+			<input type="hidden" th:field="*{id}"/>
+		</div>
+		
+		<div class="margentb">
+			<span>El cual contempla estos costes:</span>
+		</div>
+		<th:block th:each="proveedor : ${proveedores}">
+		<div class="margentb">
+			<div><span th:text="|De la propuesta ${proveedor.nombre}|"></span></div>
+			<div th:each="cost, cstat : ${proveedor.costes}">
+				<input type="checkbox" th:name="costs" th:value="${cost.id}" th:text="${cost.name}">
+			</div>
+		</div>
+		</th:block>
+		
+		<div class="margentb">
+			<div><button id="submit-button">Guardar</button></div>
+		</div>
+	
+	</form>	
+	
+</body>
+</html>
