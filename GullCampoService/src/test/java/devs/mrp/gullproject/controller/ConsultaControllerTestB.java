@@ -1477,6 +1477,23 @@ class ConsultaControllerTestB {
 			});
 			;
 	}
+	
+	@Test
+	void testNewPvpOfPropuesta() {
+		addCosts();
+		webTestClient.get()
+			.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/new")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Nuevo pvp de la propuesta")
+						.contains("Nombre");
+			});
+			;
+	}
 
 }
 
