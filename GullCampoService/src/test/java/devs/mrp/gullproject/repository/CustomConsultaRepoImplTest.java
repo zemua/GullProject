@@ -790,5 +790,40 @@ class CustomConsultaRepoImplTest {
 		.expectComplete()
 		.verify();
 	}
+	
+	@Test
+	void testUpdatePvpsOfPropuesta() {
+		Pvper pvp1 = new Pvper();
+		pvp1.setIdCostes(new ArrayList<>() {{add("idCoste1");}});
+		pvp1.setName("pvp1 name");
+		Pvper pvp2 = new Pvper();
+		pvp1.setIdCostes(new ArrayList<>() {{add("idCoste2");}});
+		pvp2.setName("pvp2 name");
+		
+		List<Pvper> pvps = new ArrayList<>();
+		pvps.add(pvp1);
+		pvps.add(pvp2);
+		
+		PropuestaNuestra p = new PropuestaNuestra();
+		p.setPvps(new ArrayList<>());
+		
+		repo.addPropuesta(consulta.getId(), p).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals(0, ((PropuestaNuestra)cons.operations().getPropuestaById(p.getId())).getPvps().size());
+		})
+		.expectComplete()
+		.verify();
+		
+		repo.updatePvpsOfPropuesta(p.getId(), pvps).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals(2, ((PropuestaNuestra)cons.operations().getPropuestaById(p.getId())).getPvps().size());
+		})
+		.expectComplete()
+		.verify();
+	}
 
 }
