@@ -159,7 +159,7 @@ public class ConsultaService {
 		return consultaRepo.addPvpToList(idPropuesta, pvp);
 	}
 	
-	public Mono<Consulta> keepUnselectedPvps(String idPropuesta, PvpsCheckboxWrapper wrapper) { // TODO test
+	public Mono<Consulta> keepUnselectedPvps(String idPropuesta, PvpsCheckboxWrapper wrapper) {
 		List<Pvper> pvps = wrapper.getPvps().stream().filter(p -> !p.isSelected()).map(p -> modelMapper.map(p, Pvper.class)).collect(Collectors.toList());
 		return updatePvpsOfPropuesta(idPropuesta, pvps);
 	}

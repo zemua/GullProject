@@ -45,7 +45,7 @@ public class PropuestaProveedor extends Propuesta {
 		this.lineaIds = propuesta.lineaIds;
 		this.nombre = propuesta.nombre;
 		this.parentId = propuesta.parentId;
-		this.costes = ((PropuestaProveedor)propuesta).costes;
+		this.costes = ((PropuestaProveedor)propuesta).costes; // no separate references
 	}
 	
 	public PropuestaProveedorOperations operationsProveedor() {
