@@ -11,10 +11,11 @@ import lombok.NoArgsConstructor;
 public class StringListOfListsWrapper {
 
 	List<StringListWrapper> stringListWrapper = new ArrayList<>(); // lineas
-	List<String> strings = new ArrayList<>(); // cabecera / columns
+	List<String> strings = new ArrayList<>(); // attributes columns
 	List<Integer> name = new ArrayList<>(); // line-name components by order
 	String nameError;
 	String fieldError;
+	String costeError;
 	
 	public void add(StringListWrapper w) {
 		stringListWrapper.add(w);

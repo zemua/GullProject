@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Nuevo coste de la propuesta: ' + propuesta.getNombre()}">Gull Project - Nuevo coste de la propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1 th:text="${'Nuevo coste de la propuesta: ' + propuesta.getNombre()}">Nuevo coste de la propuesta</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/consultas/costof/propid/' + propuesta.id}">Volver</a>
+		</p>
+	</div>
+	
+		<div>
+			<span>Con nombre:</span>
+		</div>
+		<div>
+			<span th:text="${costeProveedor.name}"></span>
+		</div>
+	
+</body>
+</html>

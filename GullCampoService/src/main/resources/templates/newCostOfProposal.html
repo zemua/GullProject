@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Nuevo coste de la propuesta: ' + propuesta.getNombre()}">Gull Project - Nuevo coste de la propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1 th:text="${'Nuevo coste de la propuesta: ' + propuesta.getNombre()}">Nuevo coste de la propuesta</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/consultas/costof/propid/' + propuesta.id}">Volver</a>
+		</p>
+	</div>
+	
+	<form method="POST" th:object="${costeProveedor}" id="val-form">
+	
+		<span class="validationError margentb"
+      	th:if="${#fields.hasErrors('name')}"
+      	th:errors="*{name}">Selecciona un nombre</span>
+		<div>
+			<span>Nombre:</span>
+		</div>
+		<div>
+			<input type="text" th:field="*{name}"/>
+			<input type="hidden" th:field="*{id}"/>
+		</div>
+		
+		<div class="margentb">
+			<div><button id="submit-button">Guardar</button></div>
+		</div>
+	
+	</form>	
+	
+</body>
+</html>

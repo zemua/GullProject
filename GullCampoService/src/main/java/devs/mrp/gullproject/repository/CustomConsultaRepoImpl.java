@@ -9,12 +9,18 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
+import com.mongodb.BasicDBObject;
+
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Propuesta;
+import devs.mrp.gullproject.domains.Pvper;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 
 	private final ReactiveMongoTemplate mongoTemplate;
@@ -32,6 +38,7 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 	
 	@Override
 	public Mono<Consulta> addPropuesta(String idConsulta, Propuesta propuesta) {
+		log.debug("propuesta to add: " + propuesta.toString());
 		Query query = new Query(Criteria.where("id").is(idConsulta));
 		Update update = new Update().addToSet("propuestas", propuesta);
 		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
@@ -50,8 +57,12 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 
 	@Override
 	public Mono<Consulta> removePropuesta(String idConsulta, Propuesta propuesta) {
-		Query query = new Query(Criteria.where("id").is(idConsulta));
-		Update update = new Update().pull("propuestas", propuesta);
+		log.debug("going to remove " + propuesta.toString());
+		// Query query = new Query(Criteria.where("id").is(idConsulta));
+		Query query = new Query(Criteria.where("propuestas.id").is(propuesta.getId()));
+		// Update update = new Update().pull("propuestas", propuesta);
+		// Update update = new Update().pull("propuestas", Query.query(Criteria.where("propuesta.id").is(propuesta.getId())));
+		Update update = new Update().pull("propuestas", new BasicDBObject("id", propuesta.getId()));
 		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
 		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
 	}
@@ -84,7 +95,7 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 	@Override
 	public Mono<Consulta> updateLineasDeUnaPropuesta(String idConsulta, Propuesta propuesta) {
 		Query query = new Query(Criteria.where("id").is(idConsulta).and("propuestas.id").is(propuesta.getId()));
-		Update update = new Update().set("propuestas.$.lineaIds", propuesta.getAllLineaIds());
+		Update update = new Update().set("propuestas.$.lineaIds", propuesta.operations().getAllLineaIds());
 		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
 		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
 	}
@@ -93,7 +104,7 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 	public Mono<Long> updateLineasDeVariasPropuestas(String idConsulta, Flux<Propuesta> propuestas) {
 		return propuestas.flatMap(c -> mongoTemplate.findAndModify(
 				new Query(Criteria.where("id").is(idConsulta).and("propuestas.id").is(c.getId())),
-				new Update().set("propuestas.$.lineaIds", c.getAllLineaIds()),
+				new Update().set("propuestas.$.lineaIds", c.operations().getAllLineaIds()),
 				Consulta.class))
 			.count();
 	}
@@ -167,6 +178,30 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 	public Mono<Consulta> updateAttributesOfPropuesta(String idPropuesta, List<AtributoForCampo> attributes) {
 		Query query = new Query(Criteria.where("propuestas.id").is(idPropuesta));
 		Update update = new Update().set("propuestas.$.attributeColumns", attributes);
+		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
+		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
+	}
+	
+	@Override
+	public Mono<Consulta> updateCostesOfPropuesta(String idPropuesta, List<CosteProveedor> costes) {
+		Query query = new Query(Criteria.where("propuestas.id").is(idPropuesta));
+		Update update = new Update().set("propuestas.$.costes", costes);
+		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
+		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
+	}
+	
+	@Override
+	public Mono<Consulta> addCostToList(String idPropuesta, CosteProveedor coste) {
+		Query query = new Query(Criteria.where("propuestas.id").is(idPropuesta));
+		Update update = new Update().addToSet("propuestas.$.costes", coste);
+		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
+		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
+	}
+	
+	@Override
+	public Mono<Consulta> addPvpToList(String idPropuesta, Pvper pvp) { // TODO test
+		Query query = new Query(Criteria.where("propuestas.id").is(idPropuesta));
+		Update update = new Update().addToSet("propuestas.$.pvps", pvp);
 		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
 		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
 	}

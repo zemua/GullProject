@@ -17,7 +17,7 @@
 	</div>
 	
 	<div>
-		<p>En la primera fila se deben escoger los campos que juntos formarán el nombre de la línea, el número indica el orden en el nombre, y con usar un número es suficiente, pero líneas con el mismo nombre se tratarán como equivalentes a efectos de algunas opciones de auto-rellenado.</p>
+		<p>En la primera fila se deben escoger los campos que juntos formarán el nombre de la línea, el número indica el orden en el nombre, y con usar un número es suficiente.</p>
 		<p>Cada atributo de la segunda fila solamente se puede escoger en una columna, las columnas sin atributo no se registrarán.</p>
 	</div>
 
@@ -60,6 +60,9 @@
 					<select th:field="*{strings[__${ctat.index}__]}" class="column-selector">
 						<option th:value="''"></option>
 						<option th:each="z : ${atributos}" th:value="${z.id}" th:text="${z.name}" class="mono-option"></option>
+						<th:block th:if="${propuesta.tipoPropuesta.toString() == 'PROVEEDOR'}">
+							<option th:each="cost : ${costes}" th:value="${cost.id}" th:text="${cost.name}" class="mono-option"></option>
+						</th:block>
 					</select>
 				</th>
 			</tr>

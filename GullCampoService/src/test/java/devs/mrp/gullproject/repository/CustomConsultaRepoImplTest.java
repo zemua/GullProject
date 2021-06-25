@@ -19,9 +19,13 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.domains.PropuestaProveedor;
+import devs.mrp.gullproject.domains.Pvper;
+import devs.mrp.gullproject.service.PropuestaOperations;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -41,7 +45,9 @@ class CustomConsultaRepoImplTest {
 	
 	Consulta consulta;
 	Propuesta propuesta1;
+	PropuestaOperations oper1;
 	Propuesta propuesta2;
+	PropuestaOperations oper2;
 	AtributoForCampo atributo1;
 	AtributoForCampo atributo2;
 	AtributoForCampo atributo3;
@@ -120,14 +126,14 @@ class CustomConsultaRepoImplTest {
 		linea2.setId("linea 2 id");
 		linea2.setNombre("nombre linea 2");
 		
-		
 		propuesta1 = new PropuestaCliente();
 		propuesta1.setId("propuesta 1 id");
 		propuesta1.setNombre("nombre propuesta 1");
-		propuesta1.addLineaId(linea1.getId());
-		propuesta1.addLineaId(linea2.getId());
-		propuesta1.addAttribute(atributo1);
-		propuesta1.addAttribute(atributo2);
+		oper1 = propuesta1.operations();
+		oper1.addLineaId(linea1.getId());
+		oper1.addLineaId(linea2.getId());
+		oper1.addAttribute(atributo1);
+		oper1.addAttribute(atributo2);
 		
 		
 		/**
@@ -174,10 +180,11 @@ class CustomConsultaRepoImplTest {
 		propuesta2 = new PropuestaCliente();
 		propuesta2.setId("id propuesta 2");
 		propuesta2.setNombre("nombre propuesta 2");
-		propuesta2.addLineaId(linea3.getId());
-		propuesta2.addLineaId(linea4.getId());
-		propuesta2.addAttribute(atributo2);
-		propuesta2.addAttribute(atributo3);
+		oper2 = propuesta2.operations();
+		oper2.addLineaId(linea3.getId());
+		oper2.addLineaId(linea4.getId());
+		oper2.addAttribute(atributo2);
+		oper2.addAttribute(atributo3);
 		
 		/**
 		 * Arrejuntando todo
@@ -187,8 +194,8 @@ class CustomConsultaRepoImplTest {
 		consulta.setId("consulta id");
 		consulta.setNombre("consulta nombre");
 		consulta.setStatus("estado original");
-		consulta.addPropuesta(propuesta1);
-		consulta.addPropuesta(propuesta2);
+		consulta.operations().addPropuesta(propuesta1);
+		consulta.operations().addPropuesta(propuesta2);
 		
 		repo.save(consulta).block();
 		
@@ -205,21 +212,21 @@ class CustomConsultaRepoImplTest {
 		.assertNext(cons -> {
 			assertEquals("consulta nombre", cons.getNombre());
 			assertEquals("estado original", cons.getStatus());
-			assertEquals(2, cons.getCantidadPropuestas());
-			assertEquals(propuesta1, cons.getPropuestaByIndex(0));
-			assertEquals("nombre propuesta 1", cons.getPropuestaByIndex(0).getNombre());
-			assertEquals("linea 1 id", cons.getPropuestaByIndex(0).getLineaIdByIndex(0));
-			assertEquals("linea 2 id", cons.getPropuestaByIndex(0).getLineaIdByIndex(1));
-			assertEquals(atributo1, cons.getPropuestaByIndex(0).getAttributeColumns().get(0));
-			assertEquals(atributo2, cons.getPropuestaByIndex(0).getAttributeColumns().get(1));
-			assertEquals(2, cons.getPropuestaByIndex(0).getAttributeColumns().size());
-			assertEquals(propuesta2, cons.getPropuestaByIndex(1));
-			assertEquals("nombre propuesta 2", cons.getPropuestaByIndex(1).getNombre());
-			assertEquals("linea 3 id", cons.getPropuestaByIndex(1).getLineaIdByIndex(0));
-			assertEquals("linea 4 id", cons.getPropuestaByIndex(1).getLineaIdByIndex(1));
-			assertEquals(atributo2, cons.getPropuestaByIndex(1).getAttributeColumns().get(0));
-			assertEquals(atributo3, cons.getPropuestaByIndex(1).getAttributeColumns().get(1));
-			assertEquals(2, cons.getPropuestaByIndex(1).getAttributeColumns().size());
+			assertEquals(2, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta1, cons.operations().getPropuestaByIndex(0));
+			assertEquals("nombre propuesta 1", cons.operations().getPropuestaByIndex(0).getNombre());
+			assertEquals("linea 1 id", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(0));
+			assertEquals("linea 2 id", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(1));
+			assertEquals(atributo1, cons.operations().getPropuestaByIndex(0).getAttributeColumns().get(0));
+			assertEquals(atributo2, cons.operations().getPropuestaByIndex(0).getAttributeColumns().get(1));
+			assertEquals(2, cons.operations().getPropuestaByIndex(0).getAttributeColumns().size());
+			assertEquals(propuesta2, cons.operations().getPropuestaByIndex(1));
+			assertEquals("nombre propuesta 2", cons.operations().getPropuestaByIndex(1).getNombre());
+			assertEquals("linea 3 id", cons.operations().getPropuestaByIndex(1).operations().getLineaIdByIndex(0));
+			assertEquals("linea 4 id", cons.operations().getPropuestaByIndex(1).operations().getLineaIdByIndex(1));
+			assertEquals(atributo2, cons.operations().getPropuestaByIndex(1).getAttributeColumns().get(0));
+			assertEquals(atributo3, cons.operations().getPropuestaByIndex(1).getAttributeColumns().get(1));
+			assertEquals(2, cons.operations().getPropuestaByIndex(1).getAttributeColumns().size());
 		})
 		.expectComplete()
 		.verify();
@@ -233,9 +240,9 @@ class CustomConsultaRepoImplTest {
 		StepVerifier.create(mono)
 			.assertNext(cons -> {
 				assertEquals("consulta nombre", cons.getNombre());
-				assertEquals(2, cons.getCantidadPropuestas());
-				assertEquals(propuesta1, cons.getPropuestaByIndex(0));
-				assertEquals(propuesta2, cons.getPropuestaByIndex(1));
+				assertEquals(2, cons.operations().getCantidadPropuestas());
+				assertEquals(propuesta1, cons.operations().getPropuestaByIndex(0));
+				assertEquals(propuesta2, cons.operations().getPropuestaByIndex(1));
 			})
 			.expectComplete()
 			.verify();
@@ -245,8 +252,8 @@ class CustomConsultaRepoImplTest {
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals("consulta nombre", cons.getNombre());
-			assertEquals(1, cons.getCantidadPropuestas());
-			assertEquals(propuesta2, cons.getPropuestaByIndex(0));
+			assertEquals(1, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta2, cons.operations().getPropuestaByIndex(0));
 		})
 		.expectComplete()
 		.verify();
@@ -260,8 +267,8 @@ class CustomConsultaRepoImplTest {
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals("consulta nombre", cons.getNombre());
-			assertEquals(1, cons.getCantidadPropuestas());
-			assertEquals(propuesta2, cons.getPropuestaByIndex(0));
+			assertEquals(1, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta2, cons.operations().getPropuestaByIndex(0));
 		})
 		.expectComplete()
 		.verify();
@@ -271,9 +278,9 @@ class CustomConsultaRepoImplTest {
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals("consulta nombre", cons.getNombre());
-			assertEquals(2, cons.getCantidadPropuestas());
-			assertEquals(propuesta2, cons.getPropuestaByIndex(0));
-			assertEquals(propuesta1, cons.getPropuestaByIndex(1));
+			assertEquals(2, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta2, cons.operations().getPropuestaByIndex(0));
+			assertEquals(propuesta1, cons.operations().getPropuestaByIndex(1));
 		})
 		.expectComplete()
 		.verify();
@@ -288,7 +295,7 @@ class CustomConsultaRepoImplTest {
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals("consulta nombre", cons.getNombre());
-			assertEquals(0, cons.getCantidadPropuestas());
+			assertEquals(0, cons.operations().getCantidadPropuestas());
 		})
 		.expectComplete()
 		.verify();
@@ -298,9 +305,9 @@ class CustomConsultaRepoImplTest {
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals("consulta nombre", cons.getNombre());
-			assertEquals(2, cons.getCantidadPropuestas());
-			assertEquals(propuesta1, cons.getPropuestaByIndex(0));
-			assertEquals(propuesta2, cons.getPropuestaByIndex(1));
+			assertEquals(2, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta1, cons.operations().getPropuestaByIndex(0));
+			assertEquals(propuesta2, cons.operations().getPropuestaByIndex(1));
 		})
 		.expectComplete()
 		.verify();
@@ -314,9 +321,9 @@ class CustomConsultaRepoImplTest {
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals("consulta nombre", cons.getNombre());
-			assertEquals(2, cons.getCantidadPropuestas());
-			assertEquals(propuesta1, cons.getPropuestaByIndex(0));
-			assertEquals(propuesta2, cons.getPropuestaByIndex(1));
+			assertEquals(2, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta1, cons.operations().getPropuestaByIndex(0));
+			assertEquals(propuesta2, cons.operations().getPropuestaByIndex(1));
 		})
 		.expectComplete()
 		.verify();
@@ -326,7 +333,7 @@ class CustomConsultaRepoImplTest {
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals("consulta nombre", cons.getNombre());
-			assertEquals(0, cons.getCantidadPropuestas());
+			assertEquals(0, cons.operations().getCantidadPropuestas());
 		})
 		.expectComplete()
 		.verify();
@@ -339,28 +346,28 @@ class CustomConsultaRepoImplTest {
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals("consulta nombre", cons.getNombre());
-			assertEquals(2, cons.getCantidadPropuestas());
-			assertEquals(propuesta1, cons.getPropuestaByIndex(0));
-			assertEquals(propuesta2, cons.getPropuestaByIndex(1));
-			assertEquals("nombre propuesta 1", cons.getPropuestaByIndex(0).getNombre());
-			assertEquals(2, cons.getPropuestaByIndex(0).getCantidadLineaIds());
+			assertEquals(2, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta1, cons.operations().getPropuestaByIndex(0));
+			assertEquals(propuesta2, cons.operations().getPropuestaByIndex(1));
+			assertEquals("nombre propuesta 1", cons.operations().getPropuestaByIndex(0).getNombre());
+			assertEquals(2, cons.operations().getPropuestaByIndex(0).operations().getCantidadLineaIds());
 		})
 		.expectComplete()
 		.verify();
 		
 		propuesta1.setNombre("nombre actualizado");
-		propuesta1.getAllLineaIds().clear();
-		assertEquals(0, propuesta1.getCantidadLineaIds());
+		oper1.getAllLineaIds().clear();
+		assertEquals(0, oper1.getCantidadLineaIds());
 		repo.updateNombrePropuesta(consulta.getId(), propuesta1).block();
 		
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals("consulta nombre", cons.getNombre());
-			assertEquals(2, cons.getCantidadPropuestas());
-			assertEquals(propuesta1.getId(), cons.getPropuestaByIndex(0).getId());
-			assertEquals(propuesta2, cons.getPropuestaByIndex(1));
-			assertEquals("nombre actualizado", cons.getPropuestaByIndex(0).getNombre());
-			assertEquals(2, cons.getPropuestaByIndex(0).getCantidadLineaIds());
+			assertEquals(2, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta1.getId(), cons.operations().getPropuestaByIndex(0).getId());
+			assertEquals(propuesta2, cons.operations().getPropuestaByIndex(1));
+			assertEquals("nombre actualizado", cons.operations().getPropuestaByIndex(0).getNombre());
+			assertEquals(2, cons.operations().getPropuestaByIndex(0).operations().getCantidadLineaIds());
 		})
 		.expectComplete()
 		.verify();
@@ -373,34 +380,34 @@ class CustomConsultaRepoImplTest {
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals("consulta nombre", cons.getNombre());
-			assertEquals(2, cons.getCantidadPropuestas());
-			assertEquals(propuesta1, cons.getPropuestaByIndex(0));
-			assertEquals(propuesta2, cons.getPropuestaByIndex(1));
-			assertEquals("nombre propuesta 1", cons.getPropuestaByIndex(0).getNombre());
-			assertEquals(2, cons.getPropuestaByIndex(0).getCantidadLineaIds());
-			assertEquals(2, cons.getPropuestaByIndex(1).getCantidadLineaIds());
+			assertEquals(2, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta1, cons.operations().getPropuestaByIndex(0));
+			assertEquals(propuesta2, cons.operations().getPropuestaByIndex(1));
+			assertEquals("nombre propuesta 1", cons.operations().getPropuestaByIndex(0).getNombre());
+			assertEquals(2, cons.operations().getPropuestaByIndex(0).operations().getCantidadLineaIds());
+			assertEquals(2, cons.operations().getPropuestaByIndex(1).operations().getCantidadLineaIds());
 		})
 		.expectComplete()
 		.verify();
 		
 		propuesta1.setNombre("nombre actualizado 1");
-		propuesta1.getAllLineaIds().clear();
-		assertEquals(0, propuesta1.getCantidadLineaIds());
+		oper1.getAllLineaIds().clear();
+		assertEquals(0, oper1.getCantidadLineaIds());
 		propuesta2.setNombre("nombre actualizado 2");
-		propuesta2.getAllLineaIds().clear();
-		assertEquals(0, propuesta2.getCantidadLineaIds());
+		oper2.getAllLineaIds().clear();
+		assertEquals(0, oper2.getCantidadLineaIds());
 		repo.updateNombreVariasPropuestas(consulta.getId(), Flux.just(propuesta1, propuesta2)).block();
 		
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals("consulta nombre", cons.getNombre());
-			assertEquals(2, cons.getCantidadPropuestas());
-			assertEquals(propuesta1.getId(), cons.getPropuestaByIndex(0).getId());
-			assertEquals(propuesta2.getId(), cons.getPropuestaByIndex(1).getId());
-			assertEquals("nombre actualizado 1", cons.getPropuestaByIndex(0).getNombre());
-			assertEquals(2, cons.getPropuestaByIndex(0).getCantidadLineaIds());
-			assertEquals("nombre actualizado 2", cons.getPropuestaByIndex(1).getNombre());
-			assertEquals(2, cons.getPropuestaByIndex(1).getCantidadLineaIds());
+			assertEquals(2, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta1.getId(), cons.operations().getPropuestaByIndex(0).getId());
+			assertEquals(propuesta2.getId(), cons.operations().getPropuestaByIndex(1).getId());
+			assertEquals("nombre actualizado 1", cons.operations().getPropuestaByIndex(0).getNombre());
+			assertEquals(2, cons.operations().getPropuestaByIndex(0).operations().getCantidadLineaIds());
+			assertEquals("nombre actualizado 2", cons.operations().getPropuestaByIndex(1).getNombre());
+			assertEquals(2, cons.operations().getPropuestaByIndex(1).operations().getCantidadLineaIds());
 		})
 		.expectComplete()
 		.verify();
@@ -413,17 +420,17 @@ class CustomConsultaRepoImplTest {
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals("consulta nombre", cons.getNombre());
-			assertEquals(2, cons.getCantidadPropuestas());
-			assertEquals(propuesta1, cons.getPropuestaByIndex(0));
-			assertEquals("nombre propuesta 1", cons.getPropuestaByIndex(0).getNombre());
-			assertEquals("linea 1 id", cons.getPropuestaByIndex(0).getLineaIdByIndex(0));
-			assertEquals("linea 2 id", cons.getPropuestaByIndex(0).getLineaIdByIndex(1));
+			assertEquals(2, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta1, cons.operations().getPropuestaByIndex(0));
+			assertEquals("nombre propuesta 1", cons.operations().getPropuestaByIndex(0).getNombre());
+			assertEquals("linea 1 id", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(0));
+			assertEquals("linea 2 id", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(1));
 		})
 		.expectComplete()
 		.verify();
 		
-		propuesta1.getAllLineaIds().set(0, "linea 1 id actualizado");
-		propuesta1.getAllLineaIds().set(1, "linea 2 id actualizado");
+		oper1.getAllLineaIds().set(0, "linea 1 id actualizado");
+		oper1.getAllLineaIds().set(1, "linea 2 id actualizado");
 		propuesta1.setNombre("nombre propuesta actualizado");
 		
 		repo.updateLineasDeUnaPropuesta(consulta.getId(), propuesta1).block();
@@ -431,12 +438,12 @@ class CustomConsultaRepoImplTest {
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals("consulta nombre", cons.getNombre());
-			assertEquals(2, cons.getCantidadPropuestas());
-			assertEquals(propuesta1.getId(), cons.getPropuestaByIndex(0).getId());
-			assertNotEquals(propuesta1, cons.getPropuestaByIndex(0));
-			assertEquals("nombre propuesta 1", cons.getPropuestaByIndex(0).getNombre());
-			assertEquals("linea 1 id actualizado", cons.getPropuestaByIndex(0).getLineaIdByIndex(0));
-			assertEquals("linea 2 id actualizado", cons.getPropuestaByIndex(0).getLineaIdByIndex(1));
+			assertEquals(2, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta1.getId(), cons.operations().getPropuestaByIndex(0).getId());
+			assertNotEquals(propuesta1, cons.operations().getPropuestaByIndex(0));
+			assertEquals("nombre propuesta 1", cons.operations().getPropuestaByIndex(0).getNombre());
+			assertEquals("linea 1 id actualizado", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(0));
+			assertEquals("linea 2 id actualizado", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(1));
 		})
 		.expectComplete()
 		.verify();
@@ -449,25 +456,25 @@ class CustomConsultaRepoImplTest {
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals("consulta nombre", cons.getNombre());
-			assertEquals(2, cons.getCantidadPropuestas());
-			assertEquals(propuesta1, cons.getPropuestaByIndex(0));
-			assertEquals("nombre propuesta 1", cons.getPropuestaByIndex(0).getNombre());
-			assertEquals("linea 1 id", cons.getPropuestaByIndex(0).getLineaIdByIndex(0));
-			assertEquals("linea 2 id", cons.getPropuestaByIndex(0).getLineaIdByIndex(1));
-			assertEquals(propuesta2, cons.getPropuestaByIndex(1));
-			assertEquals("nombre propuesta 2", cons.getPropuestaByIndex(1).getNombre());
-			assertEquals("linea 3 id", cons.getPropuestaByIndex(1).getLineaIdByIndex(0));
-			assertEquals("linea 4 id", cons.getPropuestaByIndex(1).getLineaIdByIndex(1));
+			assertEquals(2, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta1, cons.operations().getPropuestaByIndex(0));
+			assertEquals("nombre propuesta 1", cons.operations().getPropuestaByIndex(0).getNombre());
+			assertEquals("linea 1 id", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(0));
+			assertEquals("linea 2 id", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(1));
+			assertEquals(propuesta2, cons.operations().getPropuestaByIndex(1));
+			assertEquals("nombre propuesta 2", cons.operations().getPropuestaByIndex(1).getNombre());
+			assertEquals("linea 3 id", cons.operations().getPropuestaByIndex(1).operations().getLineaIdByIndex(0));
+			assertEquals("linea 4 id", cons.operations().getPropuestaByIndex(1).operations().getLineaIdByIndex(1));
 		})
 		.expectComplete()
 		.verify();
 		
-		propuesta1.getAllLineaIds().set(0, "linea 1 id actualizado");
-		propuesta1.getAllLineaIds().set(1, "linea 2 id actualizado");
+		oper1.getAllLineaIds().set(0, "linea 1 id actualizado");
+		oper1.getAllLineaIds().set(1, "linea 2 id actualizado");
 		propuesta1.setNombre("nombre propuesta 1 actualizado");
 		
-		propuesta2.getAllLineaIds().set(0, "linea 3 id actualizado");
-		propuesta2.getAllLineaIds().set(1, "linea 4 id actualizado");
+		oper2.getAllLineaIds().set(0, "linea 3 id actualizado");
+		oper2.getAllLineaIds().set(1, "linea 4 id actualizado");
 		propuesta2.setNombre("nombre propuesta 2 actualizado");
 		
 		repo.updateLineasDeVariasPropuestas(consulta.getId(), Flux.just(propuesta1, propuesta2)).block();
@@ -475,17 +482,17 @@ class CustomConsultaRepoImplTest {
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals("consulta nombre", cons.getNombre());
-			assertEquals(2, cons.getCantidadPropuestas());
-			assertEquals(propuesta1.getId(), cons.getPropuestaByIndex(0).getId());
-			assertNotEquals(propuesta1, cons.getPropuestaByIndex(0));
-			assertEquals("nombre propuesta 1", cons.getPropuestaByIndex(0).getNombre());
-			assertEquals("linea 1 id actualizado", cons.getPropuestaByIndex(0).getLineaIdByIndex(0));
-			assertEquals("linea 2 id actualizado", cons.getPropuestaByIndex(0).getLineaIdByIndex(1));
-			assertEquals(propuesta2.getId(), cons.getPropuestaByIndex(1).getId());
-			assertNotEquals(propuesta2, cons.getPropuestaByIndex(1));
-			assertEquals("nombre propuesta 2", cons.getPropuestaByIndex(1).getNombre());
-			assertEquals("linea 3 id actualizado", cons.getPropuestaByIndex(1).getLineaIdByIndex(0));
-			assertEquals("linea 4 id actualizado", cons.getPropuestaByIndex(1).getLineaIdByIndex(1));
+			assertEquals(2, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta1.getId(), cons.operations().getPropuestaByIndex(0).getId());
+			assertNotEquals(propuesta1, cons.operations().getPropuestaByIndex(0));
+			assertEquals("nombre propuesta 1", cons.operations().getPropuestaByIndex(0).getNombre());
+			assertEquals("linea 1 id actualizado", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(0));
+			assertEquals("linea 2 id actualizado", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(1));
+			assertEquals(propuesta2.getId(), cons.operations().getPropuestaByIndex(1).getId());
+			assertNotEquals(propuesta2, cons.operations().getPropuestaByIndex(1));
+			assertEquals("nombre propuesta 2", cons.operations().getPropuestaByIndex(1).getNombre());
+			assertEquals("linea 3 id actualizado", cons.operations().getPropuestaByIndex(1).operations().getLineaIdByIndex(0));
+			assertEquals("linea 4 id actualizado", cons.operations().getPropuestaByIndex(1).operations().getLineaIdByIndex(1));
 		})
 		.expectComplete()
 		.verify();
@@ -495,8 +502,8 @@ class CustomConsultaRepoImplTest {
 	void testUpdateUnaPropuesta() {
 		Mono<Consulta> mono = repo.findById(consulta.getId());		
 		
-		propuesta1.getAllLineaIds().set(0, "id linea 1 actualizado");
-		propuesta1.getAllLineaIds().set(1, "id linea 2 actualizado");
+		oper1.getAllLineaIds().set(0, "id linea 1 actualizado");
+		oper1.getAllLineaIds().set(1, "id linea 2 actualizado");
 		propuesta1.setNombre("nombre propuesta actualizado");
 		
 		repo.updateUnaPropuesta(consulta.getId(), propuesta1).block();
@@ -504,12 +511,12 @@ class CustomConsultaRepoImplTest {
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals("consulta nombre", cons.getNombre());
-			assertEquals(2, cons.getCantidadPropuestas());
-			assertEquals(propuesta1.getId(), cons.getPropuestaByIndex(0).getId());
-			assertEquals(propuesta1, cons.getPropuestaByIndex(0));
-			assertEquals("nombre propuesta actualizado", cons.getPropuestaByIndex(0).getNombre());
-			assertEquals("id linea 1 actualizado", cons.getPropuestaByIndex(0).getLineaIdByIndex(0));
-			assertEquals("id linea 2 actualizado", cons.getPropuestaByIndex(0).getLineaIdByIndex(1));
+			assertEquals(2, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta1.getId(), cons.operations().getPropuestaByIndex(0).getId());
+			assertEquals(propuesta1, cons.operations().getPropuestaByIndex(0));
+			assertEquals("nombre propuesta actualizado", cons.operations().getPropuestaByIndex(0).getNombre());
+			assertEquals("id linea 1 actualizado", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(0));
+			assertEquals("id linea 2 actualizado", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(1));
 		})
 		.expectComplete()
 		.verify();
@@ -519,12 +526,12 @@ class CustomConsultaRepoImplTest {
 	void testUpdateVariasPropuestas() {
 		Mono<Consulta> mono = repo.findById(consulta.getId());
 		
-		propuesta1.getAllLineaIds().set(0, "linea 1 id actualizado");
-		propuesta1.getAllLineaIds().set(1, "linea 2 id actualizado");
+		oper1.getAllLineaIds().set(0, "linea 1 id actualizado");
+		oper1.getAllLineaIds().set(1, "linea 2 id actualizado");
 		propuesta1.setNombre("nombre propuesta 1 actualizado");
 		
-		propuesta2.getAllLineaIds().set(0, "linea 3 id actualizado");
-		propuesta2.getAllLineaIds().set(1, "linea 4 id actualizado");
+		oper2.getAllLineaIds().set(0, "linea 3 id actualizado");
+		oper2.getAllLineaIds().set(1, "linea 4 id actualizado");
 		propuesta2.setNombre("nombre propuesta 2 actualizado");
 		
 		repo.updateVariasPropuestas(consulta.getId(), Flux.just(propuesta1, propuesta2)).block();
@@ -532,17 +539,17 @@ class CustomConsultaRepoImplTest {
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals("consulta nombre", cons.getNombre());
-			assertEquals(2, cons.getCantidadPropuestas());
-			assertEquals(propuesta1.getId(), cons.getPropuestaByIndex(0).getId());
-			assertEquals(propuesta1, cons.getPropuestaByIndex(0));
-			assertEquals("nombre propuesta 1 actualizado", cons.getPropuestaByIndex(0).getNombre());
-			assertEquals("linea 1 id actualizado", cons.getPropuestaByIndex(0).getLineaIdByIndex(0));
-			assertEquals("linea 2 id actualizado", cons.getPropuestaByIndex(0).getLineaIdByIndex(1));
-			assertEquals(propuesta2.getId(), cons.getPropuestaByIndex(1).getId());
-			assertEquals(propuesta2, cons.getPropuestaByIndex(1));
-			assertEquals("nombre propuesta 2 actualizado", cons.getPropuestaByIndex(1).getNombre());
-			assertEquals("linea 3 id actualizado", cons.getPropuestaByIndex(1).getLineaIdByIndex(0));
-			assertEquals("linea 4 id actualizado", cons.getPropuestaByIndex(1).getLineaIdByIndex(1));
+			assertEquals(2, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta1.getId(), cons.operations().getPropuestaByIndex(0).getId());
+			assertEquals(propuesta1, cons.operations().getPropuestaByIndex(0));
+			assertEquals("nombre propuesta 1 actualizado", cons.operations().getPropuestaByIndex(0).getNombre());
+			assertEquals("linea 1 id actualizado", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(0));
+			assertEquals("linea 2 id actualizado", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(1));
+			assertEquals(propuesta2.getId(), cons.operations().getPropuestaByIndex(1).getId());
+			assertEquals(propuesta2, cons.operations().getPropuestaByIndex(1));
+			assertEquals("nombre propuesta 2 actualizado", cons.operations().getPropuestaByIndex(1).getNombre());
+			assertEquals("linea 3 id actualizado", cons.operations().getPropuestaByIndex(1).operations().getLineaIdByIndex(0));
+			assertEquals("linea 4 id actualizado", cons.operations().getPropuestaByIndex(1).operations().getLineaIdByIndex(1));
 		})
 		.expectComplete()
 		.verify();
@@ -557,18 +564,18 @@ class CustomConsultaRepoImplTest {
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals("consulta nombre", cons.getNombre());
-			assertEquals(2, cons.getCantidadPropuestas());
-			propuesta1.getAllLineaIds().add(linea3.getId());
-			assertEquals(propuesta1, cons.getPropuestaByIndex(0));
-			assertEquals("nombre propuesta 1", cons.getPropuestaByIndex(0).getNombre());
-			assertEquals(3, cons.getPropuestaByIndex(0).getCantidadLineaIds());
-			assertEquals("linea 1 id", cons.getPropuestaByIndex(0).getLineaIdByIndex(0));
-			assertEquals("linea 2 id", cons.getPropuestaByIndex(0).getLineaIdByIndex(1));
-			assertEquals("linea 3 id", cons.getPropuestaByIndex(0).getLineaIdByIndex(2));
-			assertEquals(propuesta2, cons.getPropuestaByIndex(1));
-			assertEquals("nombre propuesta 2", cons.getPropuestaByIndex(1).getNombre());
-			assertEquals("linea 3 id", cons.getPropuestaByIndex(1).getLineaIdByIndex(0));
-			assertEquals("linea 4 id", cons.getPropuestaByIndex(1).getLineaIdByIndex(1));
+			assertEquals(2, cons.operations().getCantidadPropuestas());
+			oper1.getAllLineaIds().add(linea3.getId());
+			assertEquals(propuesta1, cons.operations().getPropuestaByIndex(0));
+			assertEquals("nombre propuesta 1", cons.operations().getPropuestaByIndex(0).getNombre());
+			assertEquals(3, cons.operations().getPropuestaByIndex(0).operations().getCantidadLineaIds());
+			assertEquals("linea 1 id", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(0));
+			assertEquals("linea 2 id", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(1));
+			assertEquals("linea 3 id", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(2));
+			assertEquals(propuesta2, cons.operations().getPropuestaByIndex(1));
+			assertEquals("nombre propuesta 2", cons.operations().getPropuestaByIndex(1).getNombre());
+			assertEquals("linea 3 id", cons.operations().getPropuestaByIndex(1).operations().getLineaIdByIndex(0));
+			assertEquals("linea 4 id", cons.operations().getPropuestaByIndex(1).operations().getLineaIdByIndex(1));
 		})
 		.expectComplete()
 		.verify();
@@ -582,16 +589,16 @@ class CustomConsultaRepoImplTest {
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals("consulta nombre", cons.getNombre());
-			assertEquals(2, cons.getCantidadPropuestas());
-			assertEquals(propuesta1, cons.getPropuestaByIndex(0));
-			assertEquals("nombre propuesta 1", cons.getPropuestaByIndex(0).getNombre());
-			assertEquals("linea 1 id", cons.getPropuestaByIndex(0).getLineaIdByIndex(0));
-			assertEquals("linea 2 id", cons.getPropuestaByIndex(0).getLineaIdByIndex(1));
-			assertEquals(2, cons.getPropuestaByIndex(0).getCantidadLineaIds());
-			assertEquals(propuesta2, cons.getPropuestaByIndex(1));
-			assertEquals("nombre propuesta 2", cons.getPropuestaByIndex(1).getNombre());
-			assertEquals("linea 3 id", cons.getPropuestaByIndex(1).getLineaIdByIndex(0));
-			assertEquals("linea 4 id", cons.getPropuestaByIndex(1).getLineaIdByIndex(1));
+			assertEquals(2, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta1, cons.operations().getPropuestaByIndex(0));
+			assertEquals("nombre propuesta 1", cons.operations().getPropuestaByIndex(0).getNombre());
+			assertEquals("linea 1 id", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(0));
+			assertEquals("linea 2 id", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(1));
+			assertEquals(2, cons.operations().getPropuestaByIndex(0).operations().getCantidadLineaIds());
+			assertEquals(propuesta2, cons.operations().getPropuestaByIndex(1));
+			assertEquals("nombre propuesta 2", cons.operations().getPropuestaByIndex(1).getNombre());
+			assertEquals("linea 3 id", cons.operations().getPropuestaByIndex(1).operations().getLineaIdByIndex(0));
+			assertEquals("linea 4 id", cons.operations().getPropuestaByIndex(1).operations().getLineaIdByIndex(1));
 		})
 		.expectComplete()
 		.verify();
@@ -601,16 +608,16 @@ class CustomConsultaRepoImplTest {
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals("consulta nombre", cons.getNombre());
-			assertEquals(2, cons.getCantidadPropuestas());
-			propuesta1.getAllLineaIds().remove(0);
-			assertEquals(propuesta1, cons.getPropuestaByIndex(0));
-			assertEquals("nombre propuesta 1", cons.getPropuestaByIndex(0).getNombre());
-			assertEquals(1, cons.getPropuestaByIndex(0).getCantidadLineaIds());
-			assertEquals("linea 2 id", cons.getPropuestaByIndex(0).getLineaIdByIndex(0));
-			assertEquals(propuesta2, cons.getPropuestaByIndex(1));
-			assertEquals("nombre propuesta 2", cons.getPropuestaByIndex(1).getNombre());
-			assertEquals("linea 3 id", cons.getPropuestaByIndex(1).getLineaIdByIndex(0));
-			assertEquals("linea 4 id", cons.getPropuestaByIndex(1).getLineaIdByIndex(1));
+			assertEquals(2, cons.operations().getCantidadPropuestas());
+			oper1.getAllLineaIds().remove(0);
+			assertEquals(propuesta1, cons.operations().getPropuestaByIndex(0));
+			assertEquals("nombre propuesta 1", cons.operations().getPropuestaByIndex(0).getNombre());
+			assertEquals(1, cons.operations().getPropuestaByIndex(0).operations().getCantidadLineaIds());
+			assertEquals("linea 2 id", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(0));
+			assertEquals(propuesta2, cons.operations().getPropuestaByIndex(1));
+			assertEquals("nombre propuesta 2", cons.operations().getPropuestaByIndex(1).getNombre());
+			assertEquals("linea 3 id", cons.operations().getPropuestaByIndex(1).operations().getLineaIdByIndex(0));
+			assertEquals("linea 4 id", cons.operations().getPropuestaByIndex(1).operations().getLineaIdByIndex(1));
 		})
 		.expectComplete()
 		.verify();
@@ -658,8 +665,8 @@ class CustomConsultaRepoImplTest {
 		
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
-			assertEquals(3, cons.getPropuestaById(propuesta1.getId()).getAttributeColumns().size());
-			assertEquals(atributo3, cons.getPropuestaById(propuesta1.getId()).getAttributeColumns().get(2));
+			assertEquals(3, cons.operations().getPropuestaById(propuesta1.getId()).getAttributeColumns().size());
+			assertEquals(atributo3, cons.operations().getPropuestaById(propuesta1.getId()).getAttributeColumns().get(2));
 		})
 		.expectComplete()
 		.verify();
@@ -671,8 +678,8 @@ class CustomConsultaRepoImplTest {
 		
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
-			assertEquals(1, cons.getPropuestaById(propuesta1.getId()).getAttributeColumns().size());
-			assertEquals(atributo2, cons.getPropuestaById(propuesta1.getId()).getAttributeColumns().get(0));
+			assertEquals(1, cons.operations().getPropuestaById(propuesta1.getId()).getAttributeColumns().size());
+			assertEquals(atributo2, cons.operations().getPropuestaById(propuesta1.getId()).getAttributeColumns().get(0));
 		})
 		.expectComplete()
 		.verify();
@@ -688,12 +695,76 @@ class CustomConsultaRepoImplTest {
 		
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
-			assertEquals(2, cons.getPropuestaById(propuesta1.getId()).getAttributeColumns().size());
-			assertEquals(atributo2.getId(), cons.getPropuestaById(propuesta1.getId()).getAttributeColumns().get(0).getId());
-			assertEquals(atributo3.getId(), cons.getPropuestaById(propuesta1.getId()).getAttributeColumns().get(1).getId());
+			assertEquals(2, cons.operations().getPropuestaById(propuesta1.getId()).getAttributeColumns().size());
+			assertEquals(atributo2.getId(), cons.operations().getPropuestaById(propuesta1.getId()).getAttributeColumns().get(0).getId());
+			assertEquals(atributo3.getId(), cons.operations().getPropuestaById(propuesta1.getId()).getAttributeColumns().get(1).getId());
 		})
 		.expectComplete()
 		.verify();
+	}
+	
+	@Test
+	void testAddCostToList() {
+		PropuestaProveedor p = new PropuestaProveedor();
+		p.setCostes(new ArrayList<>());
+		var cos = new CosteProveedor();
+		repo.addPropuesta(consulta.getId(), p).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals(0, ((PropuestaProveedor)cons.operations().getPropuestaById(p.getId())).getCostes().size());
+		})
+		.expectComplete()
+		.verify();
+		
+		repo.addCostToList(p.getId(), cos).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals(1, ((PropuestaProveedor)cons.operations().getPropuestaById(p.getId())).getCostes().size());
+		})
+		.expectComplete()
+		.verify();
+	}
+	
+	@Test
+	void testUpdateCostesOfPropuesta() {
+		CosteProveedor cos1 = new CosteProveedor();
+		cos1.setName("cos1 name");
+		CosteProveedor cos2 = new CosteProveedor();
+		cos2.setName("cos2 name");
+		
+		List<CosteProveedor> costes = new ArrayList<>();
+		costes.add(cos1);
+		costes.add(cos2);
+		
+		PropuestaProveedor p = new PropuestaProveedor();
+		p.setCostes(new ArrayList<>());
+		
+		repo.addPropuesta(consulta.getId(), p).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals(0, ((PropuestaProveedor)cons.operations().getPropuestaById(p.getId())).getCostes().size());
+		})
+		.expectComplete()
+		.verify();
+		
+		repo.updateCostesOfPropuesta(p.getId(), costes).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals(2, ((PropuestaProveedor)cons.operations().getPropuestaById(p.getId())).getCostes().size());
+			assertEquals(cos1.getId(), ((PropuestaProveedor)cons.operations().getPropuestaById(p.getId())).getCostes().get(0).getId());
+			assertEquals(cos2.getId(), ((PropuestaProveedor)cons.operations().getPropuestaById(p.getId())).getCostes().get(1).getId());
+		})
+		.expectComplete()
+		.verify();
+	}
+	
+	@Test
+	void testAddPvpToList() {
+		
 	}
 
 }

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Borrar costes de la propuesta: ' + propuesta.getNombre()}">Gull Project - Borrar costes de la propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1>Borrados</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/consultas/costof/propid/' + propuesta.id}">Volver</a>
+		</p>
+	</div>
+	
+	<div>
+		<table>
+			<tr>
+				<th>Nombre</th>
+			</tr>
+			<tr th:each="a, stat : ${costesCheckboxWrapper.costes}">
+				<td th:text="${a.name}"></td>
+			</tr>
+		</table>
+	</div>
+
+</body>
+</html>

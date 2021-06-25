@@ -3,18 +3,19 @@
 	xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="utf-8">
-<title th:text="${'Gull Project - Lineas de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Gull Project - Lineas de la propuesta</title>
+<title th:text="${'Gull Project - Lineas de la propuesta: ' + consulta.operations().getPropuestaById(propuestaId).getNombre()}">Gull Project - Lineas de la propuesta</title>
 <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
 
-<h1 th:text="${'Lineas de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Lineas de la propuesta</h1>
+<h1 th:text="${'Lineas de la propuesta: ' + consulta.operations().getPropuestaById(propuestaId).getNombre()}">Lineas de la propuesta</h1>
 
 	<div>
 		<p>
 			<a th:href="${'/consultas/revisar/id/' + consulta.id}">Volver</a> -
 			<a th:href="${'/lineas/of/' + propuestaId + '/new'}">Crear nueva linea</a> -
 			<a th:href="${'/lineas/of/' + propuestaId + '/bulk-add'}">Crear en bloque</a> -
+			<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'PROVEEDOR'}"><a th:href="${'/lineas/allof/propid/' + propuestaId + '/counter-assign'}">Asignar contra-línea</a> -</th:block>
 			<a th:href="${'/lineas/allof/propid/' + propuestaId + '/order'}">Ordenar líneas</a> -
 			<a th:href="${'/lineas/allof/propid/' + propuestaId + '/rename'}">Reasignar nombres</a> -
 			<a th:href="${'/lineas/allof/propid/' + propuestaId + '/remap'}">Remapear</a> -
@@ -30,12 +31,29 @@
 			<tr>
 				<th>Nombre</th>
 				<th>Enlace</th>
-				<th th:each="t : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${t.getName()}"></span></th>
+				<th th:each="t : ${consulta.operations().getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${t.getName()}"></span></th>
+				<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'CLIENTE' and mapa.keySet().size() > 0}">
+				<td><span>Incluida:</span></td>
+				<td th:each="prop : ${mapa.keySet()}"><span th:text="${consulta.operations().getPropuestaById(prop).getNombre()}"></span></td>
+				</th:block>
+				<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'PROVEEDOR'}">
+				<td><span>Contra-líneas</span></td>
+				<td th:each="cost : ${consulta.operations().getPropuestaById(propuestaId).getCostes()}"><span th:text="${cost.name}"></span></td>
+				</th:block>
+				
 			</tr>
-			<tr th:each="a : ${lineas}">
+			<tr th:each="a, astat : ${lineas}">
 				<td th:text="${a.nombre}"></td>
 				<td><a th:href="@{'/lineas/revisar/id/' + ${a.id}}">revisar</a></td>
-				<td th:each="t : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${a.operations().getValueByAttId(t.getId())}"></span></td>
+				<td th:each="t : ${consulta.operations().getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${a.operations().getValueByAttId(t.getId())}"></span></td>
+				<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'CLIENTE' and mapa.keySet().size() > 0}">
+				<td th:if="${astat.index == 0}" rowspan="0"></td>
+				<td th:each="prop : ${mapa.keySet()}"><span th:if="${mapa.get(prop).contains(a.getId())}">X</span></td>
+				</th:block>
+				<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'PROVEEDOR'}">
+				<td><span th:text="${a.counterLineId.size()}" th:if="${a.counterLineId != null and a.counterLineId.size() > 0}"></span></td>
+				<td th:each="cost : ${consulta.operations().getPropuestaById(propuestaId).getCostes()}"><span th:text="${a.operations().getCosteByCosteId(cost.id).value}"></span></td>
+				</th:block>
 			</tr>
 		</table>
 	</div>

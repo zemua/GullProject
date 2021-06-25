@@ -3,9 +3,13 @@ package devs.mrp.gullproject.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -16,15 +20,26 @@ import org.springframework.validation.BindingResult;
 
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Campo;
+import devs.mrp.gullproject.domains.CosteLineaProveedor;
+import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
+import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.domains.StringListOfListsWrapper;
 import devs.mrp.gullproject.domains.StringListWrapper;
 import devs.mrp.gullproject.domains.WrapLineasDto;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AtributoForLineaFormDto;
+import devs.mrp.gullproject.domains.dto.AttRemaper;
+import devs.mrp.gullproject.domains.dto.AttRemapersWrapper;
 import devs.mrp.gullproject.domains.dto.BooleanWrapper;
+import devs.mrp.gullproject.domains.dto.CostRemapper;
+import devs.mrp.gullproject.domains.dto.CostRemappersWrapper;
+import devs.mrp.gullproject.domains.dto.CosteLineaProveedorDto;
 import devs.mrp.gullproject.domains.dto.LineaWithAttListDto;
+import devs.mrp.gullproject.domains.dto.LineaWithSelectorDto;
+import devs.mrp.gullproject.domains.dto.MultipleLineaWithAttListDto;
+import devs.mrp.gullproject.domains.dto.WrapLineasWithSelectorDto;
 import devs.mrp.gullproject.validator.ValidList;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +56,8 @@ public class LineaUtilities {
 	ModelMapper modelMapper;
 	LineaService lineaService;
 	
+	String tipoCoste = "COSTE";
+	
 	@Autowired
 	public LineaUtilities(ConsultaService consultaService, ModelMapper modelMapper, AtributoServiceProxyWebClient atributoService, LineaService lineaService) {
 		this.consultaService = consultaService;
@@ -48,15 +65,39 @@ public class LineaUtilities {
 		this.atributoService = atributoService;
 		this.lineaService = lineaService;
 	}
+	
+	private Mono<LineaWithAttListDto> addCostsIfApplies(LineaWithAttListDto dto) {
+		return consultaService.findPropuestaByPropuestaId(dto.getLinea().getPropuestaId())
+			.map(rProp -> {
+				if (rProp instanceof PropuestaProveedor) {
+					log.debug("going to set costs on dto of: " + rProp.toString());
+					dto.setCostesProveedor(((PropuestaProveedor)rProp).getCostes().stream().map(cost -> modelMapper.map(cost, CosteLineaProveedorDto.class)).collect(Collectors.toList()));
+					log.debug("costs set on dto as: ");
+					dto.getCostesProveedor().stream().forEach(c -> log.debug(c.toString()));
+					var lineaOp = dto.getLinea().operations();
+					log.debug("going to retrieve costes from: " + dto.getLinea().toString());
+					dto.getCostesProveedor().forEach(cozte -> {
+						log.debug("going to set for: " + cozte + " the value: " + lineaOp.getCosteByCosteId(cozte.getId()).getValue());
+						cozte.setValue(lineaOp.getCosteByCosteId(cozte.getId()).getValue());
+					});
+				}
+				return dto;
+			});
+	}
 
 	public Mono<LineaWithAttListDto> getAttributesOfProposal(Linea lLinea, String propuestaId, Integer qtyLineas) {
+		log.debug("going to create dto from: " + lLinea.toString());
 		return consultaService.findAttributesByPropuestaId(propuestaId)
 				.map(rAttProp -> modelMapper.map(rAttProp, AtributoForLineaFormDto.class)).map(rAttForForm -> {
 					LineaOperations operations = new LineaOperations(lLinea);
 					rAttForForm.setValue(operations.getValueByAttId(rAttForForm.getId()));
 					return rAttForForm;
 				}).collectList().flatMap(rAttFormList -> Mono
-						.just(new LineaWithAttListDto(lLinea, new ValidList<AtributoForLineaFormDto>(rAttFormList), qtyLineas)));
+						.just(new LineaWithAttListDto(lLinea, new ValidList<AtributoForLineaFormDto>(rAttFormList), qtyLineas)))
+						.flatMap(dto -> {
+							log.debug("going to add costs for: " + lLinea.toString());
+							return addCostsIfApplies(dto);
+						});
 	}
 
 	public Mono<LineaWithAttListDto> getAttributesOfProposal(Mono<Linea> lLinea, Integer qtyLineas) {
@@ -76,9 +117,93 @@ public class LineaUtilities {
 				.collectSortedList((l1, l2) -> l1.getLinea().getOrder().compareTo(l2.getLinea().getOrder()))
 				.flatMapMany(rList -> Flux.fromIterable(rList));
 	}
+	
+	public Mono<MultipleLineaWithAttListDto> getWrappedLineasWithAttListDtoFromPropuestaId(String propuestaId) {
+		Flux<Linea> lineas = lineaService.findByPropuestaId(propuestaId);
+		return getAttributesOfProposal(lineas, propuestaId)
+				.collectList().map(listOfDtos -> {
+					MultipleLineaWithAttListDto multiple = new MultipleLineaWithAttListDto();
+					multiple.setLineaWithAttListDtos(listOfDtos);
+					return multiple;
+				});
+	}
+	
+	public Mono<WrapLineasWithSelectorDto> getWrappedLinesWithSelectorFromPropuestaId(String propuestaId) {
+		return lineaService.findByPropuestaId(propuestaId).map(rl -> {
+			LineaWithSelectorDto dto = modelMapper.map(rl, LineaWithSelectorDto.class);
+			dto.setSelected(false);
+			return dto;
+		}).collectList().flatMap(rList -> {
+			WrapLineasWithSelectorDto wrap = new WrapLineasWithSelectorDto();
+			wrap.setLineas(rList);
+			return Mono.just(wrap);
+		});
+	}
+	
+	public List<LineaWithSelectorDto> removeNotSelectedFromWrap(WrapLineasWithSelectorDto wrapLineasWithSelectorDto) {
+		List<LineaWithSelectorDto> lineas = wrapLineasWithSelectorDto.getLineas();
+		Iterator<LineaWithSelectorDto> iterator = lineas.iterator();
+		while (iterator.hasNext()) {
+			LineaWithSelectorDto dto = iterator.next();
+			if (!dto.getSelected()) {
+				iterator.remove();
+			}
+		}
+		return lineas;
+	}
+	
+	public Mono<Void> deleteSelectedLinesFromWrap(WrapLineasWithSelectorDto wrapLineasWithSelectorDto) {
+		removeNotSelectedFromWrap(wrapLineasWithSelectorDto);
+		return lineaService
+				.deleteVariasLineas(Flux.fromIterable(wrapLineasWithSelectorDto.getLineas()).map(rLineaDto -> {
+					Linea linea = modelMapper.map(rLineaDto, Linea.class);
+					return linea;
+				}));
+	}
+	
+	public Flux<LineaWithAttListDto> assertBindingResultOfWrappedMultipleLines(MultipleLineaWithAttListDto multipleLineaWithAttListDto, BindingResult bindingResult) {
+		return Flux.fromIterable(multipleLineaWithAttListDto.getLineaWithAttListDtos()).index().flatMap(rTuple -> {
+			return assertBindingResultOfListDto(rTuple.getT2(), bindingResult, "lineaWithAttListDtos[" + rTuple.getT1() + "].attributes")
+					.then(Mono.just(assertNameBindingResultOfListDto(rTuple.getT2(), bindingResult, "lineaWithAttListDtos[" + rTuple.getT1() + "].linea.nombre")))
+					.then(Mono.just(rTuple.getT2()));
+		});
+	}
+	
+	public Flux<LineaWithAttListDto> updateLinesFromListOfLinesWithAttListDto(List<LineaWithAttListDto> lineasDto, String propuestaId) {
+		return getAttributesOfProposal(lineaService.updateVariasLineas(Flux.fromIterable(lineasDto)
+				.flatMap(oDto -> reconstructLine(oDto))), propuestaId);
+	}
+	
+	public MultipleLineaWithAttListDto wrapLinesIntoMultipleObject(List<LineaWithAttListDto> lineasDto) {
+		MultipleLineaWithAttListDto multiple = new MultipleLineaWithAttListDto();
+		multiple.setLineaWithAttListDtos(lineasDto);
+		multiple.getLineaWithAttListDtos().forEach(sLineAtt -> {
+			if (sLineAtt.getLinea().getOrder() == null) {
+				sLineAtt.getLinea().setOrder(0);
+			}
+		});
+		multiple.getLineaWithAttListDtos().sort((a, b) -> a.getLinea().getOrder().compareTo(b.getLinea().getOrder()));
+		return multiple;
+	}
+	
+	public Flux<Linea> addSeveralCopiesOfSameLineDto(LineaWithAttListDto lineaWithAttListDto, String propuestaId) {
+		Flux<Linea> l1;
+		Mono<List<Linea>> llineas = reconstructLine(lineaWithAttListDto)
+				.map(rLine -> {
+					List<Linea> lista = new ArrayList<>();
+					LineaOperations operationsRline = new LineaOperations(rLine);
+					for (int i=0; i<lineaWithAttListDto.getQty(); i++) {
+						Linea dLine = operationsRline.clonar();
+						log.debug("añadimos linea: " + dLine.toString());
+						lista.add(dLine);
+					}
+					return lista;
+				});
+		l1 = lineaService.addVariasLineas(llineas.flatMapMany(ll -> Flux.fromIterable(ll)), propuestaId);
+		return l1;
+	}
 
-	public Flux<Boolean> assertBindingResultOfListDto(LineaWithAttListDto lineaWithAttListDto,
-			BindingResult bindingResult, String attsRoute) {
+	public Flux<Boolean> assertBindingResultOfListDto(LineaWithAttListDto lineaWithAttListDto, BindingResult bindingResult, String attsRoute) {
 		/**
 		 * BindingResult checks out of the box if there is any error in the line, but
 		 * not in the attributes (we removed the validation in that class) To check if
@@ -133,6 +258,18 @@ public class LineaUtilities {
 
 	public Mono<Linea> reconstructLine(LineaWithAttListDto lineaWithAttListDto) {
 		Linea nLinea = lineaWithAttListDto.getLinea();
+		List<CosteLineaProveedorDto> costesDto = lineaWithAttListDto.getCostesProveedor();
+		if (costesDto != null) {
+			if (nLinea.getCostesProveedor() == null) {
+				nLinea.setCostesProveedor(new ArrayList<>());
+			}
+			costesDto.stream().forEach(dto -> {
+				CosteLineaProveedor coste = new CosteLineaProveedor();
+				coste.setCosteProveedorId(dto.getId());
+				coste.setValue(dto.getValue());
+				nLinea.getCostesProveedor().add(coste);
+			});
+		}
 		List<AtributoForLineaFormDto> nAtts = lineaWithAttListDto.getAttributes();
 		if (nAtts == null) {
 			nAtts = new ValidList<>();
@@ -196,6 +333,9 @@ public class LineaUtilities {
 		StringListOfListsWrapper wrap = new StringListOfListsWrapper();
 		wrap.setStrings(propuesta.getAttributeColumns().stream().map(att -> att.getName()).collect(Collectors.toList()));
 		propuesta.getAttributeColumns().stream().forEach(att -> wrap.getName().add(null));
+		if (propuesta instanceof PropuestaProveedor) {
+			((PropuestaProveedor)propuesta).getCostes().stream().forEach(cos -> wrap.getName().add(null));
+		}
 		lineas.stream().forEach(sLine -> {
 			LineaOperations sLineOp = sLine.operations();
 			StringListWrapper stringListWrapper = new StringListWrapper();
@@ -205,6 +345,9 @@ public class LineaUtilities {
 			propuesta.getAttributeColumns().stream().forEach(att -> {
 				stringListWrapper.add(sLineOp.getCampoByAttId(att.getId()).getDatosText());
 			});
+			if (propuesta instanceof PropuestaProveedor) {
+				((PropuestaProveedor)propuesta).getCostes().stream().forEach(cos -> stringListWrapper.add(String.valueOf(sLineOp.getCosteByCosteId(cos.getId()).getValue())));
+			}
 			wrap.getStringListWrapper().add(stringListWrapper);
 		});
 		return wrap;
@@ -247,7 +390,7 @@ public class LineaUtilities {
 				log.debug("no encontramos error");
 			}
 		}
-		
+		log.debug("vamos a mirar errores en los campos");
 		BooleanWrapper addedErrorToFields = new BooleanWrapper(false);
 		return bulkTableWrapperToTuplaTabla(wrapper, propuestaId)
 				.map(rTupla -> {
@@ -307,15 +450,35 @@ public class LineaUtilities {
 						.flatMap(fTupla -> {
 							fTupla.tipo = rAttToTipo.get(fTupla.attId);
 							if (fTupla.attId != null && !fTupla.attId.equals("")) {
+									return consultaService.findPropuestaByPropuestaId(propuestaId)
+										.flatMap(rPro -> {
+											var operations = rPro.operations();
+											if (operations.ifIsAttributeId(fTupla.attId)) { // if it is an attribute validate it
+											return atributoService.validateDataFormat(fTupla.tipo, fTupla.valor)
+													.map(rBool -> {
+														log.debug("respuesta de atributo service para tipo " + fTupla.tipo + " y valor " + fTupla.valor + " es " + rBool);
+														fTupla.validado = rBool;
+														return fTupla;
+													});
+											} else if (rPro instanceof PropuestaProveedor && ((PropuestaProveedor)rPro).operationsProveedor().ifIsCosteProveedorId(fTupla.attId)) { // if it is a cost validate double value
+												log.debug("es un costeProveedor, vamos a validarlo: " + ((PropuestaProveedor)rPro).operationsProveedor().ifValidCosteValue(fTupla.valor));
+												log.debug("de la propuesta: " + rPro.toString());
+												fTupla.validado = ((PropuestaProveedor)rPro).operationsProveedor().ifValidCosteValue(fTupla.valor);
+												return Mono.just(fTupla);
+											}
+											else { // if neither of these, then we don't know what it is, reject
+												log.debug("este campo no encontramos a qué se refiere");
+												if (rPro instanceof PropuestaProveedor) {
+													log.debug("la propuesta es instancia de PropuestaProveedor");
+													log.debug("la id de la tupla es " + fTupla.attId);
+													log.debug("los costes de la propuesta son: " + ((PropuestaProveedor)rPro).getCostes().toString());
+												}
+												fTupla.validado = false;
+												return Mono.just(fTupla);
+											}
+										});
 									
-										return atributoService.validateDataFormat(fTupla.tipo, fTupla.valor)
-												.map(rBool -> {
-													log.debug("respuesta de atributo service para tipo " + fTupla.tipo + " y valor " + fTupla.valor + " es " + rBool);
-													fTupla.validado = rBool;
-													return fTupla;
-												});
-									
-							} else { // it is a field that we are not going to use
+							} else { // it is a field that we are not going to use, so any value is ok
 								fTupla.validado = true;
 								return Mono.just(fTupla);
 							}
@@ -382,14 +545,22 @@ public class LineaUtilities {
 					rAllDuplas.stream().forEach(sDupla ->{
 						log.debug("vamos a pasar estas duplas a linea: " + sDupla.toString());
 						Linea linea = new Linea();
+						linea.setCostesProveedor(new ArrayList<>());
 						sDupla.stream().forEach(sField -> {
-							Campo<Object> campo = new Campo<>();
-							campo.setAtributoId(sField.attId);
-							log.debug("vamos a llamar a classDestringfier con clase " + sField.clase + " y valor " + sField.valor);
-							campo.setDatos(ClassDestringfier.toObject(sField.clase, sField.valor));
-							log.debug("hemos obtenido los datos " + campo.getDatosText());
-							LineaOperations operations = new LineaOperations(linea);
-							operations.addCampo(campo);
+							if (sField.clase.equals(tipoCoste)){
+								CosteLineaProveedor coste = new CosteLineaProveedor();
+								coste.setCosteProveedorId(sField.attId);
+								coste.setValue(Double.parseDouble(sField.valor.replace(",", ".")));
+								linea.getCostesProveedor().add(coste);
+							} else {
+								Campo<Object> campo = new Campo<>();
+								campo.setAtributoId(sField.attId);
+								log.debug("vamos a llamar a classDestringfier con clase " + sField.clase + " y valor " + sField.valor);
+								campo.setDatos(ClassDestringfier.toObject(sField.clase, sField.valor));
+								log.debug("hemos obtenido los datos " + campo.getDatosText());
+								LineaOperations operations = new LineaOperations(linea);
+								operations.addCampo(campo);
+							}
 						});
 						linea.setPropuestaId(propuestaId);
 						linea.setNombre(names.get(sDupla.get(0).linea));
@@ -403,39 +574,47 @@ public class LineaUtilities {
 		List<List<DuplaAttVal>> duplas = allLineasInDuplaWithAttidAndValor(wrapper);
 		return mapOfAttIdsToTipo(propuestaId)
 			.flatMap(rAttIdToTipo -> {
-				
-				log.debug("tenemos este mapa de Atributo.id a Atributo.tipo " + rAttIdToTipo.toString());
-				
-				Map<String, String> attIdToClass = new HashMap<>();
-				
-				log.debug("vamos a crear un flux desde el set: " + rAttIdToTipo.keySet().toString());
-				return Flux.fromIterable(rAttIdToTipo.keySet())
-						// first we map the classes vs ids so we just need to make one query per att to the db
-					.flatMap(rAttId -> {
-						log.debug("vamos a obtener el classType del id " + rAttId + " para el tipo " + rAttIdToTipo.get(rAttId));
-						return atributoService.getClassTypeOfFormat(rAttIdToTipo.get(rAttId))
-								.map(rClass -> {
-									log.debug("del id " +rAttId.toString() + " obtenemos el tipo " + rClass.toString() + " y lo añadimos al mapa");
-									attIdToClass.put(rAttId, rClass);
-									return rClass;
+				return consultaService.findPropuestaByPropuestaId(propuestaId)
+					.flatMap(rProp -> {
+						var operations = rProp.operations();
+						log.debug("tenemos este mapa de Atributo.id a Atributo.tipo " + rAttIdToTipo.toString());
+						Map<String, String> attIdToClass = new HashMap<>();
+						log.debug("vamos a crear un flux desde el set: " + rAttIdToTipo.keySet().toString());
+						return Flux.fromIterable(rAttIdToTipo.keySet())
+								// first we map the classes vs ids so we just need to make one query per att to the db
+							.flatMap(rAttId -> {
+								log.debug("vamos a obtener el classType del id " + rAttId + " para el tipo " + rAttIdToTipo.get(rAttId));
+								return atributoService.getClassTypeOfFormat(rAttIdToTipo.get(rAttId))
+										.map(rClass -> {
+											log.debug("del id " +rAttId.toString() + " obtenemos el tipo " + rClass.toString() + " y lo añadimos al mapa");
+											attIdToClass.put(rAttId, rClass);
+											return rClass;
+										});
+							})
+							// then we use the map to fill the remaining data
+							.then(Mono.just(duplas).map(rDuplas -> {
+								log.debug("tenemos este mapa de Atributo.id a Atributo.class " + attIdToClass.toString());
+								rDuplas.forEach(rLinea -> {
+									log.debug("en esta linea " + rLinea.toString());
+									rLinea.forEach(rCampo -> {
+										if (operations.ifHasAttributeColumn(rCampo.attId)) {
+											log.debug("es un atributo");
+											log.debug("vamor a recoger del tipo de " + rCampo.attId + " desde el mapa " + rAttIdToTipo.toString());
+											rCampo.tipo = rAttIdToTipo.get(rCampo.attId);
+											log.debug("vamos a recoger la clase de " + rCampo.attId + " desde el mapa " + attIdToClass.toString());
+											rCampo.clase = attIdToClass.get(rCampo.attId);
+											log.debug("añadimos tipo " + rCampo.tipo + " y clase " + rCampo.clase + " a este campo: ");
+										} else if (rProp instanceof PropuestaProveedor && ((PropuestaProveedor)rProp).operationsProveedor().ifIsCosteProveedorId(rCampo.attId)) {
+											log.debug("es un coste, ponemos tipo y clase a COSTE");
+											rCampo.tipo = tipoCoste;
+											rCampo.clase = tipoCoste;
+										}
+									});
 								});
-					})
-					// then we use the map to fill the remaining data
-					.then(Mono.just(duplas).map(rDuplas -> {
-						log.debug("tenemos este mapa de Atributo.id a Atributo.class " + attIdToClass.toString());
-						rDuplas.forEach(rLinea -> {
-							log.debug("en esta linea " + rLinea.toString());
-							rLinea.forEach(rCampo -> {
-								log.debug("vamor a recoger del tipo de " + rCampo.attId + " desde el mapa " + rAttIdToTipo.toString());
-								rCampo.tipo = rAttIdToTipo.get(rCampo.attId);
-								log.debug("vamos a recoger la clase de " + rCampo.attId + " desde el mapa " + attIdToClass.toString());
-								rCampo.clase = attIdToClass.get(rCampo.attId);
-								log.debug("añadimos tipo " + rCampo.tipo + " y clase " + rCampo.clase + " a este campo: ");
-							});
-						});
-						log.debug("devolvemos estas duplas en allLineasInDuplaCompleta: " + rDuplas.toString());
-						return rDuplas;
-					}));
+								log.debug("devolvemos estas duplas en allLineasInDuplaCompleta: " + rDuplas.toString());
+								return rDuplas;
+							}));
+					});
 			});
 	}
 	
@@ -477,6 +656,115 @@ public class LineaUtilities {
 		}
 		
 		return linea;
+	}
+	
+	
+	/****
+	 * 
+	 * Various functions
+	 * 
+	 */
+	
+	public Map<String, Integer> linesWrapToMapOf_Id_vs_Order(WrapLineasDto wrapLineasDto) {
+		Map<String, Integer> map = new HashMap<>();
+		wrapLineasDto.getLineas().stream().forEach(sLinea -> {
+			map.put(sLinea.getId(), sLinea.getOrder());
+		});
+		return map;
+	}
+	
+	public Flux<Linea> updateNombresFromStringListOfListsWrapper(StringListOfListsWrapper stringListOfListsWrapper) {
+		return Flux.fromIterable(stringListOfListsWrapper.getStringListWrapper())
+				.flatMap(rWrap -> {
+					log.debug("vamos a llamar updateNombre con " + rWrap.toString());
+					return lineaService.updateNombre(rWrap.getId(), rWrap.getName());
+				});
+	}
+	
+	public Mono<AttRemapersWrapper> getRemappersFromPropuestaAndAttId(String propuestaId, String localIdentifier) {
+		return consultaService.findPropuestaByPropuestaId(propuestaId)
+				.flatMap(rProp -> {
+					log.debug("en la propuesta " + rProp.toString());
+					Optional<AtributoForCampo> att = rProp.getAttributeColumns().stream().filter(at -> at.getLocalIdentifier().equals(localIdentifier)).findFirst();
+					AtributoForCampo attb = new AtributoForCampo();
+					attb.setTipo("DESCRIPCION");
+					attb.setName("DESCRIPCION");
+					return lineaService.findByPropuestaId(propuestaId)
+						.map(rLine -> {
+							log.debug("para la linea" + rLine.toString());
+							AttRemaper maper = new AttRemaper();
+							Campo<?> campo = rLine.operations().getCampoByAttId(att.orElse(attb).getId());
+							if (campo != null) {
+								maper.setBefore(campo.getDatosText());
+								maper.setAfter(campo.getDatosText());
+							} else {
+								maper.setBefore("");
+								maper.setAfter("");
+							}
+							maper.setAtributoId(att.orElse(attb).getId());
+							maper.setLocalIdentifier(localIdentifier);
+							maper.setName(att.orElse(attb).getName());
+							maper.setTipo(att.orElse(attb).getTipo());
+							log.debug("devolviendo " + maper.toString());
+							return maper;
+						})
+						.distinct(AttRemaper::getBefore).collectList()
+						.map(rList -> {
+							log.debug("después de filtrado: " + rList.toString());
+							return new AttRemapersWrapper(rList);
+						});
+				});
+	}
+	
+	public Mono<CostRemappersWrapper> getRemappersFromPropuestaAndCost(String propuestaId, String costeId){
+		return consultaService.findPropuestaByPropuestaId(propuestaId)
+				.flatMap(rProp -> {
+					if (!(rProp instanceof PropuestaProveedor)) {
+						return Mono.empty();
+					}
+					PropuestaProveedor propuesta = (PropuestaProveedor)rProp;
+					Optional<CosteProveedor> cost = propuesta.getCostes().stream().filter(co -> co.getId().equals(costeId)).findFirst();
+					return lineaService.findByPropuestaId(propuestaId)
+						.map(rLine -> {
+							CostRemapper maper = new CostRemapper();
+							CosteLineaProveedor coste = rLine.operations().getCosteByCosteId(costeId);
+							if (coste != null) {
+								maper.setBefore(coste.getValue());
+								maper.setAfter(coste.getValue());
+							} else {
+								maper.setBefore(0D);
+								maper.setAfter(0D);
+							}
+							maper.setCosteProveedorId(costeId);
+							log.debug("devolviendo cost maper: " + maper.toString());
+							return maper;
+						})
+						.distinct(CostRemapper::getBefore).collectList()
+						.map(rList -> {
+							log.debug("después de filtrado: " + rList.toString());
+							return new CostRemappersWrapper(rList);
+						})
+						;
+				})
+				;
+	}
+	
+	public Mono<Map<String, Set<String>>> get_ProposalId_VS_SetOfCounterLineId(String customerProposalId) {
+		return lineaService.getAllLineasOfPropuestasAssignedTo(customerProposalId)
+			.collectList().map(lineas -> {
+				Map<String, Set<String>> map = new HashMap<>();
+				lineas.stream().forEach(linea -> {
+					if (!map.containsKey(linea.getPropuestaId())) {
+						map.put(linea.getPropuestaId(), ConcurrentHashMap.newKeySet());
+					}
+					if (linea.getCounterLineId() != null) {
+						linea.getCounterLineId().stream().forEach(counter -> {
+							map.get(linea.getPropuestaId()).add(counter);
+						});
+					}
+				});
+				return map;
+			});
 	}
 	
 }

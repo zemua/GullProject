@@ -15,7 +15,6 @@ import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
-import devs.mrp.gullproject.domains.PropuestaAbstracta;
 import devs.mrp.gullproject.repository.ConsultaRepo;
 import devs.mrp.gullproject.repository.LineaRepo;
 import reactor.core.publisher.Flux;
@@ -26,11 +25,13 @@ public class LineaService {
 
 	private LineaRepo lineaRepo;
 	private ConsultaRepo consultaRepo;
+	private ConsultaService consultaService;
 	
 	@Autowired
-	public LineaService(LineaRepo lineaRepo, ConsultaRepo consultaRepo) {
+	public LineaService(LineaRepo lineaRepo, ConsultaRepo consultaRepo, ConsultaService consultaService) {
 		this.lineaRepo = lineaRepo;
 		this.consultaRepo = consultaRepo;
+		this.consultaService = consultaService;
 	}
 	
 	public Mono<Linea> findById(String id){
@@ -134,7 +135,7 @@ public class LineaService {
 	
 	private Mono<Consulta> deleteAllLineasFromPropuesta(String propuestaId) {
 		return consultaRepo.findByPropuestaId(propuestaId).flatMap(rConsulta -> {
-			Propuesta prop = rConsulta.getPropuestaById(propuestaId);
+			Propuesta prop = rConsulta.operations().getPropuestaById(propuestaId);
 			prop.setLineaIds(new ArrayList<>());
 			return consultaRepo.updateLineasDeUnaPropuesta(rConsulta.getId(), prop);
 		});
@@ -157,6 +158,23 @@ public class LineaService {
 	
 	public Mono<Linea> updateNombre(String idLinea, String nombre) {
 		return lineaRepo.updateNombre(idLinea, nombre);
+	}
+	
+	public Mono<Linea> updateCounterLineId(String idLinea, List<String> counterLineId) {
+		return lineaRepo.updateCounterLineId(idLinea, counterLineId);
+	}
+	
+	public Mono<Linea> addCounterLineId(String idLinea, String counterLineId) {
+		return lineaRepo.addCounterLineId(idLinea, counterLineId);
+	}
+	
+	public Mono<Linea> removeCounterLineId(String idLinea, String counterLineId) {
+		return lineaRepo.removeCounterLineId(idLinea, counterLineId);
+	}
+	
+	public Flux<Linea> getAllLineasOfPropuestasAssignedTo(String propuestaClienteId) {
+		return consultaService.getAllPropuestaProveedorAsignedTo(propuestaClienteId)
+			.flatMap(rProp -> findByPropuestaId(rProp.getId()));
 	}
 	
 }

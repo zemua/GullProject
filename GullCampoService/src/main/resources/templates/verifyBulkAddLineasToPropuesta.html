@@ -24,8 +24,8 @@
 			<table>
 			<tr th:each="l : ${lineas}">
 				<td th:text="${l.nombre}"></td>
-				<td th:each="c : ${l.campos}" th:text="${c.getDatosText()}">
-				</td>
+				<td th:each="c : ${l.campos}" th:text="${c.getDatosText()}"></td>
+				<td th:each="cost : ${l.costesProveedor}" th:text="${cost.value}"></td>
 			</tr>
 		</table>
 		</div>

@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -100,7 +101,9 @@ class LineaCustomRepoTest {
 		linea.setNombre(name);
 		linea.setOrder(2);
 		linea.setParentId("parent id");
-		linea.setCounterLineId("counter line id");
+		List<String> counter = new ArrayList<>();
+		counter.add("counter line id");
+		linea.setCounterLineId(counter);
 		
 		repo.save(linea).block();
 		
@@ -138,6 +141,11 @@ class LineaCustomRepoTest {
 		repo.saveAll(list).blockLast();
 		
 		flux = repo.findAll();
+	}
+	
+	@AfterEach
+	void clear() {
+		repo.deleteAll().block();
 	}
 
 	@Test
@@ -661,13 +669,15 @@ class LineaCustomRepoTest {
 	
 	@Test
 	void testUpdateCounterLineId() {
-		Linea resultado = repo.updateCounterLineId(linea.getId(), "new counter id").block();
+		List<String> list = new ArrayList<>();
+		list.add("new counter id");
+		Linea resultado = repo.updateCounterLineId(linea.getId(), list).block();
 		LineaOperations resultadoO = new LineaOperations(resultado);
 		
 		StepVerifier.create(mono)
 		.assertNext(line -> {
 			assertEquals(3, resultadoO.getCantidadCampos());
-			assertEquals("new counter id", line.getCounterLineId());
+			assertEquals("new counter id", line.getCounterLineId().get(0));
 		})
 		.expectComplete()
 		.verify();
@@ -707,6 +717,52 @@ class LineaCustomRepoTest {
 		.assertNext(l -> assertEquals(l9.getPropuestaId(), l.getPropuestaId()))
 		.expectComplete()
 		.verify();
+	}
+	
+	@Test
+	void testAddCounterLineId() {
+		Mono<Linea> mono = repo.addCounterLineId(linea.getId(), "counterLineId");
+		
+		StepVerifier.create(mono)
+			.assertNext(line -> {
+				assertEquals(2, line.getCounterLineId().size());
+				assertEquals("counterLineId", line.getCounterLineId().get(1));
+			})
+			.expectComplete()
+			.verify()
+			;
+		
+		mono = repo.addCounterLineId(linea.getId(), "otra");
+		
+		StepVerifier.create(mono)
+			.assertNext(line -> {
+				assertEquals(3, line.getCounterLineId().size());
+				assertEquals("otra", line.getCounterLineId().get(2));
+			})
+			.expectComplete()
+			.verify()
+			;
+	}
+	
+	@Test
+	void testRemoveCounterLineId() {
+		Mono<Linea> mono = repo.findById(linea.getId());
+		StepVerifier.create(mono)
+		.assertNext(line -> {
+			assertEquals(1, line.getCounterLineId().size());
+		})
+		.expectComplete()
+		.verify()
+		;
+		
+		mono = repo.removeCounterLineId(linea.getId(), linea.getCounterLineId().get(0));
+		StepVerifier.create(mono)
+		.assertNext(line -> {
+			assertEquals(0, line.getCounterLineId().size());
+		})
+		.expectComplete()
+		.verify()
+		;
 	}
 
 }

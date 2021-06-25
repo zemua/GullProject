@@ -62,6 +62,7 @@ class AtributoRestControllerTest {
 		Flux<Atributo> mFlux = Flux.just(m);
 		
 		when(atributoRepo.findAll()).thenReturn(mFlux);
+		when(atributoRepo.findAllByOrderByOrdenAsc()).thenReturn(mFlux);
 		AtributoRepresentationModel mrm = new AtributoRepresentationModel();
 		mrm.setId(m.getId());
 		mrm.setName(m.getName());

@@ -1,11 +1,19 @@
 package devs.mrp.gullproject.service;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import devs.mrp.gullproject.configuration.ClientProperties;
 import devs.mrp.gullproject.domains.AtributoForCampo;
@@ -20,20 +28,31 @@ public class AtributoServiceProxyWebClient {
 	
 	WebClient.Builder webClientBuilder;
 	ClientProperties clientProperties;
+	ProxyUtils proxyUtils;
 	
 	@Autowired
-	public AtributoServiceProxyWebClient(WebClient.Builder webClientBuilder, ClientProperties clientProperties) {
+	public AtributoServiceProxyWebClient(WebClient.Builder webClientBuilder, ClientProperties clientProperties, ProxyUtils proxyUtils) {
 		this.webClientBuilder = webClientBuilder;
 		this.clientProperties = clientProperties;
+		this.proxyUtils = proxyUtils;
 	}
 	
 	public Mono<Boolean> validateDataFormat(String type, String data){
-		return webClientBuilder.build().get().uri(uriBuilder -> uriBuilder
-				.host(clientProperties.getAtributoServiceHost())
-				.path("api/atributos/data-validator")
-				.queryParam("type", type)
-				.queryParam("data", data)
-				.build())
+		try {
+			type = URLEncoder.encode(type, StandardCharsets.UTF_8.toString());
+			data = URLEncoder.encode(data, StandardCharsets.UTF_8.toString());
+		}
+		catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return webClientBuilder.build().get()
+				.uri(clientProperties.getAtributoServiceUrl() + "api/atributos/data-validator" + "?type=" + type + "&data=" + data) // not so clean, but can be tested easier
+				/*.uri(uriBuilder -> uriBuilder
+					.host(clientProperties.getAtributoServiceHost()) // works well, but breaks the tests
+					.path("api/atributos/data-validator")
+					.queryParam("type", type)
+					.queryParam("data", data)
+					.build())*/
 				.header("Content-Type", "text/html")
 				.retrieve().bodyToMono(Boolean.class);
 	}
@@ -71,18 +90,19 @@ public class AtributoServiceProxyWebClient {
 		if (ids.size() == 0) {
 			return Flux.empty();
 		}
-		StringBuilder stringBuilder = new StringBuilder();
-		ListIterator<String> iterator = ids.listIterator();
-		if (iterator.hasNext()) {
-			stringBuilder.append(iterator.next());
-		}
+		//List<String> params = new ArrayList<>();
+		/*ListIterator<String> iterator = ids.listIterator();
 		while (iterator.hasNext()) {
-			stringBuilder.append(",");
-			stringBuilder.append(iterator.next());
-		}
+			//params.add(iterator.next());
+		}*/
+		String params = proxyUtils.UrlfyListOfParameter("ids", ids);
 		return webClientBuilder.build().get()
-				.uri(clientProperties.getAtributoServiceUrl().concat("api/atributos/arrayofcampos/byids"))
-				.attribute("ids", stringBuilder.toString())
+				.uri(clientProperties.getAtributoServiceUrl() + "api/atributos/arrayofcampos/byids" + params)
+				/*.uri(uriBuilder -> uriBuilder
+						.host(clientProperties.getAtributoServiceHost()) // works great, but breaks the testing
+						.path("api/atributos/arrayofcampos/byids")
+						.queryParam("ids", params)
+						.build())*/
 				.header("Content-Type", "text/html")
 				.retrieve().bodyToFlux(AtributoForCampo.class);
 	}

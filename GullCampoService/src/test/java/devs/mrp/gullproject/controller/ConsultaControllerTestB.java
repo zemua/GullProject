@@ -3,7 +3,10 @@ package devs.mrp.gullproject.controller;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import org.assertj.core.api.Assertions;
+import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,21 +31,33 @@ import org.springframework.web.reactive.function.BodyInserters;
 import devs.mrp.gullproject.configuration.MapperConfig;
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.CosteLineaProveedor;
+import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
-import devs.mrp.gullproject.domains.PropuestaAbstracta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.domains.PropuestaNuestra;
+import devs.mrp.gullproject.domains.PropuestaProveedor;
+import devs.mrp.gullproject.domains.Pvper;
+import devs.mrp.gullproject.domains.PvperLinea;
+import devs.mrp.gullproject.domains.PvperSum;
+import devs.mrp.gullproject.domains.TipoPropuesta;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
+import devs.mrp.gullproject.domains.dto.CostesCheckboxWrapper;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
+import devs.mrp.gullproject.service.AtributoUtilities;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaService;
+import devs.mrp.gullproject.service.PropuestaUtilities;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = ConsultaController.class)
 @AutoConfigureWebTestClient
-@Import(MapperConfig.class)
+@Import({MapperConfig.class, PropuestaUtilities.class, AtributoUtilities.class})
 @ActiveProfiles("default")
 class ConsultaControllerTestB {
 	
@@ -64,9 +79,11 @@ class ConsultaControllerTestB {
 		this.modelMapper = modelMapper;
 	}
 	
-	PropuestaAbstracta prop1;
-	PropuestaAbstracta prop2;
-	PropuestaAbstracta prop3;
+	Propuesta prop1;
+	Propuesta prop2;
+	Propuesta prop3;
+	Propuesta propuestaProveedor;
+	Propuesta propuestaNuestra;
 	Consulta consulta1;
 	Consulta consulta2;
 	Mono<Consulta> mono1;
@@ -109,35 +126,95 @@ class ConsultaControllerTestB {
 		linea4.setNombre("l4");
 		
 		prop1 = new PropuestaCliente() {};
-		prop1.addLineaId("linea1");
-		prop1.addLineaId("linea2");
-		prop1.addAttribute(att1);
-		prop1.addAttribute(att2);
+		var op1 = prop1.operations();
+		op1.addLineaId("linea1");
+		op1.addLineaId("linea2");
+		op1.addAttribute(att1);
+		op1.addAttribute(att2);
 		prop1.setNombre("propuesta 1");
 		
 		prop2 = new PropuestaCliente() {};
-		prop2.addLineaId("linea3");
+		var op2 = prop2.operations();
+		op2.addLineaId("linea3");
 		prop2.setNombre("propuesta 2");
 		
 		consulta1 = new Consulta();
 		consulta1.setNombre("consulta 1");
 		consulta1.setStatus("estado 1");
 		consulta1.setId("idConsulta1");
-		consulta1.addPropuesta(prop1);
-		consulta1.addPropuesta(prop2);
+		consulta1.operations().addPropuesta(prop1);
+		consulta1.operations().addPropuesta(prop2);
 		
 		prop3 = new PropuestaCliente() {};
-		prop3.addLineaId(linea4.getId());
+		var op3 = prop3.operations();
+		op3.addLineaId(linea4.getId());
 		prop3.setNombre("propuesta 3");
 		
 		consulta2 = new Consulta();
 		consulta2.setNombre("consulta 2");
 		consulta2.setStatus("estado 2");
 		consulta2.setId("idConsulta2");
-		consulta2.addPropuesta(prop3);
+		consulta2.operations().addPropuesta(prop3);
 		
 		mono1 = Mono.just(consulta1);
 		mono2 = Mono.just(consulta2);
+		
+		propuestaProveedor = new PropuestaProveedor(prop1.getId());
+		propuestaProveedor.setAttributeColumns(prop1.getAttributeColumns());
+		propuestaProveedor.setLineaIds(prop1.getLineaIds());
+		propuestaProveedor.setNombre("propuesta proveedor name");
+		List<CosteProveedor> costes = new ArrayList<>();
+		CosteProveedor cos1 = new CosteProveedor();
+		cos1.setName("COSTE BASE");
+		costes.add(cos1);
+		((PropuestaProveedor)propuestaProveedor).setCostes(costes);
+		
+		propuestaNuestra = new PropuestaNuestra(prop1.getId());
+		propuestaNuestra.setAttributeColumns(prop1.getAttributeColumns());
+		propuestaNuestra.setLineaIds(prop1.getLineaIds());
+		propuestaNuestra.setNombre("propuesta nuestra name");
+		List<Pvper> pvpers = new ArrayList<>();
+		Pvper pvp1 = new Pvper();
+		pvp1.setIdCostes(new ArrayList<String>() {{add(cos1.getId());}});
+		pvp1.setName("pvp1 name");
+		pvpers.add(pvp1);
+		((PropuestaNuestra)propuestaNuestra).setPvps(pvpers);
+		List<PvperSum> sums = new ArrayList<>();
+		PvperSum sum1 = new PvperSum();
+		sum1.setPvperIds(new ArrayList<String>() {{add(pvp1.getId());}});
+		sum1.setName("sum1 name");
+		sums.add(sum1);
+		((PropuestaNuestra)propuestaNuestra).setSums(sums);
+		
+		
+		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(prop1.getId()))).thenReturn(Mono.just(prop1));
+		when(consultaService.findAttributesByPropuestaId(prop1.getId())).thenReturn(Flux.fromIterable(consulta1.operations().getPropuestaById(prop1.getId()).getAttributeColumns()));
+		when(atributoService.getAllAtributos()).thenReturn(Flux.just(att1, att2, att3));
+		
+		when(consultaService.findCostesByPropuestaId(ArgumentMatchers.eq(propuestaProveedor.getId()))).thenReturn(Flux.just(cos1));
+		when(consultaService.findConsultaByPropuestaId(ArgumentMatchers.eq(propuestaProveedor.getId()))).thenReturn(Mono.just(consulta1));
+		when(consultaService.updateCostesOfPropuesta(ArgumentMatchers.eq(propuestaProveedor.getId()), ArgumentMatchers.anyList())).thenReturn(Mono.just(consulta1));
+		when(consultaService.addCostToList(ArgumentMatchers.eq(propuestaProveedor.getId()), ArgumentMatchers.any(CosteProveedor.class))).thenReturn(Mono.just(consulta1));
+		when(consultaService.keepUnselectedCosts(ArgumentMatchers.eq(propuestaProveedor.getId()), ArgumentMatchers.any(CostesCheckboxWrapper.class))).thenReturn(Mono.just(consulta1));
+		
+		when(consultaService.findConsultaByPropuestaId(ArgumentMatchers.eq(propuestaNuestra.getId()))).thenReturn(Mono.just(consulta1));
+	}
+	
+	private void addCosts() {
+		consulta1.getPropuestas().add(propuestaProveedor);
+		CosteLineaProveedor cost = new CosteLineaProveedor();
+		cost.setValue(123.45);
+		cost.setCosteProveedorId(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getId());
+		List<CosteLineaProveedor> costs = new ArrayList<>();
+		costs.add(cost);
+		linea1.setCostesProveedor(costs);
+		linea2.setCostesProveedor(costs);
+		
+		consulta1.getPropuestas().add(propuestaNuestra);
+		PvperLinea pvp = new PvperLinea();
+		pvp.setMargen(28.5);
+		pvp.setPvp(126.53);
+		pvp.setPvperId(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId());
 	}
 
 	@Test
@@ -286,21 +363,54 @@ class ConsultaControllerTestB {
 	@Test
 	void testReviewConsultaById() throws Exception {
 		
-		PropuestaAbstracta prop1 = new PropuestaCliente() {};
-		prop1.addLineaId("linea1");
-		prop1.addLineaId("linea2");
+		Propuesta prop1 = new PropuestaCliente() {};
+		var op1 = prop1.operations();
+		op1.addLineaId("linea1");
+		op1.addLineaId("linea2");
 		prop1.setNombre("propuesta 1");
-		PropuestaAbstracta prop2 = new PropuestaCliente() {};
-		prop2.addLineaId("linea3");
+		Propuesta prop2 = new PropuestaCliente() {};
+		var op2 = prop2.operations();
+		op2.addLineaId("linea3");
 		prop2.setNombre("propuesta 2");
+		Propuesta prop3 = new PropuestaProveedor(prop1.getId());
+		prop3.setNombre("propuesta 3");
+		Propuesta prop4 = new PropuestaProveedor(prop2.getId());
+		prop4.setNombre("propuesta 4");
+		Propuesta prop5 = new PropuestaNuestra(prop1.getId());
+		prop5.setNombre("propuesta 5");
+		Propuesta prop6 = new PropuestaNuestra(prop2.getId());
+		prop6.setNombre("propuesta 6");
+		
+		List<CosteProveedor> costes = new ArrayList<>();
+		CosteProveedor cos1 = new CosteProveedor();
+		cos1.setName("COSTE BASE");
+		costes.add(cos1);
+		((PropuestaProveedor)prop3).setCostes(costes);
+		((PropuestaProveedor)prop4).setCostes(costes);
+		
+		List<Pvper> pvpers = new ArrayList<>();
+		Pvper pvp1 = new Pvper();
+		pvp1.setIdCostes(new ArrayList<String>() {{add(cos1.getId());}});
+		pvp1.setName("PVP BASE");
+		pvpers.add(pvp1);
+		((PropuestaNuestra)prop5).setPvps(pvpers);
+		((PropuestaNuestra)prop6).setPvps(pvpers);
+		List<PvperSum> sums = new ArrayList<>();
+		PvperSum sum1 = new PvperSum();
+		sum1.setName("SUM BASE");
+		sum1.setPvperIds(new ArrayList<String>() {{add(pvp1.getId());}});
+		sums.add(sum1);
+		((PropuestaNuestra)prop5).setSums(sums);
+		((PropuestaNuestra)prop6).setSums(sums);
 		
 		Consulta a = new Consulta();
 		a.setNombre("consulta 1");
 		a.setStatus("estado 1");
 		a.setId("idConsulta1");
-		a.addPropuesta(prop1);
-		a.addPropuesta(prop2);
-		
+		a.operations().addPropuesta(prop1);
+		a.operations().addPropuesta(prop2);
+		a.operations().addPropuesta(prop3);
+		a.operations().addPropuesta(prop5);
 		
 		Consulta b = new Consulta();
 		b.setNombre("consulta 2");
@@ -311,6 +421,8 @@ class ConsultaControllerTestB {
 		Mono<Consulta> mono2 = Mono.just(b);
 		when(consultaService.findById(ArgumentMatchers.eq(a.getId()))).thenReturn(mono1);
 		when(consultaService.findById(ArgumentMatchers.eq(b.getId()))).thenReturn(mono2);
+		when(consultaService.findAllPropuestasOfConsulta(ArgumentMatchers.eq(a.getId()))).thenReturn(Flux.fromIterable(a.getPropuestas()));
+		when(consultaService.findAllPropuestasOfConsulta(ArgumentMatchers.eq(b.getId()))).thenReturn(Flux.just());
 		
 		webTestClient.get()
 			.uri("/consultas/revisar/id/idConsulta1")
@@ -323,15 +435,20 @@ class ConsultaControllerTestB {
 						.contains("Nombre")
 						.contains("Estado")
 						.contains("Creado")
-						.contains("Editado")
-						.contains("Nombre Propuesta")
+						.contains("Propuesta de Cliente")
 						.contains("Lineas")
 						.contains("Atributos")
 						.contains("consulta 1")
 						.contains("estado 1")
 						.contains("propuesta 1")
 						.contains("propuesta 2")
-						.doesNotContain("Añadir una solicitud de propuesta del cliente");
+						.contains("Respuestas de Proveedores")
+						.contains(prop3.getNombre())
+						.doesNotContain(prop4.getNombre())
+						.contains("Ofertas Nuestras")
+						.contains(prop5.getNombre())
+						.doesNotContain(prop6.getNombre())
+						.contains("Añadir una solicitud o revisión del cliente");
 			});
 		
 		webTestClient.get()
@@ -345,14 +462,14 @@ class ConsultaControllerTestB {
 					.contains("Nombre")
 					.contains("Estado")
 					.contains("Creado")
-					.contains("Editado")
-					.contains("Nombre Propuesta")
-					.contains("Lineas")
+					.doesNotContain("Propuesta de Cliente")
+					.doesNotContain("Lineas")
 					.contains("consulta 2")
 					.contains("estado 2")
 					.doesNotContain("propuesta 1")
 					.doesNotContain("propuesta 2")
-					.contains("Añadir una solicitud de propuesta del cliente");
+					.doesNotContain("Respuestas de Proveedores")
+					.contains("Añadir una solicitud o revisión del cliente");
 		});
 	}
 	
@@ -370,29 +487,52 @@ class ConsultaControllerTestB {
 						.contains("Nueva Solicitud de Propuesta")
 						.contains("Nombre")
 						.contains("Ok")
-						.contains("Volver");
+						.contains("Volver")
+						.contains(att1.getName())
+						.contains(att2.getName())
+						.contains(att3.getName());
 			});
 	}
 	
 	@Test
 	void testProcessNewPropuesta() {
 		
-		consulta2.addPropuesta(prop1);
-		when(consultaService.addPropuesta(ArgumentMatchers.eq(consulta2.getId()), ArgumentMatchers.any(PropuestaAbstracta.class))).thenReturn(Mono.just(consulta2));
+		consulta2.operations().addPropuesta(prop1);
+		when(consultaService.addPropuesta(ArgumentMatchers.eq(consulta2.getId()), ArgumentMatchers.any(Propuesta.class))).thenReturn(Mono.just(consulta2));
 		
 		webTestClient.post()
 		.uri("/consultas/revisar/id/idConsulta2")
 		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 		.accept(MediaType.TEXT_HTML)
-		.body(BodyInserters.fromFormData("nombre", prop1.getNombre())
-				.with("parentId", consulta2.getId()))
+		.body(BodyInserters.fromFormData("propuestaCliente.nombre", prop1.getNombre())
+				.with("propuestaCliente.tipoPropuesta", TipoPropuesta.CLIENTE.toString())
+				.with("propuestaCliente.forProposalId", consulta1.getId())
+				
+				.with("attributes[0].selected", "true")
+				.with("attributes[0].localIdentifier", att1.getLocalIdentifier())
+				.with("attributes[0].id", att1.getId())
+				.with("attributes[0].name", att1.getName())
+				.with("attributes[0].tipo", att1.getTipo())
+				
+				.with("attributes[1].selected", "false")
+				.with("attributes[1].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[1].id", att2.getId())
+				.with("attributes[1].name", att2.getName())
+				.with("attributes[1].tipo", att2.getTipo())
+				
+				.with("attributes[2].selected", "false")
+				.with("attributes[2].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[2].id", att2.getId())
+				.with("attributes[2].name", att2.getName())
+				.with("attributes[2].tipo", att2.getTipo())
+				)
 		.exchange()
 		.expectStatus().isOk()
 		.expectBody()
 		.consumeWith(response -> {
 				Assertions.assertThat(response.getResponseBody()).asString()
 					.contains("Gull Project - Propuesta Guardada")
-					.contains("Propuesta Guardada Como...")
+					.contains("Guardando...")
 					.contains("Nombre:")
 					.doesNotContain("errores")
 					.contains(prop1.getNombre())
@@ -400,14 +540,33 @@ class ConsultaControllerTestB {
 		});
 		
 		prop1.setNombre("");
-		consulta2.addPropuesta(prop1);
+		consulta2.operations().addPropuesta(prop1);
 		
 		webTestClient.post()
 		.uri("/consultas/revisar/id/idConsulta2")
 		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 		.accept(MediaType.TEXT_HTML)
-		.body(BodyInserters.fromFormData("nombre", "")
-				.with("parentId", consulta2.getId()))
+		.body(BodyInserters.fromFormData("propuestaCliente.nombre", "")
+				.with("propuestaCliente.tipoPropuesta", TipoPropuesta.CLIENTE.toString())
+				
+				.with("attributes[0].selected", "true")
+				.with("attributes[0].localIdentifier", att1.getLocalIdentifier())
+				.with("attributes[0].id", att1.getId())
+				.with("attributes[0].name", att1.getName())
+				.with("attributes[0].tipo", att1.getTipo())
+				
+				.with("attributes[1].selected", "false")
+				.with("attributes[1].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[1].id", att2.getId())
+				.with("attributes[1].name", att2.getName())
+				.with("attributes[1].tipo", att2.getTipo())
+				
+				.with("attributes[2].selected", "false")
+				.with("attributes[2].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[2].id", att2.getId())
+				.with("attributes[2].name", att2.getName())
+				.with("attributes[2].tipo", att2.getTipo())
+				)
 		.exchange()
 		.expectStatus().isOk()
 		.expectBody()
@@ -521,9 +680,9 @@ class ConsultaControllerTestB {
 		
 		when(consultaService.findById(ArgumentMatchers.eq(consulta1.getId()))).thenReturn(mono1);
 		Consulta consulta3 = consulta1;
-		consulta3.removePropuesta(prop1);
+		consulta3.operations().removePropuesta(prop1);
 		when(consultaService.removePropuesta(consulta1.getId(), prop1)).thenReturn(Mono.just(consulta3));
-		when(consultaService.removePropuestaById(consulta1.getId(), prop1.getId())).thenReturn(Mono.just(consulta3.getCantidadPropuestas()));
+		when(consultaService.removePropuestaById(consulta1.getId(), prop1.getId())).thenReturn(Mono.just(consulta3.operations().getCantidadPropuestas()));
 		
 		when(lineaService.deleteSeveralLineasFromPropuestaId(ArgumentMatchers.eq(prop1.getId()))).thenReturn(Mono.just(2L));
 		
@@ -548,10 +707,10 @@ class ConsultaControllerTestB {
 	void testShowAttributesOfProposal() {
 		
 		when(consultaService.findConsultaByPropuestaId(prop1.getId())).thenReturn(Mono.just(consulta1));
-		when(consultaService.findAttributesByPropuestaId(prop1.getId())).thenReturn(Flux.fromIterable(consulta1.getPropuestaById(prop1.getId()).getAttributeColumns()));
+		when(consultaService.findAttributesByPropuestaId(prop1.getId())).thenReturn(Flux.fromIterable(consulta1.operations().getPropuestaById(prop1.getId()).getAttributeColumns()));
 		
 		webTestClient.get()
-		.uri("/consultas/attof/propid/"+consulta1.getPropuestaById(prop1.getId()).getId())
+		.uri("/consultas/attof/propid/"+consulta1.operations().getPropuestaById(prop1.getId()).getId())
 		.accept(MediaType.TEXT_HTML)
 		.exchange()
 		.expectStatus().isOk()
@@ -562,7 +721,6 @@ class ConsultaControllerTestB {
 					.contains("Modificar atributos")
 					.contains("Nombre")
 					.contains("Tipo")
-					.contains("Eliminar")
 					.contains(prop1.getNombre())
 					.contains(prop1.getAttributeColumns().get(0).getName())
 					.contains(prop1.getAttributeColumns().get(0).getTipo())
@@ -615,7 +773,7 @@ class ConsultaControllerTestB {
 		list.add(att2);
 		list.add(att3);
 		
-		consulta1.getPropuestaById(prop1.getId()).setAttributeColumns(list);
+		consulta1.operations().getPropuestaById(prop1.getId()).setAttributeColumns(list);
 		
 		when(consultaService.updateAttributesOfPropuesta(ArgumentMatchers.eq(prop1.getId()), ArgumentMatchers.eq(list))).thenReturn(Mono.just(consulta1));
 		
@@ -743,7 +901,8 @@ class ConsultaControllerTestB {
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.accept(MediaType.TEXT_HTML)
 			.body(BodyInserters.fromFormData("nombre", newname)
-				.with("id", prop1.getId()))
+				.with("id", prop1.getId())
+				.with("forProposalId", prop2.getId()))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody()
@@ -767,6 +926,534 @@ class ConsultaControllerTestB {
 							.contains("Corrige los errores y reenvía")
 							.contains("Selecciona un nombre");
 					});
+	}
+	
+	@Test
+	void testOrderAttributesOfProposal() {
+		webTestClient.get()
+			.uri("/consultas/attof/propid/" + prop1.getId() + "/order")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Ordenar")
+					.contains(prop1.getNombre())
+					.contains(prop1.getAttributeColumns().get(0).getName())
+					.contains(prop1.getAttributeColumns().get(1).getName());
+			});
+			;
+	}
+	
+	@Test
+	void testProcessOrderAttributesOfProposal() {
+		when(consultaService.reOrderAttributesOfPropuesta(ArgumentMatchers.eq(prop1.getId()), ArgumentMatchers.anyList())).thenReturn(Mono.just(prop1));
+		
+		log.debug("should be ok");
+		webTestClient.post()
+			.uri("/consultas/attof/propid/" + prop1.getId() + "/order")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("atributos[0].localIdentifier", prop1.getAttributeColumns().get(0).getLocalIdentifier())
+				.with("atributos[0].order", String.valueOf(1))
+				.with("atributos[1].localIdentifier", prop1.getAttributeColumns().get(1).getLocalIdentifier())
+				.with("atributes[1].order", String.valueOf(0))
+				)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Orden guardado")
+					.doesNotContain("Error");
+			})
+			;
+		
+		log.debug("should be error");
+		webTestClient.post()
+			.uri("/consultas/attof/propid/" + prop1.getId() + "/order")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("atributos[0].localIdentifier", "invalidId")
+				.with("atributos[0].order", String.valueOf(1))
+				.with("atributos[1].localIdentifier", prop1.getAttributeColumns().get(1).getLocalIdentifier())
+				.with("atributes[1].order", String.valueOf(0))
+				)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Error")
+					.doesNotContain("Orden guardado");
+			})
+			;
+	}
+	
+	@Test
+	void testAddProposalProveedorToProposalCliente() {
+		Propuesta propB = new PropuestaProveedor(prop1.getId());
+		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propB.getId()))).thenReturn(Mono.just(propB));
+		
+		webTestClient.get()
+		.uri("/consultas/revisar/id/"+consulta1.getId()+"/onprop/"+propB.getId()+"/addcotizacionproveedor")
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Nueva Propuesta Recibida")
+					.contains("Nombre")
+					.contains("Ok")
+					.contains("Volver")
+					.contains("PROVEEDOR")
+					.contains(att1.getName())
+					.contains(att2.getName())
+					.contains(att3.getName());
+		});
+	}
+	
+	@Test
+	void testProcessAddProposalProveedorToProposalCliente() {
+		consulta2.operations().addPropuesta(prop2);
+		when(consultaService.addPropuesta(ArgumentMatchers.eq(consulta2.getId()), ArgumentMatchers.any(Propuesta.class))).thenReturn(Mono.just(consulta2));
+		
+		log.debug("should be ok");
+		webTestClient.post()
+		.uri("/consultas/revisar/id/"+consulta2.getId()+"/onprop/"+prop1.getId()+"/addcotizacionproveedor")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("propuestaProveedor.nombre", prop1.getNombre())
+				.with("propuestaProveedor.tipoPropuesta", TipoPropuesta.PROVEEDOR.toString())
+				.with("propuestaProveedor.forProposalId", prop2.getId())
+				
+				.with("attributes[0].selected", "true")
+				.with("attributes[0].localIdentifier", att1.getLocalIdentifier())
+				.with("attributes[0].id", att1.getId())
+				.with("attributes[0].name", att1.getName())
+				.with("attributes[0].tipo", att1.getTipo())
+				
+				.with("attributes[1].selected", "false")
+				.with("attributes[1].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[1].id", att2.getId())
+				.with("attributes[1].name", att2.getName())
+				.with("attributes[1].tipo", att2.getTipo())
+				
+				.with("attributes[2].selected", "false")
+				.with("attributes[2].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[2].id", att2.getId())
+				.with("attributes[2].name", att2.getName())
+				.with("attributes[2].tipo", att2.getTipo())
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Gull Project - Propuesta Guardada")
+					.contains("Guardando...")
+					.contains("Nombre:")
+					.doesNotContain("errores")
+					.contains(prop2.getNombre())
+					.contains("Volver a la consulta");
+		});
+		
+		prop1.setNombre("");
+		consulta2.operations().addPropuesta(prop1);
+		
+		log.debug("should have errors");
+		webTestClient.post()
+		.uri("/consultas/revisar/id/"+consulta2.getId()+"/onprop/"+prop1.getId()+"/addcotizacionproveedor")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("propuestaProveedor.nombre", "")
+				.with("propuestaProveedor.tipoPropuesta", TipoPropuesta.PROVEEDOR.toString())
+				
+				.with("attributes[0].selected", "true")
+				.with("attributes[0].localIdentifier", att1.getLocalIdentifier())
+				.with("attributes[0].id", att1.getId())
+				.with("attributes[0].name", att1.getName())
+				.with("attributes[0].tipo", att1.getTipo())
+				
+				.with("attributes[1].selected", "false")
+				.with("attributes[1].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[1].id", att2.getId())
+				.with("attributes[1].name", att2.getName())
+				.with("attributes[1].tipo", att2.getTipo())
+				
+				.with("attributes[2].selected", "false")
+				.with("attributes[2].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[2].id", att2.getId())
+				.with("attributes[2].name", att2.getName())
+				.with("attributes[2].tipo", att2.getTipo())
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Nueva Propuesta Recibida")
+					.contains("Corrige los errores y reenvía.")
+					.contains("Selecciona un nombre")
+					.contains("Nombre:")
+					.contains("Volver");
+		});
+	}
+	
+	@Test
+	void testShowCostsOfProposal() {
+		addCosts();
+		webTestClient.get()
+			.uri("/consultas/costof/propid/" + propuestaProveedor.getId())
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Costes de la propuesta")
+						.contains("Nombre")
+						.contains(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getName());
+			});
+	}
+	
+	@Test
+	void testEditCostsOfProposal() {
+		addCosts();
+		webTestClient.get()
+			.uri("/consultas/costof/propid/" + propuestaProveedor.getId() + "/edit")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Costes de la propuesta")
+						.contains("Nombre")
+						.contains(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getName());
+			});
+	}
+	
+	@Test
+	void testProcessEditCostsOfProposal() {
+		addCosts();
+		
+		webTestClient.post()
+		.uri("/consultas/costof/propid/" + propuestaProveedor.getId() + "/edit")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("costes[0].id", ((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getId())
+				.with("costes[0].name", "nombre actualizado"))
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Costes de la propuesta")
+					.contains("Nombre")
+					.contains("Guardado")
+					.contains("nombre actualizado");
+		});
+		
+		webTestClient.post()
+		.uri("/consultas/costof/propid/" + propuestaProveedor.getId() + "/edit")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("costes[0].id", ((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getId())
+				.with("costes[0].name", ""))
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Costes de la propuesta")
+					.contains("Nombre")
+					.contains("error")
+					.doesNotContain(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getName());
+		});
+	}
+	
+	@Test
+	void testNewCostOfProposal() {
+		addCosts();
+		webTestClient.get()
+			.uri("/consultas/costof/propid/" + propuestaProveedor.getId() + "/new")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Nuevo coste de la propuesta")
+						.contains("Nombre");
+			});
+	}
+	
+	@Test
+	void testProcessNewCostOfProposal() {
+		addCosts();
+		
+		webTestClient.post()
+			.uri("/consultas/costof/propid/" + propuestaProveedor.getId() + "/new")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("id", ((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getId())
+					.with("name", "nombre nuevo"))
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Nuevo coste de la propuesta")
+						.contains("Con nombre")
+						.contains("nombre nuevo");
+			})
+			;
+		
+		webTestClient.post()
+		.uri("/consultas/costof/propid/" + propuestaProveedor.getId() + "/new")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("id", ((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getId())
+				.with("name", ""))
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Nuevo coste de la propuesta")
+					.doesNotContain("Con nombre")
+					.contains("El nombre no debe estar vacío")
+					.doesNotContain("nombre nuevo");
+		})
+		;
+	}
+	
+	@Test
+	void testDeleteCostsOfProposal() {
+		addCosts();
+		webTestClient.get()
+			.uri("/consultas/costof/propid/" + propuestaProveedor.getId() + "/delete")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Borrar costes de la propuesta")
+						.contains("Nombre")
+						.contains(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getName());
+			})
+			;
+	}
+	
+	@Test
+	void testConfirmDeleteCostsOfProposal() {
+		addCosts();
+		webTestClient.post()
+			.uri("/consultas/costof/propid/" + propuestaProveedor.getId() + "/delete")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("costes[0].selected", "true")
+					.with("costes[0].id", "idcoste1")
+					.with("costes[0].name" , "nombre coste 1")
+					
+					.with("costes[1].selected" , "false")
+					.with("costes[1].id", "idcoste2")
+					.with("costes[1].name", "nombre coste 2")
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("idcoste1")
+						.contains("nombre coste 2")
+						.contains("Borrar costes de la propuesta");
+			})
+			;
+	}
+	
+	@Test
+	void testProcessDeleteCostsOfProposal() {
+		addCosts();
+		webTestClient.post()
+		.uri("/consultas/costof/propid/" + propuestaProveedor.getId() + "/delete/confirm")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("costes[0].selected", "true")
+				.with("costes[0].id", "idcoste1")
+				.with("costes[0].name" , "nombre coste 1")
+				
+				.with("costes[1].selected" , "false")
+				.with("costes[1].id", "idcoste2")
+				.with("costes[1].name", "nombre coste 2")
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getName())
+					.contains("Borrados");
+		})
+		;
+	}
+	
+	@Test
+	void testOrderCostsOfProposal() {
+		addCosts();
+		webTestClient.get()
+		.uri("/consultas/costof/propid/" + propuestaProveedor.getId() + "/order")
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Ordenar costes de la propuesta")
+					.contains("Nombre")
+					.contains(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getName());
+		});
+	}
+	
+	@Test
+	void testProcessOrderCostsOfProposal() {
+		addCosts();
+		webTestClient.post()
+			.uri("/consultas/costof/propid/" + propuestaProveedor.getId() + "/order")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("costes[0].id", ((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getId())
+					.with("costes[0].name", ((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getName())
+					.with("costes[0].order" , "2")
+					
+					.with("costes[1].id", "otroid")
+					.with("costes[1].name", "otro name")
+					.with("costes[1].order" , "1")
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getName())
+						.contains("Ordenar costes de la propuesta");
+			})
+			;
+	}
+	
+	@Test
+	void testAddOurOfferToProposalCliente() {
+		Propuesta propB = new PropuestaNuestra(prop1.getId());
+		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propB.getId()))).thenReturn(Mono.just(propB));
+		
+		webTestClient.get()
+		.uri("/consultas/revisar/id/"+consulta1.getId()+"/onprop/"+propB.getId()+"/addofertanuestra")
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Nueva oferta para el cliente")
+					.contains("Nombre")
+					.contains("Ok")
+					.contains("Volver")
+					.contains("NUESTRA")
+					.contains(att1.getName())
+					.contains(att2.getName())
+					.contains(att3.getName());
+		});
+	}
+	
+	@Test
+	void testProcessAddOurOfferToProposalCliente() {
+		consulta2.operations().addPropuesta(prop2);
+		when(consultaService.addPropuesta(ArgumentMatchers.eq(consulta2.getId()), ArgumentMatchers.any(Propuesta.class))).thenReturn(Mono.just(consulta2));
+		
+		log.debug("should be ok");
+		webTestClient.post()
+		.uri("/consultas/revisar/id/"+consulta2.getId()+"/onprop/"+prop1.getId()+"/addofertanuestra")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("propuestaNuestra.nombre", prop1.getNombre())
+				.with("propuestaNuestra.tipoPropuesta", TipoPropuesta.NUESTRA.toString())
+				.with("propuestaNuestra.forProposalId", prop2.getId())
+				
+				.with("attributes[0].selected", "true")
+				.with("attributes[0].localIdentifier", att1.getLocalIdentifier())
+				.with("attributes[0].id", att1.getId())
+				.with("attributes[0].name", att1.getName())
+				.with("attributes[0].tipo", att1.getTipo())
+				
+				.with("attributes[1].selected", "false")
+				.with("attributes[1].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[1].id", att2.getId())
+				.with("attributes[1].name", att2.getName())
+				.with("attributes[1].tipo", att2.getTipo())
+				
+				.with("attributes[2].selected", "false")
+				.with("attributes[2].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[2].id", att2.getId())
+				.with("attributes[2].name", att2.getName())
+				.with("attributes[2].tipo", att2.getTipo())
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Gull Project - Propuesta Guardada")
+					.contains("Guardando...")
+					.contains("Nombre:")
+					.doesNotContain("errores")
+					.contains(prop2.getNombre())
+					.contains("Volver a la consulta");
+		});
+		
+		prop1.setNombre("");
+		consulta2.operations().addPropuesta(prop1);
+		
+		log.debug("should have errors");
+		webTestClient.post()
+		.uri("/consultas/revisar/id/"+consulta2.getId()+"/onprop/"+prop1.getId()+"/addofertanuestra")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("propuestaNuestra.nombre", "")
+				.with("propuestaNuestra.tipoPropuesta", TipoPropuesta.NUESTRA.toString())
+				
+				.with("attributes[0].selected", "true")
+				.with("attributes[0].localIdentifier", att1.getLocalIdentifier())
+				.with("attributes[0].id", att1.getId())
+				.with("attributes[0].name", att1.getName())
+				.with("attributes[0].tipo", att1.getTipo())
+				
+				.with("attributes[1].selected", "false")
+				.with("attributes[1].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[1].id", att2.getId())
+				.with("attributes[1].name", att2.getName())
+				.with("attributes[1].tipo", att2.getTipo())
+				
+				.with("attributes[2].selected", "false")
+				.with("attributes[2].localIdentifier", att2.getLocalIdentifier())
+				.with("attributes[2].id", att2.getId())
+				.with("attributes[2].name", att2.getName())
+				.with("attributes[2].tipo", att2.getTipo())
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Nueva oferta para el cliente")
+					.contains("Corrige los errores y reenvía.")
+					.contains("Selecciona un nombre")
+					.contains("Nombre:")
+					.contains("Volver");
+		});
 	}
 
 }

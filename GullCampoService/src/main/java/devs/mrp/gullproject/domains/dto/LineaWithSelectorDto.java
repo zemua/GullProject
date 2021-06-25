@@ -2,8 +2,10 @@ package devs.mrp.gullproject.domains.dto;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import devs.mrp.gullproject.domains.Campo;
+import devs.mrp.gullproject.domains.CosteLineaProveedor;
 import lombok.Data;
 
 @Data
@@ -16,6 +18,7 @@ public class LineaWithSelectorDto {
 	String counterLineId;
 	Integer order;
 	List<Campo<?>> campos;
+	List<CosteLineaProveedor> costesProveedor;
 	
 	Boolean selected;
 	
@@ -37,6 +40,11 @@ public class LineaWithSelectorDto {
 			}
 		}
 		return null;
+	}
+	
+	public CosteLineaProveedor getCosteByCosteId(String costeId) {
+		Optional<CosteLineaProveedor> csot = costesProveedor.stream().filter(c -> c.getCosteProveedorId().equals(costeId)).findAny();
+		return csot.orElse(new CosteLineaProveedor(costeId));
 	}
 	
 }

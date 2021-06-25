@@ -30,7 +30,11 @@ public interface CustomLineaRepo {
 	
 	public Mono<Linea> updateParentId(String idLinea, String parentId);
 	
-	public Mono<Linea> updateCounterLineId(String idLinea, String counterLineId);
+	public Mono<Linea> updateCounterLineId(String idLinea, List<String> counterLineId);
+	
+	public Mono<Linea> addCounterLineId(String idLinea, String counterLineId);
+	
+	public Mono<Linea> removeCounterLineId(String idLinea, String counterLineId);
 	
 	public Mono<DeleteResult> deleteSeveralLineasByPropuestaId(String propuestaId);
 	

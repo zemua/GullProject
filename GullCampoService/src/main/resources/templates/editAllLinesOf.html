@@ -3,12 +3,12 @@
 	xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="utf-8">
-<title th:text="${'Gull Project - Editar lineas de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Gull Project - Editar lineas de la propuesta</title>
+<title th:text="${'Gull Project - Editar lineas de la propuesta: ' + consulta.operations().getPropuestaById(propuestaId).getNombre()}">Gull Project - Editar lineas de la propuesta</title>
 <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
 
-<h1 th:text="${'Editar lineas de la propuesta: ' + consulta.getPropuestaById(propuestaId).getNombre()}">Editar lineas de la propuesta</h1>
+<h1 th:text="${'Editar lineas de la propuesta: ' + consulta.operations().getPropuestaById(propuestaId).getNombre()}">Editar lineas de la propuesta</h1>
 
 	<div>
 		<p>
@@ -16,9 +16,9 @@
 		</p>
 	</div>
 
-	<form method="POST" th:object="${multipleLineaWithAttListDto}">
+	<form method="POST" th:object="${multipleLineaWithAttListDto}" id="val-form">
 		<div>
-			<div><button>Guardar</button></div>
+			<div><button id="submit-button">Guardar</button></div>
 		<div>
 		<div th:if="${#fields.hasErrors()}">
      	   <span class="validationError">
@@ -29,9 +29,14 @@
 					<thead>
 						<tr class="nodrop nodrag">
 							<th>Nombre</th>
-							<th th:each="t : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}">
+							<th th:each="t : ${consulta.operations().getPropuestaById(propuestaId).getAttributeColumns()}">
 								<span th:text="${t.getName()}"></span>
 							</th>
+							<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'PROVEEDOR'}">
+							<th th:each="t, tstat : ${consulta.operations().getPropuestaById(propuestaId).getCostes()}">
+								<span th:text="${t.name}"></span>
+							</th>
+							</th:block>
 						</tr>
 					</thead>
 					<tbody>
@@ -42,8 +47,9 @@
 								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].linea.id}" class="linea-id"/>
 								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].linea.propuestaId}"/>
 								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].linea.order}"/>
+								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].linea.counterLineId}"/>
 							</td>
-							<td th:each="t, tstat : ${consulta.getPropuestaById(propuestaId).getAttributeColumns()}" class="field" th:classappend="${#fields.hasErrors('*{lineaWithAttListDtos[__${ystat.index}__].attributes[__${tstat.index}__].id}') ? 'error' : '' }">
+							<td th:each="t, tstat : ${consulta.operations().getPropuestaById(propuestaId).getAttributeColumns()}" class="field" th:classappend="${#fields.hasErrors('*{lineaWithAttListDtos[__${ystat.index}__].attributes[__${tstat.index}__].id}') ? 'error' : '' }">
 								<span th:text="${a.linea.operations().getValueByAttId(t.getId())}" class="field-text" contenteditable="true"></span>
 								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].attributes[__${tstat.index}__].value}" class="field-input"/>
 								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].attributes[__${tstat.index}__].localIdentifier}"/>
@@ -54,6 +60,14 @@
 								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].linea.campos[__${tstat.index}__].atributoId}"/>
 								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].linea.campos[__${tstat.index}__].datos}" class="field-input"/>
 							</td>
+							<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'PROVEEDOR'}">
+							<td th:each="t, tstat : ${consulta.operations().getPropuestaById(propuestaId).getCostes()}" class="field" th:classappend="${#fields.hasErrors('*{lineaWithAttListDtos[__${ystat.index}__].costesProveedor[__${tstat.index}__].id}') ? 'error' : '' }">
+								<span th:text="${a.linea.operations().getCosteByCosteId(t.getId()).value}" class="field-text is-double" contenteditable="true"></span>
+								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].costesProveedor[__${tstat.index}__].value}" class="field-input"/>
+								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].costesProveedor[__${tstat.index}__].id}"/>
+								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].costesProveedor[__${tstat.index}__].name}"/>
+							</td>
+							</th:block>
 						</tr>
 					</tbody>
 				</table>
@@ -63,6 +77,7 @@
 
 	<script type="text/javascript" th:src="@{/js/jquery/jquery-3.6.0.min.js}"></script>
 	<script type="text/javascript" th:src="@{/js/scripts/tableEditable.js}"></script>
+	<script type="text/javascript" th:src="@{/js/scripts/forceValidation.js}"></script>
 
 </body>
 </html>

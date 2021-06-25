@@ -19,5 +19,7 @@ public class GullCampoServiceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(GullCampoServiceApplication.class, args);
 	}
+	
+	// TODO refractor templates with include, avoiding repeated code
 
 }

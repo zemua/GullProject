@@ -10,6 +10,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import devs.mrp.gullproject.service.ConsultaOperations;
 import lombok.Data;
 
 @Data
@@ -29,49 +30,8 @@ public class Consulta {
 	
 	List<Propuesta> propuestas = new ArrayList<>();
 	
-	public void actualizaEditTime() {
-		editedTime = System.currentTimeMillis();
-	}
-	
-	public void addPropuesta(Propuesta propuesta) {
-		propuestas.add(propuesta);
-	}
-	
-	public void removePropuesta(Propuesta propuesta) {
-		propuestas.remove(propuesta);
-		actualizaEditTime();
-	}
-	
-	public void removePropuesta(String propuestaId) {
-		propuestas.removeIf(propuesta -> propuesta.getId().equals(propuestaId));
-	}
-	
-	public int getCantidadPropuestas() {
-		return propuestas.size();
-	}
-	
-	public Propuesta getPropuestaByIndex(int index) {
-		return propuestas.get(index);
-	}
-	
-	public int getPropuestaIndexByPropuestaId(String id) {
-		for(int i = 0; i<propuestas.size(); i++) {
-			if (propuestas.get(i).getId().equals(id)) {
-				return i;
-			}
-		}
-		return -1;
-	}
-	
-	public Propuesta getPropuestaById(String id) {
-		Iterator<Propuesta> i = propuestas.iterator();
-		while (i.hasNext()) {
-			Propuesta p = i.next();
-			if (p.getId().equals(id)) {
-				return p;
-			}
-		}
-		return null;
+	public ConsultaOperations operations() {
+		return new ConsultaOperations(this);
 	}
 	
 }

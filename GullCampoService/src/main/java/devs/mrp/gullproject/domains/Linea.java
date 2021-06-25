@@ -46,7 +46,7 @@ public class Linea {
 	/**
 	 * When creating an offer of suppliers or ours, this will refer to the customer line
 	 */
-	private String counterLineId;
+	private List<String> counterLineId;
 	
 	private Integer order;
 	
@@ -58,6 +58,18 @@ public class Linea {
 	 */
 	private List<Campo<?>> campos = new ArrayList<>();
 	
+	/**
+	 * For specific uses, not required fields
+	 */
+	
+	private List<CosteLineaProveedor> costesProveedor;
+	
+	/**
+	 * Methods and constructors
+	 * @param l
+	 * @return
+	 */
+	
 	public boolean equals(Linea l) {
 		LineaOperations op = new LineaOperations(this);
 		return op.equals(l);
@@ -66,10 +78,14 @@ public class Linea {
 	public Linea(Linea lin) {
 		this.counterLineId = lin.counterLineId;
 		this.nombre = lin.nombre;
-		this.order = lin.order.intValue();
+		if (lin.order != null) {this.order = lin.order.intValue();}
 		this.parentId = lin.parentId;
 		this.propuestaId = lin.propuestaId;
 		lin.getCampos().stream().forEach(c -> this.campos.add(new Campo<>(c)));
+		if (lin.getCostesProveedor() != null) {
+			this.costesProveedor = new ArrayList<>();
+			lin.getCostesProveedor().stream().forEach(c -> this.costesProveedor.add(new CosteLineaProveedor(c)));
+		}
 	}
 	
 	public LineaOperations operations() {

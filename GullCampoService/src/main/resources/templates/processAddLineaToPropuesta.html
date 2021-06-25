@@ -7,10 +7,8 @@
 </head>
 <body>
 
-<h1>Linea Guardada</h1>
-
 	<div>
-		<span class="success" th:if="${lineas != null && propuesta != null}">Linea Guardada Como...</span>
+		<span class="success" th:if="${lineas != null && propuesta != null}">Guardando...</span>
 		<span class="failure" th:unless="${lineas != null && propuesta != null}">Algo no ha ido bien...</span>
 	</div>
 
@@ -21,9 +19,10 @@
 			</p>
 		</div>
 		<table class="grid">
-			<tr th:each="l, stat : ${lineas}" class="define-group" id="${'nombrelinea' + stat.index}">
+			<tr th:each="l, stat : ${lineas}" class="define-group">
 				<td th:text="${l.nombre}">Nombre</td>
 				<td th:each="c : ${l.campos}" th:text="${c.getDatos()}"></td>
+				<td th:each="coste : ${l.costesProveedor}" th:text="${coste.getValue()}"></td>
 			</tr>
 		</table>
 

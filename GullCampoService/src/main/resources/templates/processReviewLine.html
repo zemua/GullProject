@@ -23,6 +23,7 @@
 			<div>
 				<div th:if="*{campos.size() > 0}"><span>Campos...</span></div>
 				<span th:each="t : *{campos}" th:text="${t.getDatos() + '  '}"></span>
+				<span th:each="coste : *{costesProveedor}" th:text="${coste.getValue() + ' '}"></span>
 			</div>
 		</div>
 

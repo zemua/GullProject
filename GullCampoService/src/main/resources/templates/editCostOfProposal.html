@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Costes de la propuesta: ' + propuesta.getNombre()}">Gull Project - Costes de la propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1 th:text="${'Costes de la propuesta: ' + propuesta.getNombre()}">Costes de la propuesta</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/consultas/costof/propid/' + propuesta.id}">Volver</a>
+		</p>
+	</div>
+	
+	<form method="POST" th:object="${costesWrapper}" id="val-form">
+	
+		<div>
+			<div><button id="submit-button">Guardar</button></div>
+		</div>
+	
+		<div>
+			<table>
+				<tr>
+					<th>Nombre</th>
+				</tr>
+				<tr th:each="a, astat : *{costes}">
+					<td class="field" th:classappend="${#fields.hasErrors('*{costes[__${astat.index}__].name}') ? 'error' : '' }">
+						<span th:text="${a.name}" class="field-text" contenteditable="true"></span>
+						<input type="hidden" th:field="*{costes[__${astat.index}__].id}"/>
+						<input type="hidden" th:field="*{costes[__${astat.index}__].name}" class="field-input"/>
+					</td>
+				</tr>
+			</table>
+		</div>
+	
+	</form>	
+	
+	<script type="text/javascript" th:src="@{/js/jquery/jquery-3.6.0.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/scripts/tableEditable.js}"></script>
+	
+</body>
+</html>

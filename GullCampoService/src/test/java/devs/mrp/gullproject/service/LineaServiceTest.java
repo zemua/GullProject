@@ -25,6 +25,7 @@ import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.repository.ConsultaRepo;
 import devs.mrp.gullproject.repository.CustomLineaRepo;
 import devs.mrp.gullproject.repository.LineaRepo;
@@ -39,15 +40,17 @@ class LineaServiceTest {
 	LineaService lineaService;
 	LineaRepo lineaRepo;
 	ConsultaRepo consultaRepo;
+	ConsultaService consultaService;
 	
 	@Autowired
-	public LineaServiceTest(LineaService lineaService, LineaRepo lineaRepo, ConsultaRepo consultaRepo) {
+	public LineaServiceTest(LineaService lineaService, LineaRepo lineaRepo, ConsultaRepo consultaRepo, ConsultaService consultaService) {
 		this.lineaService = lineaService;
 		this.lineaRepo = lineaRepo;
 		if (!(lineaRepo instanceof CustomLineaRepo)) {
 			fail("LineaRepo no extiende CustomLineaRepo");
 		}
 		this.consultaRepo = consultaRepo;
+		this.consultaService = consultaService;
 	}
 	
 	Campo<Integer> campo1;
@@ -71,13 +74,16 @@ class LineaServiceTest {
 	@BeforeEach
 	void setUp() {
 		lineaRepo.deleteAll().block();
+		
+		List<String> counter = new ArrayList<>();
+		counter.add("counter line id");
 			
 		linea1 = new Linea();
 		linea1.setId("id1");
 		linea1.setNombre("name1");
 		linea1.setOrder(1);
 		linea1.setParentId("parent id 1");
-		linea1.setCounterLineId("counter line id 1");
+		linea1.setCounterLineId(counter);
 		
 		lineaRepo.save(linea1).block();
 		
@@ -86,7 +92,7 @@ class LineaServiceTest {
 		linea2.setNombre("name2");
 		linea2.setOrder(2);
 		linea2.setParentId("parent id 2");
-		linea2.setCounterLineId("counter line id 2");
+		linea2.setCounterLineId(counter);
 		
 		lineaRepo.save(linea2).block();
 		
@@ -110,8 +116,8 @@ class LineaServiceTest {
 		consulta = new Consulta();
 		propuesta = new PropuestaCliente();
 		propuesta2 = new PropuestaCliente();
-		consulta.addPropuesta(propuesta);
-		consulta.addPropuesta(propuesta2);
+		consulta.operations().addPropuesta(propuesta);
+		consulta.operations().addPropuesta(propuesta2);
 		consultaRepo.save(consulta).block();
 		
 		linea3 = new Linea(); linea3.setNombre("linea3"); linea3.setPropuestaId(propuesta.getId());
@@ -126,10 +132,10 @@ class LineaServiceTest {
 		StepVerifier.create(monoConsulta)
 			.assertNext(c -> {
 				assertEquals(consulta.getId(), c.getId());
-				assertEquals(2, c.getCantidadPropuestas());
-				assertEquals(propuesta.getId(), c.getPropuestaByIndex(0).getId());
-				assertEquals(1, c.getPropuestaByIndex(0).getCantidadLineaIds());
-				assertEquals(linea3.getId(),c.getPropuestaByIndex(0).getLineaIdByIndex(0));
+				assertEquals(2, c.operations().getCantidadPropuestas());
+				assertEquals(propuesta.getId(), c.operations().getPropuestaByIndex(0).getId());
+				assertEquals(1, c.operations().getPropuestaByIndex(0).operations().getCantidadLineaIds());
+				assertEquals(linea3.getId(),c.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(0));
 			})
 			.expectComplete()
 			.verify();
@@ -178,8 +184,8 @@ class LineaServiceTest {
 		
 		StepVerifier.create(monoConsulta)
 			.assertNext(cons -> {
-				assertEquals(2, cons.getPropuestaByIndex(0).getCantidadLineaIds());
-				assertEquals(lineaz.getId(), cons.getPropuestaByIndex(0).getLineaIdByIndex(1));
+				assertEquals(2, cons.operations().getPropuestaByIndex(0).operations().getCantidadLineaIds());
+				assertEquals(lineaz.getId(), cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(1));
 			})
 			.expectComplete()
 			.verify();
@@ -193,7 +199,7 @@ class LineaServiceTest {
 		
 		StepVerifier.create(monoConsulta)
 			.assertNext(cons -> {
-				assertEquals(1, cons.getPropuestaByIndex(0).getCantidadLineaIds());
+				assertEquals(1, cons.operations().getPropuestaByIndex(0).operations().getCantidadLineaIds());
 			})
 			.expectComplete()
 			.verify();
@@ -242,9 +248,9 @@ class LineaServiceTest {
 		
 		StepVerifier.create(monoConsulta)
 		.assertNext(cons -> {
-			assertEquals(3, cons.getPropuestaByIndex(0).getCantidadLineaIds());
-			assertTrue(linea4.getId().equals(cons.getPropuestaByIndex(0).getLineaIdByIndex(1)) || linea4.getId().equals(cons.getPropuestaByIndex(0).getLineaIdByIndex(2)));
-			assertTrue(linea5.getId().equals(cons.getPropuestaByIndex(0).getLineaIdByIndex(1)) || linea5.getId().equals(cons.getPropuestaByIndex(0).getLineaIdByIndex(2)));
+			assertEquals(3, cons.operations().getPropuestaByIndex(0).operations().getCantidadLineaIds());
+			assertTrue(linea4.getId().equals(cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(1)) || linea4.getId().equals(cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(2)));
+			assertTrue(linea5.getId().equals(cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(1)) || linea5.getId().equals(cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(2)));
 		})
 		.expectComplete()
 		.verify();
@@ -260,8 +266,8 @@ class LineaServiceTest {
 		.verify();
 
 		StepVerifier.create(monoConsulta).assertNext(cons -> {
-			assertEquals(1, cons.getPropuestaByIndex(0).getCantidadLineaIds());
-			assertEquals(linea3.getId(), cons.getPropuestaByIndex(0).getLineaIdByIndex(0));
+			assertEquals(1, cons.operations().getPropuestaByIndex(0).operations().getCantidadLineaIds());
+			assertEquals(linea3.getId(), cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(0));
 		}).expectComplete().verify();
 		
 		lineaService.deleteVariasLineasById(Flux.just(linea3.getId())).block();
@@ -271,7 +277,7 @@ class LineaServiceTest {
 		.verify();
 		
 		StepVerifier.create(monoConsulta).assertNext(cons -> {
-			assertEquals(0, cons.getPropuestaByIndex(0).getCantidadLineaIds());
+			assertEquals(0, cons.operations().getPropuestaByIndex(0).operations().getCantidadLineaIds());
 		}).expectComplete().verify();
 	}
 	
@@ -293,7 +299,7 @@ class LineaServiceTest {
 		.verify();
 		
 		StepVerifier.create(monoConsulta).assertNext(cons -> {
-			assertEquals(0, cons.getPropuestaByIndex(0).getCantidadLineaIds());
+			assertEquals(0, cons.operations().getPropuestaByIndex(0).operations().getCantidadLineaIds());
 			assertEquals(3, deletecount);
 		}).expectComplete().verify();
 		
@@ -329,8 +335,8 @@ class LineaServiceTest {
 		.verify();
 		
 		StepVerifier.create(monoConsulta).assertNext(cons -> {
-			assertEquals(3, cons.getPropuestaByIndex(0).getCantidadLineaIds());
-			assertEquals(2, cons.getPropuestaByIndex(1).getCantidadLineaIds());
+			assertEquals(3, cons.operations().getPropuestaByIndex(0).operations().getCantidadLineaIds());
+			assertEquals(2, cons.operations().getPropuestaByIndex(1).operations().getCantidadLineaIds());
 		}).expectComplete().verify();
 		
 		List<Propuesta> list = new ArrayList<>();
@@ -339,8 +345,8 @@ class LineaServiceTest {
 		Long deleteCount = lineaService.deleteSeveralLineasFromSeveralPropuestas(list).block();
 		
 		StepVerifier.create(monoConsulta).assertNext(cons -> {
-			assertEquals(0, cons.getPropuestaByIndex(0).getCantidadLineaIds());
-			assertEquals(0, cons.getPropuestaByIndex(1).getCantidadLineaIds());
+			assertEquals(0, cons.operations().getPropuestaByIndex(0).operations().getCantidadLineaIds());
+			assertEquals(0, cons.operations().getPropuestaByIndex(1).operations().getCantidadLineaIds());
 			assertEquals(5, deleteCount);
 		}).expectComplete().verify();
 		
@@ -363,6 +369,49 @@ class LineaServiceTest {
 		StepVerifier.create(lineaService.findById(linea7.getId()))
 		.expectComplete()
 		.verify();
+	}
+	
+	@Test
+	void testGetAllLineasOfPropuestasAssignedTo() {
+		var pp1 = new PropuestaProveedor();
+		pp1.setForProposalId(propuesta.getId());
+		var pp2 = new PropuestaProveedor();
+		pp2.setForProposalId(propuesta.getId());
+		consultaRepo.addPropuesta(consulta.getId(), pp1).block();
+		consultaRepo.addPropuesta(consulta.getId(), pp2).block();
+		
+		var lp1a = new Linea();
+		lp1a.setPropuestaId(pp1.getId());
+		var lp1b = new Linea();
+		lp1b.setPropuestaId(pp1.getId());
+		
+		var lp2a = new Linea();
+		lp2a.setPropuestaId(pp2.getId());
+		var lp2b = new Linea();
+		lp2b.setPropuestaId(pp2.getId());
+		
+		lineaRepo.save(lp1a).block();
+		lineaRepo.save(lp1b).block();
+		lineaRepo.save(lp2a).block();
+		lineaRepo.save(lp2b).block();
+		
+		Flux<Linea> lineas = lineaService.getAllLineasOfPropuestasAssignedTo(propuesta.getId());
+		StepVerifier.create(lineas)
+			.assertNext(l -> {
+				assertEquals(lp1a.getId(), l.getId());
+			})
+			.assertNext(l -> {
+				assertEquals(lp1b.getId(), l.getId());
+			})
+			.assertNext(l -> {
+				assertEquals(lp2a.getId(), l.getId());
+			})
+			.assertNext(l -> {
+				assertEquals(lp2b.getId(), l.getId());
+			})
+			.expectComplete()
+			.verify()
+			;
 	}
 
 }

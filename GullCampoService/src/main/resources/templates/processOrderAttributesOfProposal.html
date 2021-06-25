@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>Gull Project - Atributos de la propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1>Lineas de la propuesta</h1>
+
+	<div>
+		<p>
+			<span th:text="${mensaje}">Orden guardado</span>
+		</p>
+	</div>
+
+	<div>
+		<p>
+			<a th:href="${'/consultas/attof/propid/' + propuestaId}">Volver</a>
+		</p>
+	</div>
+
+</body>
+</html>

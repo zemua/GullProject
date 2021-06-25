@@ -38,11 +38,15 @@ public class ClassDestringfier {
 	
 	public static Object toObject(String value) {
 		if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")) {return Boolean.parseBoolean(value);}
-		if (value.matches("^-?\\d{1,9}$")) {return Integer.parseInt(value);}
-		if (value.matches("^-?\\d{10,}$")) {return Long.parseLong(value);}
-		if (value.matches("^-?\\d+\\.\\d*$")) {return Double.parseDouble(value);}
-		if (value.matches("^-?\\d+\\,\\d*$")) {return Double.parseDouble(value.replace(",", "."));}
+		if (value.matches("^[+-]?\\d{1,9}$")) {return Integer.parseInt(value);}
+		if (value.matches("^[+-]?\\d{10,}$")) {return Long.parseLong(value);}
+		if (value.matches("^[+-]?\\d+[[,\\.]\\d]*$")) {return Double.parseDouble(value);}
+		if (value.matches("^[+-]?\\d+[[,\\.]\\d]*$")) {return Double.parseDouble(value.replace(",", "."));}
 		return value;
+	}
+	
+	public static boolean ifDouble(String value) {
+		return value.matches("^[+-]?\\d+[[,\\.]\\d]*$");
 	}
 	
 }

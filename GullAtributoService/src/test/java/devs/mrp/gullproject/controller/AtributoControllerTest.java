@@ -83,7 +83,7 @@ class AtributoControllerTest {
 		b.setTipo(DataFormat.CANTIDAD);
 		
 		Mono<Atributo> mono = Mono.just(a);
-		when(atributoService.save(ArgumentMatchers.eq(b))).thenReturn(mono);
+		when(atributoService.save(ArgumentMatchers.refEq(b, "id"))).thenReturn(mono);
 		
 		webTestClient.post()
 		.uri("/atributos/nuevo")
