@@ -23,6 +23,7 @@ import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.domains.PropuestaNuestra;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.domains.Pvper;
 import devs.mrp.gullproject.service.PropuestaOperations;
@@ -764,7 +765,30 @@ class CustomConsultaRepoImplTest {
 	
 	@Test
 	void testAddPvpToList() {
+		PropuestaNuestra p = new PropuestaNuestra();
+		p.setPvps(new ArrayList<>());
+		repo.addPropuesta(consulta.getId(), p).block();
 		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals(0, ((PropuestaNuestra)cons.operations().getPropuestaById(p.getId())).getPvps().size());
+		})
+		.expectComplete()
+		.verify();
+		
+		var pvp = new Pvper();
+		pvp.setIdCostes(new ArrayList<>() {{add("idCoste1");}});
+		pvp.setName("name pvp 1");
+		
+		repo.addPvpToList(p.getId(), pvp).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals(1, ((PropuestaNuestra)cons.operations().getPropuestaById(p.getId())).getPvps().size());
+			assertEquals(pvp.getId(), ((PropuestaNuestra)cons.operations().getPropuestaById(p.getId())).getPvps().get(0).getId());
+		})
+		.expectComplete()
+		.verify();
 	}
 
 }

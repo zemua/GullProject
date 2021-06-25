@@ -199,7 +199,7 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 	}
 	
 	@Override
-	public Mono<Consulta> addPvpToList(String idPropuesta, Pvper pvp) { // TODO test
+	public Mono<Consulta> addPvpToList(String idPropuesta, Pvper pvp) {
 		Query query = new Query(Criteria.where("propuestas.id").is(idPropuesta));
 		Update update = new Update().addToSet("propuestas.$.pvps", pvp);
 		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
