@@ -761,5 +761,10 @@ class CustomConsultaRepoImplTest {
 		.expectComplete()
 		.verify();
 	}
+	
+	@Test
+	void testAddPvpToList() {
+		
+	}
 
 }
