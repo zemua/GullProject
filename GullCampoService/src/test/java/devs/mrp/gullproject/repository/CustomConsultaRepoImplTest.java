@@ -24,6 +24,7 @@ import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
+import devs.mrp.gullproject.domains.Pvper;
 import devs.mrp.gullproject.service.PropuestaOperations;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -721,6 +722,41 @@ class CustomConsultaRepoImplTest {
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals(1, ((PropuestaProveedor)cons.operations().getPropuestaById(p.getId())).getCostes().size());
+		})
+		.expectComplete()
+		.verify();
+	}
+	
+	@Test
+	void testUpdateCostesOfPropuesta() {
+		CosteProveedor cos1 = new CosteProveedor();
+		cos1.setName("cos1 name");
+		CosteProveedor cos2 = new CosteProveedor();
+		cos2.setName("cos2 name");
+		
+		List<CosteProveedor> costes = new ArrayList<>();
+		costes.add(cos1);
+		costes.add(cos2);
+		
+		PropuestaProveedor p = new PropuestaProveedor();
+		p.setCostes(new ArrayList<>());
+		
+		repo.addPropuesta(consulta.getId(), p).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals(0, ((PropuestaProveedor)cons.operations().getPropuestaById(p.getId())).getCostes().size());
+		})
+		.expectComplete()
+		.verify();
+		
+		repo.updateCostesOfPropuesta(p.getId(), costes).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals(2, ((PropuestaProveedor)cons.operations().getPropuestaById(p.getId())).getCostes().size());
+			assertEquals(cos1.getId(), ((PropuestaProveedor)cons.operations().getPropuestaById(p.getId())).getCostes().get(0).getId());
+			assertEquals(cos2.getId(), ((PropuestaProveedor)cons.operations().getPropuestaById(p.getId())).getCostes().get(1).getId());
 		})
 		.expectComplete()
 		.verify();
