@@ -573,7 +573,7 @@ public class ConsultaController {
 				});
 	}
 	
-	@GetMapping("/pvpsof/propid/{id}/delete") // TODO test
+	@GetMapping("/pvpsof/propid/{id}/delete")
 	public Mono<String> deletePvpOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
 		return consultaService.findConsultaByPropuestaId(proposalId)

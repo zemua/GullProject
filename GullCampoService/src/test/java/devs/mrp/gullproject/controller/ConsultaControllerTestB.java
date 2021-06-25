@@ -1559,6 +1559,52 @@ class ConsultaControllerTestB {
 		})
 		;
 	}
+	
+	@Test
+	void testDeletePvpOfProposal() {
+		addCosts();
+		webTestClient.get()
+			.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/delete")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Borrar pvps de la propuesta")
+						.contains("Nombre")
+						.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName());
+			})
+			;
+	}
+	
+	@Test
+	void testConfirmDeletePvpsOfProposal() {
+		addCosts();
+		webTestClient.post()
+			.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/delete")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("pvps[0].selected", "true")
+					.with("pvps[0].id", "idpvp1")
+					.with("pvps[0].name" , "nombre pvp 1")
+					// TODO add remaining fields
+					
+					.with("pvps[1].selected" , "false")
+					.with("pvps[1].id", "idpvp2")
+					.with("pvps[1].name", "nombre pvp 2")
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("idcoste1")
+						.contains("nombre pvp 2")
+						.contains("Borrar pvps de la propuesta");
+			})
+			;
+	}
 
 }
 
