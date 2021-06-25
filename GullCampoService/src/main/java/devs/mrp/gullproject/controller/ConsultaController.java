@@ -36,6 +36,7 @@ import devs.mrp.gullproject.domains.dto.CostesCheckboxWrapper;
 import devs.mrp.gullproject.domains.dto.CostesOrdenablesWrapper;
 import devs.mrp.gullproject.domains.dto.CostesWrapper;
 import devs.mrp.gullproject.domains.dto.ProposalPie;
+import devs.mrp.gullproject.domains.dto.PvpsCheckboxWrapper;
 import devs.mrp.gullproject.domains.dto.WrapAtributosForCampoDto;
 import devs.mrp.gullproject.domains.dto.WrapPropuestaClienteAndSelectableAttributes;
 import devs.mrp.gullproject.domains.dto.WrapPropuestaNuestraAndSelectableAttributes;
@@ -54,7 +55,7 @@ import reactor.core.publisher.Mono;
 @RequestMapping(path = "/consultas")
 public class ConsultaController {
 	
-	// TODO create our proposals from customer and supplier ones
+	// TODO create our proposals from customer and supplier ones (highlight cells if cost changes, until new margin is confirmed)
 	// TODO adapt old supplier proposals for updated customer inquiry
 	// TODO make a "compare" view to check supplier vs customer table and ours vs customer table
 	
@@ -525,6 +526,7 @@ public class ConsultaController {
 						List<PvperSum> sums = ((PropuestaNuestra)prop).getSums();
 						model.addAttribute("pvps", pvps);
 						model.addAttribute("sums", sums);
+						model.addAttribute("map", cons.operations().mapIdToCosteProveedor());
 						return "showPvpsOfProposal";
 					} else {
 						return "redirect:/consultas/revisar/id/" + cons.getId();
@@ -569,6 +571,34 @@ public class ConsultaController {
 					return consultaService.addPvpToList(proposalId, pvper)
 						.map(c -> "processNewPvpOfProposal");
 				});
+	}
+	
+	@GetMapping("/pvpsof/propid/{id}/delete") // TODO test
+	public Mono<String> deletePvpOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
+		model.addAttribute("propuestaId", proposalId);
+		return consultaService.findConsultaByPropuestaId(proposalId)
+			.map(cons -> {
+				Propuesta prop = cons.operations().getPropuestaById(proposalId);
+				model.addAttribute("consulta", cons);
+				model.addAttribute("propuesta", prop);
+				model.addAttribute("pvpsCheckboxWrapper", new PvpsCheckboxWrapper(((PropuestaNuestra)prop).operationsNuestra().getPvpsCheckbox(modelMapper)));
+				return "deletePvpsOfProposal";
+			})
+			;
+	}
+	
+	@PostMapping("/pvpsof/propid/{id}/delete") // TODO test
+	public Mono<String> confirmDeletePvpsOfProposal(PvpsCheckboxWrapper pvpsCheckboxWrapper, Model model, @PathVariable(name = "id") String proposalId) {
+		model.addAttribute("propuestaId", proposalId);
+		return consultaService.findConsultaByPropuestaId(proposalId)
+			.map(cons -> {
+				Propuesta prop = cons.operations().getPropuestaById(proposalId);
+				model.addAttribute("consulta", cons);
+				model.addAttribute("propuesta", prop);
+				model.addAttribute("pvpsCheckboxWrapper", pvpsCheckboxWrapper);
+				return "confirmDeletePvpsOfProposal";
+			})
+			;
 	}
 	
 }

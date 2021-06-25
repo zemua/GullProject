@@ -45,7 +45,7 @@ public class PropuestaProveedorOperations extends PropuestaOperations {
 	}
 	
 	public boolean ifValidCosteValue(String valor) {
-		return valor.matches("^[+-]?\\d+[[,\\.]\\d]*$");
+		return ClassDestringfier.ifDouble(valor);
 	}
 	
 	public CosteProveedor getCosteByCosteId(String id) {

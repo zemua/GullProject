@@ -28,7 +28,7 @@
 			</tr>
 			<tr th:each="a : ${pvps}">
 				<td><span th:text="${a.name}"></span></td>
-				<td><span th:text="${a.idCostes.size()}"></span></td>
+				<td><span th:each="cosId, stat : ${a.idCostes}" th:text="${stat.index == a.idCostes.size()-1 ? map.get(cosId).getName() : map.get(cosId).getName() + ', '}"></span></td>
 			</tr>
 		</table>
 	</div>

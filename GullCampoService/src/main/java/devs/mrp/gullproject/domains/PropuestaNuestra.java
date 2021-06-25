@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.springframework.data.annotation.PersistenceConstructor;
 
+import devs.mrp.gullproject.service.PropuestaNuestraOperations;
+
 public class PropuestaNuestra extends Propuesta {
 	
 	List<Pvper> pvps = new ArrayList<>();
@@ -49,6 +51,10 @@ public class PropuestaNuestra extends Propuesta {
 		this.lineaIds = propuesta.lineaIds;
 		this.nombre = propuesta.nombre;
 		this.parentId = propuesta.parentId;
+	}
+	
+	public PropuestaNuestraOperations operationsNuestra() {
+		return new PropuestaNuestraOperations(this);
 	}
 
 }
