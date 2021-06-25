@@ -52,6 +52,8 @@ public interface CustomConsultaRepo {
 	
 	public Mono<Consulta> addCostToList(String idPropuesta, CosteProveedor coste);
 	
+	public Mono<Consulta> updatePvpsOfPropuesta(String idPropuesta, List<Pvper> pvps);
+	
 	public Mono<Consulta> addPvpToList(String idPropuesta, Pvper pvp);
 	
 }

@@ -15,6 +15,7 @@ import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.domains.Pvper;
 import devs.mrp.gullproject.domains.TipoPropuesta;
 import devs.mrp.gullproject.domains.dto.CostesCheckboxWrapper;
+import devs.mrp.gullproject.domains.dto.PvpsCheckboxWrapper;
 import devs.mrp.gullproject.repository.ConsultaRepo;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -150,7 +151,16 @@ public class ConsultaService {
 			;
 	}
 	
+	public Mono<Consulta> updatePvpsOfPropuesta(String idPropuesta, List<Pvper> pvps) {
+		return consultaRepo.updatePvpsOfPropuesta(idPropuesta, pvps);
+	}
+	
 	public Mono<Consulta> addPvpToList(String idPropuesta, Pvper pvp) {
 		return consultaRepo.addPvpToList(idPropuesta, pvp);
+	}
+	
+	public Mono<Consulta> keepUnselectedPvps(String idPropuesta, PvpsCheckboxWrapper wrapper) { // TODO test
+		List<Pvper> pvps = wrapper.getPvps().stream().filter(p -> !p.isSelected()).map(p -> modelMapper.map(p, Pvper.class)).collect(Collectors.toList());
+		return updatePvpsOfPropuesta(idPropuesta, pvps);
 	}
 }

@@ -30,6 +30,7 @@
 						<input type="hidden" th:field="*{pvps[__${stat.index}__].selected}" />
 						<input type="hidden" th:field="*{pvps[__${stat.index}__].id}" />
 						<input type="hidden" th:field="*{pvps[__${stat.index}__].name}" />
+						<input type="hidden" th:each="idCostes, cstat : ${a.idCostes}" th:field="*{pvps[__${stat.index}__].idCostes[__${cstat.index}__]}"/>
 					</td>
 				</tr>
 			</table>

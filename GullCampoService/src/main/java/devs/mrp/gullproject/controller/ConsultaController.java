@@ -601,4 +601,18 @@ public class ConsultaController {
 			;
 	}
 	
+	@PostMapping("/pvpsof/propid/{id}/delete/confirm") // TODO test
+	public Mono<String> processDeletePvpsOfProposal(PvpsCheckboxWrapper pvpsCheckboxWrapper, Model model, @PathVariable(name = "id") String proposalId) {
+		model.addAttribute("propuestaId", proposalId);
+		return consultaService.keepUnselectedPvps(proposalId, pvpsCheckboxWrapper)
+				.map(cons -> {
+					Propuesta prop = cons.operations().getPropuestaById(proposalId);
+					model.addAttribute("consulta", cons);
+					model.addAttribute("propuesta", prop);
+					model.addAttribute("pvpsCheckboxWrapper", new PvpsCheckboxWrapper(((PropuestaNuestra)prop).operationsNuestra().getPvpsCheckbox(modelMapper)));
+					return "processDeletePvpsOfProposal";
+				})
+				;
+	}
+	
 }
