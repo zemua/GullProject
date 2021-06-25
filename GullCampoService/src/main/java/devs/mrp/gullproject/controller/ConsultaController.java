@@ -513,7 +513,7 @@ public class ConsultaController {
 		return "processAddPropuestaToConsulta";
 	}
 	
-	@GetMapping("/pvpsof/propid/{id}") // TODO test
+	@GetMapping("/pvpsof/propid/{id}")
 	public Mono<String> showPvpsOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
 		return consultaService.findConsultaByPropuestaId(proposalId)

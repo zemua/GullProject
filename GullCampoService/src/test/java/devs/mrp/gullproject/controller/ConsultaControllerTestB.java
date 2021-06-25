@@ -215,6 +215,10 @@ class ConsultaControllerTestB {
 		pvp.setMargen(28.5);
 		pvp.setPvp(126.53);
 		pvp.setPvperId(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId());
+		List<PvperLinea> pvps = new ArrayList<>();
+		pvps.add(pvp);
+		linea1.setPvps(pvps);
+		linea2.setPvps(pvps);
 	}
 
 	@Test
@@ -1454,6 +1458,24 @@ class ConsultaControllerTestB {
 					.contains("Nombre:")
 					.contains("Volver");
 		});
+	}
+	
+	@Test
+	void testShowPvpsOfProposal() {
+		addCosts();
+		webTestClient.get()
+			.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId())
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("PVPs de la propuesta")
+						.contains("Nombre")
+						.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName());
+			});
+			;
 	}
 
 }

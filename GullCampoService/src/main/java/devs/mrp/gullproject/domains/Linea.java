@@ -63,6 +63,8 @@ public class Linea {
 	 */
 	
 	private List<CosteLineaProveedor> costesProveedor;
+	private List<PvperLinea> pvps;
+	private List<PvperSum> pvpSums;
 	
 	/**
 	 * Methods and constructors
