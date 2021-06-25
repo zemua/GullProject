@@ -533,7 +533,7 @@ public class ConsultaController {
 				;
 	}
 	
-	@GetMapping("/pvpsof/propid/{id}/new") // TODO test
+	@GetMapping("/pvpsof/propid/{id}/new")
 	public Mono<String> newPvpOfPropuesta(Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
 		return consultaService.findConsultaByPropuestaId(proposalId)
@@ -547,7 +547,7 @@ public class ConsultaController {
 				});
 	}
 	
-	@PostMapping("/pvpsof/propid/{id}/new") // TODO test
+	@PostMapping("/pvpsof/propid/{id}/new")
 	public Mono<String> processNewPvpOfPropuesta(@Valid @ModelAttribute("pvper") Pvper pvper, BindingResult bindingResult, Model model, @PathVariable(name = "id") String proposalId) {
 		var idCostes = pvper.getIdCostes();
 		if (idCostes == null || idCostes.size() == 0) {bindingResult.rejectValue("idCostes", "error.idCostes", "Selecciona al menos un coste");}
