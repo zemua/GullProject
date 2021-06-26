@@ -37,6 +37,7 @@ import devs.mrp.gullproject.domains.dto.CostesOrdenablesWrapper;
 import devs.mrp.gullproject.domains.dto.CostesWrapper;
 import devs.mrp.gullproject.domains.dto.ProposalPie;
 import devs.mrp.gullproject.domains.dto.PvpsCheckboxWrapper;
+import devs.mrp.gullproject.domains.dto.PvpsOrdenablesWrapper;
 import devs.mrp.gullproject.domains.dto.WrapAtributosForCampoDto;
 import devs.mrp.gullproject.domains.dto.WrapPropuestaClienteAndSelectableAttributes;
 import devs.mrp.gullproject.domains.dto.WrapPropuestaNuestraAndSelectableAttributes;
@@ -44,6 +45,7 @@ import devs.mrp.gullproject.domains.dto.WrapPropuestaProveedorAndSelectableAttri
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaService;
+import devs.mrp.gullproject.service.PropuestaNuestraOperations;
 import devs.mrp.gullproject.service.PropuestaProveedorOperations;
 import devs.mrp.gullproject.service.PropuestaUtilities;
 import lombok.extern.slf4j.Slf4j;
@@ -611,6 +613,36 @@ public class ConsultaController {
 					model.addAttribute("propuesta", prop);
 					model.addAttribute("pvpsCheckboxWrapper", new PvpsCheckboxWrapper(((PropuestaNuestra)prop).operationsNuestra().getPvpsCheckbox(modelMapper)));
 					return "processDeletePvpsOfProposal";
+				})
+				;
+	}
+	
+	@GetMapping("/pvpsof/propid/{id}/order") // TODO test
+	public Mono<String> orderPvpsOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
+		model.addAttribute("propuestaId", proposalId);
+		return consultaService.findConsultaByPropuestaId(proposalId)
+			.map(cons -> {
+				Propuesta prop = cons.operations().getPropuestaById(proposalId);
+				model.addAttribute("consulta", cons);
+				model.addAttribute("propuesta", prop);
+				model.addAttribute("pvpsOrdenablesWrapper", new PvpsOrdenablesWrapper(((PropuestaNuestra)prop).operationsNuestra().getPvpsOrdenables(modelMapper)));
+				model.addAttribute("map", cons.operations().mapIdToCosteProveedor());
+				return "orderPvpsOfProposal";
+			})
+			;
+	}
+	
+	@PostMapping("/pvpsof/propid/{id}/order") // TODO test
+	public Mono<String> processOrderPvpsOfProposal(PvpsOrdenablesWrapper pvpsOrdenablesWrapper, Model model, @PathVariable(name = "id") String proposalId) {
+		model.addAttribute("propuestaId", proposalId);
+		return consultaService.updatePvpsOfPropuesta(proposalId, PropuestaNuestraOperations.fromPvpsOrdenablesToPvper(modelMapper, pvpsOrdenablesWrapper.getPvps()))
+				.map(cons -> {
+					Propuesta prop = cons.operations().getPropuestaById(proposalId);
+					model.addAttribute("consulta", cons);
+					model.addAttribute("propuesta", prop);
+					model.addAttribute("pvps", ((PropuestaNuestra)prop).getPvps());
+					model.addAttribute("map", cons.operations().mapIdToCosteProveedor());
+					return "processOrderPvpsOfProposal";
 				})
 				;
 	}

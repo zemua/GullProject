@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Ordenar pvps de la propuesta: ' + propuesta.getNombre()}">Gull Project - Ordenar pvps de la propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1>Guardado</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/consultas/pvpsof/propid/' + propuesta.id}">Volver</a>
+		</p>
+	</div>
+	
+	<div>
+		<table>
+			<tr>
+				<th>Nombre</th>
+				<th>Costes</th>
+			</tr>
+			<tr th:each="a, stat : *{pvps}">
+				<td>
+					<span th:text="${a.name}"></span>
+				</td>
+				<td>
+					<span th:each="cosId, cstat : ${a.idCostes}" th:text="${cstat.index == a.idCostes.size()-1 ? map.get(cosId).getName() : map.get(cosId).getName() + ', '}"></span>
+				</td>
+			</tr>
+		</table>
+	</div>
+
+</body>
+</html>
