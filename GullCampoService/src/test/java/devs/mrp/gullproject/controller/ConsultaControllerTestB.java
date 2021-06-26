@@ -44,6 +44,7 @@ import devs.mrp.gullproject.domains.PvperSum;
 import devs.mrp.gullproject.domains.TipoPropuesta;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.CostesCheckboxWrapper;
+import devs.mrp.gullproject.domains.dto.PvpsCheckboxWrapper;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.AtributoUtilities;
 import devs.mrp.gullproject.service.ConsultaService;
@@ -199,6 +200,7 @@ class ConsultaControllerTestB {
 		
 		when(consultaService.findConsultaByPropuestaId(ArgumentMatchers.eq(propuestaNuestra.getId()))).thenReturn(Mono.just(consulta1));
 		when(consultaService.addPvpToList(ArgumentMatchers.eq(propuestaNuestra.getId()), ArgumentMatchers.any(Pvper.class))).thenReturn(Mono.just(consulta1));
+		when(consultaService.keepUnselectedPvps(ArgumentMatchers.eq(propuestaNuestra.getId()), ArgumentMatchers.any(PvpsCheckboxWrapper.class))).thenReturn(Mono.just(consulta1));
 	}
 	
 	private void addCosts() {
@@ -1588,7 +1590,8 @@ class ConsultaControllerTestB {
 			.body(BodyInserters.fromFormData("pvps[0].selected", "true")
 					.with("pvps[0].id", "idpvp1")
 					.with("pvps[0].name" , "nombre pvp 1")
-					// TODO add remaining fields
+					.with("pvps[0].idCostes[0]", "coste0pvp1")
+					.with("pvps[0].idCostes[1]", "coste1pvp1")
 					
 					.with("pvps[1].selected" , "false")
 					.with("pvps[1].id", "idpvp2")
@@ -1599,11 +1602,41 @@ class ConsultaControllerTestB {
 			.expectBody()
 			.consumeWith(response -> {
 					Assertions.assertThat(response.getResponseBody()).asString()
-						.contains("idcoste1")
+						.contains("idpvp1")
 						.contains("nombre pvp 2")
+						.contains("coste0pvp1")
+						.contains("coste1pvp1")
 						.contains("Borrar pvps de la propuesta");
 			})
 			;
+	}
+	
+	@Test
+	void testProcessDeletePvpsOfProposal() {
+		addCosts();
+		webTestClient.post()
+		.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/delete/confirm")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("pvps[0].selected", "true")
+				.with("pvps[0].id", "idpvp1")
+				.with("pvps[0].name" , "nombre pvp 1")
+				.with("pvps[0].idCostes[0]", "coste0pvp1")
+				.with("pvps[0].idCostes[1]", "coste1pvp1")
+				
+				.with("pvps[1].selected" , "false")
+				.with("pvps[1].id", "idpvp2")
+				.with("pvps[1].name", "nombre pvp 2")
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName())
+					.contains("Borrados");
+		})
+		;
 	}
 
 }
