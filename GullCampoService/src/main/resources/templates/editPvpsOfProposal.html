@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Pvps de la propuesta: ' + propuesta.getNombre()}">Gull Project - Pvps de la propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1 th:text="${'Pvps de la propuesta: ' + propuesta.getNombre()}">Pvps de la propuesta</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/consultas/pvpsof/propid/' + propuesta.id}">Volver</a>
+		</p>
+	</div>
+	
+	<form method="POST" th:object="${pvpsCheckboxedCostWrapper}" id="val-form">
+	
+		<div>
+			<div><button id="submit-button">Guardar</button></div>
+		</div>
+	
+		<div>
+			<table>
+				<tr>
+					<th>Nombre</th>
+					<th th:each="c : ${map.keySet()}" th:text="${map.get(c).name}"></th>
+				</tr>
+				<tr th:each="a, astat : *{pvps}">
+					<td class="field" th:classappend="${#fields.hasErrors('*{pvps[__${astat.index}__].name}') ? 'error' : '' }">
+						<span th:text="${a.name}" class="field-text" contenteditable="true"></span>
+						<input type="hidden" th:field="*{pvps[__${astat.index}__].id}"/>
+						<input type="hidden" th:field="*{pvps[__${astat.index}__].name}" class="field-input"/>
+					</td>
+					<td th:each="c, cstat : ${map.keySet()}" class="texto-centro" th:classappend="${#fields.hasErrors('*{pvps[__${astat.index}__].costs[__${cstat.index}__].id}') ? 'error' : '' }">
+						<input type="checkbox" th:field="*{pvps[__${astat.index}__].costs[__${cstat.index}__].selected}">
+						<input type="hidden" th:field="*{pvps[__${astat.index}__].costs[__${cstat.index}__].id}"/>
+					</td>
+				</tr>
+			</table>
+		</div>
+	
+	</form>	
+	
+	<script type="text/javascript" th:src="@{/js/jquery/jquery-3.6.0.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/scripts/tableEditable.js}"></script>
+	
+</body>
+</html>

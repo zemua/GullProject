@@ -37,7 +37,9 @@ import devs.mrp.gullproject.domains.dto.CostesOrdenablesWrapper;
 import devs.mrp.gullproject.domains.dto.CostesWrapper;
 import devs.mrp.gullproject.domains.dto.ProposalPie;
 import devs.mrp.gullproject.domains.dto.PvpsCheckboxWrapper;
+import devs.mrp.gullproject.domains.dto.PvpsCheckboxedCostWrapper;
 import devs.mrp.gullproject.domains.dto.PvpsOrdenablesWrapper;
+import devs.mrp.gullproject.domains.dto.PvpsWrapper;
 import devs.mrp.gullproject.domains.dto.WrapAtributosForCampoDto;
 import devs.mrp.gullproject.domains.dto.WrapPropuestaClienteAndSelectableAttributes;
 import devs.mrp.gullproject.domains.dto.WrapPropuestaNuestraAndSelectableAttributes;
@@ -645,6 +647,49 @@ public class ConsultaController {
 					return "processOrderPvpsOfProposal";
 				})
 				;
+	}
+	
+	@GetMapping("/pvpsof/propid/{id}/edit") // TODO test
+	public Mono<String> editPvpsOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
+		model.addAttribute("propuestaId", proposalId);
+		return consultaService.findConsultaByPropuestaId(proposalId)
+			.map(cons -> {
+				Propuesta prop = cons.operations().getPropuestaById(proposalId);
+				model.addAttribute("consulta", cons);
+				model.addAttribute("propuesta", prop);
+				model.addAttribute("map", cons.operations().mapIdToCosteProveedor());
+				model.addAttribute("pvpsCheckboxedCostWrapper",((PropuestaNuestra)prop).operationsNuestra().getPvpsCheckbox(modelMapper, consultaService));
+				return "editPvpsOfProposal";
+			})
+			;
+	}
+	
+	@PostMapping("/pvpsof/propid/{id}/edit") // TODO test
+	public Mono<String> processEditPvpsOfProposal(PvpsCheckboxedCostWrapper pvpsCheckboxedCostWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "id") String proposalId) {
+		model.addAttribute("propuestaId", proposalId);
+		PropuestaNuestraOperations.validateNamesOfCheckboxedWrapper(pvpsCheckboxedCostWrapper, bindingResult);
+		if (bindingResult.hasErrors()) {
+			return consultaService.findConsultaByPropuestaId(proposalId)
+					.map(cons -> {
+						Propuesta prop = cons.operations().getPropuestaById(proposalId);
+						model.addAttribute("consulta", cons);
+						model.addAttribute("propuesta", prop);
+						model.addAttribute("map", cons.operations().mapIdToCosteProveedor());
+						model.addAttribute("pvpsCheckboxedCostWrapper", pvpsCheckboxedCostWrapper);
+						return "editPvpsOfProposal";
+					});
+		} else {
+			return consultaService.updatePvpsOfPropuesta(proposalId, PropuestaNuestraOperations.fromCheckboxedWrapperToPvps(pvpsCheckboxedCostWrapper))
+					.map(cons -> {
+						Propuesta prop = cons.operations().getPropuestaById(proposalId);
+						model.addAttribute("consulta", cons);
+						model.addAttribute("propuesta", prop);
+						model.addAttribute("map", cons.operations().mapIdToCosteProveedor());
+						model.addAttribute("pvpsCheckboxedCostWrapper", pvpsCheckboxedCostWrapper);
+						return "processEditPvpsOfProposal";
+					})
+					;
+		}
 	}
 	
 }
