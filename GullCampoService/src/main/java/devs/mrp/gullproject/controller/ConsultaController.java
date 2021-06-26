@@ -657,6 +657,7 @@ public class ConsultaController {
 				Propuesta prop = cons.operations().getPropuestaById(proposalId);
 				model.addAttribute("consulta", cons);
 				model.addAttribute("propuesta", prop);
+				model.addAttribute("proveedores", cons.operations().getPropuestasProveedor());
 				model.addAttribute("map", cons.operations().mapIdToCosteProveedor());
 				model.addAttribute("pvpsCheckboxedCostWrapper",((PropuestaNuestra)prop).operationsNuestra().getPvpsCheckbox(modelMapper, consultaService));
 				return "editPvpsOfProposal";
@@ -674,6 +675,7 @@ public class ConsultaController {
 						Propuesta prop = cons.operations().getPropuestaById(proposalId);
 						model.addAttribute("consulta", cons);
 						model.addAttribute("propuesta", prop);
+						model.addAttribute("proveedores", cons.operations().getPropuestasProveedor());
 						model.addAttribute("map", cons.operations().mapIdToCosteProveedor());
 						model.addAttribute("pvpsCheckboxedCostWrapper", pvpsCheckboxedCostWrapper);
 						return "editPvpsOfProposal";

@@ -25,6 +25,10 @@
 		<div>
 			<table>
 				<tr>
+					<th></th>
+					<th th:each="proveedor : ${proveedores}" th:colspan="${proveedor.costes.size()}" th:text="${proveedor.nombre}"></th>
+				</tr>
+				<tr>
 					<th>Nombre</th>
 					<th th:each="c : ${map.keySet()}" th:text="${map.get(c).name}"></th>
 				</tr>
