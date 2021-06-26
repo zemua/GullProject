@@ -649,7 +649,7 @@ public class ConsultaController {
 				;
 	}
 	
-	@GetMapping("/pvpsof/propid/{id}/edit") // TODO test
+	@GetMapping("/pvpsof/propid/{id}/edit")
 	public Mono<String> editPvpsOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
 		return consultaService.findConsultaByPropuestaId(proposalId)
