@@ -201,6 +201,7 @@ class ConsultaControllerTestB {
 		when(consultaService.findConsultaByPropuestaId(ArgumentMatchers.eq(propuestaNuestra.getId()))).thenReturn(Mono.just(consulta1));
 		when(consultaService.addPvpToList(ArgumentMatchers.eq(propuestaNuestra.getId()), ArgumentMatchers.any(Pvper.class))).thenReturn(Mono.just(consulta1));
 		when(consultaService.keepUnselectedPvps(ArgumentMatchers.eq(propuestaNuestra.getId()), ArgumentMatchers.any(PvpsCheckboxWrapper.class))).thenReturn(Mono.just(consulta1));
+		when(consultaService.updatePvpsOfPropuesta(ArgumentMatchers.eq(propuestaNuestra.getId()), ArgumentMatchers.anyList())).thenReturn(Mono.just(consulta1));
 	}
 	
 	private void addCosts() {
@@ -1635,6 +1636,52 @@ class ConsultaControllerTestB {
 				Assertions.assertThat(response.getResponseBody()).asString()
 					.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName())
 					.contains("Borrados");
+		})
+		;
+	}
+	
+	@Test
+	void testOrderPvpsOfProposal() {
+		addCosts();
+		webTestClient.get()
+		.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/order")
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Ordenar pvps de la propuesta")
+					.contains("Nombre")
+					.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName());
+		});
+	}
+	
+	@Test
+	void testProcessOrderPvpsOfProposal() {
+		addCosts();
+		webTestClient.post()
+		.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/order")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("pvps[0].id", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId())
+				.with("pvps[0].name", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName())
+				.with("pvps[0].order" , "2")
+				.with("pvps[0].idCostes[0]", "idcoste0")
+				.with("pvps[0].idCostes[1]", "idcoste1")
+				
+				.with("pvps[1].id", "otroid")
+				.with("pvps[1].name", "otro name")
+				.with("pvps[1].order" , "1")
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName())
+					.contains("COSTE BASE")
+					.contains("Ordenar pvps de la propuesta");
 		})
 		;
 	}
