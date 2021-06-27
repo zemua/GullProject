@@ -16,6 +16,7 @@ import devs.mrp.gullproject.domains.Pvper;
 import devs.mrp.gullproject.domains.PvperSum;
 import devs.mrp.gullproject.domains.TipoPropuesta;
 import devs.mrp.gullproject.domains.dto.CostesCheckboxWrapper;
+import devs.mrp.gullproject.domains.dto.PvperSumCheckboxWrapper;
 import devs.mrp.gullproject.domains.dto.PvpsCheckboxWrapper;
 import devs.mrp.gullproject.repository.ConsultaRepo;
 import lombok.extern.slf4j.Slf4j;
@@ -171,5 +172,10 @@ public class ConsultaService {
 	
 	public Mono<Consulta> addPvpSumToList(String idPropuesta, PvperSum sum) {
 		return consultaRepo.addPvpSumToList(idPropuesta, sum);
+	}
+	
+	public Mono<Consulta> keepUnselectedPvpSums(String idPropuesta, PvperSumCheckboxWrapper wrapper) {
+		List<PvperSum> sums = wrapper.getSums().stream().filter(s -> !s.isSelected()).map(s -> modelMapper.map(s, PvperSum.class)).collect(Collectors.toList());
+		return updatePvpSumsOfPropuesta(idPropuesta, sums);
 	}
 }

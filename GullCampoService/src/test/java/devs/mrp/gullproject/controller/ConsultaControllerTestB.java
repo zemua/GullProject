@@ -44,6 +44,7 @@ import devs.mrp.gullproject.domains.PvperSum;
 import devs.mrp.gullproject.domains.TipoPropuesta;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.CostesCheckboxWrapper;
+import devs.mrp.gullproject.domains.dto.PvperSumCheckboxWrapper;
 import devs.mrp.gullproject.domains.dto.PvpsCheckboxWrapper;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.AtributoUtilities;
@@ -204,6 +205,7 @@ class ConsultaControllerTestB {
 		when(consultaService.updatePvpsOfPropuesta(ArgumentMatchers.eq(propuestaNuestra.getId()), ArgumentMatchers.anyList())).thenReturn(Mono.just(consulta1));
 		
 		when(consultaService.addPvpSumToList(ArgumentMatchers.eq(propuestaNuestra.getId()), ArgumentMatchers.any(PvperSum.class))).thenReturn(Mono.just(consulta1));
+		when(consultaService.keepUnselectedPvpSums(ArgumentMatchers.eq(propuestaNuestra.getId()), ArgumentMatchers.any(PvperSumCheckboxWrapper.class))).thenReturn(Mono.just(consulta1));
 	}
 	
 	private void addCosts() {
@@ -1907,6 +1909,83 @@ class ConsultaControllerTestB {
 						.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName());
 			})
 			;
+	}
+	
+	@Test
+	void testDeletePvpSumOfProposal() {
+		addCosts();
+		webTestClient.get()
+			.uri("/consultas/pvpsumsof/propid/" + propuestaNuestra.getId() + "/delete")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Borrar pvps combinados de la propuesta")
+						.contains("Nombre")
+						.contains(((PropuestaNuestra)propuestaNuestra).getSums().get(0).getName());
+			})
+			;
+	}
+	
+	@Test
+	void testConfirmDeletePvpSumOfProposal() {
+		addCosts();
+		webTestClient.post()
+			.uri("/consultas/pvpsumsof/propid/" + propuestaNuestra.getId() + "/delete")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("sums[0].selected", "true")
+					.with("sums[0].id", "idsum1")
+					.with("sums[0].name" , "nombre sum 1")
+					.with("sums[0].pvperIds[0]", "sum0pvp0")
+					.with("sums[0].pvperIds[1]", "sum0pvp1")
+					
+					.with("sums[1].selected" , "false")
+					.with("sums[1].id", "idsum2")
+					.with("sums[1].name", "nombre sum 2")
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("idsum1")
+						.contains("nombre sum 2")
+						.contains("sum0pvp0")
+						.contains("sum0pvp1")
+						.contains("Borrar pvps combinados de la propuesta");
+			})
+			;
+	}
+	
+	@Test
+	void testProcessDeletePvpSumOfProposal() {
+		addCosts();
+		webTestClient.post()
+		.uri("/consultas/pvpsumsof/propid/" + propuestaNuestra.getId() + "/delete/confirm")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("sums[0].selected", "true")
+				.with("sums[0].id", "idsum1")
+				.with("sums[0].name" , "nombre sum 1")
+				.with("sums[0].pvperIds[0]", "sum0pvp0")
+				.with("sums[0].pvperIds[1]", "sum0pvp1")
+				
+				.with("sums[1].selected" , "false")
+				.with("sums[1].id", "idsum2")
+				.with("sums[1].name", "nombre sum 2")
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains(((PropuestaNuestra)propuestaNuestra).getSums().get(0).getName())
+					.contains("Borrados");
+		})
+		;
 	}
 
 }

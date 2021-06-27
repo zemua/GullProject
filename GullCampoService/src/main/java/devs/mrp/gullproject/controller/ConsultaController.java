@@ -36,6 +36,7 @@ import devs.mrp.gullproject.domains.dto.CostesCheckboxWrapper;
 import devs.mrp.gullproject.domains.dto.CostesOrdenablesWrapper;
 import devs.mrp.gullproject.domains.dto.CostesWrapper;
 import devs.mrp.gullproject.domains.dto.ProposalPie;
+import devs.mrp.gullproject.domains.dto.PvperSumCheckboxWrapper;
 import devs.mrp.gullproject.domains.dto.PvpsCheckboxWrapper;
 import devs.mrp.gullproject.domains.dto.PvpsCheckboxedCostWrapper;
 import devs.mrp.gullproject.domains.dto.PvpsOrdenablesWrapper;
@@ -752,6 +753,40 @@ public class ConsultaController {
 				}
 			})
 			;
+	}
+	
+	@GetMapping("/pvpsumsof/propid/{id}/delete")
+	public Mono<String> deletePvpSumOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
+		return addConsultaPropuestaAndIdFromPropuestaIdAndGetConsulta(model, proposalId)
+				.map(cons -> {
+					model.addAttribute("pvperSumCheckboxWrapper", new PvperSumCheckboxWrapper(((PropuestaNuestra)cons.operations().getPropuestaById(proposalId)).operationsNuestra().getPvpSumsCheckbox(modelMapper)));
+					return "deletePvpSumsOfProposal";
+				})
+				;
+	}
+	
+	@PostMapping("/pvpsumsof/propid/{id}/delete")
+	public Mono<String> confirmDeletePvpSumOfProposal(PvperSumCheckboxWrapper pvperSumCheckboxWrapper, Model model, @PathVariable(name = "id") String proposalId) {
+		return addConsultaPropuestaAndIdFromPropuestaIdAndGetConsulta(model, proposalId)
+				.map(cons -> {
+					model.addAttribute("pvperSumCheckboxWrapper", pvperSumCheckboxWrapper);
+					return "confirmDeletePvpSumOfProposal";
+				})
+				;
+	}
+	
+	@PostMapping("/pvpsumsof/propid/{id}/delete/confirm")
+	public Mono<String> processDeletePvpSumOfProposal(PvperSumCheckboxWrapper pvperSumCheckboxWrapper, Model model, @PathVariable(name = "id") String proposalId) {
+		model.addAttribute("propuestaId", proposalId);
+		return consultaService.keepUnselectedPvpSums(proposalId, pvperSumCheckboxWrapper)
+				.map(cons -> {
+					Propuesta prop = cons.operations().getPropuestaById(proposalId);
+					model.addAttribute("consulta", cons);
+					model.addAttribute("propuesta", prop);
+					model.addAttribute("pvperSumCheckboxWrapper", new PvperSumCheckboxWrapper(((PropuestaNuestra)prop).operationsNuestra().getPvpSumsCheckbox(modelMapper)));
+					return "processDeletePvpSumsOfProposal";
+				})
+				;
 	}
 	
 	/**

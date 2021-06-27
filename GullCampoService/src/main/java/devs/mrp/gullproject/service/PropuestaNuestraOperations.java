@@ -16,6 +16,8 @@ import devs.mrp.gullproject.domains.dto.BooleanWrapper;
 import devs.mrp.gullproject.domains.dto.PvpOrdenable;
 import devs.mrp.gullproject.domains.dto.PvperCheckbox;
 import devs.mrp.gullproject.domains.dto.PvperCheckboxedCosts;
+import devs.mrp.gullproject.domains.dto.PvperSumCheckbox;
+import devs.mrp.gullproject.domains.dto.PvperSumCheckboxWrapper;
 import devs.mrp.gullproject.domains.dto.PvpsCheckboxedCostWrapper;
 import lombok.Data;
 import reactor.core.publisher.Mono;
@@ -48,7 +50,7 @@ public class PropuestaNuestraOperations extends PropuestaOperations {
 		return tiene.isPresent();
 	}
 	
-	public Mono<PvpsCheckboxedCostWrapper> getPvpsCheckbox(ModelMapper modelMapper, ConsultaService consultaService) { // TODO test
+	public Mono<PvpsCheckboxedCostWrapper> getPvpsCheckbox(ModelMapper modelMapper, ConsultaService consultaService) {
 		PvpsCheckboxedCostWrapper wrapper = new PvpsCheckboxedCostWrapper();
 		wrapper.setPvps(new ArrayList<>());
 		return consultaService.findConsultaByPropuestaId(propuestaNuestra.getId())
@@ -117,6 +119,10 @@ public class PropuestaNuestraOperations extends PropuestaOperations {
 	
 	public Map<String, Pvper> mapIdToPvper() {
 		return propuestaNuestra.getPvps().stream().collect(Collectors.toMap((pvp) -> pvp.getId(), (pvp) -> pvp));
+	}
+	
+	public List<PvperSumCheckbox> getPvpSumsCheckbox(ModelMapper modelMapper) {
+		return propuestaNuestra.getSums().stream().map(p -> modelMapper.map(p, PvperSumCheckbox.class)).collect(Collectors.toList());
 	}
 	
 }
