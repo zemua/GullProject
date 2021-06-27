@@ -790,7 +790,7 @@ public class ConsultaController {
 				;
 	}
 	
-	@GetMapping("/pvpsumsof/propid/{id}/order") // TODO test
+	@GetMapping("/pvpsumsof/propid/{id}/order")
 	public Mono<String> orderPvpSumsOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
 		return addConsultaPropuestaAndIdFromPropuestaIdAndGetConsulta(model, proposalId)
 				.map(cons -> {
@@ -801,7 +801,7 @@ public class ConsultaController {
 				;
 	}
 	
-	@PostMapping("/pvpsumsof/propid/{id}/order") // TODO test
+	@PostMapping("/pvpsumsof/propid/{id}/order")
 	public Mono<String> processOrderPvpSumsOfProposal(PvperSumsOrdenablesWrapper pvperSumsOrdenablesWrapper, Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
 		return consultaService.updatePvpSumsOfPropuesta(proposalId, PropuestaNuestraOperations.fromPvperSumOrdernablesToPvperSums(modelMapper, pvperSumsOrdenablesWrapper.getSums()))
