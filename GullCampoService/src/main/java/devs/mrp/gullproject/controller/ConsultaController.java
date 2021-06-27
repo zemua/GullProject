@@ -817,7 +817,7 @@ public class ConsultaController {
 				;
 	}
 	
-	@GetMapping("/pvpsumsof/propid/{id}/edit") // TODO test
+	@GetMapping("/pvpsumsof/propid/{id}/edit")
 	public Mono<String> editPvpSumsOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
 		return addConsultaPropuestaAndIdFromPropuestaIdAndGetConsulta(model, proposalId)
 				.map(cons -> {
@@ -829,7 +829,7 @@ public class ConsultaController {
 				;
 	}
 	
-	@PostMapping("/pvpsumsof/propid/{id}/edit") // TODO test
+	@PostMapping("/pvpsumsof/propid/{id}/edit")
 	public Mono<String> processEditPvpSumsOfProposal(PvperSumCheckboxedPvpsWrapper pvperSumCheckboxedPvpsWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
 		PropuestaNuestraOperations.validateNamesAndCostsOfSumsCheckboxedWrapper(pvperSumCheckboxedPvpsWrapper, bindingResult);
