@@ -26,6 +26,7 @@ import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.domains.PropuestaNuestra;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.domains.Pvper;
+import devs.mrp.gullproject.domains.PvperSum;
 import devs.mrp.gullproject.service.PropuestaOperations;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -821,6 +822,70 @@ class CustomConsultaRepoImplTest {
 		StepVerifier.create(mono)
 		.assertNext(cons -> {
 			assertEquals(2, ((PropuestaNuestra)cons.operations().getPropuestaById(p.getId())).getPvps().size());
+		})
+		.expectComplete()
+		.verify();
+	}
+	
+	@Test
+	void testUpdatePvpSumOfPropuesta() {
+		PvperSum sum1 = new PvperSum();
+		sum1.setName("sum1 name");
+		sum1.setPvperIds(new ArrayList<>() {{add("idPvp1");}});
+		
+		PvperSum sum2 = new PvperSum();
+		sum2.setName("sum2 name");
+		sum2.setPvperIds(new ArrayList<>() {{add("idPvp2");}});
+		
+		List<PvperSum> sums = new ArrayList<>();
+		sums.add(sum1);
+		sums.add(sum2);
+		
+		PropuestaNuestra p = new PropuestaNuestra();
+		p.setSums(new ArrayList<>());
+		
+		repo.addPropuesta(consulta.getId(), p).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals(0, ((PropuestaNuestra)cons.operations().getPropuestaById(p.getId())).getSums().size());
+		})
+		.expectComplete()
+		.verify();
+		
+		repo.updatePvpSumsOfPropuesta(p.getId(), sums).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals(2, ((PropuestaNuestra)cons.operations().getPropuestaById(p.getId())).getSums().size());
+		})
+		.expectComplete()
+		.verify();
+	}
+	
+	@Test
+	void testAddPvpSumToList() {
+		PropuestaNuestra p = new PropuestaNuestra();
+		p.setSums(new ArrayList<>());
+		repo.addPropuesta(consulta.getId(), p).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals(0, ((PropuestaNuestra)cons.operations().getPropuestaById(p.getId())).getSums().size());
+		})
+		.expectComplete()
+		.verify();
+		
+		var sum = new PvperSum();
+		sum.setPvperIds(new ArrayList<>() {{add("idPvp1");}});
+		sum.setName("name sum 1");
+		
+		repo.addPvpSumToList(p.getId(), sum).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals(1, ((PropuestaNuestra)cons.operations().getPropuestaById(p.getId())).getSums().size());
+			assertEquals(sum.getId(), ((PropuestaNuestra)cons.operations().getPropuestaById(p.getId())).getSums().get(0).getId());
 		})
 		.expectComplete()
 		.verify();
