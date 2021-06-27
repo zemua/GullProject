@@ -210,7 +210,7 @@ public class ConsultaController {
 		return "deletePropuestaById";
 	}
 	
-	@PostMapping("/delete/id/{consultaid}/propuesta/{propuestaid}")
+	@PostMapping("/delete/id/{consultaid}/propuesta/{propuestaid}") // TODO delete also the related propuestas (proveedor/nuestras) y sus líneas
 	public Mono<String> processDeletePropuestaById(ConsultaPropuestaBorrables data, Model model) {
 		log.debug("id consulta: " + data.getIdConsulta());
 		log.debug("id propuesta: " + data.getIdPropuesta());

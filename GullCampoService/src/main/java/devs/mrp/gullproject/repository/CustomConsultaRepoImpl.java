@@ -224,7 +224,7 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 	}
 	
 	@Override
-	public Mono<Consulta> addPvpSumToList(String idPropuesta, PvperSum sum) { // TODO test
+	public Mono<Consulta> addPvpSumToList(String idPropuesta, PvperSum sum) {
 		Query query = new Query(Criteria.where("propuestas.id").is(idPropuesta));
 		Update update = new Update().addToSet("propuestas.$.sums", sum);
 		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
