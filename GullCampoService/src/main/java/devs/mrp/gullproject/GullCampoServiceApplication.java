@@ -21,5 +21,7 @@ public class GullCampoServiceApplication {
 	}
 	
 	// TODO refractor templates with include, avoiding repeated code
+	// TODO configure locale in thymeleaf
+	// TODO GullResourcesService para recursos compartidos
 
 }
