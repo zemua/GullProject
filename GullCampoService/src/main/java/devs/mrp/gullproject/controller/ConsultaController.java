@@ -62,6 +62,8 @@ public class ConsultaController {
 	// TODO create our proposals from customer and supplier ones (highlight cells if cost changes, until new margin is confirmed)
 	// TODO adapt old supplier proposals for updated customer inquiry
 	// TODO make a "compare" view to check supplier vs customer table and ours vs customer table
+	// TODO add a "shared cost" for packaging for example, will have a cost for the proposal (not line) and will be shared by weight according to other selected costs, can be specified in absolute value or in percentage of the other costs
+	// TODO set currency of each proposal, and make auto-conversion, and auto-fetch exchange rates from internet
 	
 	ConsultaService consultaService;
 	LineaService lineaService;
@@ -545,13 +547,9 @@ public class ConsultaController {
 	
 	@GetMapping("/pvpsof/propid/{id}/new")
 	public Mono<String> newPvpOfPropuesta(Model model, @PathVariable(name = "id") String proposalId) {
-		model.addAttribute("propuestaId", proposalId);
-		return consultaService.findConsultaByPropuestaId(proposalId)
+		return addConsultaPropuestaAndIdFromPropuestaIdAndGetConsulta(model, proposalId)
 				.map(cons -> {
-					Propuesta prop = cons.operations().getPropuestaById(proposalId);
-					model.addAttribute("consulta", cons);
 					model.addAttribute("proveedores", cons.operations().getPropuestasProveedor());
-					model.addAttribute("propuesta", prop);
 					model.addAttribute("pvper", new Pvper());
 					return "newPvpOfProposal";
 				});
@@ -714,17 +712,42 @@ public class ConsultaController {
 					if (prop instanceof PropuestaNuestra) {
 						List<Pvper> pvps = ((PropuestaNuestra)prop).getPvps();
 						List<PvperSum> sums = ((PropuestaNuestra)prop).getSums();
-						PropuestaNuestra nProp = (PropuestaNuestra) cons.operations().getPropuestaById(proposalId);
-						model.addAttribute("propuesta", nProp);
+						model.addAttribute("propuesta", prop);
 						model.addAttribute("pvps", pvps);
 						model.addAttribute("sums", sums);
-						model.addAttribute("map", nProp.operationsNuestra().mapIdToPvper());
+						model.addAttribute("map", ((PropuestaNuestra)prop).operationsNuestra().mapIdToPvper());
 						return "showPvpsumsOfProposal";
 					} else {
 						return "redirect:/consultas/revisar/id/" + cons.getId();
 					}
 				})
 				;
+	}
+	
+	@GetMapping("/pvpsumsof/propid/{id}/new") // TODO test
+	public Mono<String> newPvpSumOfPropuesta(Model model, @PathVariable(name = "id") String proposalId) {
+		return addConsultaPropuestaAndIdFromPropuestaIdAndGetConsulta(model, proposalId)
+				.map(cons -> {
+					model.addAttribute("pvps", ((PropuestaNuestra)cons.operations().getPropuestaById(proposalId)).getPvps());
+					model.addAttribute("pvperSum", new PvperSum());
+					return "newPvpSumOfProposal";
+				})
+				;
+	}
+	
+	/**
+	 * REPETITIVE ACTIONS
+	 */
+	
+	private Mono<Consulta> addConsultaPropuestaAndIdFromPropuestaIdAndGetConsulta(Model model, String proposalId) {
+		model.addAttribute("propuestaId", proposalId);
+		return consultaService.findConsultaByPropuestaId(proposalId)
+				.map(cons -> {
+					Propuesta prop = cons.operations().getPropuestaById(proposalId);
+					model.addAttribute("consulta", cons);
+					model.addAttribute("propuesta", prop);
+					return cons;
+				});
 	}
 	
 }
