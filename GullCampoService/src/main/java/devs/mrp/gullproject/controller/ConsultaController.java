@@ -816,6 +816,23 @@ public class ConsultaController {
 				;
 	}
 	
+	@GetMapping("/pvpsumsof/propid/{id}/edit") // TODO test
+	public Mono<String> editPvpSumsOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
+		return addConsultaPropuestaAndIdFromPropuestaIdAndGetConsulta(model, proposalId)
+				.map(cons -> {
+					model.addAttribute("pvps", ((PropuestaNuestra)cons.operations().getPropuestaById(proposalId)).getPvps());
+					model.addAttribute("map", ((PropuestaNuestra)cons.operations().getPropuestaById(proposalId)).operationsNuestra().mapIdToPvper());
+					model.addAttribute("pvperSumCheckboxedPvpsWrapper", ((PropuestaNuestra)cons.operations().getPropuestaById(proposalId)).operationsNuestra().getPvpSumCheckboxedPvpsWrapper(modelMapper, consultaService));
+					return "editPvpSumsOfProposal";
+				})
+				;
+	}
+	
+	@PostMapping("/pvpsumsof/propid/{id}/edit") // TODO test
+	public Mono<String> processEditPvpSumsOfProposal(PvperSumCheckboxedPvpsWrapper pvperSumCheckboxedPvpsWrapper, Model model, @PathVariable(name = "id") String proposalId) {
+		
+	}
+	
 	/**
 	 * REPETITIVE ACTIONS
 	 */

@@ -19,6 +19,8 @@ import devs.mrp.gullproject.domains.dto.PvperCheckbox;
 import devs.mrp.gullproject.domains.dto.PvperCheckboxedCosts;
 import devs.mrp.gullproject.domains.dto.PvperSumCheckbox;
 import devs.mrp.gullproject.domains.dto.PvperSumCheckboxWrapper;
+import devs.mrp.gullproject.domains.dto.PvperSumCheckboxedPvps;
+import devs.mrp.gullproject.domains.dto.PvperSumCheckboxedPvpsWrapper;
 import devs.mrp.gullproject.domains.dto.PvperSumOrdenable;
 import devs.mrp.gullproject.domains.dto.PvpsCheckboxedCostWrapper;
 import lombok.Data;
@@ -134,6 +136,39 @@ public class PropuestaNuestraOperations extends PropuestaOperations {
 	public static List<PvperSum> fromPvperSumOrdernablesToPvperSums(ModelMapper modelMapper, List<PvperSumOrdenable> sums) {
 		sums.sort((s1, s2) -> Integer.valueOf(s1.getOrder()).compareTo(s2.getOrder()));
 		return sums.stream().map(s -> modelMapper.map(s, PvperSum.class)).collect(Collectors.toList());
+	}
+	
+	public boolean ifPvperSumHasPvp(PvperSum sum, String pvpId) {
+		Optional<String> opt = sum.getPvperIds().stream().filter(id -> id.equals(pvpId)).findAny();
+		return opt.isPresent();
+	}
+	
+	public Mono<PvperSumCheckboxedPvpsWrapper> getPvpSumCheckboxedPvpsWrapper(ModelMapper modelMapper, ConsultaService consultaService) {
+		PvperSumCheckboxedPvpsWrapper wrapper = new PvperSumCheckboxedPvpsWrapper();
+		wrapper.setSums(new ArrayList<>());
+		return consultaService.findConsultaByPropuestaId(propuestaNuestra.getId())
+			.map(cons -> {
+				Map<String, Pvper> map = propuestaNuestra.operationsNuestra().mapIdToPvper();
+				propuestaNuestra.getSums().stream().forEach(sum -> {
+					PvperSumCheckboxedPvps boxed = new PvperSumCheckboxedPvps();
+					boxed.setId(sum.getId());
+					boxed.setName(sum.getName());
+					boxed.setPvperIds(new ArrayList<>());
+					map.keySet().stream().forEach(id -> {
+						PvperSumCheckboxedPvps.CheckboxedPvperId pvp = new PvperSumCheckboxedPvps.CheckboxedPvperId();
+						pvp.setId(id);
+						if (ifPvperSumHasPvp(sum, id)) {
+							pvp.setSelected(true);
+						} else {
+							pvp.setSelected(false);
+						}
+						boxed.getPvperIds().add(pvp);
+					});
+					wrapper.getSums().add(boxed);
+				});
+				return wrapper;
+			})
+			;
 	}
 	
 }
