@@ -12,12 +12,14 @@ import org.springframework.validation.BindingResult;
 import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.PropuestaNuestra;
 import devs.mrp.gullproject.domains.Pvper;
+import devs.mrp.gullproject.domains.PvperSum;
 import devs.mrp.gullproject.domains.dto.BooleanWrapper;
 import devs.mrp.gullproject.domains.dto.PvpOrdenable;
 import devs.mrp.gullproject.domains.dto.PvperCheckbox;
 import devs.mrp.gullproject.domains.dto.PvperCheckboxedCosts;
 import devs.mrp.gullproject.domains.dto.PvperSumCheckbox;
 import devs.mrp.gullproject.domains.dto.PvperSumCheckboxWrapper;
+import devs.mrp.gullproject.domains.dto.PvperSumOrdenable;
 import devs.mrp.gullproject.domains.dto.PvpsCheckboxedCostWrapper;
 import lombok.Data;
 import reactor.core.publisher.Mono;
@@ -123,6 +125,15 @@ public class PropuestaNuestraOperations extends PropuestaOperations {
 	
 	public List<PvperSumCheckbox> getPvpSumsCheckbox(ModelMapper modelMapper) {
 		return propuestaNuestra.getSums().stream().map(p -> modelMapper.map(p, PvperSumCheckbox.class)).collect(Collectors.toList());
+	}
+	
+	public List<PvperSumOrdenable> getPvpSumsOrdenables(ModelMapper modelMapper) {
+		return propuestaNuestra.getSums().stream().map(p -> modelMapper.map(p, PvperSumOrdenable.class)).collect(Collectors.toList());
+	}
+	
+	public static List<PvperSum> fromPvperSumOrdernablesToPvperSums(ModelMapper modelMapper, List<PvperSumOrdenable> sums) {
+		sums.sort((s1, s2) -> Integer.valueOf(s1.getOrder()).compareTo(s2.getOrder()));
+		return sums.stream().map(s -> modelMapper.map(s, PvperSum.class)).collect(Collectors.toList());
 	}
 	
 }

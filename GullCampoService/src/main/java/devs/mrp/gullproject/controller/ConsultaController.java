@@ -37,6 +37,7 @@ import devs.mrp.gullproject.domains.dto.CostesOrdenablesWrapper;
 import devs.mrp.gullproject.domains.dto.CostesWrapper;
 import devs.mrp.gullproject.domains.dto.ProposalPie;
 import devs.mrp.gullproject.domains.dto.PvperSumCheckboxWrapper;
+import devs.mrp.gullproject.domains.dto.PvperSumsOrdenablesWrapper;
 import devs.mrp.gullproject.domains.dto.PvpsCheckboxWrapper;
 import devs.mrp.gullproject.domains.dto.PvpsCheckboxedCostWrapper;
 import devs.mrp.gullproject.domains.dto.PvpsOrdenablesWrapper;
@@ -785,6 +786,32 @@ public class ConsultaController {
 					model.addAttribute("propuesta", prop);
 					model.addAttribute("pvperSumCheckboxWrapper", new PvperSumCheckboxWrapper(((PropuestaNuestra)prop).operationsNuestra().getPvpSumsCheckbox(modelMapper)));
 					return "processDeletePvpSumsOfProposal";
+				})
+				;
+	}
+	
+	@GetMapping("/pvpsumsof/propid/{id}/order") // TODO test
+	public Mono<String> orderPvpSumsOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
+		return addConsultaPropuestaAndIdFromPropuestaIdAndGetConsulta(model, proposalId)
+				.map(cons -> {
+					model.addAttribute("pvperSumsOrdenablesWrapper", new PvperSumsOrdenablesWrapper(((PropuestaNuestra)cons.operations().getPropuestaById(proposalId)).operationsNuestra().getPvpSumsOrdenables(modelMapper)));
+					model.addAttribute("map", ((PropuestaNuestra)cons.operations().getPropuestaById(proposalId)).operationsNuestra().mapIdToPvper());
+					return "orderPvpSumsOfProposal";
+				})
+				;
+	}
+	
+	@PostMapping("/pvpsumsof/propid/{id}/order") // TODO test
+	public Mono<String> processOrderPvpSumsOfProposal(PvperSumsOrdenablesWrapper pvperSumsOrdenablesWrapper, Model model, @PathVariable(name = "id") String proposalId) {
+		model.addAttribute("propuestaId", proposalId);
+		return consultaService.updatePvpSumsOfPropuesta(proposalId, PropuestaNuestraOperations.fromPvperSumOrdernablesToPvperSums(modelMapper, pvperSumsOrdenablesWrapper.getSums()))
+				.map(cons -> {
+					Propuesta prop = cons.operations().getPropuestaById(proposalId);
+					model.addAttribute("consulta", cons);
+					model.addAttribute("propuesta", prop);
+					model.addAttribute("sums", ((PropuestaNuestra)prop).getSums());
+					model.addAttribute("map", ((PropuestaNuestra)prop).operationsNuestra().mapIdToPvper());
+					return "processOrderPvpSumsOfProposal";
 				})
 				;
 	}
