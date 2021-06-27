@@ -61,4 +61,6 @@ public interface CustomConsultaRepo {
 	
 	public Mono<Consulta> addPvpSumToList(String idPropuesta, PvperSum sum);
 	
+	public Mono<Consulta> removePvpSumFromList(String idPropuesta, String sumId);
+	
 }

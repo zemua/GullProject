@@ -11,6 +11,7 @@ import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Propuesta;
+import devs.mrp.gullproject.domains.PropuestaNuestra;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.domains.Pvper;
 import devs.mrp.gullproject.domains.PvperSum;
@@ -162,6 +163,18 @@ public class ConsultaService {
 	}
 	
 	public Mono<Consulta> keepUnselectedPvps(String idPropuesta, PvpsCheckboxWrapper wrapper) {
+		findPropuestaByPropuestaId(idPropuesta) // TODO remove reference to pvps about to be deleted
+			.flatMapMany(pro -> {
+				if (pro instanceof PropuestaNuestra) {
+					return Flux.fromIterable(((PropuestaNuestra)pro).getSums())
+							.map(rSum -> {
+								return rSum;
+							})
+							;
+				}
+				return Mono.empty();
+			})
+			;
 		List<Pvper> pvps = wrapper.getPvps().stream().filter(p -> !p.isSelected()).map(p -> modelMapper.map(p, Pvper.class)).collect(Collectors.toList());
 		return updatePvpsOfPropuesta(idPropuesta, pvps);
 	}
@@ -172,6 +185,10 @@ public class ConsultaService {
 	
 	public Mono<Consulta> addPvpSumToList(String idPropuesta, PvperSum sum) {
 		return consultaRepo.addPvpSumToList(idPropuesta, sum);
+	}
+	
+	public Mono<Consulta> removePvpSumFromList(String idPropuesta, String sumId) {
+		return consultaRepo.removePvpSumFromList(idPropuesta, sumId);
 	}
 	
 	public Mono<Consulta> keepUnselectedPvpSums(String idPropuesta, PvperSumCheckboxWrapper wrapper) {
