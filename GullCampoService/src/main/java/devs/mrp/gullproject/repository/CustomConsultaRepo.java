@@ -7,6 +7,7 @@ import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.Pvper;
+import devs.mrp.gullproject.domains.PvperSum;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -55,5 +56,9 @@ public interface CustomConsultaRepo {
 	public Mono<Consulta> updatePvpsOfPropuesta(String idPropuesta, List<Pvper> pvps);
 	
 	public Mono<Consulta> addPvpToList(String idPropuesta, Pvper pvp);
+	
+	public Mono<Consulta> updatePvpSumsOfPropuesta(String idPropuesta, List<PvperSum> sums);
+	
+	public Mono<Consulta> addPvpSumToList(String idPropuesta, PvperSum sum);
 	
 }

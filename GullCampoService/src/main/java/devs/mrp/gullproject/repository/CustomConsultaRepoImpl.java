@@ -16,6 +16,7 @@ import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.Pvper;
+import devs.mrp.gullproject.domains.PvperSum;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -210,6 +211,22 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 	public Mono<Consulta> addPvpToList(String idPropuesta, Pvper pvp) {
 		Query query = new Query(Criteria.where("propuestas.id").is(idPropuesta));
 		Update update = new Update().addToSet("propuestas.$.pvps", pvp);
+		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
+		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
+	}
+	
+	@Override
+	public Mono<Consulta> updatePvpSumsOfPropuesta(String idPropuesta, List<PvperSum> sums) { // TODO test
+		Query query = new Query(Criteria.where("propuestas.id").is(idPropuesta));
+		Update update = new Update().set("propuestas.$.sums", sums);
+		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
+		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
+	}
+	
+	@Override
+	public Mono<Consulta> addPvpSumToList(String idPropuesta, PvperSum sum) { // TODO test
+		Query query = new Query(Criteria.where("propuestas.id").is(idPropuesta));
+		Update update = new Update().addToSet("propuestas.$.sums", sum);
 		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
 		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
 	}

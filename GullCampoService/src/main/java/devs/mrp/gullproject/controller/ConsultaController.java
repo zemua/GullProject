@@ -735,6 +735,25 @@ public class ConsultaController {
 				;
 	}
 	
+	@PostMapping("/pvpsumsof/propid/{id}/new") // TODO test
+	public Mono<String> processNewPvpSumOfPropuesta(@Valid @ModelAttribute("pvperSum") PvperSum pvperSum, BindingResult bindingResult, Model model, @PathVariable(name = "id") String proposalId) {
+		var idPvps = pvperSum.getPvperIds();
+		if (idPvps == null || idPvps.size() == 0) {bindingResult.rejectValue("pvperIds", "error.pvperIds", "Selecciona al menos 1 PVP");}
+		return addConsultaPropuestaAndIdFromPropuestaIdAndGetConsulta(model, proposalId)
+			.flatMap(cons -> {
+				model.addAttribute("pvperSum", pvperSum);
+				if (bindingResult.hasErrors()) {
+					model.addAttribute("pvps", ((PropuestaNuestra)cons.operations().getPropuestaById(proposalId)).getPvps());
+					return Mono.just("newPvpSumOfProposal");
+				} else {
+					model.addAttribute("mapa", ((PropuestaNuestra)cons.operations().getPropuestaById(proposalId)).operationsNuestra().mapIdToPvper());
+					return consultaService.addPvpSumToList(proposalId, pvperSum)
+							.map(c -> "processNewPvpSumOfPropuesta");
+				}
+			})
+			;
+	}
+	
 	/**
 	 * REPETITIVE ACTIONS
 	 */
