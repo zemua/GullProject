@@ -37,6 +37,7 @@ import devs.mrp.gullproject.domains.dto.CostesOrdenablesWrapper;
 import devs.mrp.gullproject.domains.dto.CostesWrapper;
 import devs.mrp.gullproject.domains.dto.ProposalPie;
 import devs.mrp.gullproject.domains.dto.PvperSumCheckboxWrapper;
+import devs.mrp.gullproject.domains.dto.PvperSumCheckboxedPvpsWrapper;
 import devs.mrp.gullproject.domains.dto.PvperSumsOrdenablesWrapper;
 import devs.mrp.gullproject.domains.dto.PvpsCheckboxWrapper;
 import devs.mrp.gullproject.domains.dto.PvpsCheckboxedCostWrapper;
@@ -829,8 +830,30 @@ public class ConsultaController {
 	}
 	
 	@PostMapping("/pvpsumsof/propid/{id}/edit") // TODO test
-	public Mono<String> processEditPvpSumsOfProposal(PvperSumCheckboxedPvpsWrapper pvperSumCheckboxedPvpsWrapper, Model model, @PathVariable(name = "id") String proposalId) {
-		
+	public Mono<String> processEditPvpSumsOfProposal(PvperSumCheckboxedPvpsWrapper pvperSumCheckboxedPvpsWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "id") String proposalId) {
+		model.addAttribute("propuestaId", proposalId);
+		PropuestaNuestraOperations.validateNamesAndCostsOfSumsCheckboxedWrapper(pvperSumCheckboxedPvpsWrapper, bindingResult);
+		if (bindingResult.hasErrors()) {
+			return addConsultaPropuestaAndIdFromPropuestaIdAndGetConsulta(model, proposalId)
+					.map(cons -> {
+						model.addAttribute("pvps", ((PropuestaNuestra)cons.operations().getPropuestaById(proposalId)).getPvps());
+						model.addAttribute("map", ((PropuestaNuestra)cons.operations().getPropuestaById(proposalId)).operationsNuestra().mapIdToPvper());
+						model.addAttribute("pvperSumCheckboxedPvpsWrapper", pvperSumCheckboxedPvpsWrapper);
+						return "editPvpSumsOfProposal";
+					})
+					;
+		} else {
+			return consultaService.updatePvpSumsOfPropuesta(proposalId, PropuestaNuestraOperations.fromSumCheckboxedWrapperToPvps(pvperSumCheckboxedPvpsWrapper))
+					.map(cons -> {
+						var prop = cons.operations().getPropuestaById(proposalId);
+						model.addAttribute("consulta", cons);
+						model.addAttribute("propuesta", prop);
+						model.addAttribute("map", ((PropuestaNuestra)prop).operationsNuestra().mapIdToPvper());
+						model.addAttribute("pvperSumCheckboxedPvpsWrapper", pvperSumCheckboxedPvpsWrapper);
+						return "processEditPvpSumsOfProposal";
+					})
+					;
+		}
 	}
 	
 	/**

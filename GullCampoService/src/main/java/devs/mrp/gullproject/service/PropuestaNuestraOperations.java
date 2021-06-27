@@ -171,4 +171,43 @@ public class PropuestaNuestraOperations extends PropuestaOperations {
 			;
 	}
 	
+	public static void validateNamesAndCostsOfSumsCheckboxedWrapper(PvperSumCheckboxedPvpsWrapper wrapper, BindingResult bindingResult) {
+		var sums = wrapper.getSums();
+		for (int i=0; i<sums.size(); i++) {
+			if (sums.get(i).getName() == null || sums.get(i).getName().isBlank()) {
+				bindingResult.rejectValue("sums["+i+"].name", "error.sums["+i+"].name", "El nombre no debe estar en blanco");
+				if (!bindingResult.hasFieldErrors("name")) {
+					bindingResult.rejectValue("name", "error.name", "Algunos campos tienen nombre no válido");
+				}
+			}
+			var ifHas = sums.get(i).getPvperIds().stream().filter(c -> c.isSelected()).findAny();
+			if (!ifHas.isPresent()) {
+				var pvps = sums.get(i).getPvperIds();
+				for (int j=0; j<pvps.size(); j++) {
+					bindingResult.rejectValue("sums["+i+"].pvperIds["+j+"].id", "error.sums["+i+"].pvperIds["+j+"].id", "Debes escoger al menos 1 PVP");
+					if (!bindingResult.hasFieldErrors("pvps")) {
+						bindingResult.rejectValue("pvps", "error.pvps", "Debes escoger al menos un PVP para cada combinado");
+					}
+				}
+			}
+		}
+	}
+	
+	public static List<PvperSum> fromSumCheckboxedWrapperToPvps(PvperSumCheckboxedPvpsWrapper wrapper) {
+		List<PvperSum> list = new ArrayList<>();
+		wrapper.getSums().stream().forEach(p -> {
+			PvperSum sum = new PvperSum();
+			sum.setPvperIds(new ArrayList<>());
+			sum.setId(p.getId());
+			sum.setName(p.getName());
+			p.getPvperIds().stream().forEach(c -> {
+				if (c.isSelected()) {
+					sum.getPvperIds().add(c.getId());
+				}
+			});
+			list.add(sum);
+		});
+		return list;
+	}
+	
 }
