@@ -18,6 +18,14 @@
 	
 	<form method="POST" th:object="${pvpsCheckboxedCostWrapper}" id="val-form">
 	
+		<span class="validationError margentb"
+      	th:if="${#fields.hasErrors('name')}"
+      	th:errors="*{name}">Algunos campos tienen nombre no válido</span>
+      	
+      	<span class="validationError margentb"
+      	th:if="${#fields.hasErrors('costes')}"
+      	th:errors="*{costes}">Debes escoger al menos un coste para cada PVP</span>
+	
 		<div>
 			<div><button id="submit-button">Guardar</button></div>
 		</div>

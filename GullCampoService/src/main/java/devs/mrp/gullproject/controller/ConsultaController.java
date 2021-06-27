@@ -665,10 +665,10 @@ public class ConsultaController {
 			;
 	}
 	
-	@PostMapping("/pvpsof/propid/{id}/edit") // TODO test
+	@PostMapping("/pvpsof/propid/{id}/edit")
 	public Mono<String> processEditPvpsOfProposal(PvpsCheckboxedCostWrapper pvpsCheckboxedCostWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
-		PropuestaNuestraOperations.validateNamesOfCheckboxedWrapper(pvpsCheckboxedCostWrapper, bindingResult);
+		PropuestaNuestraOperations.validateNamesAndCostsOfCheckboxedWrapper(pvpsCheckboxedCostWrapper, bindingResult);
 		if (bindingResult.hasErrors()) {
 			return consultaService.findConsultaByPropuestaId(proposalId)
 					.map(cons -> {

@@ -76,17 +76,23 @@ public class PropuestaNuestraOperations extends PropuestaOperations {
 			;
 	}
 	
-	public static void validateNamesOfCheckboxedWrapper(PvpsCheckboxedCostWrapper wrapper, BindingResult bindingResult) {
+	public static void validateNamesAndCostsOfCheckboxedWrapper(PvpsCheckboxedCostWrapper wrapper, BindingResult bindingResult) {
 		var pvps = wrapper.getPvps();
 		for (int i=0; i<pvps.size(); i++) {
 			if (pvps.get(i).getName() == null || pvps.get(i).getName().isBlank()) {
 				bindingResult.rejectValue("pvps["+i+"].name", "error.pvps["+i+"].name", "El nombre no debe estar en blanco");
+				if (!bindingResult.hasFieldErrors("name")) {
+					bindingResult.rejectValue("name", "error.name", "Algunos campos tienen nombre no válido");
+				}
 			}
 			var ifHas = pvps.get(i).getCosts().stream().filter(c -> c.isSelected()).findAny();
 			if (!ifHas.isPresent()) {
 				var costes = pvps.get(i).getCosts();
 				for (int j=0; j<costes.size(); j++) {
 					bindingResult.rejectValue("pvps["+i+"].costs["+j+"].id", "error.pvps["+i+"].costs["+j+"].id", "Debes escoger al menos 1 coste");
+					if (!bindingResult.hasFieldErrors("costes")) {
+						bindingResult.rejectValue("costes", "error.costes", "Debes escoger al menos un coste para cada PVP");
+					}
 				}
 			}
 		}

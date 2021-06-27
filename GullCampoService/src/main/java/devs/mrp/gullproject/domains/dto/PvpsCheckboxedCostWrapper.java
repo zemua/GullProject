@@ -12,5 +12,7 @@ import lombok.NoArgsConstructor;
 public class PvpsCheckboxedCostWrapper {
 
 	List<PvperCheckboxedCosts> pvps;
+	String name;
+	String costes;
 	
 }

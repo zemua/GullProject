@@ -1708,8 +1708,7 @@ class ConsultaControllerTestB {
 	void testProcessEditPvpsOfProposal() {
 		addCosts();
 		
-		// TODO
-		
+		log.debug("should be ok");
 		webTestClient.post()
 		.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/edit")
 		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -1731,9 +1730,52 @@ class ConsultaControllerTestB {
 					.contains("Guardado");
 		});
 		
-		// TODO fallo al validar el nombre
+		log.debug("should fail on name validation");
+		webTestClient.post()
+		.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/edit")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("pvps[0].id", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId())
+				.with("pvps[0].name", "")
+				.with("pvps[0].costs[0].id", "idpvp1")
+				.with("pvps[0].costs[0].selected", "true")
+				.with("pvps[0].costs[1].id", "idpvp2")
+				.with("pvps[0].costs[1].selected", "false")
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Pvps de la propuesta")
+					.contains("Nombre")
+					.contains("Error")
+					.contains("Algunos campos tienen nombre no válido");
+		});
 		
 		// TODO fallo al validar los costes
+		log.debug("should have validation error of costs");
+		webTestClient.post()
+		.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/edit")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("pvps[0].id", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId())
+				.with("pvps[0].name", "nombre actualizado")
+				.with("pvps[0].costs[0].id", "idpvp1")
+				.with("pvps[0].costs[0].selected", "false")
+				.with("pvps[0].costs[1].id", "idpvp2")
+				.with("pvps[0].costs[1].selected", "false")
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Pvps de la propuesta")
+					.contains("Nombre")
+					.contains("Error")
+					.contains("Debes escoger al menos un coste para cada PVP");
+		});
 	}
 
 }
