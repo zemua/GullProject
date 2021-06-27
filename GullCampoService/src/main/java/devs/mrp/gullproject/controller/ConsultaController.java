@@ -724,7 +724,7 @@ public class ConsultaController {
 				;
 	}
 	
-	@GetMapping("/pvpsumsof/propid/{id}/new") // TODO test
+	@GetMapping("/pvpsumsof/propid/{id}/new")
 	public Mono<String> newPvpSumOfPropuesta(Model model, @PathVariable(name = "id") String proposalId) {
 		return addConsultaPropuestaAndIdFromPropuestaIdAndGetConsulta(model, proposalId)
 				.map(cons -> {
@@ -735,7 +735,7 @@ public class ConsultaController {
 				;
 	}
 	
-	@PostMapping("/pvpsumsof/propid/{id}/new") // TODO test
+	@PostMapping("/pvpsumsof/propid/{id}/new")
 	public Mono<String> processNewPvpSumOfPropuesta(@Valid @ModelAttribute("pvperSum") PvperSum pvperSum, BindingResult bindingResult, Model model, @PathVariable(name = "id") String proposalId) {
 		var idPvps = pvperSum.getPvperIds();
 		if (idPvps == null || idPvps.size() == 0) {bindingResult.rejectValue("pvperIds", "error.pvperIds", "Selecciona al menos 1 PVP");}

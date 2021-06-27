@@ -202,6 +202,8 @@ class ConsultaControllerTestB {
 		when(consultaService.addPvpToList(ArgumentMatchers.eq(propuestaNuestra.getId()), ArgumentMatchers.any(Pvper.class))).thenReturn(Mono.just(consulta1));
 		when(consultaService.keepUnselectedPvps(ArgumentMatchers.eq(propuestaNuestra.getId()), ArgumentMatchers.any(PvpsCheckboxWrapper.class))).thenReturn(Mono.just(consulta1));
 		when(consultaService.updatePvpsOfPropuesta(ArgumentMatchers.eq(propuestaNuestra.getId()), ArgumentMatchers.anyList())).thenReturn(Mono.just(consulta1));
+		
+		when(consultaService.addPvpSumToList(ArgumentMatchers.eq(propuestaNuestra.getId()), ArgumentMatchers.any(PvperSum.class))).thenReturn(Mono.just(consulta1));
 	}
 	
 	private void addCosts() {
@@ -1517,7 +1519,7 @@ class ConsultaControllerTestB {
 					Assertions.assertThat(response.getResponseBody()).asString()
 						.contains("Nuevo pvp de la propuesta")
 						.contains("Nombre");
-			});
+			})
 			;
 	}
 	
@@ -1821,6 +1823,88 @@ class ConsultaControllerTestB {
 						.contains(((PropuestaNuestra)propuestaNuestra).getSums().get(0).getName())
 						.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName())
 						;
+			})
+			;
+	}
+	
+	@Test
+	void testNewPvpSumOfPropuesta() {
+		addCosts();
+		webTestClient.get()
+			.uri("/consultas/pvpsumsof/propid/" + propuestaNuestra.getId() + "/new")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Nuevo pvp combinado de la propuesta")
+						.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName())
+						.contains("Nombre");
+			})
+			;
+	}
+	
+	@Test
+	void testProcessNewPvpSumOfPropuesta() {
+		addCosts();
+		
+		log.debug("should be ok");
+		webTestClient.post()
+			.uri("/consultas/pvpsumsof/propid/" + propuestaNuestra.getId() + "/new")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("name", ((PropuestaNuestra)propuestaNuestra).getSums().get(0).getName())
+					.with("id", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId())
+					.with("pvperIds[0]", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId()))
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Nuevo pvp combinado de la propuesta")
+						.contains("Con nombre")
+						.contains(((PropuestaNuestra)propuestaNuestra).getSums().get(0).getName());
+			})
+			;
+		
+		log.debug("should have name validation error");
+		webTestClient.post()
+			.uri("/consultas/pvpsumsof/propid/" + propuestaNuestra.getId() + "/new")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("name", "")
+					.with("id", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId())
+					.with("pvperIds[0]", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId()))
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Nuevo pvp combinado de la propuesta")
+						.contains("Error")
+						.contains("Debes seleccionar un nombre")
+						.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName());
+			})
+			;
+		
+		log.debug("should have pvps validation error");
+		webTestClient.post()
+			.uri("/consultas/pvpsumsof/propid/" + propuestaNuestra.getId() + "/new")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("name", ((PropuestaNuestra)propuestaNuestra).getSums().get(0).getName())
+					.with("id", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId())
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Nuevo pvp combinado de la propuesta")
+						.contains("Error")
+						.contains("Selecciona al menos 1 PVP")
+						.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName());
 			})
 			;
 	}
