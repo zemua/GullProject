@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Pvps combinados de la propuesta: ' + propuesta.getNombre()}">Gull Project - Pvps combinados de la propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1 th:text="${'Pvps combinados de la propuesta: ' + propuesta.getNombre()}">Pvps combinados de la propuesta</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/consultas/pvpsumsof/propid/' + propuesta.id}">Volver</a>
+		</p>
+	</div>
+	
+	<div>
+		<div><span>Guardado</span></div>
+	</div>
+
+	<div>
+		<table>
+			<tr>
+				<th>Nombre</th>
+				<th th:each="c : ${map.keySet()}" th:text="${map.get(c).name}"></th>
+			</tr>
+			<tr th:each="a, astat : ${pvperSumCheckboxedPvpsWrapper.sums}">
+				<td class="field">
+					<span th:text="${a.name}" class="field-text" contenteditable="true"></span>
+				</td>
+				<td th:each="c, cstat : ${map.keySet()}" class="texto-centro">
+					<span th:if="${pvperSumCheckboxedPvpsWrapper.sums[__${astat.index}__].pvperIds[__${cstat.index}__].selected}">X</span>
+				</td>
+			</tr>
+		</table>
+	</div>
+	
+</body>
+</html>

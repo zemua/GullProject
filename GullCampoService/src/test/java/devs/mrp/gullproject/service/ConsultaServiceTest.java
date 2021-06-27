@@ -19,9 +19,13 @@ import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.domains.PropuestaNuestra;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
+import devs.mrp.gullproject.domains.Pvper;
 import devs.mrp.gullproject.domains.dto.CostesCheckbox;
 import devs.mrp.gullproject.domains.dto.CostesCheckboxWrapper;
+import devs.mrp.gullproject.domains.dto.PvperCheckbox;
+import devs.mrp.gullproject.domains.dto.PvpsCheckboxWrapper;
 import devs.mrp.gullproject.repository.ConsultaRepo;
 import devs.mrp.gullproject.repository.CustomConsultaRepo;
 import devs.mrp.gullproject.repository.LineaRepo;
@@ -55,11 +59,14 @@ class ConsultaServiceTest {
 	Propuesta propuesta1;
 	Propuesta propuesta2;
 	PropuestaProveedor propuestaProveedor;
+	PropuestaNuestra propuestaNuestra;
 	Mono<Consulta> mono;
 	AtributoForCampo att1;
 	AtributoForCampo att2;
 	CosteProveedor cost1;
 	CosteProveedor cost2;
+	Pvper pvp1;
+	Pvper pvp2;
 	
 	@BeforeEach
 	void init() {
@@ -127,6 +134,22 @@ class ConsultaServiceTest {
 		((PropuestaProveedor)propuestaProveedor).setCostes(costs);
 		log.debug("with costs: " + propuestaProveedor.toString());
 		consultaService.addPropuesta(consulta.getId(), propuestaProveedor).block();
+		
+		propuestaNuestra = new PropuestaNuestra();
+		propuestaNuestra.setForProposalId(propuesta1.getId());
+		propuestaNuestra.operations().addAttribute(att1);
+		propuestaNuestra.setNombre("nombre propuesta nuestra");
+		propuestaNuestra.operations().addAttribute(att2);
+		pvp1 = new Pvper();
+		pvp1.setIdCostes(new ArrayList<>() {{add(cost1.getId());}});
+		pvp1.setName("pvp1 name");
+		pvp2 = new Pvper();
+		pvp2.setIdCostes(new ArrayList<>() {{add(cost2.getId());}});
+		List<Pvper> pvps = new ArrayList<>();
+		pvps.add(pvp1);
+		pvps.add(pvp2);
+		((PropuestaNuestra)propuestaNuestra).setPvps(pvps);
+		consultaService.addPropuesta(consulta.getId(), propuestaNuestra).block();
 	}
 	
 	@Test
@@ -237,21 +260,51 @@ class ConsultaServiceTest {
 	}
 	
 	@Test
-	void testGetAllPropuestaProveedorAsignedTo() throws Exception {
+	void testGetAllPropuestaProveedorAsignedTo() {
 		addCosts();
 		Propuesta p2 = new PropuestaProveedor(propuestaProveedor);
+		p2.setNombre("propuesta p2");
 		p2.setForProposalId("otro");
 		Propuesta p3 = new PropuestaProveedor(propuestaProveedor);
+		p3.setNombre("propuesta p3");
 		consultaService.addPropuesta(consulta.getId(), p2).block();
 		consultaService.addPropuesta(consulta.getId(), p3).block();
+		
+		log.debug("propuestaProveedor asignada a: " + propuestaProveedor.getForProposalId());
+		log.debug("p2 asignada a: " + p2.getForProposalId());
+		log.debug("p3 asignada a: " + p3.getForProposalId());
 		
 		Flux<Propuesta> props = consultaService.getAllPropuestaProveedorAsignedTo(propuesta1.getId());
 		StepVerifier.create(props)
 			.assertNext(p -> {
+				log.debug("hay una propuesta asignada: " + p.toString());
 				assertEquals(propuestaProveedor.getId(), p.getId());
 			})
 			.assertNext(p -> {
+				log.debug("hay una segunda propuesta asignada: " + p.toString());
 				assertEquals(p3.getId(), p.getId());
+			})
+			.expectComplete()
+			.verify()
+			;
+	}
+	
+	@Test
+	void testKeepUnselectedPvps() {
+		addCosts();
+		PvpsCheckboxWrapper wrapper = new PvpsCheckboxWrapper();
+		wrapper.setPvps(new ArrayList<>());
+		wrapper.getPvps().add(modelMapper.map(pvp1, PvperCheckbox.class));
+		wrapper.getPvps().add(modelMapper.map(pvp2, PvperCheckbox.class));
+		wrapper.getPvps().get(0).setSelected(true);
+		wrapper.getPvps().get(1).setSelected(false);
+		consultaService.keepUnselectedPvps(propuestaNuestra.getId(), wrapper).block();
+		
+		Mono<Propuesta> prop = consultaService.findPropuestaByPropuestaId(propuestaNuestra.getId());
+		StepVerifier.create(prop)
+			.assertNext(p ->{
+				assertEquals(1, ((PropuestaNuestra)p).getPvps().size());
+				assertEquals(pvp2.getName(), ((PropuestaNuestra)p).getPvps().get(0).getName());
 			})
 			.expectComplete()
 			.verify()

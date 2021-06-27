@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Ordenar pvps de la propuesta: ' + propuesta.getNombre()}">Gull Project - Ordenar pvps de la propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1 th:text="${'Ordenar pvps de la propuesta: ' + propuesta.getNombre()}">Ordenar pvps de la propuesta</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/consultas/pvpsof/propid/' + propuesta.id}">Volver</a>
+		</p>
+	</div>
+	
+	<form method="POST" th:object="${pvpsOrdenablesWrapper}">
+		<div>
+			<table id="tabla-ordenable" class="tablesorter">
+				<thead>
+					<tr class="nodrop nodrag" id="1">
+						<th>Nombre</th>
+						<th>Costes</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="a, stat : *{pvps}" th:id="${stat.index + 2}">
+						<td class="handle">
+							<span th:text="${a.name}"></span>
+							<input type="hidden" th:field="*{pvps[__${stat.index}__].id}" class="linea-id"/>
+							<input type="hidden" th:field="*{pvps[__${stat.index}__].name}" />
+							<input type="hidden" th:field="*{pvps[__${stat.index}__].order}" class="linea-order"/>
+							<input type="hidden" th:each="cosId, cstat : ${a.idCostes}" th:field="*{pvps[__${stat.index}__].idCostes[__${cstat.index}__]}"/>
+						</td>
+						<td>
+							<span th:each="cosId, cstat : ${a.idCostes}" th:text="${cstat.index == a.idCostes.size()-1 ? map.get(cosId).getName() : map.get(cosId).getName() + ', '}"></span>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div>
+			<p>
+				<button>Guardar orden</button>
+			</p>
+		</div>
+	</form>
+	
+	<script type="text/javascript" th:src="@{/js/jquery/jquery-3.6.0.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/jquery/jquery.tablednd.js}"></script>
+	<script type="text/javascript" th:src="@{/js/jquery/jquery.tablesorter.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/scripts/setTableOrdenable.js}"></script>
+
+</body>
+</html>

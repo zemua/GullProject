@@ -44,6 +44,8 @@ import devs.mrp.gullproject.domains.PvperSum;
 import devs.mrp.gullproject.domains.TipoPropuesta;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.CostesCheckboxWrapper;
+import devs.mrp.gullproject.domains.dto.PvperSumCheckboxWrapper;
+import devs.mrp.gullproject.domains.dto.PvpsCheckboxWrapper;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.AtributoUtilities;
 import devs.mrp.gullproject.service.ConsultaService;
@@ -198,6 +200,13 @@ class ConsultaControllerTestB {
 		when(consultaService.keepUnselectedCosts(ArgumentMatchers.eq(propuestaProveedor.getId()), ArgumentMatchers.any(CostesCheckboxWrapper.class))).thenReturn(Mono.just(consulta1));
 		
 		when(consultaService.findConsultaByPropuestaId(ArgumentMatchers.eq(propuestaNuestra.getId()))).thenReturn(Mono.just(consulta1));
+		when(consultaService.addPvpToList(ArgumentMatchers.eq(propuestaNuestra.getId()), ArgumentMatchers.any(Pvper.class))).thenReturn(Mono.just(consulta1));
+		when(consultaService.keepUnselectedPvps(ArgumentMatchers.eq(propuestaNuestra.getId()), ArgumentMatchers.any(PvpsCheckboxWrapper.class))).thenReturn(Mono.just(consulta1));
+		when(consultaService.updatePvpsOfPropuesta(ArgumentMatchers.eq(propuestaNuestra.getId()), ArgumentMatchers.anyList())).thenReturn(Mono.just(consulta1));
+		
+		when(consultaService.addPvpSumToList(ArgumentMatchers.eq(propuestaNuestra.getId()), ArgumentMatchers.any(PvperSum.class))).thenReturn(Mono.just(consulta1));
+		when(consultaService.keepUnselectedPvpSums(ArgumentMatchers.eq(propuestaNuestra.getId()), ArgumentMatchers.any(PvperSumCheckboxWrapper.class))).thenReturn(Mono.just(consulta1));
+		when(consultaService.updatePvpSumsOfPropuesta(ArgumentMatchers.eq(propuestaNuestra.getId()), ArgumentMatchers.anyList())).thenReturn(Mono.just(consulta1));
 	}
 	
 	private void addCosts() {
@@ -215,6 +224,15 @@ class ConsultaControllerTestB {
 		pvp.setMargen(28.5);
 		pvp.setPvp(126.53);
 		pvp.setPvperId(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId());
+		List<PvperLinea> pvps = new ArrayList<>();
+		pvps.add(pvp);
+		linea1.setPvps(pvps);
+		linea2.setPvps(pvps);
+		
+		List<String> sums = new ArrayList<>();
+		sums.add(((PropuestaNuestra)propuestaNuestra).getSums().get(0).getId());
+		linea1.setPvpSums(sums);
+		linea2.setPvpSums(sums);
 	}
 
 	@Test
@@ -1102,6 +1120,12 @@ class ConsultaControllerTestB {
 		});
 	}
 	
+	/**
+	 * ****************************
+	 * COSTS
+	 * ****************************
+	 */
+	
 	@Test
 	void testShowCostsOfProposal() {
 		addCosts();
@@ -1345,6 +1369,12 @@ class ConsultaControllerTestB {
 			;
 	}
 	
+	/**
+	 * *****************************
+	 * OFERTA NUESTRA
+	 * *****************************
+	 */
+	
 	@Test
 	void testAddOurOfferToProposalCliente() {
 		Propuesta propB = new PropuestaNuestra(prop1.getId());
@@ -1453,6 +1483,646 @@ class ConsultaControllerTestB {
 					.contains("Selecciona un nombre")
 					.contains("Nombre:")
 					.contains("Volver");
+		});
+	}
+	
+	/**
+	 * **********************
+	 * PVPS
+	 * **********************
+	 */
+	
+	@Test
+	void testShowPvpsOfProposal() {
+		addCosts();
+		webTestClient.get()
+			.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId())
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("PVPs de la propuesta")
+						.contains("Nombre")
+						.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName());
+			});
+	}
+	
+	@Test
+	void testNewPvpOfPropuesta() {
+		addCosts();
+		webTestClient.get()
+			.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/new")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Nuevo pvp de la propuesta")
+						.contains("Nombre");
+			})
+			;
+	}
+	
+	@Test
+	void testProcessNewPvpOfPropuesta() {
+		addCosts();
+		
+		log.debug("should be ok");
+		webTestClient.post()
+			.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/new")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("name", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName())
+					.with("id", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId())
+					.with("idCostes[0]", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getIdCostes().get(0)))
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Nuevo pvp de la propuesta")
+						.contains("Con nombre")
+						.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName());
+			})
+			;
+		
+		log.debug("should give name validation error");
+		webTestClient.post()
+		.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/new")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("name", "")
+				.with("id", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId())
+				.with("idCostes[0]", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getIdCostes().get(0)))
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Nuevo pvp de la propuesta")
+					.contains("no debe estar vacío")
+					.contains("Error")
+					;
+		})
+		;
+		
+		log.debug("should give costs error");
+		webTestClient.post()
+		.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/new")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("name", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName())
+				.with("id", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId())
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Nuevo pvp de la propuesta")
+					.contains("Error")
+					.contains("Selecciona al menos un coste")
+					.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName());
+		})
+		;
+	}
+	
+	@Test
+	void testDeletePvpOfProposal() {
+		addCosts();
+		webTestClient.get()
+			.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/delete")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Borrar pvps de la propuesta")
+						.contains("Nombre")
+						.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName());
+			})
+			;
+	}
+	
+	@Test
+	void testConfirmDeletePvpsOfProposal() {
+		addCosts();
+		webTestClient.post()
+			.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/delete")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("pvps[0].selected", "true")
+					.with("pvps[0].id", "idpvp1")
+					.with("pvps[0].name" , "nombre pvp 1")
+					.with("pvps[0].idCostes[0]", "coste0pvp1")
+					.with("pvps[0].idCostes[1]", "coste1pvp1")
+					
+					.with("pvps[1].selected" , "false")
+					.with("pvps[1].id", "idpvp2")
+					.with("pvps[1].name", "nombre pvp 2")
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("idpvp1")
+						.contains("nombre pvp 2")
+						.contains("coste0pvp1")
+						.contains("coste1pvp1")
+						.contains("Borrar pvps de la propuesta");
+			})
+			;
+	}
+	
+	@Test
+	void testProcessDeletePvpsOfProposal() {
+		addCosts();
+		webTestClient.post()
+		.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/delete/confirm")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("pvps[0].selected", "true")
+				.with("pvps[0].id", "idpvp1")
+				.with("pvps[0].name" , "nombre pvp 1")
+				.with("pvps[0].idCostes[0]", "coste0pvp1")
+				.with("pvps[0].idCostes[1]", "coste1pvp1")
+				
+				.with("pvps[1].selected" , "false")
+				.with("pvps[1].id", "idpvp2")
+				.with("pvps[1].name", "nombre pvp 2")
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName())
+					.contains("Borrados");
+		})
+		;
+	}
+	
+	@Test
+	void testOrderPvpsOfProposal() {
+		addCosts();
+		webTestClient.get()
+		.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/order")
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Ordenar pvps de la propuesta")
+					.contains("Nombre")
+					.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName());
+		});
+	}
+	
+	@Test
+	void testProcessOrderPvpsOfProposal() {
+		addCosts();
+		webTestClient.post()
+		.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/order")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("pvps[0].id", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId())
+				.with("pvps[0].name", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName())
+				.with("pvps[0].order" , "2")
+				.with("pvps[0].idCostes[0]", "idcoste0")
+				.with("pvps[0].idCostes[1]", "idcoste1")
+				
+				.with("pvps[1].id", "otroid")
+				.with("pvps[1].name", "otro name")
+				.with("pvps[1].order" , "1")
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName())
+					.contains("COSTE BASE")
+					.contains("Ordenar pvps de la propuesta");
+		})
+		;
+	}
+	
+	@Test
+	void testEditPvpsOfProposal() {
+		addCosts();
+		webTestClient.get()
+			.uri("/consultas/pvpsof/propid/"+propuestaNuestra.getId()+"/edit")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Pvps de la propuesta")
+						.contains("Nombre")
+						.contains(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getName());
+			})
+			;
+	}
+	
+	@Test
+	void testProcessEditPvpsOfProposal() {
+		addCosts();
+		
+		log.debug("should be ok");
+		webTestClient.post()
+		.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/edit")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("pvps[0].id", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId())
+				.with("pvps[0].name", "nombre actualizado")
+				.with("pvps[0].costs[0].id", "idpvp1")
+				.with("pvps[0].costs[0].selected", "true")
+				.with("pvps[0].costs[1].id", "idpvp2")
+				.with("pvps[0].costs[1].selected", "false")
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Pvps de la propuesta")
+					.contains("Nombre")
+					.contains("Guardado");
+		});
+		
+		log.debug("should fail on name validation");
+		webTestClient.post()
+		.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/edit")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("pvps[0].id", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId())
+				.with("pvps[0].name", "")
+				.with("pvps[0].costs[0].id", "idpvp1")
+				.with("pvps[0].costs[0].selected", "true")
+				.with("pvps[0].costs[1].id", "idpvp2")
+				.with("pvps[0].costs[1].selected", "false")
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Pvps de la propuesta")
+					.contains("Nombre")
+					.contains("Error")
+					.contains("Algunos campos tienen nombre no válido");
+		});
+		
+		log.debug("should have validation error of costs");
+		webTestClient.post()
+		.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/edit")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("pvps[0].id", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId())
+				.with("pvps[0].name", "nombre actualizado")
+				.with("pvps[0].costs[0].id", "idpvp1")
+				.with("pvps[0].costs[0].selected", "false")
+				.with("pvps[0].costs[1].id", "idpvp2")
+				.with("pvps[0].costs[1].selected", "false")
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Pvps de la propuesta")
+					.contains("Nombre")
+					.contains("Error")
+					.contains("Debes escoger al menos un coste para cada PVP");
+		});
+	}
+	
+	/**
+	 * *********************************
+	 * COMBINADOS / SUMS
+	 * *********************************
+	 */
+	
+	@Test
+	void testShowPvpSumsOfProposal() {
+		addCosts();
+		webTestClient.get()
+			.uri("/consultas/pvpsumsof/propid/"+propuestaNuestra.getId())
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("PVPs combinados de la propuesta")
+						.contains("Nombre")
+						.contains(((PropuestaNuestra)propuestaNuestra).getSums().get(0).getName())
+						.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName())
+						;
+			})
+			;
+	}
+	
+	@Test
+	void testNewPvpSumOfPropuesta() {
+		addCosts();
+		webTestClient.get()
+			.uri("/consultas/pvpsumsof/propid/" + propuestaNuestra.getId() + "/new")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Nuevo pvp combinado de la propuesta")
+						.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName())
+						.contains("Nombre");
+			})
+			;
+	}
+	
+	@Test
+	void testProcessNewPvpSumOfPropuesta() {
+		addCosts();
+		
+		log.debug("should be ok");
+		webTestClient.post()
+			.uri("/consultas/pvpsumsof/propid/" + propuestaNuestra.getId() + "/new")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("name", ((PropuestaNuestra)propuestaNuestra).getSums().get(0).getName())
+					.with("id", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId())
+					.with("pvperIds[0]", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId()))
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Nuevo pvp combinado de la propuesta")
+						.contains("Con nombre")
+						.contains(((PropuestaNuestra)propuestaNuestra).getSums().get(0).getName());
+			})
+			;
+		
+		log.debug("should have name validation error");
+		webTestClient.post()
+			.uri("/consultas/pvpsumsof/propid/" + propuestaNuestra.getId() + "/new")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("name", "")
+					.with("id", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId())
+					.with("pvperIds[0]", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId()))
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Nuevo pvp combinado de la propuesta")
+						.contains("Error")
+						.contains("Debes seleccionar un nombre")
+						.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName());
+			})
+			;
+		
+		log.debug("should have pvps validation error");
+		webTestClient.post()
+			.uri("/consultas/pvpsumsof/propid/" + propuestaNuestra.getId() + "/new")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("name", ((PropuestaNuestra)propuestaNuestra).getSums().get(0).getName())
+					.with("id", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId())
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Nuevo pvp combinado de la propuesta")
+						.contains("Error")
+						.contains("Selecciona al menos 1 PVP")
+						.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName());
+			})
+			;
+	}
+	
+	@Test
+	void testDeletePvpSumOfProposal() {
+		addCosts();
+		webTestClient.get()
+			.uri("/consultas/pvpsumsof/propid/" + propuestaNuestra.getId() + "/delete")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Borrar pvps combinados de la propuesta")
+						.contains("Nombre")
+						.contains(((PropuestaNuestra)propuestaNuestra).getSums().get(0).getName());
+			})
+			;
+	}
+	
+	@Test
+	void testConfirmDeletePvpSumOfProposal() {
+		addCosts();
+		webTestClient.post()
+			.uri("/consultas/pvpsumsof/propid/" + propuestaNuestra.getId() + "/delete")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("sums[0].selected", "true")
+					.with("sums[0].id", "idsum1")
+					.with("sums[0].name" , "nombre sum 1")
+					.with("sums[0].pvperIds[0]", "sum0pvp0")
+					.with("sums[0].pvperIds[1]", "sum0pvp1")
+					
+					.with("sums[1].selected" , "false")
+					.with("sums[1].id", "idsum2")
+					.with("sums[1].name", "nombre sum 2")
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("idsum1")
+						.contains("nombre sum 2")
+						.contains("sum0pvp0")
+						.contains("sum0pvp1")
+						.contains("Borrar pvps combinados de la propuesta");
+			})
+			;
+	}
+	
+	@Test
+	void testProcessDeletePvpSumOfProposal() {
+		addCosts();
+		webTestClient.post()
+		.uri("/consultas/pvpsumsof/propid/" + propuestaNuestra.getId() + "/delete/confirm")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("sums[0].selected", "true")
+				.with("sums[0].id", "idsum1")
+				.with("sums[0].name" , "nombre sum 1")
+				.with("sums[0].pvperIds[0]", "sum0pvp0")
+				.with("sums[0].pvperIds[1]", "sum0pvp1")
+				
+				.with("sums[1].selected" , "false")
+				.with("sums[1].id", "idsum2")
+				.with("sums[1].name", "nombre sum 2")
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains(((PropuestaNuestra)propuestaNuestra).getSums().get(0).getName())
+					.contains("Borrados");
+		})
+		;
+	}
+	
+	@Test
+	void testOrderPvpSumsOfProposal() {
+		addCosts();
+		webTestClient.get()
+		.uri("/consultas/pvpsumsof/propid/" + propuestaNuestra.getId() + "/order")
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Ordenar pvps combinados de la propuesta")
+					.contains("Nombre")
+					.contains(((PropuestaNuestra)propuestaNuestra).getSums().get(0).getName());
+		});
+	}
+	
+	@Test
+	void testProcessOrderPvpSumsOfProposal() {
+		addCosts();
+		webTestClient.post()
+		.uri("/consultas/pvpsumsof/propid/" + propuestaNuestra.getId() + "/order")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("sums[0].id", ((PropuestaNuestra)propuestaNuestra).getSums().get(0).getId())
+				.with("sums[0].name", ((PropuestaNuestra)propuestaNuestra).getSums().get(0).getName())
+				.with("sums[0].order" , "2")
+				.with("sums[0].pvperIds[0]", "idpvp0")
+				.with("sums[0].pvperIds[1]", "idpvp1")
+				
+				.with("sums[1].id", "otroid")
+				.with("sums[1].name", "otro name")
+				.with("sums[1].order" , "1")
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains(((PropuestaNuestra)propuestaNuestra).getSums().get(0).getName())
+					.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName())
+					.contains("Ordenar pvps combinados de la propuesta");
+		})
+		;
+	}
+	
+	@Test
+	void testEditPvpSumsOfProposal() {
+		addCosts();
+		webTestClient.get()
+			.uri("/consultas/pvpsumsof/propid/"+propuestaNuestra.getId()+"/edit")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Pvps combinados de la propuesta")
+						.contains("Nombre")
+						.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName());
+			})
+			;
+	}
+	
+	@Test
+	void testProcessEditPvpSumsOfProposal() {
+		addCosts();
+		
+		log.debug("should be ok");
+		webTestClient.post()
+		.uri("/consultas/pvpsumsof/propid/" + propuestaNuestra.getId() + "/edit")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("sums[0].id", ((PropuestaNuestra)propuestaNuestra).getSums().get(0).getId())
+				.with("sums[0].name", "nombre actualizado")
+				.with("sums[0].pvperIds[0].id", "idpvp1")
+				.with("sums[0].pvperIds[0].selected", "true")
+				.with("sums[0].pvperIds[1].id", "idpvp2")
+				.with("sums[0].pvperIds[1].selected", "false")
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Pvps combinados de la propuesta")
+					.contains("Nombre")
+					.contains("Guardado");
+		});
+		
+		log.debug("should have validation error on name");
+		webTestClient.post()
+		.uri("/consultas/pvpsumsof/propid/" + propuestaNuestra.getId() + "/edit")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("sums[0].id", ((PropuestaNuestra)propuestaNuestra).getSums().get(0).getId())
+				.with("sums[0].name", "")
+				.with("sums[0].pvperIds[0].id", "idpvp1")
+				.with("sums[0].pvperIds[0].selected", "true")
+				.with("sums[0].pvperIds[1].id", "idpvp2")
+				.with("sums[0].pvperIds[1].selected", "false")
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Pvps combinados de la propuesta")
+					.contains("Nombre")
+					.contains("Error")
+					.contains("Algunos campos tienen nombre no válido");
+		});
+		
+		log.debug("should have validation error on pvps");
+		webTestClient.post()
+		.uri("/consultas/pvpsumsof/propid/" + propuestaNuestra.getId() + "/edit")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("sums[0].id", ((PropuestaNuestra)propuestaNuestra).getSums().get(0).getId())
+				.with("sums[0].name", "nombre actualizado")
+				.with("sums[0].pvperIds[0].id", "idpvp1")
+				.with("sums[0].pvperIds[0].selected", "false")
+				.with("sums[0].pvperIds[1].id", "idpvp2")
+				.with("sums[0].pvperIds[1].selected", "false")
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Pvps combinados de la propuesta")
+					.contains("Nombre")
+					.contains("Error")
+					.contains("Debes escoger al menos un PVP para cada combinado");
 		});
 	}
 

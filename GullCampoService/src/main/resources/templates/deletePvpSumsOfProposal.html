@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Borrar pvps combinados de la propuesta: ' + propuesta.getNombre()}">Gull Project - Borrar pvps combinados de la propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1 th:text="${'Borrar pvps combinados de la propuesta: ' + propuesta.getNombre()}">Borrar pvps combinados de la propuesta</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/consultas/pvpsumsof/propid/' + propuesta.id}">Volver</a>
+		</p>
+	</div>
+	
+	<form method="POST" th:object="${pvperSumCheckboxWrapper}">
+		<div>
+			<table>
+				<tr>
+					<th>Nombre</th>
+					<th>Borrar</th>
+				</tr>
+				<tr th:each="a, stat : *{sums}">
+					<td th:text="${a.name}"></td>
+					<td>
+						<input type="checkbox" th:field="*{sums[__${stat.index}__].selected}" />
+						<input type="hidden" th:field="*{sums[__${stat.index}__].id}" />
+						<input type="hidden" th:field="*{sums[__${stat.index}__].name}" />
+						<input type="hidden" th:each="pvperId, cstat : ${a.pvperIds}" th:field="*{sums[__${stat.index}__].pvperIds[__${cstat.index}__]}"/>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div>
+			<p>
+				<button>Borrar los costes seleccionados</button>
+			</p>
+		</div>
+	</form>
+
+</body>
+</html>
