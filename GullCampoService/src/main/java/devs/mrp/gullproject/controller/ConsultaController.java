@@ -305,7 +305,9 @@ public class ConsultaController {
 	}
 	
 	/**
+	 * ****************************
 	 * SUPPLIER PROPOSALS
+	 * ****************************
 	 */
 	
 	@GetMapping("/revisar/id/{consultaId}/onprop/{propuestaClienteId}/addcotizacionproveedor")
@@ -492,7 +494,9 @@ public class ConsultaController {
 	}
 	
 	/**
+	 * *************************
 	 * OUR PROPOSALS
+	 * *************************
 	 */
 	
 	@GetMapping("/revisar/id/{consultaId}/onprop/{propuestaClienteId}/addofertanuestra")
@@ -605,7 +609,7 @@ public class ConsultaController {
 			;
 	}
 	
-	@PostMapping("/pvpsof/propid/{id}/delete/confirm")
+	@PostMapping("/pvpsof/propid/{id}/delete/confirm") // TODO remove also from sums
 	public Mono<String> processDeletePvpsOfProposal(PvpsCheckboxWrapper pvpsCheckboxWrapper, Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
 		return consultaService.keepUnselectedPvps(proposalId, pvpsCheckboxWrapper)
@@ -692,6 +696,35 @@ public class ConsultaController {
 					})
 					;
 		}
+	}
+	
+	/**
+	 * *******************************
+	 * PVP SUMS
+	 * *******************************
+	 */
+	
+	@GetMapping("/pvpsumsof/propid/{id}")
+	public Mono<String> showPvpSumsOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
+		model.addAttribute("propuestaId", proposalId);
+		return consultaService.findConsultaByPropuestaId(proposalId)
+				.map(cons -> {
+					var prop = cons.operations().getPropuestaById(proposalId);
+					model.addAttribute("consulta", cons);
+					if (prop instanceof PropuestaNuestra) {
+						List<Pvper> pvps = ((PropuestaNuestra)prop).getPvps();
+						List<PvperSum> sums = ((PropuestaNuestra)prop).getSums();
+						PropuestaNuestra nProp = (PropuestaNuestra) cons.operations().getPropuestaById(proposalId);
+						model.addAttribute("propuesta", nProp);
+						model.addAttribute("pvps", pvps);
+						model.addAttribute("sums", sums);
+						model.addAttribute("map", nProp.operationsNuestra().mapIdToPvper());
+						return "showPvpsumsOfProposal";
+					} else {
+						return "redirect:/consultas/revisar/id/" + cons.getId();
+					}
+				})
+				;
 	}
 	
 }

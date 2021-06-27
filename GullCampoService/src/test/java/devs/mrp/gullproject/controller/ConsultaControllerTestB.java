@@ -223,6 +223,11 @@ class ConsultaControllerTestB {
 		pvps.add(pvp);
 		linea1.setPvps(pvps);
 		linea2.setPvps(pvps);
+		
+		List<String> sums = new ArrayList<>();
+		sums.add(((PropuestaNuestra)propuestaNuestra).getSums().get(0).getId());
+		linea1.setPvpSums(sums);
+		linea2.setPvpSums(sums);
 	}
 
 	@Test
@@ -1110,6 +1115,12 @@ class ConsultaControllerTestB {
 		});
 	}
 	
+	/**
+	 * ****************************
+	 * COSTS
+	 * ****************************
+	 */
+	
 	@Test
 	void testShowCostsOfProposal() {
 		addCosts();
@@ -1353,6 +1364,12 @@ class ConsultaControllerTestB {
 			;
 	}
 	
+	/**
+	 * *****************************
+	 * OFERTA NUESTRA
+	 * *****************************
+	 */
+	
 	@Test
 	void testAddOurOfferToProposalCliente() {
 		Propuesta propB = new PropuestaNuestra(prop1.getId());
@@ -1464,6 +1481,12 @@ class ConsultaControllerTestB {
 		});
 	}
 	
+	/**
+	 * **********************
+	 * PVPS
+	 * **********************
+	 */
+	
 	@Test
 	void testShowPvpsOfProposal() {
 		addCosts();
@@ -1479,7 +1502,6 @@ class ConsultaControllerTestB {
 						.contains("Nombre")
 						.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName());
 			});
-			;
 	}
 	
 	@Test
@@ -1753,7 +1775,6 @@ class ConsultaControllerTestB {
 					.contains("Algunos campos tienen nombre no válido");
 		});
 		
-		// TODO fallo al validar los costes
 		log.debug("should have validation error of costs");
 		webTestClient.post()
 		.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/edit")
@@ -1776,6 +1797,32 @@ class ConsultaControllerTestB {
 					.contains("Error")
 					.contains("Debes escoger al menos un coste para cada PVP");
 		});
+	}
+	
+	/**
+	 * *********************************
+	 * COMBINADOS / SUMS
+	 * *********************************
+	 */
+	
+	@Test
+	void testShowPvpSumsOfProposal() {
+		addCosts();
+		webTestClient.get()
+			.uri("/consultas/pvpsumsof/propid/"+propuestaNuestra.getId())
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("PVPs combinados de la propuesta")
+						.contains("Nombre")
+						.contains(((PropuestaNuestra)propuestaNuestra).getSums().get(0).getName())
+						.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName())
+						;
+			})
+			;
 	}
 
 }

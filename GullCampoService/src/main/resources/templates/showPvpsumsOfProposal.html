@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - PVPs combinados de la propuesta: ' + propuesta.getNombre()}">Gull Project - PVPs combinados de la propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1 th:text="${'PVPs combinados de la propuesta: ' + propuesta.getNombre()}">PVPs combinados de la propuesta</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/consultas/pvpsumsof/propid/' + propuesta.getId() + '/new'}">Añadir PVP</a> -
+			<a th:href="${'/consultas/pvpsumsof/propid/' + propuesta.getId() + '/order'}">Ordenar PVP</a> -  
+			<a th:href="${'/consultas/pvpsumsof/propid/' + propuesta.getId() + '/edit'}">Editar PVP</a> -  
+			<a th:href="${'/consultas/pvpsumsof/propid/' + propuesta.getId() + '/delete'}">Borrar PVP</a> -
+			<a th:href="${'/consultas/revisar/id/' + consulta.id}">Volver</a>
+		</p>
+	</div>
+	
+	<div>
+		<table>
+			<tr>
+				<th>Nombre</th>
+				<th>PVPs incluidos</th>
+			</tr>
+			<tr th:each="a : ${sums}">
+				<td><span th:text="${a.name}"></span></td>
+				<td><span th:each="pvpId, stat : ${a.pvperIds}" th:text="${stat.index == a.pvperIds.size()-1 ? map.get(pvpId).getName() : map.get(pvpId).getName() + ', '}"></span></td>
+			</tr>
+		</table>
+	</div>
+
+</body>
+</html>

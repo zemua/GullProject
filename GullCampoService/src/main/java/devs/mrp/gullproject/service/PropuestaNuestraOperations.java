@@ -115,4 +115,8 @@ public class PropuestaNuestraOperations extends PropuestaOperations {
 		return list;
 	}
 	
+	public Map<String, Pvper> mapIdToPvper() {
+		return propuestaNuestra.getPvps().stream().collect(Collectors.toMap((pvp) -> pvp.getId(), (pvp) -> pvp));
+	}
+	
 }
