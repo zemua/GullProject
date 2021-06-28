@@ -141,9 +141,60 @@ public class ConsultaService {
 		return consultaRepo.addCostToList(idPropuesta, coste);
 	}
 	
+	private Flux<Consulta> removeReferenceToSelectedCostsFromPvps(String idPropuesta, CostesCheckboxWrapper wrapper) {
+		return findPropuestaByPropuestaId(idPropuesta)
+				.flatMapMany(pro -> {
+					return getallPropuestaNuestraAsignedto(pro.getForProposalId())
+							.flatMap(fPro -> {
+								log.debug("para la propuesta nuestra: " + fPro.toString());
+								return Flux.fromIterable(((PropuestaNuestra)fPro).getPvps())
+										.map(rPvp ->{
+											log.debug("el pvp: " + rPvp.toString());
+											wrapper.getCostes().stream().forEach(sCost -> {
+												log.debug("el coste... " + sCost.toString());
+												if (sCost.isSelected() && rPvp.getIdCostes().contains(sCost.getId())) {
+													rPvp.getIdCostes().remove(sCost.getId());
+													log.debug("se elimina del pvp");
+												}
+											});
+											log.debug("y devolvemos " + rPvp);
+											return rPvp;
+										})
+										.collectList()
+										.flatMap(rListPvps -> {
+											log.debug("y actualizamos los pvps de la propuesta con " + rListPvps.toString());
+											return updatePvpsOfPropuesta(fPro.getId(), rListPvps);
+										})
+										;
+							});
+				})
+				;
+	}
+	
+	private Flux<Linea> removeReferenceToSelectedCostsFromLineas(String idPropuesta, CostesCheckboxWrapper wrapper) {
+		return lineaRepo.findAllByPropuestaIdOrderByOrderAsc(idPropuesta)
+				.flatMap(fLinea -> {
+					return Flux.fromIterable(wrapper.getCostes())
+							.map(fCost -> {
+								var ops = fLinea.operations();
+								if (fCost.isSelected() && ops.ifHasCost(fCost.getId())) {
+									ops.removeCosteById(fCost.getId());
+								}
+								return fCost;
+							})
+							.then(lineaRepo.updateCosts(fLinea.getId(), fLinea.getCostesProveedor()));
+				})
+				;
+	}
+	
 	public Mono<Consulta> keepUnselectedCosts(String idPropuesta, CostesCheckboxWrapper wrapper) {
-		List<CosteProveedor> costs = wrapper.getCostes().stream().filter(c -> !c.isSelected()).map(c -> modelMapper.map(c, CosteProveedor.class)).collect(Collectors.toList());
-		return updateCostesOfPropuesta(idPropuesta, costs);
+		return removeReferenceToSelectedCostsFromPvps(idPropuesta, wrapper)
+		.thenMany(removeReferenceToSelectedCostsFromLineas(idPropuesta, wrapper))
+		.then(Mono.just(idPropuesta))
+		.flatMap(rStr -> {
+			List<CosteProveedor> costs = wrapper.getCostes().stream().filter(c -> !c.isSelected()).map(c -> modelMapper.map(c, CosteProveedor.class)).collect(Collectors.toList());
+			return updateCostesOfPropuesta(idPropuesta, costs);
+		});
 	}
 	
 	public Flux<Propuesta> getAllPropuestaProveedorAsignedTo(String propClienteId) {
@@ -156,6 +207,18 @@ public class ConsultaService {
 						.collect(Collectors.toList()));
 			})
 			;
+	}
+	
+	public Flux<Propuesta> getallPropuestaNuestraAsignedto(String propClienteId) { // TODO test
+		return findConsultaByPropuestaId(propClienteId)
+				.flatMapMany(rCons -> {
+					return Flux.fromIterable(rCons.getPropuestas().stream()
+							.filter(p -> p.getTipoPropuesta().equals(TipoPropuesta.NUESTRA))
+							.filter(p -> p.getForProposalId().equals(propClienteId))
+							.collect(Collectors.toList())
+							);
+				})
+				;
 	}
 	
 	public Mono<Consulta> updatePvpsOfPropuesta(String idPropuesta, List<Pvper> pvps) {

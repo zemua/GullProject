@@ -147,6 +147,21 @@ public class LineaOperations {
 		}
 	}
 	
+	public boolean ifHasCost(String costId) {
+		Optional<CosteLineaProveedor> coste = linea.getCostesProveedor().stream().filter(c -> c.getCosteProveedorId().equals(costId)).findAny();
+		return coste.isPresent();
+	}
+	
+	public void removeCosteById(String costId) {
+		Iterator<CosteLineaProveedor> it = linea.getCostesProveedor().iterator();
+		while (it.hasNext()) {
+			var cos = it.next();
+			if (cos.getCosteProveedorId().equals(costId)) {
+				it.remove();
+			}
+		}
+	}
+	
 	/**
 	 * 
 	 */

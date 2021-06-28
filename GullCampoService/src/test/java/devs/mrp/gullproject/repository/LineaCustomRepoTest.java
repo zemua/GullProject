@@ -19,6 +19,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import devs.mrp.gullproject.domains.Campo;
+import devs.mrp.gullproject.domains.CosteLineaProveedor;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.PvperLinea;
 import devs.mrp.gullproject.service.LineaOperations;
@@ -783,6 +784,25 @@ class LineaCustomRepoTest {
 		})
 		.expectComplete()
 		.verify()
+		;
+	}
+	
+	@Test
+	void testUpdateCosts() {
+		List<CosteLineaProveedor> costs = new ArrayList<>();
+		var cost1 = new CosteLineaProveedor();
+		var cost2 = new CosteLineaProveedor();
+		costs.add(cost1);
+		costs.add(cost2);
+		
+		Linea resultado = repo.updateCosts(linea.getId(), costs).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(l -> {
+			assertEquals(2, l.getCostesProveedor().size());
+			assertEquals(cost1.getCosteProveedorId(), l.getCostesProveedor().get(0).getCosteProveedorId());
+			assertEquals(cost2.getCosteProveedorId(), l.getCostesProveedor().get(0).getCosteProveedorId());
+		})
 		;
 	}
 

@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import com.mongodb.client.result.DeleteResult;
 
 import devs.mrp.gullproject.domains.Campo;
+import devs.mrp.gullproject.domains.CosteLineaProveedor;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.PvperLinea;
 import reactor.core.publisher.Flux;
@@ -141,6 +142,13 @@ public class CustomLineaRepoImpl implements CustomLineaRepo {
 	public Mono<Linea> updatePvps(String idLinea, List<PvperLinea> pvps) {
 		Query query = new Query(Criteria.where("id").is(idLinea));
 		Update update = new Update().set("pvps", pvps);
+		return mongoTemplate.findAndModify(query, update, Linea.class);
+	}
+	
+	@Override
+	public Mono<Linea> updateCosts(String idLinea, List<CosteLineaProveedor> costs) {
+		Query query = new Query(Criteria.where("id").is(idLinea));
+		Update update = new Update().set("costesProveedor", costs);
 		return mongoTemplate.findAndModify(query, update, Linea.class);
 	}
 

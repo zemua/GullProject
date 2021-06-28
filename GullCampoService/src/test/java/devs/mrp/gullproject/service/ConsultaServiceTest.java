@@ -16,6 +16,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.CosteLineaProveedor;
 import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
@@ -70,9 +71,13 @@ class ConsultaServiceTest {
 	CosteProveedor cost2;
 	Pvper pvp1;
 	Pvper pvp2;
+	CosteLineaProveedor costeLinea1;
+	CosteLineaProveedor costeLinea2;
 	
 	Linea linea1;
 	Linea linea2;
+	Linea lineaA;
+	Linea lineaB;
 	
 	@BeforeEach
 	void init() {
@@ -176,6 +181,16 @@ class ConsultaServiceTest {
 		linea2.getPvps().add(pvplinea1);
 		linea2.getPvps().add(pvplinea2);
 		
+		costeLinea1 = new CosteLineaProveedor();
+		costeLinea1.setCosteProveedorId(cost1.getId());
+		costeLinea1.setValue(789);
+		costeLinea2 = new CosteLineaProveedor();
+		costeLinea2.setCosteProveedorId(cost2.getId());
+		costeLinea2.setValue(987);
+		
+		linea1.setCostesProveedor(new ArrayList<>() {{add(costeLinea1);add(costeLinea2);}});
+		linea2.setCostesProveedor(new ArrayList<>() {{add(costeLinea1);add(costeLinea2);}});
+		
 		propuestaNuestra.getLineaIds().add(linea1.getId());
 		propuestaNuestra.getLineaIds().add(linea2.getId());
 		
@@ -190,6 +205,11 @@ class ConsultaServiceTest {
 		propuestaNuestra.getSums().add(sum2);
 		
 		lineaRepo.insert(new ArrayList<Linea>() {{add(linea1);add(linea2);}}).blockLast();
+		lineaA = new Linea(linea1);
+		lineaA.setPropuestaId(propuestaProveedor.getId());
+		lineaB = new Linea(linea2);
+		lineaB.setPropuestaId(propuestaProveedor.getId());
+		lineaRepo.insert(new ArrayList<Linea>() {{add(lineaA);add(lineaB);}}).blockLast();
 		consultaService.addPropuesta(consulta.getId(), propuestaNuestra).block();
 	}
 	
@@ -281,6 +301,51 @@ class ConsultaServiceTest {
 	@Test
 	void testKeepUnselectedCosts() {
 		addCosts();
+		
+		Mono<Propuesta> proveedor = consultaService.findPropuestaByPropuestaId(propuestaProveedor.getId());
+		Mono<Propuesta> nuestra = consultaService.findPropuestaByPropuestaId(propuestaNuestra.getId());
+		Flux<Linea> lns = lineaRepo.findAllByPropuestaIdOrderByOrderAsc(propuestaProveedor.getId());
+		
+		StepVerifier.create(proveedor)
+		.assertNext(p ->{
+			assertEquals(2, ((PropuestaProveedor)p).getCostes().size());
+			assertEquals(cost1.getId(), ((PropuestaProveedor)p).getCostes().get(0).getId());
+			assertEquals(cost2.getId(), ((PropuestaProveedor)p).getCostes().get(1).getId());
+		})
+		.expectComplete()
+		.verify()
+		;
+		
+		StepVerifier.create(nuestra)
+		.assertNext(p -> {
+			assertEquals(2, ((PropuestaNuestra)p).getPvps().size());
+			assertEquals(1, ((PropuestaNuestra)p).getPvps().get(0).getIdCostes().size());
+			assertEquals(pvp1.getId(), ((PropuestaNuestra)p).getPvps().get(0).getId());
+			assertEquals(cost1.getId(), ((PropuestaNuestra)p).getPvps().get(0).getIdCostes().get(0));
+			assertEquals(1, ((PropuestaNuestra)p).getPvps().get(1).getIdCostes().size());
+			assertEquals(cost2.getId(), ((PropuestaNuestra)p).getPvps().get(1).getIdCostes().get(0));
+		})
+		.expectComplete()
+		.verify()
+		;
+		
+		StepVerifier.create(lns)
+		.assertNext(l -> {
+			assertEquals(lineaA.getId(), l.getId());
+			assertEquals(2, l.getCostesProveedor().size());
+			assertEquals(cost1.getId(), l.getCostesProveedor().get(0).getCosteProveedorId());
+			assertEquals(cost2.getId(), l.getCostesProveedor().get(1).getCosteProveedorId());
+		})
+		.assertNext(l -> {
+			assertEquals(lineaB.getId(), l.getId());
+			assertEquals(2, l.getCostesProveedor().size());
+			assertEquals(cost1.getId(), l.getCostesProveedor().get(0).getCosteProveedorId());
+			assertEquals(cost2.getId(), l.getCostesProveedor().get(1).getCosteProveedorId());
+		})
+		.expectComplete()
+		.verify()
+		;
+		
 		CostesCheckboxWrapper wrapper = new CostesCheckboxWrapper();
 		wrapper.setCostes(new ArrayList<>());
 		wrapper.getCostes().add(modelMapper.map(cost1, CostesCheckbox.class));
@@ -289,15 +354,40 @@ class ConsultaServiceTest {
 		wrapper.getCostes().get(1).setSelected(false);
 		consultaService.keepUnselectedCosts(propuestaProveedor.getId(), wrapper).block();
 		
-		Mono<Propuesta> prop = consultaService.findPropuestaByPropuestaId(propuestaProveedor.getId());
-		StepVerifier.create(prop)
-			.assertNext(p ->{
-				assertEquals(1, ((PropuestaProveedor)p).getCostes().size());
-				assertEquals(cost2.getName(), ((PropuestaProveedor)p).getCostes().get(0).getName());
-			})
-			.expectComplete()
-			.verify()
-			;
+		StepVerifier.create(proveedor)
+		.assertNext(p ->{
+			assertEquals(1, ((PropuestaProveedor)p).getCostes().size());
+			assertEquals(cost2.getId(), ((PropuestaProveedor)p).getCostes().get(0).getId());
+		})
+		.expectComplete()
+		.verify()
+		;
+		
+		StepVerifier.create(nuestra)
+		.assertNext(p -> {
+			assertEquals(2, ((PropuestaNuestra)p).getPvps().size());
+			assertEquals(0, ((PropuestaNuestra)p).getPvps().get(0).getIdCostes().size());
+			assertEquals(1, ((PropuestaNuestra)p).getPvps().get(1).getIdCostes().size());
+			assertEquals(cost2.getId(), ((PropuestaNuestra)p).getPvps().get(1).getIdCostes().get(0));
+		})
+		.expectComplete()
+		.verify()
+		;
+		
+		StepVerifier.create(lns)
+		.assertNext(l -> {
+			assertEquals(lineaA.getId(), l.getId());
+			assertEquals(1, l.getCostesProveedor().size());
+			assertEquals(cost2.getId(), l.getCostesProveedor().get(0).getCosteProveedorId());
+		})
+		.assertNext(l -> {
+			assertEquals(lineaB.getId(), l.getId());
+			assertEquals(1, l.getCostesProveedor().size());
+			assertEquals(cost2.getId(), l.getCostesProveedor().get(0).getCosteProveedorId());
+		})
+		.expectComplete()
+		.verify()
+		;
 	}
 	
 	@Test
@@ -402,7 +492,6 @@ class ConsultaServiceTest {
 			.expectComplete()
 			.verify()
 			;
-		
 	}
 
 }

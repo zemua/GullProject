@@ -442,7 +442,7 @@ public class ConsultaController {
 			;
 	}
 	
-	@PostMapping("/costof/propid/{id}/delete") // TODO delete also reference from PVPs
+	@PostMapping("/costof/propid/{id}/delete")
 	public Mono<String> confirmDeleteCostsOfProposal(CostesCheckboxWrapper costesCheckboxWraper, Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
 		return consultaService.findConsultaByPropuestaId(proposalId)
@@ -456,7 +456,7 @@ public class ConsultaController {
 			;
 	}
 	
-	@PostMapping("/costof/propid/{id}/delete/confirm")
+	@PostMapping("/costof/propid/{id}/delete/confirm") // TODO delete also reference from PVPs
 	public Mono<String> processDeleteCostsOfProposal(CostesCheckboxWrapper costesCheckboxWraper, Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
 		return consultaService.keepUnselectedCosts(proposalId, costesCheckboxWraper)
@@ -610,7 +610,7 @@ public class ConsultaController {
 			;
 	}
 	
-	@PostMapping("/pvpsof/propid/{id}/delete/confirm") // TODO remove also from sums and lines
+	@PostMapping("/pvpsof/propid/{id}/delete/confirm")
 	public Mono<String> processDeletePvpsOfProposal(PvpsCheckboxWrapper pvpsCheckboxWrapper, Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
 		return consultaService.keepUnselectedPvps(proposalId, pvpsCheckboxWrapper)
