@@ -231,12 +231,4 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
 	}
 	
-	@Override
-	public Mono<Consulta> removePvpSumFromList(String idPropuesta, String sumId) { // TODO test
-		Query query = new Query(Criteria.where("propuestas.id").is(idPropuesta));
-		Update update = new Update().pull("propuestas.$.sums", new BasicDBObject("id", sumId));
-		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
-		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
-	}
-	
 }

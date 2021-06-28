@@ -226,10 +226,6 @@ public class ConsultaService {
 		return consultaRepo.addPvpSumToList(idPropuesta, sum);
 	}
 	
-	public Mono<Consulta> removePvpSumFromList(String idPropuesta, String sumId) {
-		return consultaRepo.removePvpSumFromList(idPropuesta, sumId);
-	}
-	
 	public Mono<Consulta> keepUnselectedPvpSums(String idPropuesta, PvperSumCheckboxWrapper wrapper) {
 		List<PvperSum> sums = wrapper.getSums().stream().filter(s -> !s.isSelected()).map(s -> modelMapper.map(s, PvperSum.class)).collect(Collectors.toList());
 		return updatePvpSumsOfPropuesta(idPropuesta, sums);

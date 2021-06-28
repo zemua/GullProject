@@ -19,6 +19,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.CosteLineaProveedor;
 import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
@@ -26,6 +27,7 @@ import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.domains.PropuestaNuestra;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.domains.Pvper;
+import devs.mrp.gullproject.domains.PvperLinea;
 import devs.mrp.gullproject.domains.PvperSum;
 import devs.mrp.gullproject.service.PropuestaOperations;
 import lombok.extern.slf4j.Slf4j;
@@ -66,6 +68,12 @@ class CustomConsultaRepoImplTest {
 	Campo<String> campo7;
 	Campo<String> campo8;
 	Mono<Consulta> mono;
+	
+	PropuestaNuestra propuestaNuestra;
+	Pvper pvp1;
+	Pvper pvp2;
+	PvperSum sum1;
+	PvperSum sum2;
 	
 	@BeforeEach
 	void inicializacion() {
@@ -232,6 +240,41 @@ class CustomConsultaRepoImplTest {
 		})
 		.expectComplete()
 		.verify();
+	}
+	
+	private void addCosts() {
+		propuestaNuestra = new PropuestaNuestra();
+		propuestaNuestra.setForProposalId(propuesta1.getId());
+		
+		pvp1 = new Pvper();
+		pvp1.setIdCostes(new ArrayList<String>() {{add("idcost1");}});
+		pvp1.setName("name pvp 1");
+		
+		pvp2 = new Pvper();
+		pvp2.setIdCostes(new ArrayList<>() {{add("idcost2");}});
+		pvp2.setName("name pvp 2");
+		
+		List<Pvper> pvps = new ArrayList<>();
+		pvps.add(pvp1);
+		pvps.add(pvp2);
+		
+		propuestaNuestra.setPvps(pvps);
+		
+		sum1 = new PvperSum();
+		sum1.setName("sum 1 name");
+		sum1.setPvperIds(new ArrayList<>() {{add(pvp1.getId());}});
+		
+		sum2 = new PvperSum();
+		sum2.setName("sum 2 name");
+		sum2.setPvperIds(new ArrayList<>() {{add(pvp2.getId());}});
+		
+		List<PvperSum> sums = new ArrayList<>();
+		sums.add(sum1);
+		sums.add(sum2);
+		
+		propuestaNuestra.setSums(sums);
+		
+		repo.addPropuesta(consulta.getId(), propuestaNuestra).block();
 	}
 
 	@Test
