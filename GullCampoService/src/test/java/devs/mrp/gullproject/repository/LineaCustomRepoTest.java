@@ -20,6 +20,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Linea;
+import devs.mrp.gullproject.domains.PvperLinea;
 import devs.mrp.gullproject.service.LineaOperations;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -676,7 +677,7 @@ class LineaCustomRepoTest {
 		
 		StepVerifier.create(mono)
 		.assertNext(line -> {
-			assertEquals(3, resultadoO.getCantidadCampos());
+			assertEquals(3, line.operations().getCantidadCampos());
 			assertEquals("new counter id", line.getCounterLineId().get(0));
 		})
 		.expectComplete()
@@ -759,6 +760,26 @@ class LineaCustomRepoTest {
 		StepVerifier.create(mono)
 		.assertNext(line -> {
 			assertEquals(0, line.getCounterLineId().size());
+		})
+		.expectComplete()
+		.verify()
+		;
+	}
+	
+	@Test
+	void testUpdatePvps() {
+		List<PvperLinea> pvps = new ArrayList<>();
+		var pvp1 = new PvperLinea();
+		var pvp2 = new PvperLinea();
+		pvps.add(pvp1);
+		pvps.add(pvp2);
+		
+		Linea resultado = repo.updatePvps(linea.getId(), pvps).block();
+		StepVerifier.create(mono)
+		.assertNext(l -> {
+			assertEquals(2, l.getPvps().size());
+			assertEquals(pvp1.getPvperId(), l.getPvps().get(0).getPvperId());
+			assertEquals(pvp2.getPvperId(), l.getPvps().get(1).getPvperId());
 		})
 		.expectComplete()
 		.verify()

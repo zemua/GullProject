@@ -138,7 +138,7 @@ public class CustomLineaRepoImpl implements CustomLineaRepo {
 	}
 	
 	@Override
-	public Mono<Linea> updatePvps(String idLinea, List<PvperLinea> pvps) { // TODO test
+	public Mono<Linea> updatePvps(String idLinea, List<PvperLinea> pvps) {
 		Query query = new Query(Criteria.where("id").is(idLinea));
 		Update update = new Update().set("pvps", pvps);
 		return mongoTemplate.findAndModify(query, update, Linea.class);
