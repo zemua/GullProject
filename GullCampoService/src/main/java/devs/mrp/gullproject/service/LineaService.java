@@ -15,6 +15,7 @@ import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
+import devs.mrp.gullproject.domains.PvperLinea;
 import devs.mrp.gullproject.repository.ConsultaRepo;
 import devs.mrp.gullproject.repository.LineaRepo;
 import reactor.core.publisher.Flux;
@@ -175,6 +176,10 @@ public class LineaService {
 	public Flux<Linea> getAllLineasOfPropuestasAssignedTo(String propuestaClienteId) {
 		return consultaService.getAllPropuestaProveedorAsignedTo(propuestaClienteId)
 			.flatMap(rProp -> findByPropuestaId(rProp.getId()));
+	}
+	
+	public Mono<Linea> updatePvps(String idLinea, List<PvperLinea> pvps) {
+		return lineaRepo.updatePvps(idLinea, pvps);
 	}
 	
 }

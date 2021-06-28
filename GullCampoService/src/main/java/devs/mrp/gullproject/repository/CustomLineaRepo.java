@@ -7,6 +7,7 @@ import com.mongodb.client.result.DeleteResult;
 
 import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Linea;
+import devs.mrp.gullproject.domains.PvperLinea;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -39,5 +40,7 @@ public interface CustomLineaRepo {
 	public Mono<DeleteResult> deleteSeveralLineasByPropuestaId(String propuestaId);
 	
 	public Mono<DeleteResult> deleteSeveralLineasBySeveralPropuestaIds(List<String> propuestaIds);
+	
+	public Mono<Linea> updatePvps(String idLinea, List<PvperLinea> pvps);
 	
 }

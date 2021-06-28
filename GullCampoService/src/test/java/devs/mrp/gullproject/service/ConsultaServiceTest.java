@@ -17,11 +17,14 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.CosteProveedor;
+import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.domains.PropuestaNuestra;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.domains.Pvper;
+import devs.mrp.gullproject.domains.PvperLinea;
+import devs.mrp.gullproject.domains.PvperSum;
 import devs.mrp.gullproject.domains.dto.CostesCheckbox;
 import devs.mrp.gullproject.domains.dto.CostesCheckboxWrapper;
 import devs.mrp.gullproject.domains.dto.PvperCheckbox;
@@ -67,6 +70,9 @@ class ConsultaServiceTest {
 	CosteProveedor cost2;
 	Pvper pvp1;
 	Pvper pvp2;
+	
+	Linea linea1;
+	Linea linea2;
 	
 	@BeforeEach
 	void init() {
@@ -149,6 +155,41 @@ class ConsultaServiceTest {
 		pvps.add(pvp1);
 		pvps.add(pvp2);
 		((PropuestaNuestra)propuestaNuestra).setPvps(pvps);
+		
+		linea1 = new Linea();
+		linea1.setNombre("nombre linea1");
+		linea1.setPropuestaId(propuestaNuestra.getId());
+		linea1.setOrder(1);
+		linea1.setPvps(new ArrayList<>());
+		PvperLinea pvplinea1 = new PvperLinea();
+		pvplinea1.setPvperId(pvp1.getId());
+		PvperLinea pvplinea2 = new PvperLinea();
+		pvplinea2.setPvperId(pvp2.getId());
+		linea1.getPvps().add(pvplinea1);
+		linea1.getPvps().add(pvplinea2);
+		
+		linea2 = new Linea();
+		linea2.setNombre("nombre linea 2");
+		linea2.setOrder(2);
+		linea2.setPropuestaId(propuestaNuestra.getId());
+		linea2.setPvps(new ArrayList<>());
+		linea2.getPvps().add(pvplinea1);
+		linea2.getPvps().add(pvplinea2);
+		
+		propuestaNuestra.getLineaIds().add(linea1.getId());
+		propuestaNuestra.getLineaIds().add(linea2.getId());
+		
+		PvperSum sum1 = new PvperSum();
+		sum1.setName("name sum 1");
+		sum1.setPvperIds(new ArrayList<>() {{add(pvp1.getId());}});
+		PvperSum sum2 = new PvperSum();
+		sum2.setName("name sum 2");
+		sum2.setPvperIds(new ArrayList<>() {{add(pvp2.getId());}});
+		
+		propuestaNuestra.getSums().add(sum1);
+		propuestaNuestra.getSums().add(sum2);
+		
+		lineaRepo.insert(new ArrayList<Linea>() {{add(linea1);add(linea2);}}).blockLast();
 		consultaService.addPropuesta(consulta.getId(), propuestaNuestra).block();
 	}
 	
@@ -292,6 +333,41 @@ class ConsultaServiceTest {
 	@Test
 	void testKeepUnselectedPvps() {
 		addCosts();
+		
+		Mono<Propuesta> prop = consultaService.findPropuestaByPropuestaId(propuestaNuestra.getId());
+		Flux<Linea> lns = lineaRepo.findAllByPropuestaIdOrderByOrderAsc(propuestaNuestra.getId());
+		
+		StepVerifier.create(prop)
+			.assertNext(p ->{
+				assertEquals(2, ((PropuestaNuestra)p).getPvps().size());
+				assertEquals(pvp1.getName(), ((PropuestaNuestra)p).getPvps().get(0).getName());
+				assertEquals(pvp2.getName(), ((PropuestaNuestra)p).getPvps().get(1).getName());
+				assertEquals(2, ((PropuestaNuestra)p).getSums().size());
+				assertEquals(1, ((PropuestaNuestra)p).getSums().get(0).getPvperIds().size());
+				assertEquals(1, ((PropuestaNuestra)p).getSums().get(1).getPvperIds().size());
+				assertEquals(pvp1.getId(), ((PropuestaNuestra)p).getSums().get(0).getPvperIds().get(0));
+				assertEquals(pvp2.getId(), ((PropuestaNuestra)p).getSums().get(1).getPvperIds().get(0));
+			})
+			.expectComplete()
+			.verify()
+			;
+		
+		StepVerifier.create(lns)
+		.assertNext(l -> {
+			assertEquals(linea1.getId(), l.getId());
+			assertEquals(2, l.getPvps().size());
+			assertEquals(pvp1.getId(), l.getPvps().get(0).getPvperId());
+			assertEquals(pvp2.getId(), l.getPvps().get(1).getPvperId());
+		})
+		.assertNext(l -> {
+			assertEquals(2, l.getPvps().size());
+			assertEquals(pvp1.getId(), l.getPvps().get(0).getPvperId());
+			assertEquals(pvp2.getId(), l.getPvps().get(1).getPvperId());
+		})
+		.expectComplete()
+		.verify()
+		;
+		
 		PvpsCheckboxWrapper wrapper = new PvpsCheckboxWrapper();
 		wrapper.setPvps(new ArrayList<>());
 		wrapper.getPvps().add(modelMapper.map(pvp1, PvperCheckbox.class));
@@ -300,15 +376,33 @@ class ConsultaServiceTest {
 		wrapper.getPvps().get(1).setSelected(false);
 		consultaService.keepUnselectedPvps(propuestaNuestra.getId(), wrapper).block();
 		
-		Mono<Propuesta> prop = consultaService.findPropuestaByPropuestaId(propuestaNuestra.getId());
 		StepVerifier.create(prop)
 			.assertNext(p ->{
 				assertEquals(1, ((PropuestaNuestra)p).getPvps().size());
 				assertEquals(pvp2.getName(), ((PropuestaNuestra)p).getPvps().get(0).getName());
+				assertEquals(2, ((PropuestaNuestra)p).getSums().size());
+				assertEquals(0, ((PropuestaNuestra)p).getSums().get(0).getPvperIds().size());
+				assertEquals(1, ((PropuestaNuestra)p).getSums().get(1).getPvperIds().size());
+				assertEquals(pvp2.getId(), ((PropuestaNuestra)p).getSums().get(1).getPvperIds().get(0));
 			})
 			.expectComplete()
 			.verify()
 			;
+		
+		StepVerifier.create(lns)
+			.assertNext(l -> {
+				assertEquals(linea1.getId(), l.getId());
+				assertEquals(1, l.getPvps().size());
+				assertEquals(pvp2.getId(), l.getPvps().get(0).getPvperId());
+			})
+			.assertNext(l -> {
+				assertEquals(1, l.getPvps().size());
+				assertEquals(pvp2.getId(), l.getPvps().get(0).getPvperId());
+			})
+			.expectComplete()
+			.verify()
+			;
+		
 	}
 
 }

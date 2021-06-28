@@ -14,6 +14,7 @@ import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.CosteLineaProveedor;
 import devs.mrp.gullproject.domains.Linea;
+import devs.mrp.gullproject.domains.PvperLinea;
 import lombok.Data;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -130,6 +131,25 @@ public class LineaOperations {
 		Optional<CosteLineaProveedor> cos = linea.getCostesProveedor().stream().filter(c -> c.getCosteProveedorId().equals(costeId)).findFirst();
 		return cos.orElse(new CosteLineaProveedor(costeId));
 	}
+	
+	public boolean ifHasPvp(String pvpId) {
+		Optional<PvperLinea> pvp = linea.getPvps().stream().filter(p -> p.getPvperId().equals(pvpId)).findAny();
+		return pvp.isPresent();
+	}
+	
+	public void removePvpById(String pvpId) {
+		Iterator<PvperLinea> it = linea.getPvps().iterator();
+		while (it.hasNext()) {
+			PvperLinea linea = it.next();
+			if (linea.getPvperId().equals(pvpId)) {
+				it.remove();
+			}
+		}
+	}
+	
+	/**
+	 * 
+	 */
 	
 	public boolean equals(Linea nLinea) {
 		if (!checkEquality(linea.getNombre(), nLinea.getNombre())) {

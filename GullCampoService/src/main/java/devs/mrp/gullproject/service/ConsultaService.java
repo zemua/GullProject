@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.CosteProveedor;
+import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaNuestra;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
@@ -20,6 +21,7 @@ import devs.mrp.gullproject.domains.dto.CostesCheckboxWrapper;
 import devs.mrp.gullproject.domains.dto.PvperSumCheckboxWrapper;
 import devs.mrp.gullproject.domains.dto.PvpsCheckboxWrapper;
 import devs.mrp.gullproject.repository.ConsultaRepo;
+import devs.mrp.gullproject.repository.LineaRepo;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -30,11 +32,13 @@ public class ConsultaService {
 
 	ConsultaRepo consultaRepo;
 	ModelMapper modelMapper;
+	LineaRepo lineaRepo;
 	
 	@Autowired
-	public ConsultaService(ConsultaRepo consultaRepo, ModelMapper modelMapper) {
+	public ConsultaService(ConsultaRepo consultaRepo, ModelMapper modelMapper, LineaRepo lineaRepo) {
 		this.consultaRepo = consultaRepo;
 		this.modelMapper = modelMapper;
+		this.lineaRepo = lineaRepo;
 	}
 	
 	public Mono<Consulta> save(Consulta consulta) {
@@ -162,21 +166,56 @@ public class ConsultaService {
 		return consultaRepo.addPvpToList(idPropuesta, pvp);
 	}
 	
-	public Mono<Consulta> keepUnselectedPvps(String idPropuesta, PvpsCheckboxWrapper wrapper) {
-		findPropuestaByPropuestaId(idPropuesta) // TODO remove reference to pvps about to be deleted
-			.flatMapMany(pro -> {
-				if (pro instanceof PropuestaNuestra) {
-					return Flux.fromIterable(((PropuestaNuestra)pro).getSums())
-							.map(rSum -> {
-								return rSum;
-							})
-							;
-				}
+	private Mono<Consulta> removeReferenceToSelectedPvpsFromSums(String idPropuesta, PvpsCheckboxWrapper wrapper) {
+		return findPropuestaByPropuestaId(idPropuesta)
+		.flatMap(pro -> {
+			if (pro instanceof PropuestaNuestra) {
+				return Flux.fromIterable(((PropuestaNuestra)pro).getSums())
+						.map(rSum -> {
+							wrapper.getPvps().stream().forEach(sPvp -> {
+								if (sPvp.isSelected() && rSum.getPvperIds().contains(sPvp.getId())) {
+									rSum.getPvperIds().remove(sPvp.getId());
+								}
+							});
+							return rSum;
+						})
+						.collectList()
+						.flatMap(rListSums -> {
+							return updatePvpSumsOfPropuesta(idPropuesta, rListSums);
+						})
+						;
+			} else {
 				return Mono.empty();
+			}
+		})
+		;
+	}
+	
+	private Flux<Linea> removeReferenceToSelectedPvpsFromLineas(String idPropuesta, PvpsCheckboxWrapper wrapper) {
+		return lineaRepo.findAllByPropuestaIdOrderByOrderAsc(idPropuesta)
+			.flatMap(fLinea -> {
+				return Flux.fromIterable(wrapper.getPvps())
+						.map(fPvp -> {
+							var ops = fLinea.operations();
+							if (fPvp.isSelected() && ops.ifHasPvp(fPvp.getId())) {
+								ops.removePvpById(fPvp.getId());
+							}
+							return fPvp;
+						})
+						.then(lineaRepo.updatePvps(fLinea.getId(), fLinea.getPvps())
+						);
 			})
 			;
-		List<Pvper> pvps = wrapper.getPvps().stream().filter(p -> !p.isSelected()).map(p -> modelMapper.map(p, Pvper.class)).collect(Collectors.toList());
-		return updatePvpsOfPropuesta(idPropuesta, pvps);
+	}
+	
+	public Mono<Consulta> keepUnselectedPvps(String idPropuesta, PvpsCheckboxWrapper wrapper) {
+		return removeReferenceToSelectedPvpsFromSums(idPropuesta, wrapper)
+		.thenMany(removeReferenceToSelectedPvpsFromLineas(idPropuesta, wrapper))
+		.then(Mono.just(idPropuesta))
+		.flatMap(rStr -> {
+			List<Pvper> pvps = wrapper.getPvps().stream().filter(p -> !p.isSelected()).map(p -> modelMapper.map(p, Pvper.class)).collect(Collectors.toList());
+			return updatePvpsOfPropuesta(idPropuesta, pvps);
+		});
 	}
 	
 	public Mono<Consulta> updatePvpSumsOfPropuesta(String idPropuesta, List<PvperSum> sums) {

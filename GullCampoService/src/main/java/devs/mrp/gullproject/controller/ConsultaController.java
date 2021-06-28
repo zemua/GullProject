@@ -610,7 +610,7 @@ public class ConsultaController {
 			;
 	}
 	
-	@PostMapping("/pvpsof/propid/{id}/delete/confirm") // TODO remove also from sums
+	@PostMapping("/pvpsof/propid/{id}/delete/confirm") // TODO remove also from sums and lines
 	public Mono<String> processDeletePvpsOfProposal(PvpsCheckboxWrapper pvpsCheckboxWrapper, Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
 		return consultaService.keepUnselectedPvps(proposalId, pvpsCheckboxWrapper)
