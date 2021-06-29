@@ -493,5 +493,29 @@ class ConsultaServiceTest {
 			.verify()
 			;
 	}
+	
+	@Test
+	void testGetAllPropuestaNuestraAsignedTo() {
+		addCosts();
+		PropuestaNuestra pn2 = new PropuestaNuestra(propuestaNuestra);
+		pn2.setNombre("propuesta pn2");
+		pn2.setForProposalId("otro");
+		PropuestaNuestra pn3 = new PropuestaNuestra(propuestaNuestra);
+		pn3.setNombre("propuesta pn3");
+		consultaService.addPropuesta(consulta.getId(), pn2).block();
+		consultaService.addPropuesta(consulta.getId(), pn3).block();
+		
+		Flux<Propuesta> props = consultaService.getallPropuestaNuestraAsignedto(propuestaNuestra.getForProposalId());
+		StepVerifier.create(props)
+		.assertNext(p -> {
+			assertEquals(propuestaNuestra.getId(), p.getId());
+		})
+		.assertNext(p -> {
+			assertEquals(pn3.getId(), p.getId());
+		})
+		.expectComplete()
+		.verify()
+		;
+	}
 
 }

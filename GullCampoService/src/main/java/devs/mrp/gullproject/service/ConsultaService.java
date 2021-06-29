@@ -209,7 +209,7 @@ public class ConsultaService {
 			;
 	}
 	
-	public Flux<Propuesta> getallPropuestaNuestraAsignedto(String propClienteId) { // TODO test
+	public Flux<Propuesta> getallPropuestaNuestraAsignedto(String propClienteId) {
 		return findConsultaByPropuestaId(propClienteId)
 				.flatMapMany(rCons -> {
 					return Flux.fromIterable(rCons.getPropuestas().stream()
