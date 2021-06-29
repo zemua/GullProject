@@ -32,7 +32,10 @@ import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.domains.PropuestaNuestra;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
+import devs.mrp.gullproject.domains.Pvper;
+import devs.mrp.gullproject.domains.PvperSum;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AtributoForLineaFormDto;
 import devs.mrp.gullproject.domains.dto.LineaWithSelectorDto;
@@ -96,7 +99,10 @@ class LineaControllerTest {
 	
 	Propuesta propuesta;
 	Propuesta propuestaProveedor;
+	Propuesta propuestaNuestra;
 	Consulta consulta;
+	
+	CosteProveedor cos1;
 	
 	@BeforeEach
 	void init() {
@@ -170,7 +176,7 @@ class LineaControllerTest {
 		propuestaProveedor.setNombre("propuesta proveedor name");
 		propuestaProveedor.setForProposalId(propuesta.getId());
 		List<CosteProveedor> costes = new ArrayList<>();
-		CosteProveedor cos1 = new CosteProveedor();
+		cos1 = new CosteProveedor();
 		cos1.setName("COSTE BASE");
 		costes.add(cos1);
 		((PropuestaProveedor)propuestaProveedor).setCostes(costes);
@@ -222,6 +228,31 @@ class LineaControllerTest {
 		costs.add(cost);
 		linea1.setCostesProveedor(costs);
 		linea2.setCostesProveedor(costs);
+	}
+	
+	private void addPropuestaNuestra() {
+		propuestaNuestra = new PropuestaNuestra(propuesta.getId());
+		propuestaNuestra.setAttributeColumns(propuesta.getAttributeColumns());
+		propuestaNuestra.setLineaIds(new ArrayList<>());
+		propuestaNuestra.getLineaIds().add(propuesta.getLineaIds().get(0));
+		propuestaNuestra.getLineaIds().add(propuesta.getLineaIds().get(1));
+		propuestaNuestra.setNombre("propuesta nuestra name");
+		propuestaNuestra.setForProposalId(propuesta.getId());
+		List<Pvper> pvps = new ArrayList<>();
+		Pvper pvp1 = new Pvper();
+		pvp1.setIdCostes(new ArrayList<>() {{add(cos1.getId());}});
+		pvp1.setName("pvp1 name");
+		pvps.add(pvp1);
+		((PropuestaNuestra)propuestaNuestra).setPvps(pvps);
+		
+		List<PvperSum> sums = new ArrayList<>();
+		PvperSum sum1 = new PvperSum();
+		sum1.setName("name sum 1");
+		sum1.setPvperIds(new ArrayList<>() {{add(pvp1.getId());}});
+		sums.add(sum1);
+		((PropuestaNuestra)propuestaNuestra).setSums(sums);
+		
+		consulta.getPropuestas().add(propuestaNuestra);
 	}
 
 	@Test
@@ -276,6 +307,11 @@ class LineaControllerTest {
 					.contains("123.45")
 					.contains(propuestaProveedor.getNombre());
 		});
+	}
+	
+	@Test // TODO
+	void testShowAllLinesOfOferta() {
+		
 	}
 	
 	@Test
