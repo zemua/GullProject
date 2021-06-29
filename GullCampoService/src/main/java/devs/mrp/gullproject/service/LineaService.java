@@ -41,6 +41,10 @@ public class LineaService {
 		return lineaRepo.findAllByPropuestaIdOrderByOrderAsc(propuestaId);
 	}
 	
+	public Flux<Linea> findBySeveralPropuestaIds(List<String> propuestaIds) {
+		return lineaRepo.findLineasByPropuestaIdIn(propuestaIds);
+	}
+	
 	public Flux<Linea> findAll(){
 		return lineaRepo.findAllByOrderByOrderAsc();
 	}

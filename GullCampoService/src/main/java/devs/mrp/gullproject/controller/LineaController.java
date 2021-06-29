@@ -27,6 +27,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
+import devs.mrp.gullproject.ainterfaces.ListMerger;
+import devs.mrp.gullproject.ainterfaces.ListOfAsignables;
+import devs.mrp.gullproject.ainterfaces.MapperByDupla;
 import devs.mrp.gullproject.configuration.ClientProperties;
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Campo;
@@ -34,6 +37,7 @@ import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaCliente;
+import devs.mrp.gullproject.domains.PropuestaNuestra;
 import devs.mrp.gullproject.domains.StringListOfListsWrapper;
 import devs.mrp.gullproject.domains.StringListWrapper;
 import devs.mrp.gullproject.domains.StringWrapper;
@@ -54,10 +58,14 @@ import devs.mrp.gullproject.service.AttRemaperUtilities;
 import devs.mrp.gullproject.service.ClassDestringfier;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.CostRemapperUtilities;
+import devs.mrp.gullproject.service.CustomerLineToCostMapper;
+import devs.mrp.gullproject.service.LineByAssignationRetriever;
 import devs.mrp.gullproject.service.LineaOperations;
 import devs.mrp.gullproject.service.LineaService;
 import devs.mrp.gullproject.service.LineaUtilities;
+import devs.mrp.gullproject.service.ProposalLineIdsMerger;
 import devs.mrp.gullproject.service.PropuestaProveedorUtilities;
+import devs.mrp.gullproject.service.PvpSumForLineFinder;
 import devs.mrp.gullproject.validator.AttributeValueValidator;
 import devs.mrp.gullproject.validator.ValidList;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
@@ -104,6 +112,41 @@ public class LineaController {
 		model.addAttribute("propuestaId", propuestaId);
 		model.addAttribute("mapa", lineaUtilities.get_ProposalId_VS_SetOfCounterLineId(propuestaId));
 		return "showAllLineasOfPropuesta";
+	}
+	
+	@GetMapping("/allof/ofertaid/{propuestaId}") // TODO test
+	public Mono<String> showAllLinesOfOferta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+		return consultaService.findConsultaByPropuestaId(propuestaId)
+		.map(rCons -> {
+			var ops = rCons.operations();
+			PropuestaNuestra propuesta = (PropuestaNuestra)ops.getPropuestaById(propuestaId);
+			Propuesta propCliente = ops.getPropuestaById(propuesta.getForProposalId());
+			List<Propuesta> propProveedores = ops.getPropuestasProveedorAssignedTo(propCliente.getId());
+			ListMerger<String> proveedorLineIds = new ProposalLineIdsMerger(propProveedores);
+			
+			model.addAttribute("propuesta", propuesta);
+			MapperByDupla<Double, Linea, String> sumsMapper = new PvpSumForLineFinder(propuesta);
+			model.addAttribute("sumsMapper", sumsMapper);
+			model.addAttribute("consulta", rCons);
+			model.addAttribute("propCliente", propCliente);
+			model.addAttribute("lineasCliente", lineaService.findByPropuestaId(propCliente.getId()));
+			return lineaService.findBySeveralPropuestaIds(proveedorLineIds.merge())
+				.collectList()
+				.map(proveedorLineList -> {
+					ListOfAsignables<Linea> asignablesProveedor = new LineByAssignationRetriever(proveedorLineList);
+					model.addAttribute("costMapper", new CustomerLineToCostMapper(asignablesProveedor));
+					return null;
+				})
+				.thenMany(lineaService.findByPropuestaId(propuesta.getId()))
+				.collectList()
+				.map(ofertaLineList -> {
+					ListOfAsignables<Linea> asignablesOferta = new LineByAssignationRetriever(ofertaLineList);
+					model.addAttribute("pvpMapper", asignablesOferta);
+					return null;
+				})
+				;
+		})
+		.then(Mono.just("showAllLineasOfOferta"));
 	}
 	
 	@GetMapping("/allof/propid/{propuestaId}/order")

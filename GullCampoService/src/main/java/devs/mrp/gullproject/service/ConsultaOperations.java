@@ -70,6 +70,10 @@ public class ConsultaOperations {
 		return consulta.getPropuestas().stream().filter(p-> p.getTipoPropuesta().equals(TipoPropuesta.PROVEEDOR)).collect(Collectors.toList());
 	}
 	
+	public List<Propuesta> getPropuestasProveedorAssignedTo(String idAssignedto) {
+		return consulta.getPropuestas().stream().filter(p -> p.getTipoPropuesta().equals(TipoPropuesta.PROVEEDOR)).filter(p -> p.getForProposalId().equals(idAssignedto)).collect(Collectors.toList());
+	}
+	
 	public List<CosteProveedor> getCostesOfPropuestasProveedor() {
 		List<CosteProveedor> costes = new ArrayList<>();
 		getPropuestasProveedor().stream().forEach(p -> {

@@ -137,6 +137,26 @@ public class LineaOperations {
 		return pvp.isPresent();
 	}
 	
+	public PvperLinea getPvp(String pvpId) {
+		return linea.getPvps().stream().filter(p -> p.getPvperId().equals(pvpId)).findAny().orElse(null);
+	}
+	
+	public Double getPvpValue(String pvpId) {
+		var pvp = getPvp(pvpId);
+		if (pvp == null) {
+			return 0D;
+		}
+		return pvp.getPvp();
+	}
+	
+	public Double getPvpMargin(String pvpId) {
+		var pvp = getPvp(pvpId);
+		if (pvp == null) {
+			return 0D;
+		}
+		return pvp.getMargen();
+	}
+	
 	public void removePvpById(String pvpId) {
 		Iterator<PvperLinea> it = linea.getPvps().iterator();
 		while (it.hasNext()) {
@@ -160,6 +180,11 @@ public class LineaOperations {
 				it.remove();
 			}
 		}
+	}
+	
+	public boolean ifAssignedTo(String id) {
+		Optional<String> assigned = linea.getCounterLineId().stream().filter(c -> c.equals(id)).findAny();
+		return assigned.isPresent();
 	}
 	
 	/**

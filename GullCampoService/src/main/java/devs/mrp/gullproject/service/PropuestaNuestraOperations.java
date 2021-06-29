@@ -36,6 +36,22 @@ public class PropuestaNuestraOperations extends PropuestaOperations {
 		propuestaNuestra = (PropuestaNuestra)propuesta;
 	}
 	
+	public boolean ifHasPvp(String pvpId) {
+		return propuestaNuestra.getPvps().stream().filter(p -> p.getId().equals(pvpId)).findAny().isPresent();
+	}
+	
+	public Pvper getPvpById(String pvpId) {
+		return propuestaNuestra.getPvps().stream().filter(p -> p.getId().equals(pvpId)).findAny().orElse(null);
+	}
+	
+	public boolean ifHasSum(String sumId) {
+		return propuestaNuestra.getSums().stream().filter(s -> s.getId().equals(sumId)).findAny().isPresent();
+	}
+	
+	public PvperSum getSumById(String sumId) {
+		return propuestaNuestra.getSums().stream().filter(s -> s.getId().equals(sumId)).findAny().orElse(null);
+	}
+	
 	public List<PvperCheckbox> getPvpsCheckbox(ModelMapper modelMapper) {
 		return propuestaNuestra.getPvps().stream().map(p -> modelMapper.map(p, PvperCheckbox.class)).collect(Collectors.toList());
 	}

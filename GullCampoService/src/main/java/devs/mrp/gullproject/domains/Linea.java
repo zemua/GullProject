@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Document (collection = "lineas")
 @NoArgsConstructor
-public class Linea {
+public class Linea { // TODO aplicar Liskov Principle
 
 	@Id
 	private String id = new ObjectId().toString();
