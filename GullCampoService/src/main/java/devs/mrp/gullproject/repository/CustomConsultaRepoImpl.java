@@ -68,7 +68,7 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
 	}
 	
-	@Override // TODO test
+	@Override
 	public Mono<Consulta> removePropuestasByAssignedTo(String idConsulta, String idAssignedTo) {
 		Query query = new Query(Criteria.where("propuestas.forProposalId").is(idAssignedTo).and("id").is(idConsulta));
 		Update update = new Update().pull("propuestas", new BasicDBObject("forProposalId", idAssignedTo));

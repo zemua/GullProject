@@ -360,6 +360,46 @@ class CustomConsultaRepoImplTest {
 	}
 	
 	@Test
+	void testRemovePropuestasByAssignedTo() {
+		PropuestaNuestra pn = new PropuestaNuestra();
+		pn.setForProposalId(propuesta1.getId());
+		PropuestaProveedor pp = new PropuestaProveedor();
+		pp.setForProposalId(propuesta1.getId());
+		PropuestaNuestra otra = new PropuestaNuestra();
+		otra.setForProposalId(propuesta2.getId());
+		
+		repo.addPropuesta(consulta.getId(), pn).block();
+		repo.addPropuesta(consulta.getId(), pp).block();
+		repo.addPropuesta(consulta.getId(), otra).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals("consulta nombre", cons.getNombre());
+			assertEquals(5, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta1, cons.operations().getPropuestaByIndex(0));
+			assertEquals(propuesta2, cons.operations().getPropuestaByIndex(1));
+			assertEquals(pn, cons.operations().getPropuestaByIndex(2));
+			assertEquals(pp, cons.operations().getPropuestaByIndex(3));
+			assertEquals(otra, cons.operations().getPropuestaByIndex(4));
+		})
+		.expectComplete()
+		.verify();
+		
+		repo.removePropuestasByAssignedTo(consulta.getId(), propuesta1.getId()).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals("consulta nombre", cons.getNombre());
+			assertEquals(3, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta1, cons.operations().getPropuestaByIndex(0));
+			assertEquals(propuesta2, cons.operations().getPropuestaByIndex(1));
+			assertEquals(otra, cons.operations().getPropuestaByIndex(2));
+		})
+		.expectComplete()
+		.verify();
+	}
+	
+	@Test
 	void testRemoveVariasPropuestas() {
 		Mono<Consulta> mono = repo.findById(consulta.getId());		
 				
