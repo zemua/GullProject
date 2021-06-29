@@ -27,6 +27,7 @@ public interface LineaRepo extends ReactiveMongoRepository<Linea, String>, Custo
 	Flux<Linea> findLineasByIdInOrderByOrderAsc(List<String> ids);
 	Flux<Linea> findAllByPropuestaIdOrderByOrderAsc(String propuestaId);
 	Flux<Linea> findAllByOrderByOrderAsc();
+	Flux<Linea> findAllByOrderByOrderDesc();
 	
 	Mono<Long> countByPropuestaId(String propuestaId);
 	
