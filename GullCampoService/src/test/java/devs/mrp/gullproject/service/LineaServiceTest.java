@@ -41,9 +41,10 @@ class LineaServiceTest {
 	LineaRepo lineaRepo;
 	ConsultaRepo consultaRepo;
 	ConsultaService consultaService;
+	CompoundedConsultaLineaService compoundedService;
 	
 	@Autowired
-	public LineaServiceTest(LineaService lineaService, LineaRepo lineaRepo, ConsultaRepo consultaRepo, ConsultaService consultaService) {
+	public LineaServiceTest(LineaService lineaService, LineaRepo lineaRepo, ConsultaRepo consultaRepo, ConsultaService consultaService, CompoundedConsultaLineaService compoundedService) {
 		this.lineaService = lineaService;
 		this.lineaRepo = lineaRepo;
 		if (!(lineaRepo instanceof CustomLineaRepo)) {
@@ -51,6 +52,7 @@ class LineaServiceTest {
 		}
 		this.consultaRepo = consultaRepo;
 		this.consultaService = consultaService;
+		this.compoundedService = compoundedService;
 	}
 	
 	Campo<Integer> campo1;
@@ -395,7 +397,7 @@ class LineaServiceTest {
 		lineaRepo.save(lp2a).block();
 		lineaRepo.save(lp2b).block();
 		
-		Flux<Linea> lineas = lineaService.getAllLineasOfPropuestasAssignedTo(propuesta.getId());
+		Flux<Linea> lineas = compoundedService.getAllLineasOfPropuestasAssignedTo(propuesta.getId());
 		StepVerifier.create(lineas)
 			.assertNext(l -> {
 				assertEquals(lp1a.getId(), l.getId());

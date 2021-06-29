@@ -48,6 +48,7 @@ import devs.mrp.gullproject.domains.dto.PvperSumCheckboxWrapper;
 import devs.mrp.gullproject.domains.dto.PvpsCheckboxWrapper;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.AtributoUtilities;
+import devs.mrp.gullproject.service.CompoundedConsultaLineaService;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaService;
 import devs.mrp.gullproject.service.PropuestaUtilities;
@@ -73,6 +74,8 @@ class ConsultaControllerTestB {
 	LineaService lineaService;
 	@MockBean
 	AtributoServiceProxyWebClient atributoService;
+	@MockBean
+	CompoundedConsultaLineaService compoundService;
 	
 	@Autowired
 	public ConsultaControllerTestB(WebTestClient webTestClient, ConsultaController consultaController, ModelMapper modelMapper) {
@@ -188,6 +191,7 @@ class ConsultaControllerTestB {
 		sums.add(sum1);
 		((PropuestaNuestra)propuestaNuestra).setSums(sums);
 		
+		when(compoundService.removePropuestasAssignedToAndTheirLines(ArgumentMatchers.eq(consulta1.getId()), ArgumentMatchers.eq(prop1.getId()))).thenReturn(Mono.empty());
 		
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(prop1.getId()))).thenReturn(Mono.just(prop1));
 		when(consultaService.findAttributesByPropuestaId(prop1.getId())).thenReturn(Flux.fromIterable(consulta1.operations().getPropuestaById(prop1.getId()).getAttributeColumns()));

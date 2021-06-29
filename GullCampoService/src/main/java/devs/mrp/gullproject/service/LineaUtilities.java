@@ -55,15 +55,17 @@ public class LineaUtilities {
 	AtributoServiceProxyWebClient atributoService;
 	ModelMapper modelMapper;
 	LineaService lineaService;
+	CompoundedConsultaLineaService compoundedService;
 	
 	String tipoCoste = "COSTE";
 	
 	@Autowired
-	public LineaUtilities(ConsultaService consultaService, ModelMapper modelMapper, AtributoServiceProxyWebClient atributoService, LineaService lineaService) {
+	public LineaUtilities(ConsultaService consultaService, ModelMapper modelMapper, AtributoServiceProxyWebClient atributoService, LineaService lineaService, CompoundedConsultaLineaService compoundedService) {
 		this.consultaService = consultaService;
 		this.modelMapper = modelMapper;
 		this.atributoService = atributoService;
 		this.lineaService = lineaService;
+		this.compoundedService = compoundedService;
 	}
 	
 	private Mono<LineaWithAttListDto> addCostsIfApplies(LineaWithAttListDto dto) {
@@ -750,7 +752,7 @@ public class LineaUtilities {
 	}
 	
 	public Mono<Map<String, Set<String>>> get_ProposalId_VS_SetOfCounterLineId(String customerProposalId) {
-		return lineaService.getAllLineasOfPropuestasAssignedTo(customerProposalId)
+		return compoundedService.getAllLineasOfPropuestasAssignedTo(customerProposalId)
 			.collectList().map(lineas -> {
 				Map<String, Set<String>> map = new HashMap<>();
 				lineas.stream().forEach(linea -> {

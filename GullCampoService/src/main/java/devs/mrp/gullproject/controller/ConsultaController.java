@@ -48,6 +48,7 @@ import devs.mrp.gullproject.domains.dto.WrapPropuestaClienteAndSelectableAttribu
 import devs.mrp.gullproject.domains.dto.WrapPropuestaNuestraAndSelectableAttributes;
 import devs.mrp.gullproject.domains.dto.WrapPropuestaProveedorAndSelectableAttributes;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
+import devs.mrp.gullproject.service.CompoundedConsultaLineaService;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.LineaService;
 import devs.mrp.gullproject.service.PropuestaNuestraOperations;
@@ -73,14 +74,16 @@ public class ConsultaController {
 	AtributoServiceProxyWebClient atributoService;
 	PropuestaUtilities propuestaUtilities;
 	ModelMapper modelMapper;
+	CompoundedConsultaLineaService compoundedService;
 	
 	@Autowired
-	public ConsultaController(ConsultaService consultaService, LineaService lineaService, AtributoServiceProxyWebClient atributoService, PropuestaUtilities propuestaUtilities, ModelMapper modelMapper) {
+	public ConsultaController(ConsultaService consultaService, LineaService lineaService, AtributoServiceProxyWebClient atributoService, PropuestaUtilities propuestaUtilities, ModelMapper modelMapper, CompoundedConsultaLineaService compoundedService) {
 		this.consultaService = consultaService;
 		this.lineaService = lineaService;
 		this.atributoService = atributoService;
 		this.propuestaUtilities = propuestaUtilities;
 		this.modelMapper = modelMapper;
+		this.compoundedService = compoundedService;
 	}
 	
 	@GetMapping("/nuevo")
@@ -210,14 +213,15 @@ public class ConsultaController {
 		return "deletePropuestaById";
 	}
 	
-	@PostMapping("/delete/id/{consultaid}/propuesta/{propuestaid}") // TODO delete also the related propuestas (proveedor/nuestras) y sus líneas
+	@PostMapping("/delete/id/{consultaid}/propuesta/{propuestaid}")
 	public Mono<String> processDeletePropuestaById(ConsultaPropuestaBorrables data, Model model) {
 		log.debug("id consulta: " + data.getIdConsulta());
 		log.debug("id propuesta: " + data.getIdPropuesta());
 		Mono<Long> lineas = lineaService.deleteSeveralLineasFromPropuestaId(data.getIdPropuesta());
 		Mono<Integer> c = consultaService.removePropuestaById(data.getIdConsulta(), data.getIdPropuesta());
 		model.addAttribute("idConsulta", data.getIdConsulta());
-		return lineas.map(rLineas -> {
+		return compoundedService.removePropuestasAssignedToAndTheirLines(data.getIdConsulta(), data.getIdPropuesta())
+				.then(lineas).map(rLineas -> {
 			model.addAttribute("lineasBorradas", rLineas);
 			return true;
 		})
@@ -456,7 +460,7 @@ public class ConsultaController {
 			;
 	}
 	
-	@PostMapping("/costof/propid/{id}/delete/confirm") // TODO delete also reference from PVPs
+	@PostMapping("/costof/propid/{id}/delete/confirm")
 	public Mono<String> processDeleteCostsOfProposal(CostesCheckboxWrapper costesCheckboxWraper, Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
 		return consultaService.keepUnselectedCosts(proposalId, costesCheckboxWraper)

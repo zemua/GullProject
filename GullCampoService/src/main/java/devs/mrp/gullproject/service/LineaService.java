@@ -26,13 +26,11 @@ public class LineaService {
 
 	private LineaRepo lineaRepo;
 	private ConsultaRepo consultaRepo;
-	private ConsultaService consultaService;
 	
 	@Autowired
-	public LineaService(LineaRepo lineaRepo, ConsultaRepo consultaRepo, ConsultaService consultaService) {
+	public LineaService(LineaRepo lineaRepo, ConsultaRepo consultaRepo) {
 		this.lineaRepo = lineaRepo;
 		this.consultaRepo = consultaRepo;
-		this.consultaService = consultaService;
 	}
 	
 	public Mono<Linea> findById(String id){
@@ -171,11 +169,6 @@ public class LineaService {
 	
 	public Mono<Linea> removeCounterLineId(String idLinea, String counterLineId) {
 		return lineaRepo.removeCounterLineId(idLinea, counterLineId);
-	}
-	
-	public Flux<Linea> getAllLineasOfPropuestasAssignedTo(String propuestaClienteId) {
-		return consultaService.getAllPropuestaProveedorAsignedTo(propuestaClienteId)
-			.flatMap(rProp -> findByPropuestaId(rProp.getId()));
 	}
 	
 	public Mono<Linea> updatePvps(String idLinea, List<PvperLinea> pvps) {

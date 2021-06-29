@@ -21,6 +21,8 @@ public interface CustomConsultaRepo {
 	
 	public Mono<Consulta> removePropuesta(String idConsulta, Propuesta propuesta);
 	
+	public Mono<Consulta> removePropuestasByAssignedTo(String idConsulta, String idAssignedTo);
+	
 	public Mono<Consulta> removeVariasPropuestas(String idConsulta, Propuesta[] propuestas);
 	
 	public Mono<Consulta> updateNombrePropuesta(String idConsulta, Propuesta propuesta);

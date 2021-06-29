@@ -65,6 +65,10 @@ public class ConsultaService {
 		return consultaRepo.removePropuesta(idConsulta, propuesta);
 	}
 	
+	public Mono<Consulta> removePropuestasByAssignedtoAndReturnOld(String idConsulta, String idAssignedTo) {
+		return consultaRepo.removePropuestasByAssignedTo(idConsulta, idAssignedTo);
+	}
+	
 	public Mono<Integer> removePropuestaById(String idConsulta, String idPropuesta){
 		Mono<Consulta> original = findById(idConsulta);
 		Mono<Propuesta> p = original.flatMap(cons -> Mono.just(cons.operations().getPropuestaById(idPropuesta)));

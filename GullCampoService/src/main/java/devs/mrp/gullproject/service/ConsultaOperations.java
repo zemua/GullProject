@@ -82,4 +82,8 @@ public class ConsultaOperations {
 		return getCostesOfPropuestasProveedor().stream().collect(Collectors.toMap(CosteProveedor::getId, Function.identity()));
 	}
 	
+	public List<Propuesta> getAllPropuestasAssignedToId(String idAssignedTo) {
+		return consulta.getPropuestas().stream().filter(p -> p.getForProposalId().equals(idAssignedTo)).collect(Collectors.toList());
+	}
+	
 }
