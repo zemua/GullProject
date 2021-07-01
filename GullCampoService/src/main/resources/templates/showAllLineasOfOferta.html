@@ -33,7 +33,7 @@
 				<td th:each="t : ${propCliente.getAttributeColumns()}"><span th:text="${a.operations().getValueByAttId(t.getId())}"></span></td>
 				<th:block th:if="${propuesta.getPvps().size() > 0 or propuesta.getSums().size() > 0}">
 				<td th:if="${astat.index == 0}" rowspan="0"></td>
-				<td th:each="pvp : ${propuesta.getPvps()}"><span th:text="${pvpMapper != null and pvpMapper.getAssignedTo(a.id) != null and pvpMapper.getAssignedTo(a.id).operations.getPvpValue(pvp.id) > 0 ? pvpMapper.getAssignedTo(a.id).operations.getPvpValue(pvp.id) : ''}"></span></td>
+				<td th:each="pvp : ${propuesta.getPvps()}"><span th:text="${pvpMapper.getByDupla(a.id, pvp.id) > 0 ? pvpMapper.getByDupla(a.id, pvp.id) : ''}"></span></td>
 				<td th:each="sum : ${propuesta.getSums()}"><span th:text="${sumsMapper.getByDupla(a, sum.id) > 0 ? sumsMapper.getByDupla(a, sum.id) : ''}"></span></td>
 				</th:block>
 			</tr>

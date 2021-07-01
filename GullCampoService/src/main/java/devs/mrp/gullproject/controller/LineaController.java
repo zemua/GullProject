@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
+import devs.mrp.gullproject.afactories.PvpMapperByLineFactory;
 import devs.mrp.gullproject.ainterfaces.ListMerger;
 import devs.mrp.gullproject.ainterfaces.ListOfAsignables;
 import devs.mrp.gullproject.ainterfaces.MapperByDupla;
@@ -63,7 +64,7 @@ import devs.mrp.gullproject.service.LineByAssignationRetriever;
 import devs.mrp.gullproject.service.LineaOperations;
 import devs.mrp.gullproject.service.LineaService;
 import devs.mrp.gullproject.service.LineaUtilities;
-import devs.mrp.gullproject.service.ProposalLineIdsMerger;
+import devs.mrp.gullproject.service.ProposalIdsMerger;
 import devs.mrp.gullproject.service.PropuestaProveedorUtilities;
 import devs.mrp.gullproject.service.PvpSumForLineFinder;
 import devs.mrp.gullproject.validator.AttributeValueValidator;
@@ -88,6 +89,7 @@ public class LineaController {
 	AttRemaperUtilities attRemaperUtilities;
 	CostRemapperUtilities costRemapperUtilities;
 	PropuestaProveedorUtilities propuestaProveedorUtilities;
+	@Autowired PvpMapperByLineFactory pvpMapperByLineFactory;
 
 	@Autowired
 	public LineaController(LineaService lineaService, ConsultaService consultaService, ModelMapper modelMapper,
@@ -114,15 +116,15 @@ public class LineaController {
 		return "showAllLineasOfPropuesta";
 	}
 	
-	@GetMapping("/allof/ofertaid/{propuestaId}") // TODO test
+	@GetMapping("/allof/ofertaid/{propuestaId}")
 	public Mono<String> showAllLinesOfOferta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		return consultaService.findConsultaByPropuestaId(propuestaId)
-		.map(rCons -> {
+		.flatMap(rCons -> {
 			var ops = rCons.operations();
 			PropuestaNuestra propuesta = (PropuestaNuestra)ops.getPropuestaById(propuestaId);
 			Propuesta propCliente = ops.getPropuestaById(propuesta.getForProposalId());
 			List<Propuesta> propProveedores = ops.getPropuestasProveedorAssignedTo(propCliente.getId());
-			ListMerger<String> proveedorLineIds = new ProposalLineIdsMerger(propProveedores);
+			ListMerger<String> proveedorPropIds = new ProposalIdsMerger(propProveedores);
 			
 			model.addAttribute("propuesta", propuesta);
 			MapperByDupla<Double, Linea, String> sumsMapper = new PvpSumForLineFinder(propuesta);
@@ -130,19 +132,27 @@ public class LineaController {
 			model.addAttribute("consulta", rCons);
 			model.addAttribute("propCliente", propCliente);
 			model.addAttribute("lineasCliente", lineaService.findByPropuestaId(propCliente.getId()));
-			return lineaService.findBySeveralPropuestaIds(proveedorLineIds.merge())
+			log.debug("going to find proveedor lines by: " + proveedorPropIds.toString());
+			return lineaService.findBySeveralPropuestaIds(proveedorPropIds.merge())
+					.map(l -> {
+						log.debug("got from proveedor linea: " + l.toString());
+						return l;
+					})
 				.collectList()
 				.map(proveedorLineList -> {
+					log.debug("going to get cost mapper from: " + proveedorLineList.toString());
 					ListOfAsignables<Linea> asignablesProveedor = new LineByAssignationRetriever(proveedorLineList);
+					log.debug("adding mapper: " + asignablesProveedor.toString());
 					model.addAttribute("costMapper", new CustomerLineToCostMapper(asignablesProveedor));
-					return null;
+					return true;
 				})
-				.thenMany(lineaService.findByPropuestaId(propuesta.getId()))
-				.collectList()
+				.then(lineaService.findByPropuestaId(propuesta.getId()).collectList())
 				.map(ofertaLineList -> {
-					ListOfAsignables<Linea> asignablesOferta = new LineByAssignationRetriever(ofertaLineList);
-					model.addAttribute("pvpMapper", asignablesOferta);
-					return null;
+					log.debug("going to get pvp mapper from: " + ofertaLineList.toString());
+					var pvpMapper = pvpMapperByLineFactory.from(ofertaLineList);
+					log.debug("adding mapper: " + pvpMapper.toString());
+					model.addAttribute("pvpMapper", pvpMapper);
+					return true;
 				})
 				;
 		})

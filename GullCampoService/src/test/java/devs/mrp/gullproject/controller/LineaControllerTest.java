@@ -23,6 +23,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
+import devs.mrp.gullproject.afactories.PvpMapperByLineFactory;
 import devs.mrp.gullproject.configuration.MapperConfig;
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Campo;
@@ -35,6 +36,7 @@ import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.domains.PropuestaNuestra;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.domains.Pvper;
+import devs.mrp.gullproject.domains.PvperLinea;
 import devs.mrp.gullproject.domains.PvperSum;
 import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.AtributoForLineaFormDto;
@@ -42,6 +44,7 @@ import devs.mrp.gullproject.domains.dto.LineaWithSelectorDto;
 import devs.mrp.gullproject.domains.dto.WrapLineasWithSelectorDto;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.AttRemaperUtilities;
+import devs.mrp.gullproject.service.CompoundedConsultaLineaService;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.CostRemapperUtilities;
 import devs.mrp.gullproject.service.LineaOperations;
@@ -56,7 +59,7 @@ import reactor.core.publisher.Mono;
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = LineaController.class)
 @AutoConfigureWebTestClient
-@Import({MapperConfig.class, LineaUtilities.class, AttRemaperUtilities.class, CostRemapperUtilities.class, PropuestaProveedorUtilities.class})
+@Import({MapperConfig.class, LineaUtilities.class, AttRemaperUtilities.class, CostRemapperUtilities.class, PropuestaProveedorUtilities.class, PvpMapperByLineFactory.class})
 class LineaControllerTest {
 	
 	WebTestClient webTestClient;
@@ -69,6 +72,7 @@ class LineaControllerTest {
 	ConsultaService consultaService;
 	@MockBean
 	AtributoServiceProxyWebClient atributoService;
+	@MockBean CompoundedConsultaLineaService compoundedService;
 	
 	@Autowired
 	public LineaControllerTest(WebTestClient webTestClient, LineaController lineaController, ModelMapper modelMapper) {
@@ -218,6 +222,7 @@ class LineaControllerTest {
 		when(consultaService.findConsultaByPropuestaId(ArgumentMatchers.eq(propuestaProveedor.getId()))).thenReturn(Mono.just(consulta));
 		when(lineaService.updateNombre(ArgumentMatchers.eq(linea1.getId()), ArgumentMatchers.eq(campo1b.getDatosText()))).thenReturn(Mono.just(linea1));
 		when(lineaService.updateNombre(ArgumentMatchers.eq(linea2.getId()), ArgumentMatchers.eq(campo2b.getDatosText()))).thenReturn(Mono.just(linea2));
+		when(lineaService.findBySeveralPropuestaIds(ArgumentMatchers.anyList())).thenReturn(Flux.just(linea1, linea2));
 	}
 	
 	private void addCosteToLineas() {
@@ -252,9 +257,19 @@ class LineaControllerTest {
 		sums.add(sum1);
 		((PropuestaNuestra)propuestaNuestra).setSums(sums);
 		
+		PvperLinea pvplinea1 = new PvperLinea();
+		pvplinea1.setPvp(45.6);
+		pvplinea1.setMargen(6.5);
+		pvplinea1.setPvperId(pvp1.getId());
+		linea1.setPvps(new ArrayList<>() {{add(pvplinea1);}});
+		linea2.setPvps(new ArrayList<>() {{add(pvplinea1);}});
+		
 		consulta.getPropuestas().add(propuestaNuestra);
+		
+		when(consultaService.findConsultaByPropuestaId(ArgumentMatchers.eq(propuestaNuestra.getId()))).thenReturn(Mono.just(consulta));
+		when(lineaService.findByPropuestaId(ArgumentMatchers.eq(propuestaNuestra.getId()))).thenReturn(Flux.just(linea1, linea2));
 	}
-
+	
 	@Test
 	void testShowAllLinesOf() {
 		when(lineaService.findByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(flux);
@@ -311,7 +326,23 @@ class LineaControllerTest {
 	
 	@Test // TODO
 	void testShowAllLinesOfOferta() {
-		
+		addPropuestaNuestra();
+		webTestClient.get()
+		.uri("/lineas/allof/ofertaid/"+propuestaNuestra.getId())
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Lineas de la oferta")
+					.contains("Nombre")
+					.contains("Pvps")
+					.contains(linea1.getCampos().get(0).getDatosText())
+					.contains(linea2.getCampos().get(1).getDatosText())
+					.contains(propuestaNuestra.getNombre())
+					.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName());
+		});
 	}
 	
 	@Test

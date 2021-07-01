@@ -18,9 +18,11 @@ import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PvperLinea;
 import devs.mrp.gullproject.repository.ConsultaRepo;
 import devs.mrp.gullproject.repository.LineaRepo;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Service
 public class LineaService {
 
@@ -42,6 +44,7 @@ public class LineaService {
 	}
 	
 	public Flux<Linea> findBySeveralPropuestaIds(List<String> propuestaIds) {
+		log.debug("lineaService, findBySeveralPropuestaIds: " + propuestaIds.toString());
 		return lineaRepo.findLineasByPropuestaIdIn(propuestaIds);
 	}
 	

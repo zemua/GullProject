@@ -6,22 +6,25 @@ import java.util.List;
 import devs.mrp.gullproject.ainterfaces.ListMerger;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
+import lombok.extern.slf4j.Slf4j;
 
-public class ProposalLineIdsMerger implements ListMerger<String> {
+@Slf4j
+public class ProposalIdsMerger implements ListMerger<String> {
 
 	List<Propuesta> propuestas;
 	
-	public ProposalLineIdsMerger(List<Propuesta> propuestas) {
+	public ProposalIdsMerger(List<Propuesta> propuestas) {
 		this.propuestas = propuestas;
 	}
 	
 	@Override
 	public List<String> merge() {
-		List<String> lineas = new ArrayList<>();
+		List<String> ids = new ArrayList<>();
 		propuestas.stream().forEach(p -> {
-			lineas.addAll(p.getLineaIds());
+			log.debug("adding proposal id to merge: " + p.getId() + " of " + p.toString());
+			ids.add(p.getId());
 		});
-		return null;
+		return ids;
 	}
 
 }
