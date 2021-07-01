@@ -223,6 +223,8 @@ class LineaControllerTest {
 		when(lineaService.updateNombre(ArgumentMatchers.eq(linea1.getId()), ArgumentMatchers.eq(campo1b.getDatosText()))).thenReturn(Mono.just(linea1));
 		when(lineaService.updateNombre(ArgumentMatchers.eq(linea2.getId()), ArgumentMatchers.eq(campo2b.getDatosText()))).thenReturn(Mono.just(linea2));
 		when(lineaService.findBySeveralPropuestaIds(ArgumentMatchers.anyList())).thenReturn(Flux.just(linea1, linea2));
+		when(compoundedService.getAllLineasOfPropuestasAssignedTo(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(linea1, linea2));
+		when(compoundedService.getAllLineasOfPropuestasAssignedTo(ArgumentMatchers.eq(propuestaProveedor.getId()))).thenReturn(Flux.empty());
 	}
 	
 	private void addCosteToLineas() {
@@ -324,7 +326,7 @@ class LineaControllerTest {
 		});
 	}
 	
-	@Test // TODO
+	@Test
 	void testShowAllLinesOfOferta() {
 		addPropuestaNuestra();
 		webTestClient.get()
@@ -341,7 +343,10 @@ class LineaControllerTest {
 					.contains(linea1.getCampos().get(0).getDatosText())
 					.contains(linea2.getCampos().get(1).getDatosText())
 					.contains(propuestaNuestra.getNombre())
-					.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName());
+					.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName())
+					.contains(((PropuestaNuestra)propuestaNuestra).getSums().get(0).getName())
+					.contains(String.valueOf(linea1.getPvps().get(0).getPvp()))
+					.contains(String.valueOf(linea2.getPvps().get(0).getPvp()));
 		});
 	}
 	
@@ -426,7 +431,7 @@ class LineaControllerTest {
 		.consumeWith(response -> {
 				Assertions.assertThat(response.getResponseBody()).asString()
 					.contains("Gull Project - Linea Guardada")
-					.contains("Linea Guardada Como...")
+					.contains("Guardando...")
 					.contains(String.valueOf(linea1Operations.getCampoByIndex(0).getDatos()))
 					.contains(String.valueOf(linea1Operations.getCampoByIndex(1).getDatos()))
 					.doesNotContain("errores")
@@ -457,7 +462,7 @@ class LineaControllerTest {
 		.consumeWith(response -> {
 				Assertions.assertThat(response.getResponseBody()).asString()
 					.contains("Gull Project - Linea Guardada")
-					.doesNotContain("Linea Guardada Como...")
+					.doesNotContain("Guardando...")
 					.doesNotContain("errores")
 					.doesNotContain(propuesta.getNombre())
 					.doesNotContain(linea1.getNombre())
@@ -488,7 +493,7 @@ class LineaControllerTest {
 		.consumeWith(response -> {
 				Assertions.assertThat(response.getResponseBody()).asString()
 					.contains("Gull Project - Nueva Linea en Propuesta")
-					.doesNotContain("Linea Guardada Como...")
+					.doesNotContain("Guardando...")
 					.contains("Corrige los errores y reenvía")
 					.contains("Selecciona un nombre")
 					.contains("Ok")
@@ -512,7 +517,7 @@ class LineaControllerTest {
 				.exchange().expectStatus().isOk().expectBody().consumeWith(response -> {
 					Assertions.assertThat(response.getResponseBody()).asString()
 							.contains("Gull Project - Nueva Linea en Propuesta")
-							.doesNotContain("Linea Guardada Como...").contains("Nombre:")
+							.doesNotContain("Guardando...").contains("Nombre:")
 							.contains("Corrige los errores y reenvía").contains("El valor no es correcto para este atributo").contains("Ok")
 							.doesNotContain("Volver a la propuesta");
 				});
@@ -549,7 +554,7 @@ class LineaControllerTest {
 		.consumeWith(response -> {
 				Assertions.assertThat(response.getResponseBody()).asString()
 					.contains("Gull Project - Linea Guardada")
-					.contains("Linea Guardada Como...")
+					.contains("Guardando...")
 					.contains(String.valueOf(linea1Operations.getCampoByIndex(0).getDatos()))
 					.contains(String.valueOf(linea1Operations.getCampoByIndex(1).getDatos()))
 					.doesNotContain("errores")
