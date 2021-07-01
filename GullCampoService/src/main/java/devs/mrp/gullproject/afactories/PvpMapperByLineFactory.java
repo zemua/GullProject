@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PvpMapperByLineFactory implements MyFactoryFromTo<List<Linea>, MapperByDupla<Double, String, String>> {
 
 	@Override
-	public MapperByDupla<Double, String, String> from(List<Linea> element) {
+	public MapperByDupla<Double, String, String> from(List<Linea> element) { // TODO test
 		ListOfAsignables<Linea> asignables = new LineByAssignationRetriever(element);
 		log.debug("asignables: " + asignables.toString());
 		MapperByDupla<Double, String, String> mapper = new PvpMapperByAssignedLine(asignables);

@@ -13,7 +13,7 @@ public class ProposalIdsMerger implements ListMerger<String> {
 
 	List<Propuesta> propuestas;
 	
-	public ProposalIdsMerger(List<Propuesta> propuestas) {
+	public ProposalIdsMerger(List<Propuesta> propuestas) { // TODO test
 		this.propuestas = propuestas;
 	}
 	
@@ -21,7 +21,6 @@ public class ProposalIdsMerger implements ListMerger<String> {
 	public List<String> merge() {
 		List<String> ids = new ArrayList<>();
 		propuestas.stream().forEach(p -> {
-			log.debug("adding proposal id to merge: " + p.getId() + " of " + p.toString());
 			ids.add(p.getId());
 		});
 		return ids;
