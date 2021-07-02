@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import devs.mrp.gullproject.afactories.LineToProveedorLineFactory;
 import devs.mrp.gullproject.domains.CosteLineaProveedor;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.dto.CostRemapper;
@@ -18,6 +19,7 @@ import reactor.core.publisher.Flux;
 public class CostRemapperUtilities {
 
 	LineaService lineaService;
+	@Autowired LineToProveedorLineFactory toProveedorLine;
 	
 	@Autowired
 	CostRemapperUtilities(LineaService lineaService) {
@@ -33,7 +35,8 @@ public class CostRemapperUtilities {
 				.flatMapMany(rMap -> {
 					return lineaService.findByPropuestaId(propuestaId)
 							.flatMap(rLinea -> {
-								CosteLineaProveedor cos = rLinea.operations().getCosteByCosteId(costId);
+								var lin = toProveedorLine.from(rLinea);
+								CosteLineaProveedor cos = lin.operations().getCosteByCosteId(costId);
 								if (rMap.containsKey(cos.getValue())) {
 									cos.setValue(rMap.get(cos.getValue()).getAfter());
 								}

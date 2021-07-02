@@ -5,18 +5,19 @@ import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
 import devs.mrp.gullproject.ainterfaces.MyParameterizedById;
 import devs.mrp.gullproject.domains.CosteLineaProveedor;
 import devs.mrp.gullproject.domains.Linea;
+import devs.mrp.gullproject.domains.LineaProveedor;
 
 public class CustomerLineToCostMapper implements MyMapperByDupla<Double, String, String> {
 
-	MyListOfAsignables<Linea> list;
+	MyListOfAsignables<LineaProveedor> list;
 	
-	public CustomerLineToCostMapper(MyListOfAsignables<Linea> list) {
+	public CustomerLineToCostMapper(MyListOfAsignables<LineaProveedor> list) {
 		this.list = list;
 	}
 	
 	@Override
 	public Double getByDupla(String lineIdAssignedTo, String proposalCostId) {
-		Linea l = list.getAssignedTo(lineIdAssignedTo);
+		LineaProveedor l = list.getAssignedTo(lineIdAssignedTo);
 		MyParameterizedById<Double> costRetriever = new LineCostRetriever(l);
 		return costRetriever.getParameter(proposalCostId);
 	}

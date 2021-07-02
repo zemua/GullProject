@@ -60,14 +60,6 @@ public class Linea implements MyOperable<LineaOperations> { // TODO aplicar Lisk
 	private List<Campo<?>> campos = new ArrayList<>();
 	
 	/**
-	 * For specific uses, not required fields
-	 */
-	
-	private List<CosteLineaProveedor> costesProveedor;
-	private List<PvperLinea> pvps;
-	private List<String> pvpSums;
-	
-	/**
 	 * Methods and constructors
 	 * @param l
 	 * @return

@@ -7,10 +7,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import devs.mrp.gullproject.afactories.LineToOfferLineFactory;
+import devs.mrp.gullproject.afactories.LineToProveedorLineFactory;
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Linea;
+import devs.mrp.gullproject.domains.LineaProveedor;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaNuestra;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
@@ -33,6 +36,8 @@ public class ConsultaService {
 	ConsultaRepo consultaRepo;
 	ModelMapper modelMapper;
 	LineaRepo lineaRepo;
+	@Autowired LineToOfferLineFactory toOfferLine;
+	@Autowired LineToProveedorLineFactory toProveedorLine;
 	
 	@Autowired
 	public ConsultaService(ConsultaRepo consultaRepo, ModelMapper modelMapper, LineaRepo lineaRepo) {
@@ -178,15 +183,16 @@ public class ConsultaService {
 	private Flux<Linea> removeReferenceToSelectedCostsFromLineas(String idPropuesta, CostesCheckboxWrapper wrapper) {
 		return lineaRepo.findAllByPropuestaIdOrderByOrderAsc(idPropuesta)
 				.flatMap(fLinea -> {
+					var linea = toProveedorLine.from(fLinea);
 					return Flux.fromIterable(wrapper.getCostes())
 							.map(fCost -> {
-								var ops = fLinea.operations();
+								var ops = linea.operations();
 								if (fCost.isSelected() && ops.ifHasCost(fCost.getId())) {
 									ops.removeCosteById(fCost.getId());
 								}
 								return fCost;
 							})
-							.then(lineaRepo.updateCosts(fLinea.getId(), fLinea.getCostesProveedor()));
+							.then(lineaRepo.updateCosts(fLinea.getId(), linea.getCostesProveedor()));
 				})
 				;
 	}
@@ -261,15 +267,16 @@ public class ConsultaService {
 	private Flux<Linea> removeReferenceToSelectedPvpsFromLineas(String idPropuesta, PvpsCheckboxWrapper wrapper) {
 		return lineaRepo.findAllByPropuestaIdOrderByOrderAsc(idPropuesta)
 			.flatMap(fLinea -> {
+				var linea = toOfferLine.from(fLinea);
 				return Flux.fromIterable(wrapper.getPvps())
 						.map(fPvp -> {
-							var ops = fLinea.operations();
+							var ops = linea.operations();
 							if (fPvp.isSelected() && ops.ifHasPvp(fPvp.getId())) {
 								ops.removePvpById(fPvp.getId());
 							}
 							return fPvp;
 						})
-						.then(lineaRepo.updatePvps(fLinea.getId(), fLinea.getPvps())
+						.then(lineaRepo.updatePvps(fLinea.getId(), linea.getPvps())
 						);
 			})
 			;

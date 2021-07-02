@@ -1,9 +1,12 @@
 package devs.mrp.gullproject.controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +19,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
+import devs.mrp.gullproject.afactories.LineToOfferLineFactory;
+import devs.mrp.gullproject.afactories.LineToProveedorLineFactory;
 import devs.mrp.gullproject.afactories.PvpMapperByLineFactory;
 import devs.mrp.gullproject.ainterfaces.MyListOfAsignables;
 import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
@@ -23,6 +28,8 @@ import devs.mrp.gullproject.ainterfaces.MyFactoryFromTo;
 import devs.mrp.gullproject.ainterfaces.MyFinder;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
+import devs.mrp.gullproject.domains.LineaOferta;
+import devs.mrp.gullproject.domains.LineaProveedor;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaNuestra;
 import devs.mrp.gullproject.domains.StringListOfListsWrapper;
@@ -44,6 +51,8 @@ import devs.mrp.gullproject.service.LineaUtilities;
 import devs.mrp.gullproject.service.PropuestaProveedorUtilities;
 import devs.mrp.gullproject.service.PvpSumForLineFinder;
 import devs.mrp.gullproject.service.facade.SupplierLineFinderByProposalAssignation;
+import devs.mrp.gullproject.service.linea.oferta.LineListToOfertaConverter;
+import devs.mrp.gullproject.service.linea.proveedor.LineListToProveedorConverter;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -63,14 +72,18 @@ public class LineaController {
 	AttRemaperUtilities attRemaperUtilities;
 	CostRemapperUtilities costRemapperUtilities;
 	PropuestaProveedorUtilities propuestaProveedorUtilities;
-	MyFactoryFromTo<List<Linea>, MyMapperByDupla<Double, String, String>> pvpMapperByLineFactory;
+	MyFactoryFromTo<List<LineaOferta>, MyMapperByDupla<Double, String, String>> pvpMapperByLineFactory;
 	MyFinder<Flux<Linea>, String> supplierLineFinderByProposalAssignation;
+	@Autowired LineToProveedorLineFactory toProveedorLine;
+	@Autowired LineToOfferLineFactory toOfferLine;
+	@Autowired LineListToProveedorConverter lineListToProveedor;
+	@Autowired LineListToOfertaConverter lineListToOferta;
 
 	@Autowired
 	public LineaController(LineaService lineaService, ConsultaService consultaService,
 			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities, AttRemaperUtilities attRemaperUtilities,
 			CostRemapperUtilities costRemapperUtilities, PropuestaProveedorUtilities propuestaProveedorUtilities,
-			PvpMapperByLineFactory<Linea> pvpMapperByLineFactory, SupplierLineFinderByProposalAssignation finder) {
+			PvpMapperByLineFactory<LineaOferta> pvpMapperByLineFactory, SupplierLineFinderByProposalAssignation finder) {
 		this.lineaService = lineaService;
 		this.consultaService = consultaService;
 		this.atributoService = atributoService;
@@ -111,13 +124,14 @@ public class LineaController {
 			return supplierLineFinderByProposalAssignation.findBy(propCliente.getId())
 				.collectList()
 				.map(proveedorLineList -> {
-					MyListOfAsignables<Linea> asignablesProveedor = new LineByAssignationRetriever(proveedorLineList);
+					List<LineaProveedor> list = lineListToProveedor.convert(proveedorLineList);
+					MyListOfAsignables<LineaProveedor> asignablesProveedor = new LineByAssignationRetriever<>(list);
 					model.addAttribute("costMapper", new CustomerLineToCostMapper(asignablesProveedor));
 					return true;
 				})
 				.then(lineaService.findByPropuestaId(propuesta.getId()).collectList())
 				.map(ofertaLineList -> {
-					var pvpMapper = pvpMapperByLineFactory.from(ofertaLineList);
+					var pvpMapper = pvpMapperByLineFactory.from(lineListToOferta.convert(ofertaLineList));
 					model.addAttribute("pvpMapper", pvpMapper);
 					return true;
 				})

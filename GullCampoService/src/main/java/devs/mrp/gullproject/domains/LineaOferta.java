@@ -3,6 +3,8 @@ package devs.mrp.gullproject.domains;
 import java.util.ArrayList;
 import java.util.List;
 
+import devs.mrp.gullproject.service.LineaOfertaOperations;
+
 public class LineaOferta extends Linea {
 
 	private List<PvperLinea> pvps;
@@ -21,6 +23,10 @@ public class LineaOferta extends Linea {
 		this.pvpSums = pvpSums;
 	}
 	
+	public LineaOferta() {
+		
+	}
+	
 	public LineaOferta(LineaOferta lin) {
 		super(lin);
 		if (lin.getPvpSums() != null) {
@@ -31,6 +37,16 @@ public class LineaOferta extends Linea {
 			this.pvps = new ArrayList<>();
 			lin.getPvps().stream().forEach(p -> this.pvps.add(new PvperLinea(p)));
 		}
+	}
+	
+	public LineaOferta(Linea lin) {
+		super(lin);
+		pvpSums = new ArrayList<>();
+		pvps = new ArrayList<>();
+	}
+	
+	public LineaOfertaOperations operations() {
+		return new LineaOfertaOperations(this);
 	}
 	
 }

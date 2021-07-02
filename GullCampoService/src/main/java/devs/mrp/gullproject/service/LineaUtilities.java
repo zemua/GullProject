@@ -18,11 +18,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
+import devs.mrp.gullproject.afactories.LineToOfferLineFactory;
+import devs.mrp.gullproject.afactories.LineToProveedorLineFactory;
+import devs.mrp.gullproject.afactories.LineaProveedorFactory;
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.CosteLineaProveedor;
 import devs.mrp.gullproject.domains.CosteProveedor;
 import devs.mrp.gullproject.domains.Linea;
+import devs.mrp.gullproject.domains.LineaProveedor;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
 import devs.mrp.gullproject.domains.StringListOfListsWrapper;
@@ -49,13 +53,16 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Data
 @Service
-public class LineaUtilities {
+public class LineaUtilities { // TODO refractor
 	
 	ConsultaService consultaService;
 	AtributoServiceProxyWebClient atributoService;
 	ModelMapper modelMapper;
 	LineaService lineaService;
 	CompoundedConsultaLineaService compoundedService;
+	@Autowired LineToOfferLineFactory toOfferLine;
+	@Autowired LineToProveedorLineFactory toProveedorLine;
+	@Autowired LineaProveedorFactory lineaProveedorFactory;
 	
 	String tipoCoste = "COSTE";
 	
@@ -76,7 +83,7 @@ public class LineaUtilities {
 					dto.setCostesProveedor(((PropuestaProveedor)rProp).getCostes().stream().map(cost -> modelMapper.map(cost, CosteLineaProveedorDto.class)).collect(Collectors.toList()));
 					log.debug("costs set on dto as: ");
 					dto.getCostesProveedor().stream().forEach(c -> log.debug(c.toString()));
-					var lineaOp = dto.getLinea().operations();
+					var lineaOp = toProveedorLine.from(dto.getLinea()).operations();
 					log.debug("going to retrieve costes from: " + dto.getLinea().toString());
 					dto.getCostesProveedor().forEach(cozte -> {
 						log.debug("going to set for: " + cozte + " the value: " + lineaOp.getCosteByCosteId(cozte.getId()).getValue());
@@ -259,7 +266,7 @@ public class LineaUtilities {
 	}
 
 	public Mono<Linea> reconstructLine(LineaWithAttListDto lineaWithAttListDto) {
-		Linea nLinea = lineaWithAttListDto.getLinea();
+		LineaProveedor nLinea = toProveedorLine.from(lineaWithAttListDto.getLinea());
 		List<CosteLineaProveedorDto> costesDto = lineaWithAttListDto.getCostesProveedor();
 		if (costesDto != null) {
 			if (nLinea.getCostesProveedor() == null) {
@@ -339,7 +346,7 @@ public class LineaUtilities {
 			((PropuestaProveedor)propuesta).getCostes().stream().forEach(cos -> wrap.getName().add(null));
 		}
 		lineas.stream().forEach(sLine -> {
-			LineaOperations sLineOp = sLine.operations();
+			LineaProveedorOperations sLineOp = toProveedorLine.from(sLine).operations();
 			StringListWrapper stringListWrapper = new StringListWrapper();
 			stringListWrapper.setString(new ArrayList<>());
 			stringListWrapper.setName(sLine.getNombre());
@@ -546,7 +553,7 @@ public class LineaUtilities {
 					
 					rAllDuplas.stream().forEach(sDupla ->{
 						log.debug("vamos a pasar estas duplas a linea: " + sDupla.toString());
-						Linea linea = new Linea();
+						LineaProveedor linea = lineaProveedorFactory.create();
 						linea.setCostesProveedor(new ArrayList<>());
 						sDupla.stream().forEach(sField -> {
 							if (sField.clase.equals(tipoCoste)){
@@ -728,8 +735,9 @@ public class LineaUtilities {
 					Optional<CosteProveedor> cost = propuesta.getCostes().stream().filter(co -> co.getId().equals(costeId)).findFirst();
 					return lineaService.findByPropuestaId(propuestaId)
 						.map(rLine -> {
+							var lin = toProveedorLine.from(rLine);
 							CostRemapper maper = new CostRemapper();
-							CosteLineaProveedor coste = rLine.operations().getCosteByCosteId(costeId);
+							CosteLineaProveedor coste = lin.operations().getCosteByCosteId(costeId);
 							if (coste != null) {
 								maper.setBefore(coste.getValue());
 								maper.setAfter(coste.getValue());

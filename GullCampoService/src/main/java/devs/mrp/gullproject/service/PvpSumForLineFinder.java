@@ -5,12 +5,13 @@ import java.util.concurrent.atomic.DoubleAdder;
 import devs.mrp.gullproject.ainterfaces.MyFinder;
 import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
 import devs.mrp.gullproject.domains.Linea;
+import devs.mrp.gullproject.domains.LineaOferta;
 import devs.mrp.gullproject.domains.Propuesta;
 import devs.mrp.gullproject.domains.PropuestaNuestra;
 import lombok.Data;
 
 @Data
-public class PvpSumForLineFinder implements MyMapperByDupla<Double, Linea, String> {
+public class PvpSumForLineFinder implements MyMapperByDupla<Double, LineaOferta, String> {
 
 	PropuestaNuestra propuesta;
 	PropuestaNuestraOperations pops;
@@ -21,8 +22,8 @@ public class PvpSumForLineFinder implements MyMapperByDupla<Double, Linea, Strin
 	}
 	
 	@Override
-	public Double getByDupla(Linea linea, String pvpSumId) {
-		LineaOperations lops = linea.operations();
+	public Double getByDupla(LineaOferta linea, String pvpSumId) {
+		LineaOfertaOperations lops = linea.operations();
 		DoubleAdder result = new DoubleAdder();
 		
 		var sum = pops.getSumById(pvpSumId);

@@ -3,14 +3,15 @@ package devs.mrp.gullproject.service;
 import devs.mrp.gullproject.ainterfaces.MyParameterizedById;
 import devs.mrp.gullproject.domains.CosteLineaProveedor;
 import devs.mrp.gullproject.domains.Linea;
+import devs.mrp.gullproject.domains.LineaProveedor;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
 import lombok.Data;
 
 public class LineCostRetriever implements MyParameterizedById<Double> {
 	
-	Linea linea;
+	LineaProveedor linea;
 
-	LineCostRetriever(Linea linea) {
+	LineCostRetriever(LineaProveedor linea) {
 		this.linea = linea;
 	}
 	

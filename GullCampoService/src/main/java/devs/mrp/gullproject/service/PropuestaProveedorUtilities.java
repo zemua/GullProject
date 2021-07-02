@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import devs.mrp.gullproject.afactories.LineToProveedorLineFactory;
 import devs.mrp.gullproject.domains.CosteLineaProveedor;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.dto.BooleanWrapper;
@@ -18,6 +19,7 @@ public class PropuestaProveedorUtilities {
 	
 	ConsultaService consultaService;
 	LineaService lineaService;
+	@Autowired LineToProveedorLineFactory toProveedorLine;
 	
 	@Autowired
 	public PropuestaProveedorUtilities(ConsultaService consultaService, LineaService lineaService) {
@@ -31,8 +33,9 @@ public class PropuestaProveedorUtilities {
 				Map<String, Linea> map = list.stream().filter(CommonOperations.distinctByKey(Linea::getNombre)).collect(Collectors.toMap(Linea::getNombre, (l) -> l));
 				BooleanWrapper resultado = new BooleanWrapper(true);
 				list.stream().forEach(linea -> {
-					var operationsDelMapa = map.get(linea.getNombre()).operations();
-					linea.getCostesProveedor().stream().forEach(coste -> {
+					var lin = toProveedorLine.from(linea);
+					var operationsDelMapa = toProveedorLine.from(map.get(lin.getNombre())).operations();
+					lin.getCostesProveedor().stream().forEach(coste -> {
 						CosteLineaProveedor costeDelMapa = operationsDelMapa.getCosteByCosteId(coste.getCosteProveedorId()); 
 						if (costeDelMapa.getValue() != coste.getValue()) {
 							resultado.setB(false);
