@@ -1,7 +1,7 @@
 package devs.mrp.gullproject.ainterfaces;
 
-public interface MyFinder <T, U> {
+public interface MyFinder <O, I> {
 
-	public T findBy(U element);
+	public O findBy(I element);
 	
 }

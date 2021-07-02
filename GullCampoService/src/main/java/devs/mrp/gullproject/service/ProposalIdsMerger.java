@@ -9,11 +9,11 @@ import devs.mrp.gullproject.domains.Propuesta;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ProposalIdsMerger implements MyListMerger<String> {
+public class ProposalIdsMerger <T extends Propuesta> implements MyListMerger<String> {
 
-	List<Propuesta> propuestas;
+	List<T> propuestas;
 	
-	public ProposalIdsMerger(List<Propuesta> propuestas) {
+	public ProposalIdsMerger(List<T> propuestas) {
 		this.propuestas = propuestas;
 	}
 	

@@ -87,7 +87,7 @@ public class ConsultaOperations {
 	}
 	
 	public List<Propuesta> getAllPropuestasAssignedToId(String idAssignedTo) {
-		return consulta.getPropuestas().stream().filter(p -> p.getForProposalId().equals(idAssignedTo)).collect(Collectors.toList());
+		return consulta.getPropuestas().stream().filter(p -> p.getForProposalId() != null).filter(p -> p.getForProposalId().equals(idAssignedTo)).collect(Collectors.toList());
 	}
 	
 }

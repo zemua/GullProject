@@ -23,6 +23,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
+import devs.mrp.gullproject.afactories.ProposalIdsMergerFactory;
 import devs.mrp.gullproject.afactories.PvpMapperByLineFactory;
 import devs.mrp.gullproject.configuration.MapperConfig;
 import devs.mrp.gullproject.domains.AtributoForCampo;
@@ -51,6 +52,9 @@ import devs.mrp.gullproject.service.LineaOperations;
 import devs.mrp.gullproject.service.LineaService;
 import devs.mrp.gullproject.service.LineaUtilities;
 import devs.mrp.gullproject.service.PropuestaProveedorUtilities;
+import devs.mrp.gullproject.service.facade.SupplierLineFinderByProposalAssignation;
+import devs.mrp.gullproject.service.propuesta.proveedor.FromPropuestaToProveedorFactory;
+import devs.mrp.gullproject.service.propuesta.proveedor.PropuestaProveedorExtractor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -59,7 +63,7 @@ import reactor.core.publisher.Mono;
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = LineaController.class)
 @AutoConfigureWebTestClient
-@Import({MapperConfig.class, LineaUtilities.class, AttRemaperUtilities.class, CostRemapperUtilities.class, PropuestaProveedorUtilities.class, PvpMapperByLineFactory.class})
+@Import({MapperConfig.class, LineaUtilities.class, AttRemaperUtilities.class, CostRemapperUtilities.class, PropuestaProveedorUtilities.class, PvpMapperByLineFactory.class, SupplierLineFinderByProposalAssignation.class, Consulta.class, ProposalIdsMergerFactory.class, PropuestaProveedorExtractor.class, FromPropuestaToProveedorFactory.class})
 class LineaControllerTest {
 	
 	WebTestClient webTestClient;

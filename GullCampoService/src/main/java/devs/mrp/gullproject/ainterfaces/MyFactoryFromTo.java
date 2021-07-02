@@ -1,7 +1,7 @@
 package devs.mrp.gullproject.ainterfaces;
 
-public interface MyFactoryFromTo <U, T> {
+public interface MyFactoryFromTo <I, O> {
 
-	public T from(U element);
+	public O from(I element);
 	
 }

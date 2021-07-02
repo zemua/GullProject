@@ -32,6 +32,7 @@ import devs.mrp.gullproject.ainterfaces.MyListMerger;
 import devs.mrp.gullproject.ainterfaces.MyListOfAsignables;
 import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
 import devs.mrp.gullproject.ainterfaces.MyFactoryFromTo;
+import devs.mrp.gullproject.ainterfaces.MyFinder;
 import devs.mrp.gullproject.configuration.ClientProperties;
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Campo;
@@ -68,6 +69,7 @@ import devs.mrp.gullproject.service.LineaUtilities;
 import devs.mrp.gullproject.service.ProposalIdsMerger;
 import devs.mrp.gullproject.service.PropuestaProveedorUtilities;
 import devs.mrp.gullproject.service.PvpSumForLineFinder;
+import devs.mrp.gullproject.service.facade.SupplierLineFinderByProposalAssignation;
 import devs.mrp.gullproject.validator.AttributeValueValidator;
 import devs.mrp.gullproject.validator.ValidList;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
@@ -91,12 +93,13 @@ public class LineaController {
 	CostRemapperUtilities costRemapperUtilities;
 	PropuestaProveedorUtilities propuestaProveedorUtilities;
 	MyFactoryFromTo<List<Linea>, MyMapperByDupla<Double, String, String>> pvpMapperByLineFactory;
+	MyFinder<Flux<Linea>, String> supplierLineFinderByProposalAssignation;
 
 	@Autowired
 	public LineaController(LineaService lineaService, ConsultaService consultaService, ModelMapper modelMapper,
 			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities, AttRemaperUtilities attRemaperUtilities,
 			CostRemapperUtilities costRemapperUtilities, PropuestaProveedorUtilities propuestaProveedorUtilities,
-			PvpMapperByLineFactory pvpMapperByLineFactory) {
+			PvpMapperByLineFactory pvpMapperByLineFactory, SupplierLineFinderByProposalAssignation finder) {
 		this.lineaService = lineaService;
 		this.consultaService = consultaService;
 		this.modelMapper = modelMapper;
@@ -106,6 +109,7 @@ public class LineaController {
 		this.costRemapperUtilities = costRemapperUtilities;
 		this.propuestaProveedorUtilities = propuestaProveedorUtilities;
 		this.pvpMapperByLineFactory = pvpMapperByLineFactory;
+		this.supplierLineFinderByProposalAssignation = finder;
 	}
 
 	@GetMapping("/allof/propid/{propuestaId}")
@@ -119,15 +123,13 @@ public class LineaController {
 		return "showAllLineasOfPropuesta";
 	}
 	
-	@GetMapping("/allof/ofertaid/{propuestaId}") // TODO refractor
+	@GetMapping("/allof/ofertaid/{propuestaId}")
 	public Mono<String> showAllLinesOfOferta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		return consultaService.findConsultaByPropuestaId(propuestaId)
 		.flatMap(rCons -> {
 			var ops = rCons.operations();
 			PropuestaNuestra propuesta = (PropuestaNuestra)ops.getPropuestaById(propuestaId);
 			Propuesta propCliente = ops.getPropuestaById(propuesta.getForProposalId());
-			List<Propuesta> propProveedores = ops.getPropuestasProveedorAssignedTo(propCliente.getId());
-			MyListMerger<String> proveedorPropIds = new ProposalIdsMerger(propProveedores);
 			
 			model.addAttribute("propuesta", propuesta);
 			MyMapperByDupla<Double, Linea, String> sumsMapper = new PvpSumForLineFinder(propuesta);
@@ -135,25 +137,17 @@ public class LineaController {
 			model.addAttribute("consulta", rCons);
 			model.addAttribute("propCliente", propCliente);
 			model.addAttribute("lineasCliente", lineaService.findByPropuestaId(propCliente.getId()));
-			log.debug("going to find proveedor lines by: " + proveedorPropIds.toString());
-			return lineaService.findBySeveralPropuestaIds(proveedorPropIds.merge())
-					.map(l -> {
-						log.debug("got from proveedor linea: " + l.toString());
-						return l;
-					})
+			
+			return supplierLineFinderByProposalAssignation.findBy(propCliente.getId())
 				.collectList()
 				.map(proveedorLineList -> {
-					log.debug("going to get cost mapper from: " + proveedorLineList.toString());
 					MyListOfAsignables<Linea> asignablesProveedor = new LineByAssignationRetriever(proveedorLineList);
-					log.debug("adding mapper: " + asignablesProveedor.toString());
 					model.addAttribute("costMapper", new CustomerLineToCostMapper(asignablesProveedor));
 					return true;
 				})
 				.then(lineaService.findByPropuestaId(propuesta.getId()).collectList())
 				.map(ofertaLineList -> {
-					log.debug("going to get pvp mapper from: " + ofertaLineList.toString());
 					var pvpMapper = pvpMapperByLineFactory.from(ofertaLineList);
-					log.debug("adding mapper: " + pvpMapper.toString());
 					model.addAttribute("pvpMapper", pvpMapper);
 					return true;
 				})
