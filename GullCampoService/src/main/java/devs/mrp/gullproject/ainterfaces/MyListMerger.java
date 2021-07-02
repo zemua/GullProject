@@ -2,7 +2,7 @@ package devs.mrp.gullproject.ainterfaces;
 
 import java.util.List;
 
-public interface ListMerger <T> {
+public interface MyListMerger <T> {
 
 	List<T> merge();
 	

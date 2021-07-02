@@ -1,12 +1,12 @@
 package devs.mrp.gullproject.service;
 
-import devs.mrp.gullproject.ainterfaces.ParametrizableById;
+import devs.mrp.gullproject.ainterfaces.MyParameterizedById;
 import devs.mrp.gullproject.domains.CosteLineaProveedor;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
 import lombok.Data;
 
-public class LineCostRetriever implements ParametrizableById<Double> {
+public class LineCostRetriever implements MyParameterizedById<Double> {
 	
 	Linea linea;
 

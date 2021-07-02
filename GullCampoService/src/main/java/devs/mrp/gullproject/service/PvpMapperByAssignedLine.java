@@ -1,14 +1,14 @@
 package devs.mrp.gullproject.service;
 
-import devs.mrp.gullproject.ainterfaces.ListOfAsignables;
-import devs.mrp.gullproject.ainterfaces.MapperByDupla;
+import devs.mrp.gullproject.ainterfaces.MyListOfAsignables;
+import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
 import devs.mrp.gullproject.domains.Linea;
 
-public class PvpMapperByAssignedLine implements MapperByDupla<Double, String, String> {
+public class PvpMapperByAssignedLine implements MyMapperByDupla<Double, String, String> {
 
-	ListOfAsignables<Linea> list;
+	MyListOfAsignables<Linea> list;
 	
-	public PvpMapperByAssignedLine(ListOfAsignables<Linea> list) { // TODO test
+	public PvpMapperByAssignedLine(MyListOfAsignables<Linea> list) {
 		this.list = list;
 	}
 	

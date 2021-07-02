@@ -28,9 +28,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
 import devs.mrp.gullproject.afactories.PvpMapperByLineFactory;
-import devs.mrp.gullproject.ainterfaces.ListMerger;
-import devs.mrp.gullproject.ainterfaces.ListOfAsignables;
-import devs.mrp.gullproject.ainterfaces.MapperByDupla;
+import devs.mrp.gullproject.ainterfaces.MyListMerger;
+import devs.mrp.gullproject.ainterfaces.MyListOfAsignables;
+import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
+import devs.mrp.gullproject.ainterfaces.MyFactoryFromTo;
 import devs.mrp.gullproject.configuration.ClientProperties;
 import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Campo;
@@ -89,12 +90,13 @@ public class LineaController {
 	AttRemaperUtilities attRemaperUtilities;
 	CostRemapperUtilities costRemapperUtilities;
 	PropuestaProveedorUtilities propuestaProveedorUtilities;
-	@Autowired PvpMapperByLineFactory pvpMapperByLineFactory;
+	MyFactoryFromTo<List<Linea>, MyMapperByDupla<Double, String, String>> pvpMapperByLineFactory;
 
 	@Autowired
 	public LineaController(LineaService lineaService, ConsultaService consultaService, ModelMapper modelMapper,
 			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities, AttRemaperUtilities attRemaperUtilities,
-			CostRemapperUtilities costRemapperUtilities, PropuestaProveedorUtilities propuestaProveedorUtilities) {
+			CostRemapperUtilities costRemapperUtilities, PropuestaProveedorUtilities propuestaProveedorUtilities,
+			PvpMapperByLineFactory pvpMapperByLineFactory) {
 		this.lineaService = lineaService;
 		this.consultaService = consultaService;
 		this.modelMapper = modelMapper;
@@ -103,6 +105,7 @@ public class LineaController {
 		this.attRemaperUtilities = attRemaperUtilities;
 		this.costRemapperUtilities = costRemapperUtilities;
 		this.propuestaProveedorUtilities = propuestaProveedorUtilities;
+		this.pvpMapperByLineFactory = pvpMapperByLineFactory;
 	}
 
 	@GetMapping("/allof/propid/{propuestaId}")
@@ -116,7 +119,7 @@ public class LineaController {
 		return "showAllLineasOfPropuesta";
 	}
 	
-	@GetMapping("/allof/ofertaid/{propuestaId}")
+	@GetMapping("/allof/ofertaid/{propuestaId}") // TODO refractor
 	public Mono<String> showAllLinesOfOferta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		return consultaService.findConsultaByPropuestaId(propuestaId)
 		.flatMap(rCons -> {
@@ -124,10 +127,10 @@ public class LineaController {
 			PropuestaNuestra propuesta = (PropuestaNuestra)ops.getPropuestaById(propuestaId);
 			Propuesta propCliente = ops.getPropuestaById(propuesta.getForProposalId());
 			List<Propuesta> propProveedores = ops.getPropuestasProveedorAssignedTo(propCliente.getId());
-			ListMerger<String> proveedorPropIds = new ProposalIdsMerger(propProveedores);
+			MyListMerger<String> proveedorPropIds = new ProposalIdsMerger(propProveedores);
 			
 			model.addAttribute("propuesta", propuesta);
-			MapperByDupla<Double, Linea, String> sumsMapper = new PvpSumForLineFinder(propuesta);
+			MyMapperByDupla<Double, Linea, String> sumsMapper = new PvpSumForLineFinder(propuesta);
 			model.addAttribute("sumsMapper", sumsMapper);
 			model.addAttribute("consulta", rCons);
 			model.addAttribute("propCliente", propCliente);
@@ -141,7 +144,7 @@ public class LineaController {
 				.collectList()
 				.map(proveedorLineList -> {
 					log.debug("going to get cost mapper from: " + proveedorLineList.toString());
-					ListOfAsignables<Linea> asignablesProveedor = new LineByAssignationRetriever(proveedorLineList);
+					MyListOfAsignables<Linea> asignablesProveedor = new LineByAssignationRetriever(proveedorLineList);
 					log.debug("adding mapper: " + asignablesProveedor.toString());
 					model.addAttribute("costMapper", new CustomerLineToCostMapper(asignablesProveedor));
 					return true;

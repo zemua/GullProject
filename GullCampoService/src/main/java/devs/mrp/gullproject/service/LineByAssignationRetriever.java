@@ -2,10 +2,10 @@ package devs.mrp.gullproject.service;
 
 import java.util.List;
 
-import devs.mrp.gullproject.ainterfaces.ListOfAsignables;
+import devs.mrp.gullproject.ainterfaces.MyListOfAsignables;
 import devs.mrp.gullproject.domains.Linea;
 
-public class LineByAssignationRetriever implements ListOfAsignables<Linea> {
+public class LineByAssignationRetriever implements MyListOfAsignables<Linea> {
 
 	List<Linea> lineas;
 	
