@@ -4,11 +4,11 @@ import devs.mrp.gullproject.ainterfaces.MyListOfAsignables;
 import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
 import devs.mrp.gullproject.domains.Linea;
 
-public class PvpMapperByAssignedLine implements MyMapperByDupla<Double, String, String> {
+public class PvpMapperByAssignedLine <T extends Linea> implements MyMapperByDupla<Double, String, String> {
 
-	MyListOfAsignables<Linea> list;
+	MyListOfAsignables<T> list;
 	
-	public PvpMapperByAssignedLine(MyListOfAsignables<Linea> list) {
+	public PvpMapperByAssignedLine(MyListOfAsignables<T> list) {
 		this.list = list;
 	}
 	

@@ -1,9 +1,12 @@
 package devs.mrp.gullproject.service;
 
+import org.springframework.stereotype.Service;
+
 import devs.mrp.gullproject.ainterfaces.MyListOfAsignables;
 import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
 import devs.mrp.gullproject.domains.Linea;
 
+@Service
 public class PvpMarginMapperByAssignedLine implements MyMapperByDupla<Double, String, String> {
 
 	MyListOfAsignables<Linea> list;

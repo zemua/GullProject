@@ -3,12 +3,15 @@ package devs.mrp.gullproject.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import devs.mrp.gullproject.ainterfaces.MyListMerger;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Service
 public class ProposalIdsMerger <T extends Propuesta> implements MyListMerger<String> {
 
 	List<T> propuestas;

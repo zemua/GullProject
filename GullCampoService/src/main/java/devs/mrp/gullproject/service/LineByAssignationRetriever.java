@@ -5,16 +5,16 @@ import java.util.List;
 import devs.mrp.gullproject.ainterfaces.MyListOfAsignables;
 import devs.mrp.gullproject.domains.Linea;
 
-public class LineByAssignationRetriever implements MyListOfAsignables<Linea> {
+public class LineByAssignationRetriever <T extends Linea> implements MyListOfAsignables<T> {
 
-	List<Linea> lineas;
+	List<T> lineas;
 	
-	public LineByAssignationRetriever(List<Linea> lineas) {
+	public LineByAssignationRetriever(List<T> lineas) {
 		this.lineas = lineas;
 	}
 	
 	@Override
-	public Linea getAssignedTo(String id) {
+	public T getAssignedTo(String id) {
 		return lineas.stream().filter(l -> l.operations().ifAssignedTo(id)).findAny().orElse(null);
 	}
 

@@ -1,77 +1,49 @@
 package devs.mrp.gullproject.controller;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import javax.validation.Valid;
 
-import org.bson.types.ObjectId;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
 import devs.mrp.gullproject.afactories.PvpMapperByLineFactory;
-import devs.mrp.gullproject.ainterfaces.MyListMerger;
 import devs.mrp.gullproject.ainterfaces.MyListOfAsignables;
 import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
 import devs.mrp.gullproject.ainterfaces.MyFactoryFromTo;
 import devs.mrp.gullproject.ainterfaces.MyFinder;
-import devs.mrp.gullproject.configuration.ClientProperties;
-import devs.mrp.gullproject.domains.AtributoForCampo;
-import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.Linea;
 import devs.mrp.gullproject.domains.Propuesta;
-import devs.mrp.gullproject.domains.PropuestaCliente;
 import devs.mrp.gullproject.domains.PropuestaNuestra;
 import devs.mrp.gullproject.domains.StringListOfListsWrapper;
-import devs.mrp.gullproject.domains.StringListWrapper;
 import devs.mrp.gullproject.domains.StringWrapper;
-import devs.mrp.gullproject.domains.TipoPropuesta;
 import devs.mrp.gullproject.domains.WrapLineasDto;
-import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
-import devs.mrp.gullproject.domains.dto.AttributesListDto;
 import devs.mrp.gullproject.domains.dto.CostRemappersWrapper;
-import devs.mrp.gullproject.domains.dto.AtributoForLineaFormDto;
-import devs.mrp.gullproject.domains.dto.AttRemaper;
 import devs.mrp.gullproject.domains.dto.AttRemapersWrapper;
 import devs.mrp.gullproject.domains.dto.LineaWithAttListDto;
-import devs.mrp.gullproject.domains.dto.LineaWithSelectorDto;
 import devs.mrp.gullproject.domains.dto.MultipleLineaWithAttListDto;
 import devs.mrp.gullproject.domains.dto.WrapLineasWithSelectorDto;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.AttRemaperUtilities;
-import devs.mrp.gullproject.service.ClassDestringfier;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.CostRemapperUtilities;
 import devs.mrp.gullproject.service.CustomerLineToCostMapper;
 import devs.mrp.gullproject.service.LineByAssignationRetriever;
-import devs.mrp.gullproject.service.LineaOperations;
 import devs.mrp.gullproject.service.LineaService;
 import devs.mrp.gullproject.service.LineaUtilities;
-import devs.mrp.gullproject.service.ProposalIdsMerger;
 import devs.mrp.gullproject.service.PropuestaProveedorUtilities;
 import devs.mrp.gullproject.service.PvpSumForLineFinder;
 import devs.mrp.gullproject.service.facade.SupplierLineFinderByProposalAssignation;
-import devs.mrp.gullproject.validator.AttributeValueValidator;
-import devs.mrp.gullproject.validator.ValidList;
 import devs.mrp.gullproject.domains.PropuestaProveedor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -86,7 +58,6 @@ public class LineaController {
 
 	private LineaService lineaService;
 	private ConsultaService consultaService;
-	private ModelMapper modelMapper;
 	AtributoServiceProxyWebClient atributoService;
 	LineaUtilities lineaUtilities;
 	AttRemaperUtilities attRemaperUtilities;
@@ -96,13 +67,12 @@ public class LineaController {
 	MyFinder<Flux<Linea>, String> supplierLineFinderByProposalAssignation;
 
 	@Autowired
-	public LineaController(LineaService lineaService, ConsultaService consultaService, ModelMapper modelMapper,
+	public LineaController(LineaService lineaService, ConsultaService consultaService,
 			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities, AttRemaperUtilities attRemaperUtilities,
 			CostRemapperUtilities costRemapperUtilities, PropuestaProveedorUtilities propuestaProveedorUtilities,
-			PvpMapperByLineFactory pvpMapperByLineFactory, SupplierLineFinderByProposalAssignation finder) {
+			PvpMapperByLineFactory<Linea> pvpMapperByLineFactory, SupplierLineFinderByProposalAssignation finder) {
 		this.lineaService = lineaService;
 		this.consultaService = consultaService;
-		this.modelMapper = modelMapper;
 		this.atributoService = atributoService;
 		this.lineaUtilities = lineaUtilities;
 		this.attRemaperUtilities = attRemaperUtilities;
