@@ -5,8 +5,9 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import devs.mrp.gullproject.domains.Linea;
+import devs.mrp.gullproject.domains.linea.Linea;
 import devs.mrp.gullproject.repository.LineaRepo;
+import devs.mrp.gullproject.service.linea.LineaService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;

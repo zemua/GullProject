@@ -9,18 +9,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import devs.mrp.gullproject.afactories.LineFactory;
-import devs.mrp.gullproject.afactories.ProposalIdsMergerFactory;
 import devs.mrp.gullproject.ainterfaces.MyFactoryFromTo;
 import devs.mrp.gullproject.ainterfaces.MyFactoryNew;
 import devs.mrp.gullproject.ainterfaces.MyFinder;
 import devs.mrp.gullproject.ainterfaces.MyListMerger;
-import devs.mrp.gullproject.domains.Linea;
-import devs.mrp.gullproject.domains.Propuesta;
-import devs.mrp.gullproject.domains.PropuestaProveedor;
+import devs.mrp.gullproject.domains.linea.Linea;
+import devs.mrp.gullproject.domains.propuestas.Propuesta;
+import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
 import devs.mrp.gullproject.service.ConsultaService;
-import devs.mrp.gullproject.service.LineaService;
 import devs.mrp.gullproject.service.facade.SupplierLineFinderByProposalAssignation;
+import devs.mrp.gullproject.service.linea.LineFactory;
+import devs.mrp.gullproject.service.linea.LineaService;
+import devs.mrp.gullproject.service.propuesta.ProposalIdsMergerFactory;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 

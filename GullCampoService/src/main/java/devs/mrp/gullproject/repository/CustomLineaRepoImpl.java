@@ -12,10 +12,10 @@ import org.springframework.data.mongodb.core.query.Update;
 
 import com.mongodb.client.result.DeleteResult;
 
-import devs.mrp.gullproject.domains.Campo;
-import devs.mrp.gullproject.domains.CosteLineaProveedor;
-import devs.mrp.gullproject.domains.Linea;
-import devs.mrp.gullproject.domains.PvperLinea;
+import devs.mrp.gullproject.domains.linea.Campo;
+import devs.mrp.gullproject.domains.linea.CosteLineaProveedor;
+import devs.mrp.gullproject.domains.linea.Linea;
+import devs.mrp.gullproject.domains.linea.PvperLinea;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

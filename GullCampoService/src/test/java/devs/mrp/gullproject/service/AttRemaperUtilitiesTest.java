@@ -16,10 +16,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.validation.BindException;
 
-import devs.mrp.gullproject.domains.Campo;
-import devs.mrp.gullproject.domains.Linea;
-import devs.mrp.gullproject.domains.dto.AttRemaper;
-import devs.mrp.gullproject.domains.dto.AttRemapersWrapper;
+import devs.mrp.gullproject.domains.dto.propuesta.AttRemaper;
+import devs.mrp.gullproject.domains.dto.propuesta.AttRemapersWrapper;
+import devs.mrp.gullproject.domains.linea.Campo;
+import devs.mrp.gullproject.domains.linea.Linea;
+import devs.mrp.gullproject.service.linea.LineaService;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

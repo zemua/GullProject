@@ -5,13 +5,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import devs.mrp.gullproject.afactories.ProposalIdsMergerFactory;
 import devs.mrp.gullproject.ainterfaces.MyFinder;
 import devs.mrp.gullproject.domains.Consulta;
-import devs.mrp.gullproject.domains.Linea;
-import devs.mrp.gullproject.domains.PropuestaProveedor;
+import devs.mrp.gullproject.domains.linea.Linea;
+import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
 import devs.mrp.gullproject.service.ConsultaService;
-import devs.mrp.gullproject.service.LineaService;
+import devs.mrp.gullproject.service.linea.LineaService;
+import devs.mrp.gullproject.service.propuesta.ProposalIdsMergerFactory;
 import devs.mrp.gullproject.service.propuesta.proveedor.PropuestaProveedorExtractor;
 import reactor.core.publisher.Flux;
 

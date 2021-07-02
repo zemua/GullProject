@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import devs.mrp.gullproject.domains.Linea;
+import devs.mrp.gullproject.domains.linea.Linea;
 import devs.mrp.gullproject.domains.models.LineaRepresentationModel;
 import devs.mrp.gullproject.domains.models.LineaRepresentationModelAssembler;
-import devs.mrp.gullproject.service.LineaService;
+import devs.mrp.gullproject.service.linea.LineaService;
 import reactor.core.publisher.Mono;
 
 @RestController

@@ -15,6 +15,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,29 +30,33 @@ import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 
 import devs.mrp.gullproject.configuration.MapperConfig;
-import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
-import devs.mrp.gullproject.domains.CosteLineaProveedor;
-import devs.mrp.gullproject.domains.CosteProveedor;
-import devs.mrp.gullproject.domains.Linea;
-import devs.mrp.gullproject.domains.Propuesta;
-import devs.mrp.gullproject.domains.PropuestaCliente;
-import devs.mrp.gullproject.domains.PropuestaNuestra;
-import devs.mrp.gullproject.domains.PropuestaProveedor;
-import devs.mrp.gullproject.domains.Pvper;
-import devs.mrp.gullproject.domains.PvperLinea;
-import devs.mrp.gullproject.domains.PvperSum;
-import devs.mrp.gullproject.domains.TipoPropuesta;
-import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
-import devs.mrp.gullproject.domains.dto.CostesCheckboxWrapper;
-import devs.mrp.gullproject.domains.dto.PvperSumCheckboxWrapper;
-import devs.mrp.gullproject.domains.dto.PvpsCheckboxWrapper;
+import devs.mrp.gullproject.domains.dto.propuesta.AtributoForFormDto;
+import devs.mrp.gullproject.domains.dto.propuesta.oferta.PvperSumCheckboxWrapper;
+import devs.mrp.gullproject.domains.dto.propuesta.oferta.PvpsCheckboxWrapper;
+import devs.mrp.gullproject.domains.dto.propuesta.proveedor.CostesCheckboxWrapper;
+import devs.mrp.gullproject.domains.linea.CosteLineaProveedor;
+import devs.mrp.gullproject.domains.linea.Linea;
+import devs.mrp.gullproject.domains.linea.LineaOferta;
+import devs.mrp.gullproject.domains.linea.LineaProveedor;
+import devs.mrp.gullproject.domains.linea.PvperLinea;
+import devs.mrp.gullproject.domains.propuestas.AtributoForCampo;
+import devs.mrp.gullproject.domains.propuestas.CosteProveedor;
+import devs.mrp.gullproject.domains.propuestas.Propuesta;
+import devs.mrp.gullproject.domains.propuestas.PropuestaCliente;
+import devs.mrp.gullproject.domains.propuestas.PropuestaNuestra;
+import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
+import devs.mrp.gullproject.domains.propuestas.Pvper;
+import devs.mrp.gullproject.domains.propuestas.PvperSum;
+import devs.mrp.gullproject.domains.propuestas.TipoPropuesta;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.AtributoUtilities;
 import devs.mrp.gullproject.service.CompoundedConsultaLineaService;
 import devs.mrp.gullproject.service.ConsultaService;
-import devs.mrp.gullproject.service.LineaService;
-import devs.mrp.gullproject.service.PropuestaUtilities;
+import devs.mrp.gullproject.service.linea.LineaService;
+import devs.mrp.gullproject.service.linea.oferta.LineToOfferLineFactory;
+import devs.mrp.gullproject.service.linea.proveedor.LineToProveedorLineFactory;
+import devs.mrp.gullproject.service.propuesta.PropuestaUtilities;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -59,14 +64,18 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = ConsultaController.class)
+//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
-@Import({MapperConfig.class, PropuestaUtilities.class, AtributoUtilities.class})
+@Import({MapperConfig.class, PropuestaUtilities.class, AtributoUtilities.class, Consulta.class, LineToProveedorLineFactory.class, LineToOfferLineFactory.class})
 @ActiveProfiles("default")
 class ConsultaControllerTestB {
 	
 	WebTestClient webTestClient;
 	ConsultaController consultaController;
 	ModelMapper modelMapper;
+	
+	@Autowired LineToProveedorLineFactory toProveedorLine;
+	@Autowired LineToOfferLineFactory toOfferLine;
 	
 	@MockBean
 	ConsultaService consultaService;
@@ -98,6 +107,12 @@ class ConsultaControllerTestB {
 	Linea linea2;
 	Linea linea3;
 	Linea linea4;
+	
+	LineaProveedor linea1p;
+	LineaProveedor linea2p;
+	
+	LineaOferta linea1o;
+	LineaOferta linea2o;
 	
 	AtributoForCampo att1;
 	AtributoForCampo att2;
@@ -220,8 +235,10 @@ class ConsultaControllerTestB {
 		cost.setCosteProveedorId(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getId());
 		List<CosteLineaProveedor> costs = new ArrayList<>();
 		costs.add(cost);
-		linea1.setCostesProveedor(costs);
-		linea2.setCostesProveedor(costs);
+		linea1p = toProveedorLine.from(linea1);
+		linea1p.setCostesProveedor(costs);
+		linea2p = toProveedorLine.from(linea2);
+		linea2p.setCostesProveedor(costs);
 		
 		consulta1.getPropuestas().add(propuestaNuestra);
 		PvperLinea pvp = new PvperLinea();
@@ -230,13 +247,15 @@ class ConsultaControllerTestB {
 		pvp.setPvperId(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId());
 		List<PvperLinea> pvps = new ArrayList<>();
 		pvps.add(pvp);
-		linea1.setPvps(pvps);
-		linea2.setPvps(pvps);
+		linea1o = toOfferLine.from(linea1);
+		linea1o.setPvps(pvps);
+		linea2o = toOfferLine.from(linea2);
+		linea2o.setPvps(pvps);
 		
 		List<String> sums = new ArrayList<>();
 		sums.add(((PropuestaNuestra)propuestaNuestra).getSums().get(0).getId());
-		linea1.setPvpSums(sums);
-		linea2.setPvpSums(sums);
+		linea1o.setPvpSums(sums);
+		linea2o.setPvpSums(sums);
 	}
 
 	@Test
@@ -394,13 +413,13 @@ class ConsultaControllerTestB {
 		var op2 = prop2.operations();
 		op2.addLineaId("linea3");
 		prop2.setNombre("propuesta 2");
-		Propuesta prop3 = new PropuestaProveedor(prop1.getId());
+		PropuestaProveedor prop3 = new PropuestaProveedor(prop1.getId());
 		prop3.setNombre("propuesta 3");
-		Propuesta prop4 = new PropuestaProveedor(prop2.getId());
+		PropuestaProveedor prop4 = new PropuestaProveedor(prop2.getId());
 		prop4.setNombre("propuesta 4");
-		Propuesta prop5 = new PropuestaNuestra(prop1.getId());
+		PropuestaNuestra prop5 = new PropuestaNuestra(prop1.getId());
 		prop5.setNombre("propuesta 5");
-		Propuesta prop6 = new PropuestaNuestra(prop2.getId());
+		PropuestaNuestra prop6 = new PropuestaNuestra(prop2.getId());
 		prop6.setNombre("propuesta 6");
 		
 		List<CosteProveedor> costes = new ArrayList<>();

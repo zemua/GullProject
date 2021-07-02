@@ -6,10 +6,9 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import devs.mrp.gullproject.afactories.LineToProveedorLineFactory;
 import devs.mrp.gullproject.ainterfaces.MyConverter;
-import devs.mrp.gullproject.domains.Linea;
-import devs.mrp.gullproject.domains.LineaProveedor;
+import devs.mrp.gullproject.domains.linea.Linea;
+import devs.mrp.gullproject.domains.linea.LineaProveedor;
 
 @Service
 public class LineListToProveedorConverter implements MyConverter<List<Linea>, List<LineaProveedor>> {

@@ -10,6 +10,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import devs.mrp.gullproject.domains.propuestas.Propuesta;
 import devs.mrp.gullproject.service.ConsultaOperations;
 import lombok.Data;
 

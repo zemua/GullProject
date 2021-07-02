@@ -8,10 +8,11 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import devs.mrp.gullproject.ainterfaces.MyListMerger;
-import devs.mrp.gullproject.domains.Propuesta;
-import devs.mrp.gullproject.domains.PropuestaCliente;
-import devs.mrp.gullproject.domains.PropuestaNuestra;
-import devs.mrp.gullproject.domains.PropuestaProveedor;
+import devs.mrp.gullproject.domains.propuestas.Propuesta;
+import devs.mrp.gullproject.domains.propuestas.PropuestaCliente;
+import devs.mrp.gullproject.domains.propuestas.PropuestaNuestra;
+import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
+import devs.mrp.gullproject.service.propuesta.ProposalIdsMerger;
 
 class ProposalIdsMergerTest {
 

@@ -9,18 +9,20 @@ import org.junit.jupiter.api.Test;
 
 import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
 import devs.mrp.gullproject.ainterfaces.MyFactoryFromTo;
-import devs.mrp.gullproject.domains.Linea;
-import devs.mrp.gullproject.domains.PvperLinea;
+import devs.mrp.gullproject.domains.linea.Linea;
+import devs.mrp.gullproject.domains.linea.LineaOferta;
+import devs.mrp.gullproject.domains.linea.PvperLinea;
+import devs.mrp.gullproject.service.linea.oferta.PvpMapperByLineFactory;
 
 class PvpMapperByLineFactoryTest {
 
 	@Test
 	void test() {
-		MyFactoryFromTo<List<Linea>, MyMapperByDupla<Double, String, String>> factory = new PvpMapperByLineFactory();
+		MyFactoryFromTo<List<LineaOferta>, MyMapperByDupla<Double, String, String>> factory = new PvpMapperByLineFactory();
 		
-		List<Linea> lineas = new ArrayList<>();
+		List<LineaOferta> lineas = new ArrayList<>();
 		
-		Linea l1 = new Linea();
+		LineaOferta l1 = new LineaOferta();
 		l1.setCounterLineId(new ArrayList<>() {{add("p1");}});
 		PvperLinea pvp = new PvperLinea();
 		pvp.setMargen(1.1);
@@ -28,7 +30,7 @@ class PvpMapperByLineFactoryTest {
 		pvp.setPvperId("pvperid1");
 		l1.setPvps(new ArrayList<>() {{add(pvp);}});
 		
-		Linea l2 = new Linea();
+		LineaOferta l2 = new LineaOferta();
 		l2.setCounterLineId(new ArrayList<>() {{add("p2");}});
 		PvperLinea pvp2 = new PvperLinea();
 		pvp2.setMargen(2.2);
@@ -36,7 +38,7 @@ class PvpMapperByLineFactoryTest {
 		pvp2.setPvperId("pvperid2");
 		l2.setPvps(new ArrayList<>() {{add(pvp2);}});
 		
-		Linea l3 = new Linea();
+		LineaOferta l3 = new LineaOferta();
 		l3.setCounterLineId(new ArrayList<>() {{add("p3");}});
 		PvperLinea pvp3 = new PvperLinea();
 		pvp3.setMargen(3.3);

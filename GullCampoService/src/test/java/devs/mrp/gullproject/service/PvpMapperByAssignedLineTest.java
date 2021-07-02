@@ -11,9 +11,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import devs.mrp.gullproject.ainterfaces.MyListOfAsignables;
 import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
-import devs.mrp.gullproject.domains.Linea;
-import devs.mrp.gullproject.domains.Pvper;
-import devs.mrp.gullproject.domains.PvperLinea;
+import devs.mrp.gullproject.domains.linea.Linea;
+import devs.mrp.gullproject.domains.linea.PvperLinea;
+import devs.mrp.gullproject.domains.propuestas.Pvper;
+import devs.mrp.gullproject.service.linea.LineByAssignationRetriever;
+import devs.mrp.gullproject.service.linea.oferta.PvpMapperByAssignedLine;
 
 class PvpMapperByAssignedLineTest {
 	

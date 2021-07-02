@@ -8,7 +8,7 @@ import javax.validation.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
 import org.springframework.hateoas.RepresentationModel;
 
-import devs.mrp.gullproject.domains.Propuesta;
+import devs.mrp.gullproject.domains.propuestas.Propuesta;
 import lombok.Data;
 
 @Data

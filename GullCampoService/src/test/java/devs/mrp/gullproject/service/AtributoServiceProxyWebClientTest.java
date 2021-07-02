@@ -25,8 +25,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import devs.mrp.gullproject.configuration.ClientProperties;
-import devs.mrp.gullproject.domains.AtributoForCampo;
-import devs.mrp.gullproject.domains.StringWrapper;
+import devs.mrp.gullproject.domains.dto.StringWrapper;
+import devs.mrp.gullproject.domains.propuestas.AtributoForCampo;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;

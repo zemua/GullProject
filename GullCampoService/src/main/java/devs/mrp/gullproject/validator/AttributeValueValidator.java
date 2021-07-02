@@ -5,8 +5,8 @@ import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import devs.mrp.gullproject.domains.dto.AtributoForLineaFormDto;
 import devs.mrp.gullproject.domains.dto.ParTipoValor;
+import devs.mrp.gullproject.domains.dto.linea.AtributoForLineaFormDto;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 
 public class AttributeValueValidator implements ConstraintValidator<ValueMatchesTipoConstraint, ParTipoValor> {

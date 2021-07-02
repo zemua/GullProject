@@ -20,11 +20,11 @@ import org.springframework.hateoas.config.HypermediaWebTestClientConfigurer;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Consulta;
-import devs.mrp.gullproject.domains.Propuesta;
+import devs.mrp.gullproject.domains.linea.Campo;
 import devs.mrp.gullproject.domains.models.ConsultaRepresentationModel;
 import devs.mrp.gullproject.domains.models.ConsultaRepresentationModelAssembler;
+import devs.mrp.gullproject.domains.propuestas.Propuesta;
 import devs.mrp.gullproject.repository.ConsultaRepo;
 import devs.mrp.gullproject.service.ConsultaService;
 import reactor.core.publisher.Flux;
