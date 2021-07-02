@@ -16,6 +16,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import devs.mrp.gullproject.ainterfaces.MyOperable;
 import devs.mrp.gullproject.service.LineaOperations;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Document (collection = "lineas")
 @NoArgsConstructor
-public class Linea { // TODO aplicar Liskov Principle
+public class Linea implements MyOperable<LineaOperations> { // TODO aplicar Liskov Principle
 
 	@Id
 	private String id = new ObjectId().toString();
@@ -71,11 +72,6 @@ public class Linea { // TODO aplicar Liskov Principle
 	 * @param l
 	 * @return
 	 */
-	
-	public boolean equals(Linea l) {
-		LineaOperations op = new LineaOperations(this);
-		return op.equals(l);
-	}
 	
 	public Linea(Linea lin) {
 		this.counterLineId = lin.counterLineId;
