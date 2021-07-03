@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.ConsultaFactory;
+import devs.mrp.gullproject.domains.ConsultaImpl;
 import devs.mrp.gullproject.domains.linea.Linea;
 import devs.mrp.gullproject.domains.linea.LineaFactory;
 import devs.mrp.gullproject.domains.propuestas.PropuestaCliente;
@@ -30,12 +32,13 @@ import reactor.test.StepVerifier;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Data
-@Import({Consulta.class, LineaFactory.class})
+@Import({ConsultaImpl.class, ConsultaFactory.class, LineaFactory.class})
 public abstract class FacadeInitialization {
 
 	@Autowired LineaRepo lineaRepo;
 	@Autowired ConsultaRepo consultaRepo;
 	@Autowired LineaFactory lineaFactory;
+	@Autowired ConsultaFactory consultaFactory;
 	
 	protected Consulta consulta;
 	protected PropuestaCliente p1;
@@ -65,7 +68,7 @@ public abstract class FacadeInitialization {
 		pn1 = new PropuestaNuestra(); pn1.setForProposalId(p1.getId());
 		pn2 = new PropuestaNuestra(); pn2.setForProposalId(p1.getId());
 		
-		consulta = new Consulta();
+		consulta = consultaFactory.create();
 		p1.setForProposalId(consulta.getId());
 		consulta.getPropuestas().add(p1);
 		consulta.getPropuestas().add(pp1);

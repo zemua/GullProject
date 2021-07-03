@@ -16,6 +16,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.ConsultaFactory;
+import devs.mrp.gullproject.domains.ConsultaImpl;
 import devs.mrp.gullproject.domains.dto.propuesta.oferta.PvperCheckbox;
 import devs.mrp.gullproject.domains.dto.propuesta.oferta.PvpsCheckboxWrapper;
 import devs.mrp.gullproject.domains.dto.propuesta.proveedor.CostesCheckbox;
@@ -43,7 +45,7 @@ import reactor.test.StepVerifier;
 @Slf4j
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-@Import({LineaFactory.class, Consulta.class})
+@Import({LineaFactory.class, ConsultaImpl.class, ConsultaFactory.class})
 class ConsultaServiceTest {
 
 	ConsultaService consultaService;
@@ -52,6 +54,7 @@ class ConsultaServiceTest {
 	ModelMapper modelMapper;
 	
 	@Autowired LineaFactory lineaFactory;
+	@Autowired ConsultaFactory consultaFactory;
 	
 	@Autowired
 	public ConsultaServiceTest(ConsultaService consultaService, ConsultaRepo consultaRepo, ModelMapper modelMapper, LineaRepo lineaRepo) {
@@ -89,7 +92,7 @@ class ConsultaServiceTest {
 		consultaRepo.deleteAll().block();
 		lineaRepo.deleteAll().block();
 		
-		consulta = new Consulta();
+		consulta = consultaFactory.create();
 		propuesta1 = new PropuestaCliente();
 		propuesta2 = new PropuestaCliente();
 		

@@ -22,6 +22,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.ConsultaFactory;
+import devs.mrp.gullproject.domains.ConsultaImpl;
 import devs.mrp.gullproject.domains.linea.Campo;
 import devs.mrp.gullproject.domains.linea.LineaFactory;
 import devs.mrp.gullproject.domains.models.ConsultaRepresentationModel;
@@ -35,7 +37,7 @@ import reactor.core.publisher.Mono;
 
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = ConsultaRestController.class)
-@Import({ConsultaService.class, ConsultaByIdRestController.class, ModelMapper.class, LineaFactory.class, Consulta.class})
+@Import({ConsultaService.class, ConsultaByIdRestController.class, ModelMapper.class, LineaFactory.class, ConsultaImpl.class, ConsultaFactory.class})
 class ConsultaRestControllerTest {
 	
 	@Autowired
@@ -44,6 +46,8 @@ class ConsultaRestControllerTest {
 	ConsultaRestController consultaRestController;
 	@Autowired
 	ConsultaByIdRestController consultaByIdRestController;
+	@Autowired
+	ConsultaFactory consultaFactory;
 	
 	@MockBean
 	ConsultaRepo consultaRepo;
@@ -61,14 +65,14 @@ class ConsultaRestControllerTest {
 	
 	@BeforeEach
 	void initialize() {
-		consulta1 = new Consulta();
+		consulta1 = consultaFactory.create();
 		consulta1.setCreatedTime(123456L);
 		consulta1.setId("id1");
 		consulta1.setNombre("nombre1");
 		consulta1.setPropuestas(new ArrayList<Propuesta>());
 		consulta1.setStatus("status1");
 		
-		consulta2 = new Consulta();
+		consulta2 = consultaFactory.create();
 		consulta2.setCreatedTime(654321L);
 		consulta2.setId("id2");
 		consulta2.setNombre("nombre2");

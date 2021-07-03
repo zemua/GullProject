@@ -19,7 +19,7 @@ class ConsultaTest {
 		propuesta1 = new PropuestaCliente();
 		propuesta2 = new PropuestaCliente();
 		
-		consulta = new Consulta();
+		consulta = new ConsultaImpl();
 		consulta.operations().addPropuesta(propuesta1);
 		consulta.operations().addPropuesta(propuesta2);
 	}

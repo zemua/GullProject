@@ -22,6 +22,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.ConsultaFactory;
+import devs.mrp.gullproject.domains.ConsultaImpl;
 import devs.mrp.gullproject.domains.linea.Campo;
 import devs.mrp.gullproject.domains.linea.Linea;
 import devs.mrp.gullproject.domains.linea.LineaFactory;
@@ -38,10 +40,11 @@ import reactor.test.StepVerifier;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-@Import({LineaFactory.class, Consulta.class})
+@Import({LineaFactory.class, ConsultaImpl.class, ConsultaFactory.class})
 class LineaServiceTest {
 	
 	@Autowired LineaFactory lineaFactory;
+	@Autowired ConsultaFactory consultaFactory;
 	
 	LineaService lineaService;
 	LineaRepo lineaRepo;
@@ -121,7 +124,7 @@ class LineaServiceTest {
 		
 		consultaRepo.deleteAll().block();
 		
-		consulta = new Consulta();
+		consulta = consultaFactory.create();
 		propuesta = new PropuestaCliente();
 		propuesta2 = new PropuestaCliente();
 		consulta.operations().addPropuesta(propuesta);

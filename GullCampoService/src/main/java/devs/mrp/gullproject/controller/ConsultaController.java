@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.ConsultaFactory;
 import devs.mrp.gullproject.domains.dto.linea.WrapAtributosForCampoDto;
 import devs.mrp.gullproject.domains.dto.propuesta.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.propuesta.AttributesListDto;
@@ -75,20 +76,22 @@ public class ConsultaController {
 	PropuestaUtilities propuestaUtilities;
 	ModelMapper modelMapper;
 	CompoundedConsultaLineaService compoundedService;
+	ConsultaFactory consultaFactory;
 	
 	@Autowired
-	public ConsultaController(ConsultaService consultaService, LineaService lineaService, AtributoServiceProxyWebClient atributoService, PropuestaUtilities propuestaUtilities, ModelMapper modelMapper, CompoundedConsultaLineaService compoundedService) {
+	public ConsultaController(ConsultaService consultaService, LineaService lineaService, AtributoServiceProxyWebClient atributoService, PropuestaUtilities propuestaUtilities, ModelMapper modelMapper, CompoundedConsultaLineaService compoundedService, ConsultaFactory consultaFactory) {
 		this.consultaService = consultaService;
 		this.lineaService = lineaService;
 		this.atributoService = atributoService;
 		this.propuestaUtilities = propuestaUtilities;
 		this.modelMapper = modelMapper;
 		this.compoundedService = compoundedService;
+		this.consultaFactory = consultaFactory;
 	}
 	
 	@GetMapping("/nuevo")
 	public String createConsulta(Model model) {
-		model.addAttribute("consulta", new Consulta());
+		model.addAttribute("consulta", consultaFactory.create());
 		return "createConsulta";
 	}
 	

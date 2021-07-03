@@ -31,6 +31,8 @@ import org.springframework.web.reactive.function.BodyInserters;
 
 import devs.mrp.gullproject.configuration.MapperConfig;
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.ConsultaFactory;
+import devs.mrp.gullproject.domains.ConsultaImpl;
 import devs.mrp.gullproject.domains.dto.propuesta.AtributoForFormDto;
 import devs.mrp.gullproject.domains.dto.propuesta.oferta.PvperSumCheckboxWrapper;
 import devs.mrp.gullproject.domains.dto.propuesta.oferta.PvpsCheckboxWrapper;
@@ -63,7 +65,7 @@ import reactor.core.publisher.Mono;
 @WebFluxTest(controllers = ConsultaController.class)
 //@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
-@Import({MapperConfig.class, PropuestaUtilities.class, AtributoUtilities.class, Consulta.class, LineaFactory.class})
+@Import({MapperConfig.class, PropuestaUtilities.class, AtributoUtilities.class, ConsultaImpl.class, ConsultaFactory.class, LineaFactory.class})
 @ActiveProfiles("default")
 class ConsultaControllerTestB {
 	
@@ -71,6 +73,7 @@ class ConsultaControllerTestB {
 	ConsultaController consultaController;
 	ModelMapper modelMapper;
 	@Autowired LineaFactory lineaFactory;
+	@Autowired ConsultaFactory consultaFactory;
 	
 	@MockBean
 	ConsultaService consultaService;
@@ -153,7 +156,7 @@ class ConsultaControllerTestB {
 		op2.addLineaId("linea3");
 		prop2.setNombre("propuesta 2");
 		
-		consulta1 = new Consulta();
+		consulta1 = consultaFactory.create();
 		consulta1.setNombre("consulta 1");
 		consulta1.setStatus("estado 1");
 		consulta1.setId("idConsulta1");
@@ -165,7 +168,7 @@ class ConsultaControllerTestB {
 		op3.addLineaId(linea4.getId());
 		prop3.setNombre("propuesta 3");
 		
-		consulta2 = new Consulta();
+		consulta2 = consultaFactory.create();
 		consulta2.setNombre("consulta 2");
 		consulta2.setStatus("estado 2");
 		consulta2.setId("idConsulta2");
@@ -287,12 +290,12 @@ class ConsultaControllerTestB {
 	
 	@Test
 	void testProcessNewConsulta() {
-		Consulta a = new Consulta();
+		Consulta a = consultaFactory.create();
 		a.setNombre("name of consulta");
 		a.setStatus("open status");
 		a.setId("idConsulta");
 		
-		Consulta b = new Consulta();
+		Consulta b = consultaFactory.create();
 		b.setNombre("name of consulta");
 		b.setStatus("open status");
 		
@@ -368,12 +371,12 @@ class ConsultaControllerTestB {
 	@Test
 	void testShowAllConsultas() throws Exception {
 		
-		Consulta a = new Consulta();
+		Consulta a = consultaFactory.create();
 		a.setNombre("consulta 1");
 		a.setStatus("estado 1");
 		a.setId("idConsulta1");
 		
-		Consulta b = new Consulta();
+		Consulta b = consultaFactory.create();
 		b.setNombre("consulta 2");
 		b.setStatus("estado 2");
 		b.setId("idConsulta2");
@@ -439,7 +442,7 @@ class ConsultaControllerTestB {
 		((PropuestaNuestra)prop5).setSums(sums);
 		((PropuestaNuestra)prop6).setSums(sums);
 		
-		Consulta a = new Consulta();
+		Consulta a = consultaFactory.create();
 		a.setNombre("consulta 1");
 		a.setStatus("estado 1");
 		a.setId("idConsulta1");
@@ -448,7 +451,7 @@ class ConsultaControllerTestB {
 		a.operations().addPropuesta(prop3);
 		a.operations().addPropuesta(prop5);
 		
-		Consulta b = new Consulta();
+		Consulta b = consultaFactory.create();
 		b.setNombre("consulta 2");
 		b.setStatus("estado 2");
 		b.setId("idConsulta2");

@@ -18,6 +18,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.ConsultaFactory;
+import devs.mrp.gullproject.domains.ConsultaImpl;
 import devs.mrp.gullproject.domains.linea.Campo;
 import devs.mrp.gullproject.domains.linea.CosteLineaProveedor;
 import devs.mrp.gullproject.domains.linea.Linea;
@@ -40,12 +42,13 @@ import reactor.test.StepVerifier;
 @Slf4j
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-@Import({LineaFactory.class, Consulta.class})
+@Import({LineaFactory.class, ConsultaImpl.class, ConsultaFactory.class,})
 class CustomConsultaRepoImplTest {
 	
 	ConsultaRepo repo;
 	
 	@Autowired LineaFactory lineaFactory;
+	@Autowired ConsultaFactory consultaFactory;
 	
 	@Autowired
 	public CustomConsultaRepoImplTest(ConsultaRepo repo) {
@@ -205,7 +208,7 @@ class CustomConsultaRepoImplTest {
 		 * Arrejuntando todo
 		 */
 		
-		consulta = new Consulta();
+		consulta = consultaFactory.create();
 		consulta.setId("consulta id");
 		consulta.setNombre("consulta nombre");
 		consulta.setStatus("estado original");

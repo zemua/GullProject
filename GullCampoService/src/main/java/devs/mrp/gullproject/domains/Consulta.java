@@ -16,7 +16,7 @@ import lombok.Data;
 
 @Data
 @Document(collection = "consultas")
-public class Consulta {
+public abstract class Consulta {
 	
 	@Id
 	String id  = new ObjectId().toString();
@@ -31,8 +31,6 @@ public class Consulta {
 	
 	List<Propuesta> propuestas = new ArrayList<>();
 	
-	public ConsultaOperations operations() {
-		return new ConsultaOperations(this);
-	}
+	public abstract ConsultaOperations operations();
 	
 }

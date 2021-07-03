@@ -25,6 +25,8 @@ import org.springframework.web.reactive.function.BodyInserters;
 
 import devs.mrp.gullproject.configuration.MapperConfig;
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.ConsultaFactory;
+import devs.mrp.gullproject.domains.ConsultaImpl;
 import devs.mrp.gullproject.domains.dto.linea.AtributoForLineaFormDto;
 import devs.mrp.gullproject.domains.dto.linea.LineaWithSelectorDto;
 import devs.mrp.gullproject.domains.dto.linea.WrapLineasWithSelectorDto;
@@ -65,13 +67,14 @@ import reactor.core.publisher.Mono;
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = LineaController.class)
 @AutoConfigureWebTestClient
-@Import({MapperConfig.class, LineaUtilities.class, AttRemaperUtilities.class, CostRemapperUtilities.class, PropuestaProveedorUtilities.class, PvpMapperByLineFactory.class, SupplierLineFinderByProposalAssignation.class, Consulta.class, ProposalIdsMergerFactory.class, PropuestaProveedorExtractor.class, FromPropuestaToProveedorFactory.class, LineByAssignationRetrieverFactory.class, LineaFactory.class})
+@Import({MapperConfig.class, LineaUtilities.class, AttRemaperUtilities.class, CostRemapperUtilities.class, PropuestaProveedorUtilities.class, PvpMapperByLineFactory.class, SupplierLineFinderByProposalAssignation.class, ConsultaImpl.class, ConsultaFactory.class, ProposalIdsMergerFactory.class, PropuestaProveedorExtractor.class, FromPropuestaToProveedorFactory.class, LineByAssignationRetrieverFactory.class, LineaFactory.class})
 class LineaControllerTest {
 	
 	WebTestClient webTestClient;
 	LineaController lineaController;
 	ModelMapper modelMapper;
 	@Autowired LineaFactory lineaFactory;
+	@Autowired ConsultaFactory consultaFactory;
 	
 	@MockBean
 	LineaService lineaService;
@@ -136,7 +139,7 @@ class LineaControllerTest {
 		
 		propuesta = new PropuestaCliente();
 		propuesta.setNombre("propuestaName");
-		consulta = new Consulta();
+		consulta = consultaFactory.create();
 		consulta.operations().addPropuesta(propuesta);
 		
 		campo1a = new Campo<>();
