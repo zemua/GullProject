@@ -12,7 +12,7 @@ import devs.mrp.gullproject.domains.dto.propuesta.oferta.PvperSumCheckboxWrapper
 import devs.mrp.gullproject.domains.dto.propuesta.oferta.PvpsCheckboxWrapper;
 import devs.mrp.gullproject.domains.dto.propuesta.proveedor.CostesCheckboxWrapper;
 import devs.mrp.gullproject.domains.linea.Linea;
-import devs.mrp.gullproject.domains.linea.LineaProveedor;
+import devs.mrp.gullproject.domains.linea.LineaFactory;
 import devs.mrp.gullproject.domains.propuestas.AtributoForCampo;
 import devs.mrp.gullproject.domains.propuestas.CosteProveedor;
 import devs.mrp.gullproject.domains.propuestas.Propuesta;
@@ -23,8 +23,6 @@ import devs.mrp.gullproject.domains.propuestas.PvperSum;
 import devs.mrp.gullproject.domains.propuestas.TipoPropuesta;
 import devs.mrp.gullproject.repository.ConsultaRepo;
 import devs.mrp.gullproject.repository.LineaRepo;
-import devs.mrp.gullproject.service.linea.oferta.LineToOfferLineFactory;
-import devs.mrp.gullproject.service.linea.proveedor.LineToProveedorLineFactory;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -36,8 +34,7 @@ public class ConsultaService {
 	ConsultaRepo consultaRepo;
 	ModelMapper modelMapper;
 	LineaRepo lineaRepo;
-	@Autowired LineToOfferLineFactory toOfferLine;
-	@Autowired LineToProveedorLineFactory toProveedorLine;
+	@Autowired LineaFactory lineaFactory;
 	
 	@Autowired
 	public ConsultaService(ConsultaRepo consultaRepo, ModelMapper modelMapper, LineaRepo lineaRepo) {
@@ -183,7 +180,7 @@ public class ConsultaService {
 	private Flux<Linea> removeReferenceToSelectedCostsFromLineas(String idPropuesta, CostesCheckboxWrapper wrapper) {
 		return lineaRepo.findAllByPropuestaIdOrderByOrderAsc(idPropuesta)
 				.flatMap(fLinea -> {
-					var linea = toProveedorLine.from(fLinea);
+					var linea = fLinea;
 					return Flux.fromIterable(wrapper.getCostes())
 							.map(fCost -> {
 								var ops = linea.operations();
@@ -267,7 +264,7 @@ public class ConsultaService {
 	private Flux<Linea> removeReferenceToSelectedPvpsFromLineas(String idPropuesta, PvpsCheckboxWrapper wrapper) {
 		return lineaRepo.findAllByPropuestaIdOrderByOrderAsc(idPropuesta)
 			.flatMap(fLinea -> {
-				var linea = toOfferLine.from(fLinea);
+				var linea = fLinea;
 				return Flux.fromIterable(wrapper.getPvps())
 						.map(fPvp -> {
 							var ops = linea.operations();

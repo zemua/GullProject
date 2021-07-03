@@ -59,6 +59,10 @@ public class Linea implements MyOperable<LineaOperations> { // TODO aplicar Lisk
 	 */
 	private List<Campo<?>> campos = new ArrayList<>();
 	
+	private List<CosteLineaProveedor> costesProveedor;
+	private List<PvperLinea> pvps;
+	private List<String> pvpSums;
+	
 	/**
 	 * Methods and constructors
 	 * @param l
@@ -72,6 +76,18 @@ public class Linea implements MyOperable<LineaOperations> { // TODO aplicar Lisk
 		this.parentId = lin.parentId;
 		this.propuestaId = lin.propuestaId;
 		lin.getCampos().stream().forEach(c -> this.campos.add(new Campo<>(c)));
+		if (lin.getPvpSums() != null) {
+			this.pvpSums = new ArrayList<>();
+			lin.getPvpSums().stream().forEach(s -> this.pvpSums.add(s));
+		}
+		if (lin.getPvps() != null) {
+			this.pvps = new ArrayList<>();
+			lin.getPvps().stream().forEach(p -> this.pvps.add(new PvperLinea(p)));
+		}
+		if (lin.getCostesProveedor() != null) {
+			this.costesProveedor = new ArrayList<>();
+			lin.getCostesProveedor().stream().forEach(c -> this.costesProveedor.add(new CosteLineaProveedor(c)));
+		}
 	}
 	
 	public LineaOperations operations() {

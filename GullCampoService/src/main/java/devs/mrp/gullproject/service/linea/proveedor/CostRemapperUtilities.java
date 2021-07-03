@@ -19,7 +19,6 @@ import reactor.core.publisher.Flux;
 public class CostRemapperUtilities {
 
 	LineaService lineaService;
-	@Autowired LineToProveedorLineFactory toProveedorLine;
 	
 	@Autowired
 	CostRemapperUtilities(LineaService lineaService) {
@@ -35,8 +34,7 @@ public class CostRemapperUtilities {
 				.flatMapMany(rMap -> {
 					return lineaService.findByPropuestaId(propuestaId)
 							.flatMap(rLinea -> {
-								var lin = toProveedorLine.from(rLinea);
-								CosteLineaProveedor cos = lin.operations().getCosteByCosteId(costId);
+								CosteLineaProveedor cos = rLinea.operations().getCosteByCosteId(costId);
 								if (rMap.containsKey(cos.getValue())) {
 									cos.setValue(rMap.get(cos.getValue()).getAfter());
 								}

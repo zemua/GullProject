@@ -17,8 +17,6 @@ import devs.mrp.gullproject.domains.linea.CosteLineaProveedor;
 import devs.mrp.gullproject.domains.linea.Linea;
 import devs.mrp.gullproject.domains.linea.PvperLinea;
 import devs.mrp.gullproject.domains.propuestas.AtributoForCampo;
-import devs.mrp.gullproject.service.linea.oferta.LineToOfferLineFactory;
-import devs.mrp.gullproject.service.linea.proveedor.LineToProveedorLineFactory;
 import lombok.Data;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -131,6 +129,64 @@ public class LineaOperations {
 	public boolean ifAssignedTo(String id) {
 		Optional<String> assigned = linea.getCounterLineId().stream().filter(c -> c.equals(id)).findAny();
 		return assigned.isPresent();
+	}
+	
+	public boolean ifHasPvp(String pvpId) {
+		Optional<PvperLinea> pvp = linea.getPvps().stream().filter(p -> p.getPvperId().equals(pvpId)).findAny();
+		return pvp.isPresent();
+	}
+	
+	public PvperLinea getPvp(String pvpId) {
+		return linea.getPvps().stream().filter(p -> p.getPvperId().equals(pvpId)).findAny().orElse(null);
+	}
+	
+	public Double getPvpValue(String pvpId) {
+		var pvp = getPvp(pvpId);
+		if (pvp == null) {
+			return 0D;
+		}
+		return pvp.getPvp();
+	}
+	
+	public Double getPvpMargin(String pvpId) {
+		var pvp = getPvp(pvpId);
+		if (pvp == null) {
+			return 0D;
+		}
+		return pvp.getMargen();
+	}
+	
+	public void removePvpById(String pvpId) {
+		Iterator<PvperLinea> it = linea.getPvps().iterator();
+		while (it.hasNext()) {
+			PvperLinea linea = it.next();
+			if (linea.getPvperId().equals(pvpId)) {
+				it.remove();
+			}
+		}
+	}
+	
+	public CosteLineaProveedor getCosteByCosteId(String costeId) {
+		if (linea.getCostesProveedor() == null) {
+			return new CosteLineaProveedor(costeId);
+		}
+		Optional<CosteLineaProveedor> cos = linea.getCostesProveedor().stream().filter(c -> c.getCosteProveedorId().equals(costeId)).findFirst();
+		return cos.orElse(new CosteLineaProveedor(costeId));
+	}
+	
+	public boolean ifHasCost(String costId) {
+		Optional<CosteLineaProveedor> coste = linea.getCostesProveedor().stream().filter(c -> c.getCosteProveedorId().equals(costId)).findAny();
+		return coste.isPresent();
+	}
+	
+	public void removeCosteById(String costId) {
+		Iterator<CosteLineaProveedor> it = linea.getCostesProveedor().iterator();
+		while (it.hasNext()) {
+			var cos = it.next();
+			if (cos.getCosteProveedorId().equals(costId)) {
+				it.remove();
+			}
+		}
 	}
 	
 }

@@ -37,8 +37,6 @@ import devs.mrp.gullproject.domains.dto.propuesta.oferta.PvpsCheckboxWrapper;
 import devs.mrp.gullproject.domains.dto.propuesta.proveedor.CostesCheckboxWrapper;
 import devs.mrp.gullproject.domains.linea.CosteLineaProveedor;
 import devs.mrp.gullproject.domains.linea.Linea;
-import devs.mrp.gullproject.domains.linea.LineaOferta;
-import devs.mrp.gullproject.domains.linea.LineaProveedor;
 import devs.mrp.gullproject.domains.linea.PvperLinea;
 import devs.mrp.gullproject.domains.propuestas.AtributoForCampo;
 import devs.mrp.gullproject.domains.propuestas.CosteProveedor;
@@ -54,8 +52,6 @@ import devs.mrp.gullproject.service.AtributoUtilities;
 import devs.mrp.gullproject.service.CompoundedConsultaLineaService;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.linea.LineaService;
-import devs.mrp.gullproject.service.linea.oferta.LineToOfferLineFactory;
-import devs.mrp.gullproject.service.linea.proveedor.LineToProveedorLineFactory;
 import devs.mrp.gullproject.service.propuesta.PropuestaUtilities;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -66,16 +62,13 @@ import reactor.core.publisher.Mono;
 @WebFluxTest(controllers = ConsultaController.class)
 //@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
-@Import({MapperConfig.class, PropuestaUtilities.class, AtributoUtilities.class, Consulta.class, LineToProveedorLineFactory.class, LineToOfferLineFactory.class})
+@Import({MapperConfig.class, PropuestaUtilities.class, AtributoUtilities.class, Consulta.class})
 @ActiveProfiles("default")
 class ConsultaControllerTestB {
 	
 	WebTestClient webTestClient;
 	ConsultaController consultaController;
 	ModelMapper modelMapper;
-	
-	@Autowired LineToProveedorLineFactory toProveedorLine;
-	@Autowired LineToOfferLineFactory toOfferLine;
 	
 	@MockBean
 	ConsultaService consultaService;
@@ -108,11 +101,11 @@ class ConsultaControllerTestB {
 	Linea linea3;
 	Linea linea4;
 	
-	LineaProveedor linea1p;
-	LineaProveedor linea2p;
+	Linea linea1p;
+	Linea linea2p;
 	
-	LineaOferta linea1o;
-	LineaOferta linea2o;
+	Linea linea1o;
+	Linea linea2o;
 	
 	AtributoForCampo att1;
 	AtributoForCampo att2;
@@ -235,9 +228,9 @@ class ConsultaControllerTestB {
 		cost.setCosteProveedorId(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getId());
 		List<CosteLineaProveedor> costs = new ArrayList<>();
 		costs.add(cost);
-		linea1p = toProveedorLine.from(linea1);
+		linea1p = new Linea(linea1);
 		linea1p.setCostesProveedor(costs);
-		linea2p = toProveedorLine.from(linea2);
+		linea2p = new Linea(linea2);
 		linea2p.setCostesProveedor(costs);
 		
 		consulta1.getPropuestas().add(propuestaNuestra);
@@ -247,9 +240,9 @@ class ConsultaControllerTestB {
 		pvp.setPvperId(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId());
 		List<PvperLinea> pvps = new ArrayList<>();
 		pvps.add(pvp);
-		linea1o = toOfferLine.from(linea1);
+		linea1o = new Linea(linea1);
 		linea1o.setPvps(pvps);
-		linea2o = toOfferLine.from(linea2);
+		linea2o = new Linea(linea2);
 		linea2o.setPvps(pvps);
 		
 		List<String> sums = new ArrayList<>();

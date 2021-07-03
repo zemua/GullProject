@@ -36,7 +36,7 @@ import devs.mrp.gullproject.domains.dto.propuesta.AttRemapersWrapper;
 import devs.mrp.gullproject.domains.linea.Campo;
 import devs.mrp.gullproject.domains.linea.CosteLineaProveedor;
 import devs.mrp.gullproject.domains.linea.Linea;
-import devs.mrp.gullproject.domains.linea.LineaProveedor;
+import devs.mrp.gullproject.domains.linea.LineaFactory;
 import devs.mrp.gullproject.domains.propuestas.AtributoForCampo;
 import devs.mrp.gullproject.domains.propuestas.CosteProveedor;
 import devs.mrp.gullproject.domains.propuestas.Propuesta;
@@ -45,10 +45,6 @@ import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.ClassDestringfier;
 import devs.mrp.gullproject.service.CompoundedConsultaLineaService;
 import devs.mrp.gullproject.service.ConsultaService;
-import devs.mrp.gullproject.service.linea.oferta.LineToOfferLineFactory;
-import devs.mrp.gullproject.service.linea.proveedor.LineToProveedorLineFactory;
-import devs.mrp.gullproject.service.linea.proveedor.LineaProveedorFactory;
-import devs.mrp.gullproject.service.linea.proveedor.LineaProveedorOperations;
 import devs.mrp.gullproject.validator.ValidList;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -65,9 +61,7 @@ public class LineaUtilities { // TODO refractor
 	ModelMapper modelMapper;
 	LineaService lineaService;
 	CompoundedConsultaLineaService compoundedService;
-	@Autowired LineToOfferLineFactory toOfferLine;
-	@Autowired LineToProveedorLineFactory toProveedorLine;
-	@Autowired LineaProveedorFactory lineaProveedorFactory;
+	@Autowired LineaFactory lineaFactory;
 	
 	String tipoCoste = "COSTE";
 	
@@ -88,7 +82,7 @@ public class LineaUtilities { // TODO refractor
 					dto.setCostesProveedor(((PropuestaProveedor)rProp).getCostes().stream().map(cost -> modelMapper.map(cost, CosteLineaProveedorDto.class)).collect(Collectors.toList()));
 					log.debug("costs set on dto as: ");
 					dto.getCostesProveedor().stream().forEach(c -> log.debug(c.toString()));
-					var lineaOp = toProveedorLine.from(dto.getLinea()).operations();
+					var lineaOp = dto.getLinea().operations();
 					log.debug("going to retrieve costes from: " + dto.getLinea().toString());
 					dto.getCostesProveedor().forEach(cozte -> {
 						log.debug("going to set for: " + cozte + " the value: " + lineaOp.getCosteByCosteId(cozte.getId()).getValue());
@@ -200,20 +194,20 @@ public class LineaUtilities { // TODO refractor
 		return multiple;
 	}
 	
-	public <T extends Linea> Flux<T> addSeveralCopiesOfSameLineDto (LineaWithAttListDto<T> lineaWithAttListDto, String propuestaId) {
-		Flux<T> l1;
-		Mono<List<T>> llineas = reconstructLine(lineaWithAttListDto)
+	public Flux<Linea> addSeveralCopiesOfSameLineDto (LineaWithAttListDto lineaWithAttListDto, String propuestaId) {
+		Flux<Linea> l1;
+		Mono<List<Linea>> llineas = reconstructLine(lineaWithAttListDto)
 				.map(rLine -> {
-					List<T> lista = new ArrayList<>();
+					List<Linea> lista = new ArrayList<>();
 					LineaOperations operationsRline = new LineaOperations(rLine);
 					for (int i=0; i<lineaWithAttListDto.getQty(); i++) {
-						T dLine = operationsRline.clonar();
+						Linea dLine = operationsRline.clonar();
 						log.debug("añadimos linea: " + dLine.toString());
 						lista.add(dLine);
 					}
 					return lista;
 				});
-		l1 = (Flux<T>)lineaService.addVariasLineas(llineas.flatMapMany(ll -> Flux.fromIterable(ll)), propuestaId);
+		l1 = lineaService.addVariasLineas(llineas.flatMapMany(ll -> Flux.fromIterable(ll)), propuestaId);
 		return l1;
 	}
 
@@ -271,7 +265,7 @@ public class LineaUtilities { // TODO refractor
 	}
 
 	public Mono<Linea> reconstructLine(LineaWithAttListDto lineaWithAttListDto) {
-		LineaProveedor nLinea = toProveedorLine.from(lineaWithAttListDto.getLinea());
+		Linea nLinea = lineaWithAttListDto.getLinea();
 		List<CosteLineaProveedorDto> costesDto = lineaWithAttListDto.getCostesProveedor();
 		if (costesDto != null) {
 			if (nLinea.getCostesProveedor() == null) {
@@ -351,7 +345,7 @@ public class LineaUtilities { // TODO refractor
 			((PropuestaProveedor)propuesta).getCostes().stream().forEach(cos -> wrap.getName().add(null));
 		}
 		lineas.stream().forEach(sLine -> {
-			LineaProveedorOperations sLineOp = toProveedorLine.from(sLine).operations();
+			LineaOperations sLineOp = sLine.operations();
 			StringListWrapper stringListWrapper = new StringListWrapper();
 			stringListWrapper.setString(new ArrayList<>());
 			stringListWrapper.setName(sLine.getNombre());
@@ -558,7 +552,7 @@ public class LineaUtilities { // TODO refractor
 					
 					rAllDuplas.stream().forEach(sDupla ->{
 						log.debug("vamos a pasar estas duplas a linea: " + sDupla.toString());
-						LineaProveedor linea = lineaProveedorFactory.create();
+						Linea linea = lineaFactory.create();
 						linea.setCostesProveedor(new ArrayList<>());
 						sDupla.stream().forEach(sField -> {
 							if (sField.clase.equals(tipoCoste)){
@@ -740,7 +734,7 @@ public class LineaUtilities { // TODO refractor
 					Optional<CosteProveedor> cost = propuesta.getCostes().stream().filter(co -> co.getId().equals(costeId)).findFirst();
 					return lineaService.findByPropuestaId(propuestaId)
 						.map(rLine -> {
-							var lin = toProveedorLine.from(rLine);
+							var lin = rLine;
 							CostRemapper maper = new CostRemapper();
 							CosteLineaProveedor coste = lin.operations().getCosteByCosteId(costeId);
 							if (coste != null) {

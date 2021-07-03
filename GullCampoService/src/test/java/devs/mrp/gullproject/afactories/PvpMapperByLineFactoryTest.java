@@ -6,23 +6,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
 import devs.mrp.gullproject.ainterfaces.MyFactoryFromTo;
+import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.linea.Linea;
-import devs.mrp.gullproject.domains.linea.LineaOferta;
+import devs.mrp.gullproject.domains.linea.LineaFactory;
 import devs.mrp.gullproject.domains.linea.PvperLinea;
+import devs.mrp.gullproject.service.linea.LineByAssignationRetrieverFactory;
 import devs.mrp.gullproject.service.linea.oferta.PvpMapperByLineFactory;
 
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
+@Import({LineByAssignationRetrieverFactory.class, LineaFactory.class, Consulta.class})
 class PvpMapperByLineFactoryTest {
 
+	@Autowired PvpMapperByLineFactory<Linea> factory;
+	
 	@Test
 	void test() {
-		MyFactoryFromTo<List<LineaOferta>, MyMapperByDupla<Double, String, String>> factory = new PvpMapperByLineFactory();
 		
-		List<LineaOferta> lineas = new ArrayList<>();
+		List<Linea> lineas = new ArrayList<>();
 		
-		LineaOferta l1 = new LineaOferta();
+		Linea l1 = new Linea();
 		l1.setCounterLineId(new ArrayList<>() {{add("p1");}});
 		PvperLinea pvp = new PvperLinea();
 		pvp.setMargen(1.1);
@@ -30,7 +42,7 @@ class PvpMapperByLineFactoryTest {
 		pvp.setPvperId("pvperid1");
 		l1.setPvps(new ArrayList<>() {{add(pvp);}});
 		
-		LineaOferta l2 = new LineaOferta();
+		Linea l2 = new Linea();
 		l2.setCounterLineId(new ArrayList<>() {{add("p2");}});
 		PvperLinea pvp2 = new PvperLinea();
 		pvp2.setMargen(2.2);
@@ -38,7 +50,7 @@ class PvpMapperByLineFactoryTest {
 		pvp2.setPvperId("pvperid2");
 		l2.setPvps(new ArrayList<>() {{add(pvp2);}});
 		
-		LineaOferta l3 = new LineaOferta();
+		Linea l3 = new Linea();
 		l3.setCounterLineId(new ArrayList<>() {{add("p3");}});
 		PvperLinea pvp3 = new PvperLinea();
 		pvp3.setMargen(3.3);

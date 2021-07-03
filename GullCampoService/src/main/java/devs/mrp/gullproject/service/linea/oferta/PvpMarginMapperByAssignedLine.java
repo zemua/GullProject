@@ -2,13 +2,13 @@ package devs.mrp.gullproject.service.linea.oferta;
 
 import devs.mrp.gullproject.ainterfaces.MyListOfAsignables;
 import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
-import devs.mrp.gullproject.domains.linea.LineaOferta;
+import devs.mrp.gullproject.domains.linea.Linea;
 
 public class PvpMarginMapperByAssignedLine implements MyMapperByDupla<Double, String, String> {
 
-	MyListOfAsignables<LineaOferta> list;
+	MyListOfAsignables<Linea> list;
 	
-	public PvpMarginMapperByAssignedLine(MyListOfAsignables<LineaOferta> list) {
+	public PvpMarginMapperByAssignedLine(MyListOfAsignables<Linea> list) {
 		this.list = list;
 	}
 	

@@ -33,8 +33,7 @@ import devs.mrp.gullproject.domains.dto.linea.WrapLineasWithSelectorDto;
 import devs.mrp.gullproject.domains.dto.linea.proveedor.CostRemappersWrapper;
 import devs.mrp.gullproject.domains.dto.propuesta.AttRemapersWrapper;
 import devs.mrp.gullproject.domains.linea.Linea;
-import devs.mrp.gullproject.domains.linea.LineaOferta;
-import devs.mrp.gullproject.domains.linea.LineaProveedor;
+import devs.mrp.gullproject.domains.linea.LineaFactory;
 import devs.mrp.gullproject.domains.propuestas.Propuesta;
 import devs.mrp.gullproject.domains.propuestas.PropuestaNuestra;
 import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
@@ -46,13 +45,9 @@ import devs.mrp.gullproject.service.linea.CustomerLineToCostMapper;
 import devs.mrp.gullproject.service.linea.LineByAssignationRetriever;
 import devs.mrp.gullproject.service.linea.LineaService;
 import devs.mrp.gullproject.service.linea.LineaUtilities;
-import devs.mrp.gullproject.service.linea.oferta.LineListToOfertaConverter;
-import devs.mrp.gullproject.service.linea.oferta.LineToOfferLineFactory;
 import devs.mrp.gullproject.service.linea.oferta.PvpMapperByLineFactory;
 import devs.mrp.gullproject.service.linea.oferta.PvpSumForLineFinder;
 import devs.mrp.gullproject.service.linea.proveedor.CostRemapperUtilities;
-import devs.mrp.gullproject.service.linea.proveedor.LineListToProveedorConverter;
-import devs.mrp.gullproject.service.linea.proveedor.LineToProveedorLineFactory;
 import devs.mrp.gullproject.service.propuesta.proveedor.PropuestaProveedorUtilities;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -72,18 +67,15 @@ public class LineaController {
 	AttRemaperUtilities attRemaperUtilities;
 	CostRemapperUtilities costRemapperUtilities;
 	PropuestaProveedorUtilities propuestaProveedorUtilities;
-	MyFactoryFromTo<List<LineaOferta>, MyMapperByDupla<Double, String, String>> pvpMapperByLineFactory;
+	MyFactoryFromTo<List<Linea>, MyMapperByDupla<Double, String, String>> pvpMapperByLineFactory;
 	MyFinder<Flux<Linea>, String> supplierLineFinderByProposalAssignation;
-	@Autowired LineToProveedorLineFactory toProveedorLine;
-	@Autowired LineToOfferLineFactory toOfferLine;
-	@Autowired LineListToProveedorConverter lineListToProveedor;
-	@Autowired LineListToOfertaConverter lineListToOferta;
+	@Autowired LineaFactory lineaFactory;
 
 	@Autowired
 	public LineaController(LineaService lineaService, ConsultaService consultaService,
 			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities, AttRemaperUtilities attRemaperUtilities,
 			CostRemapperUtilities costRemapperUtilities, PropuestaProveedorUtilities propuestaProveedorUtilities,
-			PvpMapperByLineFactory<LineaOferta> pvpMapperByLineFactory, SupplierLineFinderByProposalAssignation finder) {
+			PvpMapperByLineFactory<Linea> pvpMapperByLineFactory, SupplierLineFinderByProposalAssignation finder) {
 		this.lineaService = lineaService;
 		this.consultaService = consultaService;
 		this.atributoService = atributoService;
@@ -115,7 +107,7 @@ public class LineaController {
 			Propuesta propCliente = ops.getPropuestaById(propuesta.getForProposalId());
 			
 			model.addAttribute("propuesta", propuesta);
-			MyMapperByDupla<Double, LineaOferta, String> sumsMapper = new PvpSumForLineFinder(propuesta);
+			MyMapperByDupla<Double, Linea, String> sumsMapper = new PvpSumForLineFinder(propuesta);
 			model.addAttribute("sumsMapper", sumsMapper);
 			model.addAttribute("consulta", rCons);
 			model.addAttribute("propCliente", propCliente);
@@ -124,14 +116,13 @@ public class LineaController {
 			return supplierLineFinderByProposalAssignation.findBy(propCliente.getId())
 				.collectList()
 				.map(proveedorLineList -> {
-					List<LineaProveedor> list = lineListToProveedor.convert(proveedorLineList);
-					MyListOfAsignables<LineaProveedor> asignablesProveedor = new LineByAssignationRetriever<>(list);
+					MyListOfAsignables<Linea> asignablesProveedor = new LineByAssignationRetriever<>(proveedorLineList);
 					model.addAttribute("costMapper", new CustomerLineToCostMapper(asignablesProveedor));
 					return true;
 				})
 				.then(lineaService.findByPropuestaId(propuesta.getId()).collectList())
 				.map(ofertaLineList -> {
-					var pvpMapper = pvpMapperByLineFactory.from(lineListToOferta.convert(ofertaLineList));
+					var pvpMapper = pvpMapperByLineFactory.from(ofertaLineList);
 					model.addAttribute("pvpMapper", pvpMapper);
 					return true;
 				})

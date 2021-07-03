@@ -3,9 +3,8 @@ package devs.mrp.gullproject.service.linea.oferta;
 import devs.mrp.gullproject.ainterfaces.MyListOfAsignables;
 import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
 import devs.mrp.gullproject.domains.linea.Linea;
-import devs.mrp.gullproject.domains.linea.LineaOferta;
 
-public class PvpMapperByAssignedLine <T extends LineaOferta> implements MyMapperByDupla<Double, String, String> {
+public class PvpMapperByAssignedLine <T extends Linea> implements MyMapperByDupla<Double, String, String> {
 
 	MyListOfAsignables<T> list;
 	

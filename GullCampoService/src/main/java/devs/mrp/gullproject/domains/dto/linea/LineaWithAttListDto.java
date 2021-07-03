@@ -15,22 +15,22 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class LineaWithAttListDto <T extends Linea> {
+public class LineaWithAttListDto {
 
-	public LineaWithAttListDto(T linea, List<AtributoForLineaFormDto> attributes) {
+	public LineaWithAttListDto(Linea linea, List<AtributoForLineaFormDto> attributes) {
 		this.linea = linea;
 		this.attributes = attributes;
 		this.qty = 1;
 	}
 	
-	public LineaWithAttListDto(T linea, List<AtributoForLineaFormDto> attributes, Integer qty) {
+	public LineaWithAttListDto(Linea linea, List<AtributoForLineaFormDto> attributes, Integer qty) {
 		this.linea = linea;
 		this.attributes = attributes;
 		this.qty = qty;
 	}
 	
 	@Valid
-	T linea;
+	Linea linea;
 	@Valid
 	List<AtributoForLineaFormDto> attributes;
 	Integer qty;
