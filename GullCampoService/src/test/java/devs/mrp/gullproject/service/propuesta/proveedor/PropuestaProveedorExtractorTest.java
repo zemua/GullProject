@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.linea.LineaFactory;
 import devs.mrp.gullproject.domains.propuestas.Propuesta;
 import devs.mrp.gullproject.domains.propuestas.PropuestaCliente;
 import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
@@ -18,7 +19,7 @@ import reactor.test.StepVerifier;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
-@Import({Consulta.class})
+@Import({Consulta.class, LineaFactory.class})
 class PropuestaProveedorExtractorTest {
 
 	@Autowired PropuestaProveedorExtractor extractor;

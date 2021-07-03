@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -22,17 +23,19 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.linea.Campo;
+import devs.mrp.gullproject.domains.linea.LineaFactory;
 import devs.mrp.gullproject.domains.models.ConsultaRepresentationModel;
 import devs.mrp.gullproject.domains.models.ConsultaRepresentationModelAssembler;
 import devs.mrp.gullproject.domains.propuestas.Propuesta;
 import devs.mrp.gullproject.repository.ConsultaRepo;
+import devs.mrp.gullproject.repository.LineaRepo;
 import devs.mrp.gullproject.service.ConsultaService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = ConsultaRestController.class)
-@Import({ConsultaService.class, ConsultaByIdRestController.class})
+@Import({ConsultaService.class, ConsultaByIdRestController.class, ModelMapper.class, LineaFactory.class, Consulta.class})
 class ConsultaRestControllerTest {
 	
 	@Autowired
@@ -44,6 +47,8 @@ class ConsultaRestControllerTest {
 	
 	@MockBean
 	ConsultaRepo consultaRepo;
+	@MockBean
+	LineaRepo lineaRepo;
 	@MockBean
 	ConsultaRepresentationModelAssembler crma;
 	
@@ -96,7 +101,7 @@ class ConsultaRestControllerTest {
 	void testGetAllConsultas() {
 		WebTestClient client = WebTestClient.bindToController(consultaRestController).build().mutateWith(configurer);
 		
-		when(consultaRepo.findAll()).thenReturn(flux);
+		when(consultaRepo.findAllByOrderByCreatedTimeDesc()).thenReturn(flux);
 		
 		when(crma.toModel(ArgumentMatchers.any(Consulta.class))).thenReturn(null);
 		when(crma.toModel(ArgumentMatchers.eq(consulta1))).thenReturn(model1);

@@ -20,16 +20,19 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 
+import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.dto.StringListWrapper;
 import devs.mrp.gullproject.domains.dto.linea.AtributoForLineaFormDto;
 import devs.mrp.gullproject.domains.dto.linea.LineaWithAttListDto;
 import devs.mrp.gullproject.domains.dto.linea.StringListOfListsWrapper;
 import devs.mrp.gullproject.domains.linea.Campo;
 import devs.mrp.gullproject.domains.linea.Linea;
+import devs.mrp.gullproject.domains.linea.LineaFactory;
 import devs.mrp.gullproject.domains.propuestas.AtributoForCampo;
 import devs.mrp.gullproject.domains.propuestas.Propuesta;
 import devs.mrp.gullproject.domains.propuestas.PropuestaCliente;
@@ -45,12 +48,14 @@ import reactor.test.StepVerifier;
 @Slf4j
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
+@Import({LineaFactory.class, Consulta.class})
 public class LineaUtilitiesTest {
 	
 	ModelMapper modelMapper;
 	LineaUtilities lineaUtilities;
-	CompoundedConsultaLineaService compoundedService;
 	
+	@MockBean
+	CompoundedConsultaLineaService compoundedService;
 	@MockBean
 	ConsultaService consultaService;
 	@MockBean
@@ -75,10 +80,9 @@ public class LineaUtilitiesTest {
 	List<Linea> lineas;
 	
 	@Autowired
-	LineaUtilitiesTest(ModelMapper modelMapper, LineaUtilities lineaUtilities, CompoundedConsultaLineaService compoundedService) {
+	LineaUtilitiesTest(ModelMapper modelMapper, LineaUtilities lineaUtilities) {
 		this.modelMapper = modelMapper;
 		this.lineaUtilities = lineaUtilities;
-		this.compoundedService = compoundedService;
 	}
 	
 	@BeforeEach
@@ -433,7 +437,8 @@ public class LineaUtilitiesTest {
 		lp2b.setPropuestaId(pp2.getId());
 		lp2b.setCounterLineId(new ArrayList<String>(Arrays.asList("counter2b")));
 		
-		when(compoundedService.getAllLineasOfPropuestasAssignedTo(propuesta.getId())).thenReturn(Flux.just(lp1a, lp1b, lp2a, lp2b));
+		when(compoundedService.getAllLineasOfPropuestasAssignedTo(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(lp1a, lp1b, lp2a, lp2b));
+		//when(consultaService.getAllPropuestaProveedorAsignedTo(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(pp1, pp2));
 		
 		Map<String, Set<String>> map = lineaUtilities.get_ProposalId_VS_SetOfCounterLineId(propuesta.getId()).block();
 		

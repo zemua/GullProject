@@ -94,7 +94,7 @@ public class LineaTest {
 		assertEquals(campo1, lineaOperations.getCampoByAttId(campo1.getAtributoId()));
 		assertEquals(campo2, lineaOperations.getCampoByAttId(campo2.getAtributoId()));
 		assertEquals(campo3, lineaOperations.getCampoByAttId(campo3.getAtributoId()));
-		assertNull(lineaOperations.getCampoByAttId("atributo que no existe"));
+		assertEquals("", lineaOperations.getCampoByAttId("atributo que no existe").getDatosText());
 	}
 	
 	@Test

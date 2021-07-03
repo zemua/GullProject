@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Document (collection = "lineas")
 @NoArgsConstructor
-public class Linea implements MyOperable<LineaOperations> { // TODO aplicar Liskov Principle
+public class Linea implements MyOperable<LineaOperations> {
 
 	@Id
 	private String id = new ObjectId().toString();

@@ -8,12 +8,15 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 
 import devs.mrp.gullproject.ainterfaces.MyFactoryFromTo;
 import devs.mrp.gullproject.ainterfaces.MyFactoryNew;
 import devs.mrp.gullproject.ainterfaces.MyFinder;
 import devs.mrp.gullproject.ainterfaces.MyListMerger;
+import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.linea.Linea;
+import devs.mrp.gullproject.domains.linea.LineaFactory;
 import devs.mrp.gullproject.domains.propuestas.Propuesta;
 import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
 import devs.mrp.gullproject.service.ConsultaService;
@@ -25,6 +28,7 @@ import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 @SpringBootTest
+@Import({LineaFactory.class, Consulta.class})
 class LineFinderByProposalAssignationTest extends FacadeInitialization {
 
 	ConsultaService consultaService;

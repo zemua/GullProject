@@ -1,5 +1,6 @@
 package devs.mrp.gullproject.rest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +21,7 @@ public class ConsultaRestController {
 	private final ConsultaService consultaService;
 	private final ConsultaRepresentationModelAssembler crma;
 	
+	@Autowired
 	public ConsultaRestController(ConsultaService consultaService, ConsultaRepresentationModelAssembler crma) {
 		this.consultaService = consultaService;
 		this.crma = crma;
