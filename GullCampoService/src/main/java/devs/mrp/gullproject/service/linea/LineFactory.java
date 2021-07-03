@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.springframework.stereotype.Service;
 
+import devs.mrp.gullproject.ainterfaces.MyFactoryCopy;
 import devs.mrp.gullproject.ainterfaces.MyFactoryNew;
 import devs.mrp.gullproject.domains.linea.Linea;
 

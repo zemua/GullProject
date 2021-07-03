@@ -207,13 +207,13 @@ public class LineaUtilities { // TODO refractor
 					List<T> lista = new ArrayList<>();
 					LineaOperations operationsRline = new LineaOperations(rLine);
 					for (int i=0; i<lineaWithAttListDto.getQty(); i++) {
-						Linea dLine = operationsRline.clonar();
+						T dLine = operationsRline.clonar();
 						log.debug("añadimos linea: " + dLine.toString());
 						lista.add(dLine);
 					}
 					return lista;
 				});
-		l1 = lineaService.addVariasLineas(llineas.flatMapMany(ll -> Flux.fromIterable(ll)), propuestaId);
+		l1 = (Flux<T>)lineaService.addVariasLineas(llineas.flatMapMany(ll -> Flux.fromIterable(ll)), propuestaId);
 		return l1;
 	}
 
