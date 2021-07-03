@@ -51,6 +51,8 @@ import reactor.test.StepVerifier;
 @Import({LineaFactory.class, Consulta.class})
 public class LineaUtilitiesTest {
 	
+	@Autowired LineaFactory lineaFactory;
+	
 	ModelMapper modelMapper;
 	LineaUtilities lineaUtilities;
 	
@@ -102,7 +104,7 @@ public class LineaUtilitiesTest {
 		campo2 = new Campo<>();
 		campo2.setAtributoId(att2.getId());
 		campo2.setDatos("datos2");
-		linea1 = new Linea();
+		linea1 = lineaFactory.create();
 		linea1o = new LineaOperations(linea1);
 		linea1.setNombre("nombre linea 1");
 		linea1.setPropuestaId(propuesta.getId());
@@ -114,7 +116,7 @@ public class LineaUtilitiesTest {
 		campo4 = new Campo<>();
 		campo4.setAtributoId(att2.getId());
 		campo4.setDatos("datos4");
-		linea2 = new Linea();
+		linea2 = lineaFactory.create();
 		linea2o = new LineaOperations(linea2);
 		linea2.setNombre("nombre linea 2");
 		linea2.setPropuestaId(propuesta.getId());
@@ -423,17 +425,17 @@ public class LineaUtilitiesTest {
 		var pp2 = new PropuestaProveedor();
 		pp2.setForProposalId(propuesta.getId());
 		
-		var lp1a = new Linea();
+		var lp1a = lineaFactory.create();
 		lp1a.setPropuestaId(pp1.getId());
 		lp1a.setCounterLineId(new ArrayList<String>(Arrays.asList("counter1a")));
-		var lp1b = new Linea();
+		var lp1b = lineaFactory.create();
 		lp1b.setPropuestaId(pp1.getId());
 		lp1b.setCounterLineId(new ArrayList<String>(Arrays.asList("counter1b")));
 		
-		var lp2a = new Linea();
+		var lp2a = lineaFactory.create();
 		lp2a.setPropuestaId(pp2.getId());
 		lp2a.setCounterLineId(new ArrayList<String>(Arrays.asList("counter2a")));
-		var lp2b = new Linea();
+		var lp2b = lineaFactory.create();
 		lp2b.setPropuestaId(pp2.getId());
 		lp2b.setCounterLineId(new ArrayList<String>(Arrays.asList("counter2b")));
 		

@@ -39,6 +39,8 @@ class LineaByIdRestControllerTest {
 	HypermediaWebTestClientConfigurer configurer;
 	@Autowired
 	LineaByIdRestController lineaByIdRestController;
+	@Autowired
+	LineaFactory lineaFactory;
 	
 	@MockBean
 	LineaRepo lineaRepo;
@@ -59,7 +61,7 @@ class LineaByIdRestControllerTest {
 		List<Campo<?>> campos = new ArrayList<>();
 		campos.add(m);
 		
-		Linea l = new Linea();
+		Linea l = lineaFactory.create();
 		l.setNombre("nombre_linea");
 		l.setId("id_linea");
 		l.setCampos(campos);

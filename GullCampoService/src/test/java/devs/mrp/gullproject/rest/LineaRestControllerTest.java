@@ -45,6 +45,8 @@ class LineaRestControllerTest {
 	HypermediaWebTestClientConfigurer configurer;
 	@Autowired
 	LineaRestController lineaRestController;
+	@Autowired
+	LineaFactory lineaFactory;
 	
 	@MockBean
 	LineaRepo lineaRepo;
@@ -65,7 +67,7 @@ class LineaRestControllerTest {
 		List<Campo<?>> campos = new ArrayList<>();
 		campos.add(m);
 		
-		Linea l = new Linea();
+		Linea l = lineaFactory.create();
 		l.setId("linea_id");
 		l.setNombre("linea_name");
 		l.setCampos(campos);
@@ -121,7 +123,7 @@ class LineaRestControllerTest {
 		List<Campo<?>> campos = new ArrayList<>();
 		campos.add(m);
 		
-		Linea l = new Linea();
+		Linea l = lineaFactory.create();
 		l.setId("linea_id");
 		l.setNombre("linea_name");
 		l.setCampos(campos);
@@ -175,7 +177,7 @@ class LineaRestControllerTest {
 		List<Campo<?>> campos = new ArrayList<>();
 		campos.add(m);
 		
-		Linea l = new Linea();
+		Linea l = lineaFactory.create();
 		l.setId("linea_id");
 		l.setNombre("linea_name");
 		l.setCampos(campos);
@@ -229,7 +231,7 @@ class LineaRestControllerTest {
 		List<Campo<?>> campos = new ArrayList<>();
 		campos.add(m);
 		
-		Linea l = new Linea();
+		Linea l = lineaFactory.create();
 		l.setId("linea_id");
 		l.setNombre("linea_name");
 		l.setCampos(campos);

@@ -12,6 +12,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.linea.Linea;
+import devs.mrp.gullproject.domains.linea.LineaFactory;
 import devs.mrp.gullproject.domains.propuestas.PropuestaCliente;
 import devs.mrp.gullproject.domains.propuestas.PropuestaNuestra;
 import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
@@ -29,11 +30,12 @@ import reactor.test.StepVerifier;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Data
-@Import({Consulta.class})
+@Import({Consulta.class, LineaFactory.class})
 public abstract class FacadeInitialization {
 
 	@Autowired LineaRepo lineaRepo;
 	@Autowired ConsultaRepo consultaRepo;
+	@Autowired LineaFactory lineaFactory;
 	
 	protected Consulta consulta;
 	protected PropuestaCliente p1;
@@ -73,12 +75,12 @@ public abstract class FacadeInitialization {
 		
 		consultaRepo.save(consulta).block();
 		
-		l1 = new Linea(); l1.setPropuestaId(pp1.getId()); l1.setOrder(1); l1.setNombre("nombre linea 1");
-		l2 = new Linea(); l2.setPropuestaId(pp1.getId()); l2.setOrder(2); l2.setNombre("nombre linea 2");
-		l3 = new Linea(); l3.setPropuestaId(pp2.getId()); l3.setOrder(3); l3.setNombre("nombre linea 3");
-		l4 = new Linea(); l4.setPropuestaId(pn1.getId()); l4.setOrder(4); l4.setNombre("nombre linea 4");
-		l5 = new Linea(); l5.setPropuestaId(pn2.getId()); l5.setOrder(5); l5.setNombre("nombre linea 5");
-		l6 = new Linea(); l6.setPropuestaId(p1.getId()); l6.setOrder(6); l6.setNombre("nombre linea 6");
+		l1 = lineaFactory.create(); l1.setPropuestaId(pp1.getId()); l1.setOrder(1); l1.setNombre("nombre linea 1");
+		l2 = lineaFactory.create(); l2.setPropuestaId(pp1.getId()); l2.setOrder(2); l2.setNombre("nombre linea 2");
+		l3 = lineaFactory.create(); l3.setPropuestaId(pp2.getId()); l3.setOrder(3); l3.setNombre("nombre linea 3");
+		l4 = lineaFactory.create(); l4.setPropuestaId(pn1.getId()); l4.setOrder(4); l4.setNombre("nombre linea 4");
+		l5 = lineaFactory.create(); l5.setPropuestaId(pn2.getId()); l5.setOrder(5); l5.setNombre("nombre linea 5");
+		l6 = lineaFactory.create(); l6.setPropuestaId(p1.getId()); l6.setOrder(6); l6.setNombre("nombre linea 6");
 		
 		lineaRepo.save(l1).block();
 		lineaRepo.save(l2).block();

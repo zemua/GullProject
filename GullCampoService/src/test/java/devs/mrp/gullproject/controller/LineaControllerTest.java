@@ -71,6 +71,7 @@ class LineaControllerTest {
 	WebTestClient webTestClient;
 	LineaController lineaController;
 	ModelMapper modelMapper;
+	@Autowired LineaFactory lineaFactory;
 	
 	@MockBean
 	LineaService lineaService;
@@ -144,7 +145,7 @@ class LineaControllerTest {
 		campo1b = new Campo<>();
 		campo1b.setAtributoId(atributo2.getId());
 		campo1b.setDatos(123456789);
-		linea1 = new Linea();
+		linea1 = lineaFactory.create();
 		linea1Operations = new LineaOperations(linea1);
 		linea1Operations.addCampo(campo1a);
 		linea1Operations.addCampo(campo1b);
@@ -157,7 +158,7 @@ class LineaControllerTest {
 		campo2b = new Campo<>();
 		campo2b.setAtributoId(atributo3.getId());
 		campo2b.setDatos(321098765);
-		linea2 = new Linea();
+		linea2 = lineaFactory.create();
 		linea2Operations = new LineaOperations(linea2);
 		linea2Operations.addCampo(campo2a);
 		linea2Operations.addCampo(campo2b);
@@ -1821,14 +1822,14 @@ class LineaControllerTest {
 	@Test
 	void testProcessRemapValuesAttColumn() {
 		Linea lineaA;
-		lineaA = linea1.operations().clonar();
+		lineaA = lineaFactory.from(linea1);
 		LineaOperations opa = lineaA.operations();
 		opa.getCampoByAttId(atributo1.getId()).setDatosCasting(campo1a.getDatosText() + "after");
 		log.debug("linea1: " + linea1.toString());
 		log.debug("lineaA: " + lineaA.toString());
 		
 		Linea lineaB;
-		lineaB = linea2.operations().clonar();
+		lineaB = lineaFactory.from(linea2);
 		LineaOperations opb = lineaB.operations();
 		opb.getCampoByAttId(atributo1.getId()).setDatosCasting(campo2a.getDatosText() + "after");
 		log.debug("linea2: " + linea2.toString());
@@ -1926,14 +1927,14 @@ class LineaControllerTest {
 		CosteLineaProveedor coste = linea1.getCostesProveedor().get(0);
 		
 		Linea lineaA;
-		lineaA = new Linea(linea1);
+		lineaA = lineaFactory.from(linea1);
 		LineaOperations opa = lineaA.operations();
 		opa.getCosteByCosteId(coste.getCosteProveedorId()).setValue(999.99);
 		log.debug("linea1: " + linea1.toString());
 		log.debug("lineaA: " + lineaA.toString());
 		
 		Linea lineaB;
-		lineaB = new Linea(linea2);
+		lineaB = lineaFactory.from(linea2);
 		LineaOperations opb = lineaB.operations();
 		opb.getCosteByCosteId(coste.getCosteProveedorId()).setValue(888.88);
 		log.debug("linea2: " + linea2.toString());
@@ -2005,7 +2006,7 @@ class LineaControllerTest {
 		})
 		;
 		
-		Linea lineaco = new Linea();
+		Linea lineaco = lineaFactory.create();
 		lineaco.setCampos(linea1.getCampos());
 		lineaco.setCostesProveedor(new ArrayList<>());
 		lineaco.getCostesProveedor().add(new CosteLineaProveedor(linea1.getCostesProveedor().get(0)));
@@ -2038,7 +2039,7 @@ class LineaControllerTest {
 	void testProcessAssignCounterLineByOrder() {
 		addCosteToLineas();
 		
-		Linea lineawithcounter = new Linea(linea1);
+		Linea lineawithcounter = lineaFactory.from(linea1);
 		List<String> list = new ArrayList<>();
 		list.add("counterLineId");
 		lineawithcounter.setCounterLineId(list);
@@ -2066,7 +2067,7 @@ class LineaControllerTest {
 	void testProcessAssignCounterLineByName() {
 		addCosteToLineas();
 		
-		Linea lineawithcounter = new Linea(linea1);
+		Linea lineawithcounter = lineaFactory.from(linea1);
 		List<String> list = new ArrayList<>();
 		list.add("counterLineId");
 		lineawithcounter.setCounterLineId(list);

@@ -201,7 +201,7 @@ public class LineaUtilities { // TODO refractor
 					List<Linea> lista = new ArrayList<>();
 					LineaOperations operationsRline = new LineaOperations(rLine);
 					for (int i=0; i<lineaWithAttListDto.getQty(); i++) {
-						Linea dLine = operationsRline.clonar();
+						Linea dLine = lineaFactory.from(rLine);
 						log.debug("añadimos linea: " + dLine.toString());
 						lista.add(dLine);
 					}

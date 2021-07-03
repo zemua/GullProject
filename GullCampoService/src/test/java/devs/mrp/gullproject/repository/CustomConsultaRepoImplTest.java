@@ -45,6 +45,8 @@ class CustomConsultaRepoImplTest {
 	
 	ConsultaRepo repo;
 	
+	@Autowired LineaFactory lineaFactory;
+	
 	@Autowired
 	public CustomConsultaRepoImplTest(ConsultaRepo repo) {
 		this.repo = repo;
@@ -115,7 +117,7 @@ class CustomConsultaRepoImplTest {
 		campo2.setId("campo_2_id");
 		campos1.add(campo2);
 		
-		linea1 = new Linea();
+		linea1 = lineaFactory.create();
 		linea1.setCampos(campos1);
 		linea1.setId("linea 1 id");
 		linea1.setNombre("nombre linea 1");
@@ -134,7 +136,7 @@ class CustomConsultaRepoImplTest {
 		campo4.setId("campo_4_id");
 		campos2.add(campo4);
 		
-		linea2 = new Linea();
+		linea2 = lineaFactory.create();
 		linea2.setCampos(campos2);
 		linea2.setId("linea 2 id");
 		linea2.setNombre("nombre linea 2");
@@ -165,7 +167,7 @@ class CustomConsultaRepoImplTest {
 		campo6.setId("campo_6_id");
 		campos3.add(campo6);
 		
-		linea3 = new Linea();
+		linea3 = lineaFactory.create();
 		linea3.setCampos(campos3);
 		linea3.setId("linea 3 id");
 		linea3.setNombre("nombre linea 3");
@@ -184,7 +186,7 @@ class CustomConsultaRepoImplTest {
 		campo8.setId("campo_8_id");
 		campos4.add(campo8);
 		
-		linea4 = new Linea();
+		linea4 = lineaFactory.create();
 		linea4.setCampos(campos4);
 		linea4.setId("linea 4 id");
 		linea4.setNombre("nombre linea 4");

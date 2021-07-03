@@ -51,6 +51,8 @@ class ConsultaServiceTest {
 	LineaRepo lineaRepo;
 	ModelMapper modelMapper;
 	
+	@Autowired LineaFactory lineaFactory;
+	
 	@Autowired
 	public ConsultaServiceTest(ConsultaService consultaService, ConsultaRepo consultaRepo, ModelMapper modelMapper, LineaRepo lineaRepo) {
 		this.consultaService = consultaService;
@@ -164,7 +166,7 @@ class ConsultaServiceTest {
 		pvps.add(pvp2);
 		((PropuestaNuestra)propuestaNuestra).setPvps(pvps);
 		
-		linea1 = new Linea();
+		linea1 = lineaFactory.create();
 		linea1.setNombre("nombre linea1");
 		linea1.setPropuestaId(propuestaNuestra.getId());
 		linea1.setOrder(1);
@@ -176,7 +178,7 @@ class ConsultaServiceTest {
 		linea1.getPvps().add(pvplinea1);
 		linea1.getPvps().add(pvplinea2);
 		
-		linea2 = new Linea();
+		linea2 = lineaFactory.create();
 		linea2.setNombre("nombre linea 2");
 		linea2.setOrder(2);
 		linea2.setPropuestaId(propuestaNuestra.getId());
@@ -208,9 +210,9 @@ class ConsultaServiceTest {
 		propuestaNuestra.getSums().add(sum2);
 		
 		lineaRepo.insert(new ArrayList<Linea>() {{add(linea1);add(linea2);}}).blockLast();
-		lineaA = new Linea(linea1);
+		lineaA = lineaFactory.from(linea1);
 		lineaA.setPropuestaId(propuestaProveedor.getId());
-		lineaB = new Linea(linea2);
+		lineaB = lineaFactory.from(linea2);
 		lineaB.setPropuestaId(propuestaProveedor.getId());
 		lineaRepo.insert(new ArrayList<Linea>() {{add(lineaA);add(lineaB);}}).blockLast();
 		consultaService.addPropuesta(consulta.getId(), propuestaNuestra).block();

@@ -37,6 +37,7 @@ import devs.mrp.gullproject.domains.dto.propuesta.oferta.PvpsCheckboxWrapper;
 import devs.mrp.gullproject.domains.dto.propuesta.proveedor.CostesCheckboxWrapper;
 import devs.mrp.gullproject.domains.linea.CosteLineaProveedor;
 import devs.mrp.gullproject.domains.linea.Linea;
+import devs.mrp.gullproject.domains.linea.LineaFactory;
 import devs.mrp.gullproject.domains.linea.PvperLinea;
 import devs.mrp.gullproject.domains.propuestas.AtributoForCampo;
 import devs.mrp.gullproject.domains.propuestas.CosteProveedor;
@@ -62,13 +63,14 @@ import reactor.core.publisher.Mono;
 @WebFluxTest(controllers = ConsultaController.class)
 //@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
-@Import({MapperConfig.class, PropuestaUtilities.class, AtributoUtilities.class, Consulta.class})
+@Import({MapperConfig.class, PropuestaUtilities.class, AtributoUtilities.class, Consulta.class, LineaFactory.class})
 @ActiveProfiles("default")
 class ConsultaControllerTestB {
 	
 	WebTestClient webTestClient;
 	ConsultaController consultaController;
 	ModelMapper modelMapper;
+	@Autowired LineaFactory lineaFactory;
 	
 	@MockBean
 	ConsultaService consultaService;
@@ -129,13 +131,13 @@ class ConsultaControllerTestB {
 		att3.setName("nameAtt3");
 		att3.setTipo("tipoAtt3");
 		
-		linea1 = new Linea();
+		linea1 = lineaFactory.create();
 		linea1.setNombre("l1");
-		linea2 = new Linea();
+		linea2 = lineaFactory.create();
 		linea2.setNombre("l2");
-		linea3 = new Linea();
+		linea3 = lineaFactory.create();
 		linea3.setNombre("l3");
-		linea4 = new Linea();
+		linea4 = lineaFactory.create();
 		linea4.setNombre("l4");
 		
 		prop1 = new PropuestaCliente() {};
@@ -228,9 +230,9 @@ class ConsultaControllerTestB {
 		cost.setCosteProveedorId(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getId());
 		List<CosteLineaProveedor> costs = new ArrayList<>();
 		costs.add(cost);
-		linea1p = new Linea(linea1);
+		linea1p = lineaFactory.from(linea1);
 		linea1p.setCostesProveedor(costs);
-		linea2p = new Linea(linea2);
+		linea2p = lineaFactory.from(linea2);
 		linea2p.setCostesProveedor(costs);
 		
 		consulta1.getPropuestas().add(propuestaNuestra);
@@ -240,9 +242,9 @@ class ConsultaControllerTestB {
 		pvp.setPvperId(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId());
 		List<PvperLinea> pvps = new ArrayList<>();
 		pvps.add(pvp);
-		linea1o = new Linea(linea1);
+		linea1o = lineaFactory.from(linea1);
 		linea1o.setPvps(pvps);
-		linea2o = new Linea(linea2);
+		linea2o = lineaFactory.from(linea2);
 		linea2o.setPvps(pvps);
 		
 		List<String> sums = new ArrayList<>();

@@ -28,13 +28,14 @@ import devs.mrp.gullproject.service.linea.oferta.PvpMapperByLineFactory;
 class PvpMapperByLineFactoryTest {
 
 	@Autowired PvpMapperByLineFactory<Linea> factory;
+	@Autowired LineaFactory lineaFactory;
 	
 	@Test
 	void test() {
 		
 		List<Linea> lineas = new ArrayList<>();
 		
-		Linea l1 = new Linea();
+		Linea l1 = lineaFactory.create();
 		l1.setCounterLineId(new ArrayList<>() {{add("p1");}});
 		PvperLinea pvp = new PvperLinea();
 		pvp.setMargen(1.1);
@@ -42,7 +43,7 @@ class PvpMapperByLineFactoryTest {
 		pvp.setPvperId("pvperid1");
 		l1.setPvps(new ArrayList<>() {{add(pvp);}});
 		
-		Linea l2 = new Linea();
+		Linea l2 = lineaFactory.create();
 		l2.setCounterLineId(new ArrayList<>() {{add("p2");}});
 		PvperLinea pvp2 = new PvperLinea();
 		pvp2.setMargen(2.2);
@@ -50,7 +51,7 @@ class PvpMapperByLineFactoryTest {
 		pvp2.setPvperId("pvperid2");
 		l2.setPvps(new ArrayList<>() {{add(pvp2);}});
 		
-		Linea l3 = new Linea();
+		Linea l3 = lineaFactory.create();
 		l3.setCounterLineId(new ArrayList<>() {{add("p3");}});
 		PvperLinea pvp3 = new PvperLinea();
 		pvp3.setMargen(3.3);

@@ -37,6 +37,8 @@ class LineaCustomRepoTest {
 	
 	LineaRepo repo;
 	
+	@Autowired LineaFactory lineaFactory;
+	
 	@Autowired
 	public LineaCustomRepoTest(LineaRepo lineaRepo) {
 		this.repo = lineaRepo;
@@ -99,7 +101,7 @@ class LineaCustomRepoTest {
 		campo3.setAtributoId("atributo_id_3");
 		campos.add(campo3);
 		
-		linea = new Linea();
+		linea = lineaFactory.create();
 		lineaO = new LineaOperations(linea);
 		linea.setCampos(campos);
 		linea.setPropuestaId("propA");
@@ -115,31 +117,31 @@ class LineaCustomRepoTest {
 		
 		mono = repo.findById(id);
 		
-		l1 = new Linea();
+		l1 = lineaFactory.create();
 		l1.setPropuestaId("p1");
 		l1o = new LineaOperations(l1);
-		l2 = new Linea();
+		l2 = lineaFactory.create();
 		l2.setPropuestaId("p1");
 		l2o = new LineaOperations(l2);
-		l3 = new Linea();
+		l3 = lineaFactory.create();
 		l3.setPropuestaId("p2");
 		l3o = new LineaOperations(l3);
-		l4 = new Linea();
+		l4 = lineaFactory.create();
 		l4.setPropuestaId("p2");
 		l4o = new LineaOperations(l4);
-		l5 = new Linea();
+		l5 = lineaFactory.create();
 		l5.setPropuestaId("p3");
 		l5o = new LineaOperations(l5);
-		l6 = new Linea();
+		l6 = lineaFactory.create();
 		l6.setPropuestaId("p3");
 		l6o = new LineaOperations(l6);
-		l7 = new Linea();
+		l7 = lineaFactory.create();
 		l7.setPropuestaId("p4");
 		l7o = new LineaOperations(l7);
-		l8 = new Linea();
+		l8 = lineaFactory.create();
 		l8.setPropuestaId("p4");
 		l8o = new LineaOperations(l8);
-		l9 = new Linea();
+		l9 = lineaFactory.create();
 		l9.setPropuestaId("p5");
 		l9o = new LineaOperations(l9);
 		
@@ -173,7 +175,7 @@ class LineaCustomRepoTest {
 		campo2.setDatos("datos_en_campo_2");
 		campos.add(campo2);
 		
-		Linea linea = new Linea();
+		Linea linea = lineaFactory.create();
 		linea.setCampos(campos);
 		linea.setId(id);
 		linea.setNombre(name);
@@ -228,7 +230,7 @@ class LineaCustomRepoTest {
 		campo2.setId("campo_2_id");
 		// el 2 se añade desde mongo
 		
-		Linea linea = new Linea();
+		Linea linea = lineaFactory.create();
 		linea.setCampos(campos);
 		linea.setId(id);
 		linea.setNombre(name);
@@ -299,7 +301,7 @@ class LineaCustomRepoTest {
 		campo2.setId("campo_2_id");
 		campos.add(campo2);
 		
-		Linea linea = new Linea();
+		Linea linea = lineaFactory.create();
 		linea.setCampos(campos);
 		linea.setId(id);
 		linea.setNombre(name);
@@ -382,14 +384,14 @@ class LineaCustomRepoTest {
 		
 		repo.deleteAll().block();
 		
-		Linea linea1 = new Linea();
+		Linea linea1 = lineaFactory.create();
 		linea1.setCampos(new ArrayList<Campo<?>>());
 		linea1.setId("id_linea_1");
 		linea1.setNombre("nombre_linea_1");
 		
 		repo.save(linea1).block();
 		
-		Linea linea2 = new Linea();
+		Linea linea2 = lineaFactory.create();
 		linea2.setCampos(new ArrayList<Campo<?>>());
 		linea2.setId("id_linea_2");
 		linea2.setNombre("nombre_linea_2");
@@ -449,7 +451,7 @@ class LineaCustomRepoTest {
 		campo3.setAtributoId("atributo_id_3");
 		campos.add(campo3);
 		
-		Linea linea = new Linea();
+		Linea linea = lineaFactory.create();
 		linea.setCampos(campos);
 		linea.setId(id);
 		linea.setNombre(name);
@@ -511,7 +513,7 @@ class LineaCustomRepoTest {
 		campo3.setAtributoId("atributo_id_3");
 		//campos.add(campo3);
 		
-		Linea linea = new Linea();
+		Linea linea = lineaFactory.create();
 		linea.setCampos(campos);
 		linea.setId(id);
 		linea.setNombre(name);
@@ -576,7 +578,7 @@ class LineaCustomRepoTest {
 		campo3.setAtributoId("atributo_id_3");
 		campos.add(campo3);
 		
-		Linea linea = new Linea();
+		Linea linea = lineaFactory.create();
 		linea.setCampos(campos);
 		linea.setId(id);
 		linea.setNombre(name);

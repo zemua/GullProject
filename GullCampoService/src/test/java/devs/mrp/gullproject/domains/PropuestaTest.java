@@ -13,10 +13,13 @@ import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import devs.mrp.gullproject.domains.linea.Campo;
 import devs.mrp.gullproject.domains.linea.Linea;
+import devs.mrp.gullproject.domains.linea.LineaFactory;
 import devs.mrp.gullproject.domains.propuestas.AtributoForCampo;
 import devs.mrp.gullproject.domains.propuestas.Propuesta;
 import devs.mrp.gullproject.domains.propuestas.PropuestaCliente;
@@ -25,7 +28,10 @@ import lombok.extern.slf4j.Slf4j;
 
 @ExtendWith(SpringExtension.class)
 @Slf4j
+@Import({LineaFactory.class})
 class PropuestaTest {
+	
+	@Autowired LineaFactory lineaFactory;
 	
 	List<String> lineas = new ArrayList<>();
 	Linea l1;
@@ -59,7 +65,7 @@ class PropuestaTest {
 		List<Campo<?>> campos1 = new ArrayList<>();
 		campos1.add(c1);
 		campos1.add(c2);
-		l1 = new Linea();
+		l1 = lineaFactory.create();
 		l1.setCampos(campos1);
 		l1.setId("l1id");
 		l1.setNombre("nombre linea 1");
@@ -75,7 +81,7 @@ class PropuestaTest {
 		List<Campo<?>> campos2 = new ArrayList<>();
 		campos2.add(c3);
 		campos2.add(c4);
-		l2 = new Linea();
+		l2 = lineaFactory.create();
 		l2.setCampos(campos2);
 		l2.setId("l2id");
 		l2.setNombre("nombre linea 2");
@@ -98,7 +104,7 @@ class PropuestaTest {
 		List<Campo<?>> campos3 = new ArrayList<>();
 		campos3.add(c5);
 		campos3.add(c6);
-		l3 = new Linea();
+		l3 = lineaFactory.create();
 		l3.setCampos(campos3);
 		l3.setId("l3id");
 		l3.setNombre("nombre linea 1");
@@ -106,7 +112,7 @@ class PropuestaTest {
 		List<Campo<?>> campos4 = new ArrayList<>();
 		campos4.add(c3);
 		campos4.add(c6);
-		l4 = new Linea();
+		l4 = lineaFactory.create();
 		l4.setCampos(campos4);
 		l4.setId("l4id");
 		l4.setNombre("nombre linea 4");
@@ -149,7 +155,7 @@ class PropuestaTest {
 	
 	@Test
 	void testUpdateLinea() {
-		Linea l3 = new Linea();
+		Linea l3 = lineaFactory.create();
 		l3.setId("l3id");
 		l3.setNombre("nombre linea 3");
 		

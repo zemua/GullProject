@@ -21,7 +21,6 @@ import devs.mrp.gullproject.domains.propuestas.Propuesta;
 import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.facade.SupplierLineFinderByProposalAssignation;
-import devs.mrp.gullproject.service.linea.LineFactory;
 import devs.mrp.gullproject.service.linea.LineaService;
 import devs.mrp.gullproject.service.propuesta.ProposalIdsMergerFactory;
 import reactor.core.publisher.Flux;
@@ -38,7 +37,7 @@ class LineFinderByProposalAssignationTest extends FacadeInitialization {
 	@Autowired SupplierLineFinderByProposalAssignation finder;
 	
 	@Autowired
-	public LineFinderByProposalAssignationTest(ConsultaService consultaService, LineaService lineaService, LineFactory lineaFactory, ProposalIdsMergerFactory<PropuestaProveedor> mergerFactory) {
+	public LineFinderByProposalAssignationTest(ConsultaService consultaService, LineaService lineaService, LineaFactory lineaFactory, ProposalIdsMergerFactory<PropuestaProveedor> mergerFactory) {
 		super();
 		this.consultaService = consultaService;
 		this.lineaService = lineaService;

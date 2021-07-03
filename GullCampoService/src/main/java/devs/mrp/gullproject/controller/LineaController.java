@@ -278,7 +278,7 @@ public class LineaController {
 
 	@GetMapping("/of/{propuestaId}/new")
 	public String addLineToPropuesta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
-		Linea lLinea = new Linea();
+		Linea lLinea = lineaFactory.create();
 		lLinea.setPropuestaId(propuestaId);
 		Mono<LineaWithAttListDto> atributosDePropuesta = lineaUtilities.getAttributesOfProposal(lLinea, propuestaId, 1);
 		model.addAttribute("propuestaId", propuestaId);

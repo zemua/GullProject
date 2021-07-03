@@ -34,6 +34,8 @@ import reactor.test.StepVerifier;
 @SpringBootTest
 @Import({LineaFactory.class, Consulta.class})
 public class AttRemaperUtilitiesTest {
+	
+	@Autowired LineaFactory lineaFactory;
 
 	@MockBean
 	AtributoServiceProxyWebClient atributoService;
@@ -62,10 +64,10 @@ public class AttRemaperUtilitiesTest {
 	
 	@BeforeEach
 	void setup() {
-		linea = new Linea();
+		linea = lineaFactory.create();
 		linea.setPropuestaId("propid");
 		
-		lineab = new Linea();
+		lineab = lineaFactory.create();
 		lineab.setPropuestaId(linea.getPropuestaId());
 		
 		rem1 = new AttRemaper();

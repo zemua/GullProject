@@ -31,10 +31,6 @@ public class LineaOperations {
 		this.linea = linea;
 	}
 	
-	public Linea clonar() {
-		return new Linea(this.linea);
-	}
-	
 	public void resetCampos(List<Campo<Object>> campos) {
 		linea.getCampos().clear();
 		linea.getCampos().addAll(campos);
