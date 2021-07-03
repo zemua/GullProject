@@ -16,7 +16,7 @@ import lombok.Data;
 
 @Data
 @Document(collection = "consultas")
-public abstract class Consulta {
+public abstract class Consulta { // TODO hacer la abstracta por encima
 	
 	@Id
 	String id  = new ObjectId().toString();

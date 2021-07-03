@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Document (collection = "lineas")
 @NoArgsConstructor
-public abstract class Linea implements MyOperable<LineaOperations> {
+public abstract class Linea implements MyOperable<LineaOperations> { // TODO hacer la abstracta por encima
 
 	@Id
 	private String id = new ObjectId().toString();
