@@ -24,6 +24,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
 import devs.mrp.gullproject.configuration.MapperConfig;
+import devs.mrp.gullproject.controller.linea.LineaController;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.ConsultaFactory;
 import devs.mrp.gullproject.domains.ConsultaImpl;

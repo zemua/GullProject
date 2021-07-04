@@ -12,7 +12,8 @@
 
 	<div>
 		<p>
-			<a th:href="${'/consultas/revisar/id/' + consulta.id}">Volver</a>
+			<a th:href="${'/consultas/revisar/id/' + consulta.id}">Volver</a> -
+			<a th:href="@{/lineas/allof/ofertaid/{id}/assign(id=${propuesta.id})}">Asignar Lineas</a>
 		</p>
 	</div>
 	

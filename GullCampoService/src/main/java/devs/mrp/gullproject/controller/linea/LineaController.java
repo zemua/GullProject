@@ -1,4 +1,4 @@
-package devs.mrp.gullproject.controller;
+package devs.mrp.gullproject.controller.linea;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -104,39 +104,6 @@ public class LineaController {
 		model.addAttribute("propuestaId", propuestaId);
 		model.addAttribute("mapa", lineaUtilities.get_ProposalId_VS_SetOfCounterLineId(propuestaId));
 		return "showAllLineasOfPropuesta";
-	}
-	
-	@GetMapping("/allof/ofertaid/{propuestaId}")
-	public Mono<String> showAllLinesOfOferta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
-		return consultaService.findConsultaByPropuestaId(propuestaId)
-		.flatMap(rCons -> {
-			var ops = rCons.operations();
-			PropuestaNuestra propuesta = (PropuestaNuestra)ops.getPropuestaById(propuestaId);
-			Propuesta propCliente = ops.getPropuestaById(propuesta.getForProposalId());
-			
-			model.addAttribute("propuesta", propuesta);
-			MyMapperByDupla<Double, Linea, String> sumsMapper = new PvpSumForLineFinder(propuesta);
-			model.addAttribute("sumsMapper", sumsMapper);
-			model.addAttribute("consulta", rCons);
-			model.addAttribute("propCliente", propCliente);
-			model.addAttribute("lineasCliente", lineaService.findByPropuestaId(propCliente.getId()));
-			
-			return supplierLineFinderByProposalAssignation.findBy(propCliente.getId())
-				.collectList()
-				.map(proveedorLineList -> {
-					MyListOfAsignables<Linea> asignablesProveedor = new LineByAssignationRetriever<>(proveedorLineList);
-					model.addAttribute("costMapper", new CustomerLineToCostMapper(asignablesProveedor));
-					return true;
-				})
-				.then(lineaService.findByPropuestaId(propuesta.getId()).collectList())
-				.map(ofertaLineList -> {
-					var pvpMapper = pvpMapperByLineFactory.from(ofertaLineList);
-					model.addAttribute("pvpMapper", pvpMapper);
-					return true;
-				})
-				;
-		})
-		.then(Mono.just("showAllLineasOfOferta"));
 	}
 	
 	@GetMapping("/allof/propid/{propuestaId}/order")
@@ -523,7 +490,7 @@ public class LineaController {
 					model.addAttribute("ifSameLinesSize", rProThis.getLineaIds().size() == rProCounter.getLineaIds().size());
 					model.addAttribute("ifSameNameSameCost", propuestaProveedorUtilities.ifSameNameSameCosts(propuestaId));
 					model.addAttribute("propuesta", rProThis);
-					return "assignCounterLine";
+					return "assignCounterLine"; // TODO add option to assign on column match. Customer columns vs supplier columns
 				});
 			})
 			;
