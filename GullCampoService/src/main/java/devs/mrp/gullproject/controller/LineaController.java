@@ -10,13 +10,20 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
 import devs.mrp.gullproject.ainterfaces.MyListOfAsignables;
@@ -34,6 +41,7 @@ import devs.mrp.gullproject.domains.dto.linea.proveedor.CostRemappersWrapper;
 import devs.mrp.gullproject.domains.dto.propuesta.AttRemapersWrapper;
 import devs.mrp.gullproject.domains.linea.Linea;
 import devs.mrp.gullproject.domains.linea.LineaFactory;
+import devs.mrp.gullproject.domains.linea.LineaImpl;
 import devs.mrp.gullproject.domains.propuestas.Propuesta;
 import devs.mrp.gullproject.domains.propuestas.PropuestaNuestra;
 import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
@@ -290,7 +298,7 @@ public class LineaController {
 		return "addLineaToPropuesta";
 	}
 
-	@PostMapping("/of/{propuestaId}/new")
+	@PostMapping(path = "/of/{propuestaId}/new", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public Mono<String> processAddLineaToPropuesta(@Valid LineaWithAttListDto lineaWithAttListDto, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		return lineaUtilities.assertBindingResultOfListDto(lineaWithAttListDto, bindingResult, "attributes")
 				.then(Mono.just(bindingResult))
@@ -459,12 +467,14 @@ public class LineaController {
 	}
 
 	@PostMapping("/delete/id/{lineaid}")
-	public String processDeleteLinea(Linea linea, BindingResult bindingResult, Model model,
+	public String processDeleteLinea(@ModelAttribute("mylinea") Linea linea, Model model,
 			@PathVariable(name = "lineaid") String lineaId) {
 		Mono<Long> deleteCount;
 		if (linea.getId().equals(lineaId)) {
+			log.debug("deleting linea: " + linea.toString());
 			deleteCount = lineaService.deleteLineaById(lineaId);
 		} else {
+			log.debug("ids don't match: " + lineaId + " and " + linea.getId());
 			deleteCount = Mono.just(0L);
 		}
 		model.addAttribute("deleteCount", deleteCount);

@@ -798,7 +798,7 @@ class LineaControllerTest {
 		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 		.accept(MediaType.TEXT_HTML)
 		.body(BodyInserters.fromFormData("id", linea1.getId())
-			.with("name", linea1.getNombre())
+			.with("nombre", linea1.getNombre())
 			.with("propuestaId", linea1.getPropuestaId())
 					)
 		.exchange()

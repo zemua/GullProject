@@ -16,7 +16,7 @@ import lombok.Data;
 
 @Data
 @Document(collection = "consultas")
-public abstract class Consulta { // TODO hacer la abstracta por encima
+public class Consulta {
 	
 	@Id
 	String id  = new ObjectId().toString();
@@ -31,6 +31,8 @@ public abstract class Consulta { // TODO hacer la abstracta por encima
 	
 	List<Propuesta> propuestas = new ArrayList<>();
 	
-	public abstract ConsultaOperations operations();
+	public ConsultaOperations operations() {
+		return new ConsultaOperations(this);
+	}
 	
 }

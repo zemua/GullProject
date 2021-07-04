@@ -1,12 +1,9 @@
 package devs.mrp.gullproject.service.facade;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import devs.mrp.gullproject.ainterfaces.MyFinder;
-import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.linea.Linea;
 import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
 import devs.mrp.gullproject.service.ConsultaService;
@@ -22,12 +19,6 @@ public class SupplierLineFinderByProposalAssignation implements MyFinder<Flux<Li
 	@Autowired LineaService lineaService;
 	@Autowired ProposalIdsMergerFactory<PropuestaProveedor> mergerFactory;
 	@Autowired PropuestaProveedorExtractor extractor;
-	
-	Consulta consulta;
-	
-	public SupplierLineFinderByProposalAssignation(Consulta consulta) {
-		this.consulta = consulta;
-	}
 
 	@Override
 	public Flux<Linea> findBy(String assignedProposalId) {
