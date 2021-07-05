@@ -18,8 +18,7 @@ import devs.mrp.gullproject.service.facade.SupplierLineFinderByProposalAssignati
 import devs.mrp.gullproject.service.linea.LineByAssignationRetrieverFactory;
 import devs.mrp.gullproject.service.linea.LineaService;
 import devs.mrp.gullproject.service.linea.LineaUtilities;
-import devs.mrp.gullproject.service.linea.SupplierLineByAssignationRetrieverFactory;
-import devs.mrp.gullproject.service.linea.oferta.PvpMapperByLineFactory;
+import devs.mrp.gullproject.service.linea.oferta.PvpMapperByAssignedLineFactory;
 import devs.mrp.gullproject.service.linea.proveedor.CostRemapperUtilities;
 import devs.mrp.gullproject.service.propuesta.proveedor.PropuestaProveedorUtilities;
 import reactor.core.publisher.Flux;
@@ -39,13 +38,12 @@ public abstract class LineaControllerSetup {
 	protected MyFinder<Flux<Linea>, String> supplierLineFinderByProposalAssignation;
 	protected @Autowired LineaFactory lineaFactory;
 	protected @Autowired LineByAssignationRetrieverFactory<Linea> lineByAssignationFactory;
-	protected @Autowired SupplierLineByAssignationRetrieverFactory supplierLineByAssignationFactory;
 	
 	@Autowired
 	public LineaControllerSetup(LineaService lineaService, ConsultaService consultaService,
 			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities, AttRemaperUtilities attRemaperUtilities,
 			CostRemapperUtilities costRemapperUtilities, PropuestaProveedorUtilities propuestaProveedorUtilities,
-			PvpMapperByLineFactory<Linea> pvpMapperByLineFactory, SupplierLineFinderByProposalAssignation finder) {
+			PvpMapperByAssignedLineFactory<Linea> pvpMapperByLineFactory, SupplierLineFinderByProposalAssignation finder) {
 		this.lineaService = lineaService;
 		this.consultaService = consultaService;
 		this.atributoService = atributoService;

@@ -54,7 +54,7 @@ import devs.mrp.gullproject.service.linea.LineByAssignationRetrieverFactory;
 import devs.mrp.gullproject.service.linea.LineaOperations;
 import devs.mrp.gullproject.service.linea.LineaService;
 import devs.mrp.gullproject.service.linea.LineaUtilities;
-import devs.mrp.gullproject.service.linea.oferta.PvpMapperByLineFactory;
+import devs.mrp.gullproject.service.linea.oferta.PvpMapperByAssignedLineFactory;
 import devs.mrp.gullproject.service.linea.proveedor.CostRemapperUtilities;
 import devs.mrp.gullproject.service.propuesta.ProposalIdsMergerFactory;
 import devs.mrp.gullproject.service.propuesta.proveedor.FromPropuestaToProveedorFactory;
@@ -68,7 +68,7 @@ import reactor.core.publisher.Mono;
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = LineaController.class)
 @AutoConfigureWebTestClient
-@Import({MapperConfig.class, LineaUtilities.class, AttRemaperUtilities.class, CostRemapperUtilities.class, PropuestaProveedorUtilities.class, PvpMapperByLineFactory.class, SupplierLineFinderByProposalAssignation.class, ConsultaImpl.class, ConsultaFactory.class, ProposalIdsMergerFactory.class, PropuestaProveedorExtractor.class, FromPropuestaToProveedorFactory.class, LineByAssignationRetrieverFactory.class, LineaFactory.class})
+@Import({MapperConfig.class, LineaUtilities.class, AttRemaperUtilities.class, CostRemapperUtilities.class, PropuestaProveedorUtilities.class, PvpMapperByAssignedLineFactory.class, SupplierLineFinderByProposalAssignation.class, ConsultaImpl.class, ConsultaFactory.class, ProposalIdsMergerFactory.class, PropuestaProveedorExtractor.class, FromPropuestaToProveedorFactory.class, LineByAssignationRetrieverFactory.class, LineaFactory.class})
 class LineaControllerTest {
 	
 	WebTestClient webTestClient;

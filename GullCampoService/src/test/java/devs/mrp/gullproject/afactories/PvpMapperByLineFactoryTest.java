@@ -20,14 +20,14 @@ import devs.mrp.gullproject.domains.linea.Linea;
 import devs.mrp.gullproject.domains.linea.LineaFactory;
 import devs.mrp.gullproject.domains.linea.PvperLinea;
 import devs.mrp.gullproject.service.linea.LineByAssignationRetrieverFactory;
-import devs.mrp.gullproject.service.linea.oferta.PvpMapperByLineFactory;
+import devs.mrp.gullproject.service.linea.oferta.PvpMapperByAssignedLineFactory;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Import({LineByAssignationRetrieverFactory.class, LineaFactory.class, Consulta.class})
 class PvpMapperByLineFactoryTest {
 
-	@Autowired PvpMapperByLineFactory<Linea> factory;
+	@Autowired PvpMapperByAssignedLineFactory<Linea> factory;
 	@Autowired LineaFactory lineaFactory;
 	
 	@Test

@@ -11,14 +11,13 @@ import devs.mrp.gullproject.domains.linea.Linea;
 import devs.mrp.gullproject.service.linea.LineByAssignationRetrieverFactory;
 
 @Service
-public class PvpMapperByLineFactory <T extends Linea >implements MyFactoryFromTo<List<T>, MyMapperByDupla<Double, String, String>> {
+public class PvpMarginMapperByAssignedLineFactory implements MyFactoryFromTo<List<Linea>, MyMapperByDupla<Double, String, String>> { // TODO test
 
-	MyMapperByDupla<Double, String, String> mapper;
-	@Autowired LineByAssignationRetrieverFactory<T> asignablesFactory;
+	@Autowired LineByAssignationRetrieverFactory<Linea> factory;
 	
 	@Override
-	public MyMapperByDupla<Double, String, String> from(List<T> lineas) {
-		return new PvpMapperByAssignedLine<>(asignablesFactory.from(lineas));
+	public MyMapperByDupla<Double, String, String> from(List<Linea> lineas) {
+		return new PvpMarginMapperByAssignedLine(factory.from(lineas));
 	}
 
 }

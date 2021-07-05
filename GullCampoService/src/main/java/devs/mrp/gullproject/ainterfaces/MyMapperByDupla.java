@@ -1,7 +1,7 @@
 package devs.mrp.gullproject.ainterfaces;
 
-public interface MyMapperByDupla <T, U, V> {
+public interface MyMapperByDupla <O, I1, I2> {
 
-	public T getByDupla(U first, V second);
+	public O getByDupla(I1 first, I2 second);
 	
 }

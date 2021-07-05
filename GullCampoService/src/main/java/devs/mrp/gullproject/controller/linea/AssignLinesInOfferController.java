@@ -17,7 +17,7 @@ import devs.mrp.gullproject.service.linea.CustomerLineToCostMapper;
 import devs.mrp.gullproject.service.linea.LineByAssignationRetriever;
 import devs.mrp.gullproject.service.linea.LineaService;
 import devs.mrp.gullproject.service.linea.LineaUtilities;
-import devs.mrp.gullproject.service.linea.oferta.PvpMapperByLineFactory;
+import devs.mrp.gullproject.service.linea.oferta.PvpMapperByAssignedLineFactory;
 import devs.mrp.gullproject.service.linea.oferta.PvpSumForLineFinder;
 import devs.mrp.gullproject.service.linea.proveedor.CostRemapperUtilities;
 import devs.mrp.gullproject.service.propuesta.proveedor.PropuestaProveedorUtilities;
@@ -29,7 +29,7 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities,
 			AttRemaperUtilities attRemaperUtilities, CostRemapperUtilities costRemapperUtilities,
 			PropuestaProveedorUtilities propuestaProveedorUtilities,
-			PvpMapperByLineFactory<Linea> pvpMapperByLineFactory, SupplierLineFinderByProposalAssignation finder) {
+			PvpMapperByAssignedLineFactory<Linea> pvpMapperByLineFactory, SupplierLineFinderByProposalAssignation finder) {
 		super(lineaService, consultaService, atributoService, lineaUtilities, attRemaperUtilities, costRemapperUtilities,
 				propuestaProveedorUtilities, pvpMapperByLineFactory, finder);
 	}
