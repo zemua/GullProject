@@ -12,7 +12,7 @@ import devs.mrp.gullproject.domains.linea.Linea;
 public class SupplierLineMapperByProposalAndCounterLineFactory implements MyFactoryFromTo<List<Linea>, MyMapperByDupla<Linea, String, String>> {
 
 	@Override
-	public MyMapperByDupla<Linea, String, String> from(List<Linea> lineas) { // TODO test
+	public MyMapperByDupla<Linea, String, String> from(List<Linea> lineas) {
 		return new SupplierLineMapperByProposalAndCounterLine(lineas);
 	}
 

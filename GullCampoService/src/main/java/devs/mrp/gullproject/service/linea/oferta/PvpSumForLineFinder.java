@@ -10,7 +10,9 @@ import devs.mrp.gullproject.domains.propuestas.PropuestaNuestra;
 import devs.mrp.gullproject.service.linea.LineaOperations;
 import devs.mrp.gullproject.service.propuesta.oferta.PropuestaNuestraOperations;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Data
 public class PvpSumForLineFinder implements MyMapperByDupla<Double, Linea, String> {
 

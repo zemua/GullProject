@@ -5,7 +5,7 @@ import java.util.List;
 import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
 import devs.mrp.gullproject.domains.linea.Linea;
 
-public class SupplierLineMapperByProposalAndCounterLine implements MyMapperByDupla<Linea, String, String> { // TODO test
+public class SupplierLineMapperByProposalAndCounterLine implements MyMapperByDupla<Linea, String, String> {
 
 	private List<Linea> lineas;
 	

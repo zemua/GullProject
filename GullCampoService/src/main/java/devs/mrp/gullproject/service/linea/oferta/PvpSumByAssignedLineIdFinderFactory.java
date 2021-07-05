@@ -12,7 +12,7 @@ import devs.mrp.gullproject.domains.propuestas.PropuestaNuestra;
 import devs.mrp.gullproject.service.linea.LineByAssignationRetrieverFactory;
 
 @Service
-public class PvpSumByAssignedLineIdFinderFactory implements MyFactoryFrom2To<MyMapperByDupla<Double, String, String>, PropuestaNuestra, List<Linea>> { // TODO test
+public class PvpSumByAssignedLineIdFinderFactory implements MyFactoryFrom2To<MyMapperByDupla<Double, String, String>, PropuestaNuestra, List<Linea>> {
 
 	@Autowired LineByAssignationRetrieverFactory<Linea> retrieverFactory;
 	@Autowired PvpSumForLineFinderFactory sumByLineFactory;

@@ -8,7 +8,7 @@ import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
 import devs.mrp.gullproject.domains.linea.Linea;
 import devs.mrp.gullproject.domains.propuestas.PropuestaNuestra;
 
-public class PvpSumByAssignedLineIdFinder implements MyMapperByDupla<Double, String, String> { // TODO test with factory
+public class PvpSumByAssignedLineIdFinder implements MyMapperByDupla<Double, String, String> {
 
 	private MyListOfAsignables<Linea> lineas;
 	private MyMapperByDupla<Double, Linea, String> sumByLineFinder;
