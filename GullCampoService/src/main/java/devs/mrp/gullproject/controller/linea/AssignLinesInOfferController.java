@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
 import devs.mrp.gullproject.ainterfaces.MyListOfAsignables;
 import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
@@ -99,6 +100,9 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 					model.addAttribute("consulta", rConsulta);
 					var consultaOps = rConsulta.operations();
 					var propuestaNuestra = ofertaConverter.from(consultaOps.getPropuestaById(propuestaId));
+					// Customer lines
+					model.addAttribute("propuestaCliente", consultaOps.getPropuestaById(propuestaNuestra.getForProposalId()));
+					model.addAttribute("lineasCliente", new ReactiveDataDriverContextVariable(lineaService.findByPropuestaId(propuestaNuestra.getForProposalId())));
 					// Supplier lines mapper
 					return supplierLineFinderByProposalAssignation.findBy(propuestaNuestra.getForProposalId())
 						.collectList().map(proveedorLines -> {
@@ -117,8 +121,6 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 							model.addAttribute("sumMapper", sumMapper.from(propuestaNuestra, offerLines));
 							return null;
 						})
-					// Customer Lines
-						
 						;
 				})
 		.then(Mono.just("assignLinesOfOferta"));
