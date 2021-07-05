@@ -1,8 +1,10 @@
 package devs.mrp.gullproject.controller.linea;
 
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import devs.mrp.gullproject.ainterfaces.MyListOfAsignables;
 import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
@@ -23,6 +25,8 @@ import devs.mrp.gullproject.service.linea.proveedor.CostRemapperUtilities;
 import devs.mrp.gullproject.service.propuesta.proveedor.PropuestaProveedorUtilities;
 import reactor.core.publisher.Mono;
 
+@Controller
+@RequestMapping(path = "/lineas")
 public class AssignLinesInOfferController extends LineaControllerSetup {
 
 	public AssignLinesInOfferController(LineaService lineaService, ConsultaService consultaService,

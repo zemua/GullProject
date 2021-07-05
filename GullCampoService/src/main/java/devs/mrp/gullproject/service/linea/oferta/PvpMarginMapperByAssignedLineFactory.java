@@ -11,7 +11,7 @@ import devs.mrp.gullproject.domains.linea.Linea;
 import devs.mrp.gullproject.service.linea.LineByAssignationRetrieverFactory;
 
 @Service
-public class PvpMarginMapperByAssignedLineFactory implements MyFactoryFromTo<List<Linea>, MyMapperByDupla<Double, String, String>> { // TODO test
+public class PvpMarginMapperByAssignedLineFactory implements MyFactoryFromTo<List<Linea>, MyMapperByDupla<Double, String, String>> {
 
 	@Autowired LineByAssignationRetrieverFactory<Linea> factory;
 	

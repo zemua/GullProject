@@ -13,11 +13,11 @@ public class PvpMarginMapperByAssignedLine implements MyMapperByDupla<Double, St
 	}
 	
 	@Override
-	public Double getByDupla(String lineId, String pvpId) {
+	public Double getByDupla(String assignedToLineId, String pvpId) {
 		if (list == null) {
 			return 0D;
 		}
-		Double d = list.getAssignedTo(lineId).operations().getPvpMargin(pvpId);
+		Double d = list.getAssignedTo(assignedToLineId).operations().getPvpMargin(pvpId);
 		if(d == null) {
 			return 0D;
 		}

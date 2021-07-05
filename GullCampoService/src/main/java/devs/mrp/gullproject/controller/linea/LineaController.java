@@ -1,32 +1,23 @@
 package devs.mrp.gullproject.controller.linea;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
-import devs.mrp.gullproject.ainterfaces.MyListOfAsignables;
 import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
 import devs.mrp.gullproject.ainterfaces.MyFactoryFromTo;
 import devs.mrp.gullproject.ainterfaces.MyFinder;
@@ -41,20 +32,15 @@ import devs.mrp.gullproject.domains.dto.linea.proveedor.CostRemappersWrapper;
 import devs.mrp.gullproject.domains.dto.propuesta.AttRemapersWrapper;
 import devs.mrp.gullproject.domains.linea.Linea;
 import devs.mrp.gullproject.domains.linea.LineaFactory;
-import devs.mrp.gullproject.domains.linea.LineaImpl;
 import devs.mrp.gullproject.domains.propuestas.Propuesta;
-import devs.mrp.gullproject.domains.propuestas.PropuestaNuestra;
 import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.AttRemaperUtilities;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.facade.SupplierLineFinderByProposalAssignation;
-import devs.mrp.gullproject.service.linea.CustomerLineToCostMapper;
-import devs.mrp.gullproject.service.linea.LineByAssignationRetriever;
 import devs.mrp.gullproject.service.linea.LineaService;
 import devs.mrp.gullproject.service.linea.LineaUtilities;
 import devs.mrp.gullproject.service.linea.oferta.PvpMapperByAssignedLineFactory;
-import devs.mrp.gullproject.service.linea.oferta.PvpSumForLineFinder;
 import devs.mrp.gullproject.service.linea.proveedor.CostRemapperUtilities;
 import devs.mrp.gullproject.service.propuesta.proveedor.PropuestaProveedorUtilities;
 import lombok.extern.slf4j.Slf4j;
@@ -434,7 +420,7 @@ public class LineaController {
 	}
 
 	@PostMapping("/delete/id/{lineaid}")
-	public String processDeleteLinea(@ModelAttribute("mylinea") Linea linea, Model model,
+	public String processDeleteLinea(@ModelAttribute("linea") Linea linea, Model model,
 			@PathVariable(name = "lineaid") String lineaId) {
 		Mono<Long> deleteCount;
 		if (linea.getId().equals(lineaId)) {
