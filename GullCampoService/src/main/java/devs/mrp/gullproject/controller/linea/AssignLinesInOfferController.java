@@ -27,6 +27,7 @@ import devs.mrp.gullproject.service.linea.oferta.PvpMapperByCounterLineFactory;
 import devs.mrp.gullproject.service.linea.oferta.PvpMarginMapperByCounterIdFactory;
 import devs.mrp.gullproject.service.linea.oferta.PvpSumByCounterIdFactory;
 import devs.mrp.gullproject.service.linea.oferta.PvpSumForLineFinder;
+import devs.mrp.gullproject.service.linea.proveedor.CostMapperByIdFactory;
 import devs.mrp.gullproject.service.linea.proveedor.CostRemapperUtilities;
 import devs.mrp.gullproject.service.linea.proveedor.SupplierLineMapperByPropAndAssignedLineFactory;
 import devs.mrp.gullproject.service.propuesta.oferta.FromPropuestaToOfertaFactory;
@@ -47,6 +48,7 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 	@Autowired FromPropuestaToOfertaFactory ofertaConverter;
 	@Autowired ProposalCostNameMapperFromPvpFactory costFromPvpMapper;
 	@Autowired FromPropuestaToProveedorFactory proveedorFactory;
+	@Autowired CostMapperByIdFactory lineCostMapper;
 	
 	public AssignLinesInOfferController(LineaService lineaService, ConsultaService consultaService,
 			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities,
@@ -102,7 +104,7 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 						.collectList().map(proveedorLines -> {
 							model.addAttribute("supplierLineMapper", supplierLineMapperByPropProvIdAndCounterLineId.from(proveedorLines));
 							model.addAttribute("proposalCostMapperToPVp", costFromPvpMapper.from(propuestaNuestra, consultaOps.getPropuestasProveedorAssignedTo(propuestaNuestra.getForProposalId()).stream().map(p -> proveedorFactory.from(p)).collect(Collectors.toList())));
-							// TODO line-costs mapper by propuesta-cost-id
+							model.addAttribute("lineCostMapper", lineCostMapper.from(proveedorLines));
 							return null;
 						})
 					// Offer pvps, sums, margins mappers
@@ -115,6 +117,8 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 							model.addAttribute("sumMapper", sumMapper.from(propuestaNuestra, offerLines));
 							return null;
 						})
+					// Customer Lines
+						
 						;
 				})
 		.then(Mono.just("assignLinesOfOferta"));
