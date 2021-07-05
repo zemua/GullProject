@@ -20,13 +20,13 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.validation.BindException;
 
 import devs.mrp.gullproject.domains.Consulta;
-import devs.mrp.gullproject.domains.dto.linea.WrapAtributosForCampoDto;
-import devs.mrp.gullproject.domains.dto.propuesta.AtributoForFormDto;
-import devs.mrp.gullproject.domains.dto.propuesta.AttributesListDto;
 import devs.mrp.gullproject.domains.linea.LineaFactory;
 import devs.mrp.gullproject.domains.propuestas.AtributoForCampo;
 import devs.mrp.gullproject.domains.propuestas.Propuesta;
 import devs.mrp.gullproject.domains.propuestas.PropuestaCliente;
+import devs.mrp.gullproject.domainsdto.linea.WrapAtributosForCampoDto;
+import devs.mrp.gullproject.domainsdto.propuesta.AtributoForFormDto;
+import devs.mrp.gullproject.domainsdto.propuesta.AttributesListDto;
 import devs.mrp.gullproject.service.propuesta.PropuestaUtilities;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;

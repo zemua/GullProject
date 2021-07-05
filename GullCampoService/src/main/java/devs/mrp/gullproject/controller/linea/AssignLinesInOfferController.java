@@ -1,5 +1,7 @@
 package devs.mrp.gullproject.controller.linea;
 
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,6 +30,9 @@ import devs.mrp.gullproject.service.linea.oferta.PvpSumForLineFinder;
 import devs.mrp.gullproject.service.linea.proveedor.CostRemapperUtilities;
 import devs.mrp.gullproject.service.linea.proveedor.SupplierLineMapperByPropAndAssignedLineFactory;
 import devs.mrp.gullproject.service.propuesta.oferta.FromPropuestaToOfertaFactory;
+import devs.mrp.gullproject.service.propuesta.proveedor.FromPropuestaToProveedorFactory;
+import devs.mrp.gullproject.service.propuesta.proveedor.ProposalCostNameMapperFromPvpFactory;
+import devs.mrp.gullproject.service.propuesta.proveedor.PropuestaProveedorExtractorNoFlux;
 import devs.mrp.gullproject.service.propuesta.proveedor.PropuestaProveedorUtilities;
 import reactor.core.publisher.Mono;
 
@@ -40,14 +45,16 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 	@Autowired PvpMarginMapperByCounterIdFactory marginMapper;
 	@Autowired PvpSumByCounterIdFactory sumMapper;
 	@Autowired FromPropuestaToOfertaFactory ofertaConverter;
+	@Autowired ProposalCostNameMapperFromPvpFactory costFromPvpMapper;
+	@Autowired FromPropuestaToProveedorFactory proveedorFactory;
 	
 	public AssignLinesInOfferController(LineaService lineaService, ConsultaService consultaService,
 			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities,
 			AttRemaperUtilities attRemaperUtilities, CostRemapperUtilities costRemapperUtilities,
 			PropuestaProveedorUtilities propuestaProveedorUtilities,
-			PvpMapperByAssignedLineFactory<Linea> pvpMapperByLineFactory, SupplierLineFinderByProposalAssignation finder) {
+			SupplierLineFinderByProposalAssignation finder) {
 		super(lineaService, consultaService, atributoService, lineaUtilities, attRemaperUtilities, costRemapperUtilities,
-				propuestaProveedorUtilities, pvpMapperByLineFactory, finder);
+				propuestaProveedorUtilities, finder);
 	}
 	
 	@GetMapping("/allof/ofertaid/{propuestaId}")
@@ -94,13 +101,15 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 					return supplierLineFinderByProposalAssignation.findBy(propuestaNuestra.getForProposalId())
 						.collectList().map(proveedorLines -> {
 							model.addAttribute("supplierLineMapper", supplierLineMapperByPropProvIdAndCounterLineId.from(proveedorLines));
-							// TODO cost mapper by pvp
+							model.addAttribute("proposalCostMapperToPVp", costFromPvpMapper.from(propuestaNuestra, consultaOps.getPropuestasProveedorAssignedTo(propuestaNuestra.getForProposalId()).stream().map(p -> proveedorFactory.from(p)).collect(Collectors.toList())));
+							// TODO line-costs mapper by propuesta-cost-id
 							return null;
 						})
 					// Offer pvps, sums, margins mappers
 						.thenMany(lineaService.findByPropuestaId(propuestaId))
 						.collectList().map(offerLines -> {
 							model.addAttribute("propuestaNuestra", propuestaNuestra);
+							model.addAttribute("pvps", propuestaNuestra.getPvps());
 							model.addAttribute("pvpMapper", pvpMapper.from(offerLines));
 							model.addAttribute("marginMapper", marginMapper.from(offerLines));
 							model.addAttribute("sumMapper", sumMapper.from(propuestaNuestra, offerLines));

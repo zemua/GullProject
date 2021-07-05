@@ -11,7 +11,6 @@ import devs.mrp.gullproject.domains.linea.Linea;
 import devs.mrp.gullproject.domains.propuestas.PropuestaNuestra;
 import devs.mrp.gullproject.service.linea.LineByAssignationRetrieverFactory;
 
-@Service
 public class PvpSumByAssignedLineIdFinderFactory implements PvpSumByCounterIdFactory {
 
 	@Autowired LineByAssignationRetrieverFactory<Linea> retrieverFactory;

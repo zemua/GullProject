@@ -18,11 +18,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.validation.BindException;
 
 import devs.mrp.gullproject.domains.Consulta;
-import devs.mrp.gullproject.domains.dto.propuesta.AttRemaper;
-import devs.mrp.gullproject.domains.dto.propuesta.AttRemapersWrapper;
 import devs.mrp.gullproject.domains.linea.Campo;
 import devs.mrp.gullproject.domains.linea.Linea;
 import devs.mrp.gullproject.domains.linea.LineaFactory;
+import devs.mrp.gullproject.domainsdto.propuesta.AttRemaper;
+import devs.mrp.gullproject.domainsdto.propuesta.AttRemapersWrapper;
 import devs.mrp.gullproject.service.linea.LineaService;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;

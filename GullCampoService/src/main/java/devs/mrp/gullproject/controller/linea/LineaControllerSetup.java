@@ -19,6 +19,7 @@ import devs.mrp.gullproject.service.linea.LineByAssignationRetrieverFactory;
 import devs.mrp.gullproject.service.linea.LineaService;
 import devs.mrp.gullproject.service.linea.LineaUtilities;
 import devs.mrp.gullproject.service.linea.oferta.PvpMapperByAssignedLineFactory;
+import devs.mrp.gullproject.service.linea.oferta.PvpMapperByCounterLineFactory;
 import devs.mrp.gullproject.service.linea.proveedor.CostRemapperUtilities;
 import devs.mrp.gullproject.service.propuesta.proveedor.PropuestaProveedorUtilities;
 import reactor.core.publisher.Flux;
@@ -34,16 +35,16 @@ public abstract class LineaControllerSetup {
 	protected AttRemaperUtilities attRemaperUtilities;
 	protected CostRemapperUtilities costRemapperUtilities;
 	protected PropuestaProveedorUtilities propuestaProveedorUtilities;
-	protected MyFactoryFromTo<List<Linea>, MyMapperByDupla<Double, String, String>> pvpMapperByLineFactory;
 	protected MyFinder<Flux<Linea>, String> supplierLineFinderByProposalAssignation;
 	protected @Autowired LineaFactory lineaFactory;
 	protected @Autowired LineByAssignationRetrieverFactory<Linea> lineByAssignationFactory;
+	@Autowired PvpMapperByCounterLineFactory<Linea> pvpMapperByLineFactory;
 	
 	@Autowired
 	public LineaControllerSetup(LineaService lineaService, ConsultaService consultaService,
 			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities, AttRemaperUtilities attRemaperUtilities,
 			CostRemapperUtilities costRemapperUtilities, PropuestaProveedorUtilities propuestaProveedorUtilities,
-			PvpMapperByAssignedLineFactory<Linea> pvpMapperByLineFactory, SupplierLineFinderByProposalAssignation finder) {
+			SupplierLineFinderByProposalAssignation finder) {
 		this.lineaService = lineaService;
 		this.consultaService = consultaService;
 		this.atributoService = atributoService;
@@ -51,7 +52,6 @@ public abstract class LineaControllerSetup {
 		this.attRemaperUtilities = attRemaperUtilities;
 		this.costRemapperUtilities = costRemapperUtilities;
 		this.propuestaProveedorUtilities = propuestaProveedorUtilities;
-		this.pvpMapperByLineFactory = pvpMapperByLineFactory;
 		this.supplierLineFinderByProposalAssignation = finder;
 	}
 	

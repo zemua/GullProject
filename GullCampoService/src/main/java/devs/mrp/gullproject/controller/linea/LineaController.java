@@ -22,18 +22,18 @@ import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
 import devs.mrp.gullproject.ainterfaces.MyFactoryFromTo;
 import devs.mrp.gullproject.ainterfaces.MyFinder;
 import devs.mrp.gullproject.domains.Consulta;
-import devs.mrp.gullproject.domains.dto.StringWrapper;
-import devs.mrp.gullproject.domains.dto.linea.LineaWithAttListDto;
-import devs.mrp.gullproject.domains.dto.linea.MultipleLineaWithAttListDto;
-import devs.mrp.gullproject.domains.dto.linea.StringListOfListsWrapper;
-import devs.mrp.gullproject.domains.dto.linea.WrapLineasDto;
-import devs.mrp.gullproject.domains.dto.linea.WrapLineasWithSelectorDto;
-import devs.mrp.gullproject.domains.dto.linea.proveedor.CostRemappersWrapper;
-import devs.mrp.gullproject.domains.dto.propuesta.AttRemapersWrapper;
 import devs.mrp.gullproject.domains.linea.Linea;
 import devs.mrp.gullproject.domains.linea.LineaFactory;
 import devs.mrp.gullproject.domains.propuestas.Propuesta;
 import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
+import devs.mrp.gullproject.domainsdto.StringWrapper;
+import devs.mrp.gullproject.domainsdto.linea.LineaWithAttListDto;
+import devs.mrp.gullproject.domainsdto.linea.MultipleLineaWithAttListDto;
+import devs.mrp.gullproject.domainsdto.linea.StringListOfListsWrapper;
+import devs.mrp.gullproject.domainsdto.linea.WrapLineasDto;
+import devs.mrp.gullproject.domainsdto.linea.WrapLineasWithSelectorDto;
+import devs.mrp.gullproject.domainsdto.linea.proveedor.CostRemappersWrapper;
+import devs.mrp.gullproject.domainsdto.propuesta.AttRemapersWrapper;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.AttRemaperUtilities;
 import devs.mrp.gullproject.service.ConsultaService;
@@ -41,6 +41,7 @@ import devs.mrp.gullproject.service.facade.SupplierLineFinderByProposalAssignati
 import devs.mrp.gullproject.service.linea.LineaService;
 import devs.mrp.gullproject.service.linea.LineaUtilities;
 import devs.mrp.gullproject.service.linea.oferta.PvpMapperByAssignedLineFactory;
+import devs.mrp.gullproject.service.linea.oferta.PvpMapperByCounterLineFactory;
 import devs.mrp.gullproject.service.linea.proveedor.CostRemapperUtilities;
 import devs.mrp.gullproject.service.propuesta.proveedor.PropuestaProveedorUtilities;
 import lombok.extern.slf4j.Slf4j;
@@ -61,15 +62,15 @@ public class LineaController {
 	AttRemaperUtilities attRemaperUtilities;
 	CostRemapperUtilities costRemapperUtilities;
 	PropuestaProveedorUtilities propuestaProveedorUtilities;
-	MyFactoryFromTo<List<Linea>, MyMapperByDupla<Double, String, String>> pvpMapperByLineFactory;
 	MyFinder<Flux<Linea>, String> supplierLineFinderByProposalAssignation;
 	@Autowired LineaFactory lineaFactory;
+	@Autowired PvpMapperByCounterLineFactory<Linea> pvpMapperByLineFactory;
 
 	@Autowired
 	public LineaController(LineaService lineaService, ConsultaService consultaService,
 			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities, AttRemaperUtilities attRemaperUtilities,
 			CostRemapperUtilities costRemapperUtilities, PropuestaProveedorUtilities propuestaProveedorUtilities,
-			PvpMapperByAssignedLineFactory<Linea> pvpMapperByLineFactory, SupplierLineFinderByProposalAssignation finder) {
+			SupplierLineFinderByProposalAssignation finder) {
 		this.lineaService = lineaService;
 		this.consultaService = consultaService;
 		this.atributoService = atributoService;
@@ -77,7 +78,6 @@ public class LineaController {
 		this.attRemaperUtilities = attRemaperUtilities;
 		this.costRemapperUtilities = costRemapperUtilities;
 		this.propuestaProveedorUtilities = propuestaProveedorUtilities;
-		this.pvpMapperByLineFactory = pvpMapperByLineFactory;
 		this.supplierLineFinderByProposalAssignation = finder;
 	}
 

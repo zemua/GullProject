@@ -6,10 +6,10 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import devs.mrp.gullproject.domains.dto.BooleanWrapper;
 import devs.mrp.gullproject.domains.linea.CosteLineaProveedor;
 import devs.mrp.gullproject.domains.linea.Linea;
 import devs.mrp.gullproject.domains.linea.LineaFactory;
+import devs.mrp.gullproject.domainsdto.BooleanWrapper;
 import devs.mrp.gullproject.service.CommonOperations;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.linea.LineaService;

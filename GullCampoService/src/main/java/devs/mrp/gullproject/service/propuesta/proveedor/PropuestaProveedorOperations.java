@@ -10,13 +10,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 
-import devs.mrp.gullproject.domains.dto.IntegerWrap;
-import devs.mrp.gullproject.domains.dto.propuesta.proveedor.CosteOrdenable;
-import devs.mrp.gullproject.domains.dto.propuesta.proveedor.CostesCheckbox;
-import devs.mrp.gullproject.domains.dto.propuesta.proveedor.CostesWrapper;
 import devs.mrp.gullproject.domains.linea.CosteLineaProveedor;
 import devs.mrp.gullproject.domains.propuestas.CosteProveedor;
 import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
+import devs.mrp.gullproject.domainsdto.IntegerWrap;
+import devs.mrp.gullproject.domainsdto.propuesta.proveedor.CosteOrdenable;
+import devs.mrp.gullproject.domainsdto.propuesta.proveedor.CostesCheckbox;
+import devs.mrp.gullproject.domainsdto.propuesta.proveedor.CostesWrapper;
 import devs.mrp.gullproject.service.ClassDestringfier;
 import devs.mrp.gullproject.service.propuesta.PropuestaOperations;
 import lombok.Data;

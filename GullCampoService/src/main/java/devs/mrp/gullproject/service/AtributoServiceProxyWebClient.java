@@ -16,8 +16,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import devs.mrp.gullproject.configuration.ClientProperties;
-import devs.mrp.gullproject.domains.dto.StringWrapper;
 import devs.mrp.gullproject.domains.propuestas.AtributoForCampo;
+import devs.mrp.gullproject.domainsdto.StringWrapper;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
