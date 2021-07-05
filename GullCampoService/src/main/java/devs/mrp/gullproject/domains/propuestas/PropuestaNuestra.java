@@ -34,7 +34,7 @@ public class PropuestaNuestra extends Propuesta {
 	}
 	
 	@PersistenceConstructor
-	public PropuestaNuestra(TipoPropuesta tipoPropuesta) { // dummy parameter
+	public PropuestaNuestra(TipoPropuesta tipoPropuesta) { // dummy parameter for argument resolver
 		super(TipoPropuesta.NUESTRA);
 	}
 	

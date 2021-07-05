@@ -1,5 +1,6 @@
 package devs.mrp.gullproject.controller.linea;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,8 +21,13 @@ import devs.mrp.gullproject.service.linea.LineByAssignationRetriever;
 import devs.mrp.gullproject.service.linea.LineaService;
 import devs.mrp.gullproject.service.linea.LineaUtilities;
 import devs.mrp.gullproject.service.linea.oferta.PvpMapperByAssignedLineFactory;
+import devs.mrp.gullproject.service.linea.oferta.PvpMapperByCounterLineFactory;
+import devs.mrp.gullproject.service.linea.oferta.PvpMarginMapperByCounterIdFactory;
+import devs.mrp.gullproject.service.linea.oferta.PvpSumByCounterIdFactory;
 import devs.mrp.gullproject.service.linea.oferta.PvpSumForLineFinder;
 import devs.mrp.gullproject.service.linea.proveedor.CostRemapperUtilities;
+import devs.mrp.gullproject.service.linea.proveedor.SupplierLineMapperByPropAndAssignedLineFactory;
+import devs.mrp.gullproject.service.propuesta.oferta.FromPropuestaToOfertaFactory;
 import devs.mrp.gullproject.service.propuesta.proveedor.PropuestaProveedorUtilities;
 import reactor.core.publisher.Mono;
 
@@ -29,6 +35,12 @@ import reactor.core.publisher.Mono;
 @RequestMapping(path = "/lineas")
 public class AssignLinesInOfferController extends LineaControllerSetup {
 
+	@Autowired SupplierLineMapperByPropAndAssignedLineFactory supplierLineMapperByPropProvIdAndCounterLineId;
+	@Autowired PvpMapperByCounterLineFactory<Linea> pvpMapper;
+	@Autowired PvpMarginMapperByCounterIdFactory marginMapper;
+	@Autowired PvpSumByCounterIdFactory sumMapper;
+	@Autowired FromPropuestaToOfertaFactory ofertaConverter;
+	
 	public AssignLinesInOfferController(LineaService lineaService, ConsultaService consultaService,
 			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities,
 			AttRemaperUtilities attRemaperUtilities, CostRemapperUtilities costRemapperUtilities,
@@ -74,9 +86,28 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 	@GetMapping("/allof/ofertaid/{propuestaId}/assign")
 	public Mono<String> assignLinesOfOferta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		return consultaService.findConsultaByPropuestaId(propuestaId)
-				// TODO mapper of supplier line assigned to customer line
-				// TODO mapper of pvps per customer line
-				// TODO mapper of sums per customer line
+				.map(rConsulta -> {
+					model.addAttribute("consulta", rConsulta);
+					var consultaOps = rConsulta.operations();
+					var propuestaNuestra = ofertaConverter.from(consultaOps.getPropuestaById(propuestaId));
+					// Supplier lines mapper
+					return supplierLineFinderByProposalAssignation.findBy(propuestaNuestra.getForProposalId())
+						.collectList().map(proveedorLines -> {
+							model.addAttribute("supplierLineMapper", supplierLineMapperByPropProvIdAndCounterLineId.from(proveedorLines));
+							// TODO cost mapper by pvp
+							return null;
+						})
+					// Offer pvps, sums, margins mappers
+						.thenMany(lineaService.findByPropuestaId(propuestaId))
+						.collectList().map(offerLines -> {
+							model.addAttribute("propuestaNuestra", propuestaNuestra);
+							model.addAttribute("pvpMapper", pvpMapper.from(offerLines));
+							model.addAttribute("marginMapper", marginMapper.from(offerLines));
+							model.addAttribute("sumMapper", sumMapper.from(propuestaNuestra, offerLines));
+							return null;
+						})
+						;
+				})
 		.then(Mono.just("assignLinesOfOferta"));
 	}
 	
