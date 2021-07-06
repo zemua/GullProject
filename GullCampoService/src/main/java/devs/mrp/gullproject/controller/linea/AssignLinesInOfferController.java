@@ -97,6 +97,7 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 	public Mono<String> assignLinesOfOferta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		return consultaService.findConsultaByPropuestaId(propuestaId)
 				.flatMap(rConsulta -> {
+					model.addAttribute("multipleLineaWithAttListDto",new Linea()); // TODO
 					model.addAttribute("consulta", rConsulta);
 					var consultaOps = rConsulta.operations();
 					var propuestaNuestra = ofertaConverter.from(consultaOps.getPropuestaById(propuestaId));

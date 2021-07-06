@@ -16,39 +16,56 @@
 		</p>
 	</div>
 	
-	<div>
-		<table>
-			<tr>
-				<th th:colspan="${propuestaCliente.getAttributeColumns().size() + 1}"></th>
-				<th:block th:each="pvp : ${propuestaNuestra.getPvps()}">
-				<td rowspan="0"></td>
-				<td th:colspan="${proposalCostMapperToPVp.findBy(pvp.id).size()}" class="texto-centro"><span>Costes</span></td>
-				<td><span>Margen</span></td>
-				<td><span>PVP</span></td>
-				<td><input type="checkbox"></td>
-				</th:block>
-			</tr>
-			<tr>
-				<th>Nombre</th>
-				<th th:each="t : ${propuestaCliente.getAttributeColumns()}"><span th:text="${t.getName()}"></span></th>
-				<th:block th:each="pvp : ${propuestaNuestra.getPvps()}">
-				<td th:each="cost : ${proposalCostMapperToPVp.findBy(pvp.id)}"><span th:text="${cost.name}"></span></td>
-				<td><span>%</span></td>
-				<td colspan="2"><span th:text="${pvp.name}"></span></td>
-				</th:block>
-			</tr>
-			<tr th:each="a, astat : ${lineasCliente}">
-				<td th:text="${a.nombre}"></td>
-				<td th:each="t : ${propuestaCliente.getAttributeColumns()}"><span th:text="${a.operations().getValueByAttId(t.getId())}"></span></td>
-				<th:block th:each="pvp : ${propuestaNuestra.getPvps()}">
-				<td th:each="cost : ${proposalCostMapperToPVp.findBy(pvp.id)}"><span th:text="${lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) > 0 ? lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) : ''}"></span></td>
-				<td><span th:text="${marginMapper.getByDupla(a.id, pvp.id) > 0 ? marginMapper.getByDupla(a.id, pvp.id) : ''}"></span></td>
-				<td><span th:text="${pvpMapper.getByDupla(a.id, pvp.id) > 0 ? pvpMapper.getByDupla(a.id, pvp.id) : ''}"></span></td>
-				<td><input type="checkbox"></td>
-				</th:block>
-			</tr>
-		</table>
-	</div>
+	<form method="POST" th:object="${multipleLineaWithAttListDto}" id="val-form">
+		<div><button id="submit-button">Guardar</button></div>
+		<div th:if="${#fields.hasErrors()}">
+     	   <span class="validationError">
+      	  Corrige los errores y reenvía.
+     	   </span>
+    	</div>
+		<div>
+			<table>
+				<tr>
+					<th th:each="i : ${#numbers.sequence(0, propuestaCliente.getAttributeColumns().size())}" class="filtro field"><span class="field-text" contenteditable="true"></span></th>
+					<th:block th:each="pvp, pvpstat : ${propuestaNuestra.getPvps()}">
+					<td rowspan="0"></td>
+					<td th:colspan="${proposalCostMapperToPVp.findBy(pvp.id).size()}" class="texto-centro"><span>Costes</span></td>
+					<td><span>Margen</span></td>
+					<td><span>PVP</span></td>
+					<td><input type="checkbox" th:class="${'master' + pvpstat.index}"></td>
+					</th:block>
+					<td rowspan="0"></td>
+				</tr>
+				<tr>
+					<th>Nombre</th>
+					<th th:each="t : ${propuestaCliente.getAttributeColumns()}"><span th:text="${t.getName()}"></span></th>
+					<th:block th:each="pvp : ${propuestaNuestra.getPvps()}">
+					<td th:each="cost : ${proposalCostMapperToPVp.findBy(pvp.id)}"><span th:text="${cost.name}"></span></td>
+					<td><span>%</span></td>
+					<td colspan="2"><span th:text="${pvp.name}"></span></td>
+					</th:block>
+				</tr>
+				<tr th:each="a, astat : ${lineasCliente}" class="line-container">
+					<td th:text="${a.nombre}"></td>
+					<td th:each="t : ${propuestaCliente.getAttributeColumns()}"><span th:text="${a.operations().getValueByAttId(t.getId())}"></span></td>
+					<th:block th:each="pvp : ${propuestaNuestra.getPvps()}">
+					<td th:each="cost : ${proposalCostMapperToPVp.findBy(pvp.id)}"><span th:text="${lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) > 0 ? lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) : ''}"></span></td>
+					<td class="field">
+						<span th:text="${marginMapper.getByDupla(a.id, pvp.id) > 0 ? marginMapper.getByDupla(a.id, pvp.id) : ''}" class="field-text is-double" contenteditable="true"></span>
+					</td>
+					<td class="field">
+						<span th:text="${pvpMapper.getByDupla(a.id, pvp.id) > 0 ? pvpMapper.getByDupla(a.id, pvp.id) : ''}" class="field-text is-double" contenteditable="true"></span>
+					</td>
+					<td><input type="checkbox" th:class="${'slave' + astat.index}"></td>
+					</th:block>
+				</tr>
+			</table>
+		</div>
+	</form>
+	
+	<script type="text/javascript" th:src="@{/js/jquery/jquery-3.6.0.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/scripts/tableEditable.js}"></script>
+	<script type="text/javascript" th:src="@{/js/scripts/forceValidation.js}"></script>
 
 </body>
 </html>
