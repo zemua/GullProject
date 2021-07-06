@@ -17,7 +17,11 @@ public class PvpMarginMapperByAssignedLine implements MyMapperByDupla<Double, St
 		if (list == null) {
 			return 0D;
 		}
-		Double d = list.getAssignedTo(assignedToLineId).operations().getPvpMargin(pvpId);
+		var assigned = list.getAssignedTo(assignedToLineId);
+		if (assigned == null) {
+			return 0D;
+		}
+		Double d = assigned.operations().getPvpMargin(pvpId);
 		if(d == null) {
 			return 0D;
 		}

@@ -49,7 +49,7 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 	@Autowired FromPropuestaToOfertaFactory ofertaConverter;
 	@Autowired ProposalCostNameMapperFromPvpFactory costFromPvpMapper;
 	@Autowired FromPropuestaToProveedorFactory proveedorFactory;
-	@Autowired CostMapperByIdFactory lineCostMapper;
+	@Autowired CostMapperByIdFactory lineCostByCostIdMapper;
 	
 	public AssignLinesInOfferController(LineaService lineaService, ConsultaService consultaService,
 			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities,
@@ -96,7 +96,7 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 	@GetMapping("/allof/ofertaid/{propuestaId}/assign")
 	public Mono<String> assignLinesOfOferta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		return consultaService.findConsultaByPropuestaId(propuestaId)
-				.map(rConsulta -> {
+				.flatMap(rConsulta -> {
 					model.addAttribute("consulta", rConsulta);
 					var consultaOps = rConsulta.operations();
 					var propuestaNuestra = ofertaConverter.from(consultaOps.getPropuestaById(propuestaId));
@@ -105,21 +105,23 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 					model.addAttribute("lineasCliente", new ReactiveDataDriverContextVariable(lineaService.findByPropuestaId(propuestaNuestra.getForProposalId())));
 					// Supplier lines mapper
 					return supplierLineFinderByProposalAssignation.findBy(propuestaNuestra.getForProposalId())
-						.collectList().map(proveedorLines -> {
+						.collectList()
+						.map(proveedorLines -> {
 							model.addAttribute("supplierLineMapper", supplierLineMapperByPropProvIdAndCounterLineId.from(proveedorLines));
 							model.addAttribute("proposalCostMapperToPVp", costFromPvpMapper.from(propuestaNuestra, consultaOps.getPropuestasProveedorAssignedTo(propuestaNuestra.getForProposalId()).stream().map(p -> proveedorFactory.from(p)).collect(Collectors.toList())));
-							model.addAttribute("lineCostMapper", lineCostMapper.from(proveedorLines));
-							return null;
+							model.addAttribute("lineCostByCostIdMapper", lineCostByCostIdMapper.from(proveedorLines));
+							return true;
 						})
 					// Offer pvps, sums, margins mappers
 						.thenMany(lineaService.findByPropuestaId(propuestaId))
-						.collectList().map(offerLines -> {
+						.collectList()
+						.map(offerLines -> {
 							model.addAttribute("propuestaNuestra", propuestaNuestra);
 							model.addAttribute("pvps", propuestaNuestra.getPvps());
 							model.addAttribute("pvpMapper", pvpMapper.from(offerLines));
 							model.addAttribute("marginMapper", marginMapper.from(offerLines));
 							model.addAttribute("sumMapper", sumMapper.from(propuestaNuestra, offerLines));
-							return null;
+							return true;
 						})
 						;
 				})

@@ -22,15 +22,20 @@ public class CostMapperById implements MyMapperByDupla<Double, String, String> {
 		var costes = map.get(counterLineId);
 		CosteLineaProveedor defecto = new CosteLineaProveedor();
 		defecto.setValue(0D);
-		return costes.stream().filter(c -> c.getCosteProveedorId().equals(costId)).findAny().orElse(defecto).getValue();
+		if (costes != null) {
+			return costes.stream().filter(c -> c.getCosteProveedorId().equals(costId)).findAny().orElse(defecto).getValue();
+		}
+		return 0D;
 	}
 	
 	private void init() {
 		map = new HashMap<>();
 		lineas.forEach(l -> {
-			l.getCounterLineId().forEach(counter -> {
-				map.put(counter, l.getCostesProveedor());
-			});
+			if (l.getCounterLineId() != null) {
+				l.getCounterLineId().forEach(counter -> {
+					map.put(counter, l.getCostesProveedor());
+				});
+			}
 		});
 	}
 	

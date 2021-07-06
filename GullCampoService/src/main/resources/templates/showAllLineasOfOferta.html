@@ -12,8 +12,8 @@
 
 	<div>
 		<p>
-			<a th:href="${'/consultas/revisar/id/' + consulta.id}">Volver</a> -
-			<a th:href="@{/lineas/allof/ofertaid/{id}/assign(id=${propuesta.id})}">Asignar Lineas</a>
+			<a th:href="${'/consultas/revisar/id/' + consulta.id}">Volver</a> <th:block th:if="${propuesta.getPvps().size() > 0 or propuesta.getSums().size() > 0}">-
+			<a th:href="@{/lineas/allof/ofertaid/{id}/assign(id=${propuesta.id})}">Asignar Lineas</a></th:block>
 		</p>
 	</div>
 	
