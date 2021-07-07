@@ -7,6 +7,11 @@ th, td {
   padding: 15px;
 }
 
+th.noborders, td.noborders {
+    border:0;
+    border-collapse: separate;
+}
+
 .sinwrap {
 	white-space: pre;
 	overflow: auto;

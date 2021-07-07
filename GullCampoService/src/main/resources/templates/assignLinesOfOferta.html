@@ -18,6 +18,7 @@
 	
 	<form method="POST" th:object="${multipleLineaWithAttListDto}" id="val-form-checkable">
 		<div><button id="submit-button-checkable">Guardar</button></div>
+		<br>
 		<div th:if="${#fields.hasErrors()}">
      	   <span class="validationError">
       	  Corrige los errores y reenvía.
@@ -26,15 +27,27 @@
 		<div>
 			<table>
 				<tr>
+					<th class="noborders"><button id="limpiar-filtros">Limpiar filtros</button></th>
+					<th th:each="i, istat : ${#numbers.sequence(0, propuestaCliente.getAttributeColumns().size()-1)}" class="noborders"></th>
+					<th:block th:each="pvp, pvpstat : ${propuestaNuestra.getPvps()}">
+					<th class="noborders" rowspan="0"></th>
+					<th th:if="${proposalCostMapperToPVp.findBy(pvp.id).size() > 1}" th:colspan="${proposalCostMapperToPVp.findBy(pvp.id).size() - 1}" class="noborders"></th>
+					<th class="noborders"><button class="bulk-fill">Rellenar</button></th>
+					<th class="noborders"><input type ="text" class="width100" th:id="${'margin-index' + pvpstat.index}"></th>
+					<th class="noborders" colspan="2"><input type="text" class="width100" th:id="${'pvp-index' + pvpstat.index}"></th>
+					</th:block>
+					<th class="noborders" rowspan="0"></th>
+				</tr>
+				<tr>
 					<th th:each="i, istat : ${#numbers.sequence(0, propuestaCliente.getAttributeColumns().size())}" class="filtro field" th:id="${'filter-index' + istat.index}"><input type="text" class="field-text width100"></th>
 					<th:block th:each="pvp, pvpstat : ${propuestaNuestra.getPvps()}">
-					<td rowspan="0"></td>
+					<!-- <td rowspan="0"></td> -->
 					<td th:colspan="${proposalCostMapperToPVp.findBy(pvp.id).size()}" class="texto-centro"><span>Costes</span></td>
 					<td><span>Margen</span></td>
 					<td><span>PVP</span></td>
 					<td><input type="checkbox" th:class="${'mastercheck'}" th:id="${'check-index' + pvpstat.index}"></td>
 					</th:block>
-					<td rowspan="0"></td>
+					<!-- <td rowspan="0"></td> -->
 				</tr>
 				<tr>
 					<th>Nombre</th>
@@ -51,10 +64,10 @@
 					<th:block th:each="pvp, pvpstat : ${propuestaNuestra.getPvps()}">
 					<td th:each="cost : ${proposalCostMapperToPVp.findBy(pvp.id)}"><span th:text="${lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) > 0 ? lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) : ''}"></span></td>
 					<td class="field">
-						<span th:text="${marginMapper.getByDupla(a.id, pvp.id) > 0 ? marginMapper.getByDupla(a.id, pvp.id) : ''}" class="field-text is-double-checkable" contenteditable="true"></span>
+						<span th:text="${marginMapper.getByDupla(a.id, pvp.id) > 0 ? marginMapper.getByDupla(a.id, pvp.id) : ''}" th:class="${'field-text is-double-checkable margin-index' + pvpstat.index}" contenteditable="true"></span>
 					</td>
 					<td class="field">
-						<span th:text="${pvpMapper.getByDupla(a.id, pvp.id) > 0 ? pvpMapper.getByDupla(a.id, pvp.id) : ''}" class="field-text is-double-checkable" contenteditable="true"></span>
+						<span th:text="${pvpMapper.getByDupla(a.id, pvp.id) > 0 ? pvpMapper.getByDupla(a.id, pvp.id) : ''}" th:class="${'field-text is-double-checkable pvp-index' + pvpstat.index}" contenteditable="true"></span>
 					</td>
 					<td><input type="checkbox" th:class="${'slavecheck check-index' + pvpstat.index}"></td>
 					</th:block>
@@ -68,6 +81,7 @@
 	<script type="text/javascript" th:src="@{/js/scripts/forceValidation.js}"></script>
 	<script type="text/javascript" th:src="@{/js/scripts/multiCheckBox.js}"></script>
 	<script type="text/javascript" th:src="@{/js/scripts/filterByColumn.js}"></script>
+	<script type="text/javascript" th:src="@{/js/scripts/bulkFill.js}"></script>
 
 </body>
 </html>

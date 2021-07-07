@@ -27,11 +27,23 @@ function filtrarLineas(filtros, lineas) {
 	});
 }
 
+function setLimpiarFiltros(element, filtros){
+	element.on("click", function(event) {
+		event.preventDefault();
+		filtros.val("");
+		filtros.first().trigger("input");
+	});
+}
+
 $(document).ready(function() {
 	var filtros = $(".filtro");
 	var lineas = $(".line-container");
-	var filtroSpan = $(".filtro").children();
-	filtroSpan.on("input", function() {
+	var filtroInput = $(".filtro").children(".field-text");
+	filtroInput.on("input", function() {
 		filtrarLineas(filtros, lineas);
 	});
+	// execute once on load in case any input has text
+	filtrarLineas(filtros, lineas);
+	var botonLimpiar = $("#limpiar-filtros");
+	setLimpiarFiltros(botonLimpiar, filtroInput);
 });
