@@ -27,4 +27,5 @@ function validateDouble(klase) {
 
 $(document).ready(function() {
 	forceDouble(".is-double", "#val-form", "#submit-button");
+	forceDouble(".is-double-checkable.checked", "#val-form-checkable", "#submit-button-checkable");
 });

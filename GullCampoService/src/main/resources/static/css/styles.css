@@ -33,3 +33,14 @@ table .error {
 .tachado {
 	text-decoration: line-through;
 }
+
+.width100 {
+    width: 100%;
+    padding: 5px;
+    margin: 0;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -o-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;        
+}
