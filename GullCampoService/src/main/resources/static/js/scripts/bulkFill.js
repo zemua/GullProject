@@ -1,6 +1,6 @@
 function getFieldsOfInput(input){
 	var indextag = input.prop("id");
-	var campos = $("span." + indextag + ':visible');
+	var campos = $("input." + indextag + ':visible');
 	return campos;
 }
 
@@ -15,7 +15,7 @@ function getInputElement(boton){
 	return null;
 }
 
-function clearInputElement() {
+function clearInputElement(boton) {
 	var margin = $(boton).parent().next().children().first();
 	var pvp = $(boton).parent().next().next().children().first();
 	margin.val("");
@@ -30,9 +30,10 @@ $(document).ready(function() {
 			event.preventDefault();
 			var input = getInputElement(boton);
 			var campos = getFieldsOfInput(input);
-			if (input && $.isNumeric($(input).val())) {
-				campos.text(input.val());
-				clearInputElement()
+			if (input && $.isNumeric($(input).val().replace(",", "."))) {
+				campos.val(input.val());
+				campos.trigger("input");
+				clearInputElement(boton)
 			}
 		});
 	});

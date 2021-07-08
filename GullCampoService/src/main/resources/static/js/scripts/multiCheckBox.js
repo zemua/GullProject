@@ -39,6 +39,8 @@ function setupClassesforValidation(current, validables) {
 		text2.removeClass("checked");
 		text1.parent().css("background-color", "");
 		text2.parent().css("background-color", "");
+		text1.css("background-color", "");
+		text2.css("background-color", "");
 	}
 }
 

@@ -12,6 +12,10 @@ th.noborders, td.noborders {
     border-collapse: separate;
 }
 
+th.nopadding, td.nopadding {
+	padding: 0px;
+}
+
 .sinwrap {
 	white-space: pre;
 	overflow: auto;
@@ -30,6 +34,10 @@ table .error {
 	text-align: right;
 }
 
+.texto-izquierda {
+	text-align: left;
+}
+
 .margentb {
 	margin-top: 15px;
 	margin-bottom: 15px;
@@ -41,7 +49,7 @@ table .error {
 
 .width100 {
     width: 100%;
-    padding: 5px;
+    padding: 15px;
     margin: 0;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;

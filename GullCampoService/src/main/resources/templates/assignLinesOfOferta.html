@@ -27,8 +27,8 @@
 		<div>
 			<table>
 				<tr>
-					<th class="noborders"><button id="limpiar-filtros">Limpiar filtros</button></th>
-					<th th:each="i, istat : ${#numbers.sequence(0, propuestaCliente.getAttributeColumns().size()-1)}" class="noborders"></th>
+					<th class="noborders texto-izquierda" th:colspan="${propuestaCliente.getAttributeColumns().size() + 1}"><button id="limpiar-filtros">Limpiar filtros</button></th>
+					<!-- <th th:each="i, istat : ${#numbers.sequence(0, propuestaCliente.getAttributeColumns().size()-1)}" class="noborders"></th> -->
 					<th:block th:each="pvp, pvpstat : ${propuestaNuestra.getPvps()}">
 					<th class="noborders" rowspan="0"></th>
 					<th th:if="${proposalCostMapperToPVp.findBy(pvp.id).size() > 1}" th:colspan="${proposalCostMapperToPVp.findBy(pvp.id).size() - 1}" class="noborders"></th>
@@ -39,7 +39,7 @@
 					<th class="noborders" rowspan="0"></th>
 				</tr>
 				<tr>
-					<th th:each="i, istat : ${#numbers.sequence(0, propuestaCliente.getAttributeColumns().size())}" class="filtro field" th:id="${'filter-index' + istat.index}"><input type="text" class="field-text width100"></th>
+					<th th:each="i, istat : ${#numbers.sequence(0, propuestaCliente.getAttributeColumns().size())}" class="filtro field nopadding" th:id="${'filter-index' + istat.index}"><input type="text" class="field-text width100"></th>
 					<th:block th:each="pvp, pvpstat : ${propuestaNuestra.getPvps()}">
 					<!-- <td rowspan="0"></td> -->
 					<td th:colspan="${proposalCostMapperToPVp.findBy(pvp.id).size()}" class="texto-centro"><span>Costes</span></td>
@@ -62,12 +62,12 @@
 					<td><span th:text="${a.nombre}" th:class="${'filter-index0'}"></span></td>
 					<td th:each="t, tstat : ${propuestaCliente.getAttributeColumns()}"><span th:text="${a.operations().getValueByAttId(t.getId())}" th:class="${'filter-index' + (tstat.index + 1)}"></span></td>
 					<th:block th:each="pvp, pvpstat : ${propuestaNuestra.getPvps()}">
-					<td th:each="cost : ${proposalCostMapperToPVp.findBy(pvp.id)}"><span th:text="${lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) > 0 ? lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) : ''}"></span></td>
-					<td class="field">
-						<span th:text="${marginMapper.getByDupla(a.id, pvp.id) > 0 ? marginMapper.getByDupla(a.id, pvp.id) : ''}" th:class="${'field-text is-double-checkable margin-index' + pvpstat.index}" contenteditable="true"></span>
+					<td th:each="cost : ${proposalCostMapperToPVp.findBy(pvp.id)}"><span th:text="${lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) > 0 ? lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) : ''}" th:class="${'cost-margin-input-field-' + astat.index + '-' + pvpstat.index}"></span></td>
+					<td class="field nopadding">
+						<input type="text" th:text="${marginMapper.getByDupla(a.id, pvp.id) > 0 ? marginMapper.getByDupla(a.id, pvp.id) : ''}" th:id="${'margin-input-field-' + astat.index + '-' + pvpstat.index}" th:class="${'field-text is-double-checkable width100 margin-input-field margin-index' + pvpstat.index}">
 					</td>
-					<td class="field">
-						<span th:text="${pvpMapper.getByDupla(a.id, pvp.id) > 0 ? pvpMapper.getByDupla(a.id, pvp.id) : ''}" th:class="${'field-text is-double-checkable pvp-index' + pvpstat.index}" contenteditable="true"></span>
+					<td class="field nopadding">
+						<input type="text" th:text="${pvpMapper.getByDupla(a.id, pvp.id) > 0 ? pvpMapper.getByDupla(a.id, pvp.id) : ''}" th:class="${'field-text is-double-checkable width100 pvp-input-field pvp-index' + pvpstat.index + ' pvp-margin-input-field-' + astat.index + '-' + pvpstat.index}">
 					</td>
 					<td><input type="checkbox" th:class="${'slavecheck check-index' + pvpstat.index}"></td>
 					</th:block>
@@ -82,6 +82,7 @@
 	<script type="text/javascript" th:src="@{/js/scripts/multiCheckBox.js}"></script>
 	<script type="text/javascript" th:src="@{/js/scripts/filterByColumn.js}"></script>
 	<script type="text/javascript" th:src="@{/js/scripts/bulkFill.js}"></script>
+	<script type="text/javascript" th:src="@{/js/scripts/preventKeySubmit.js}"></script>
 
 </body>
 </html>
