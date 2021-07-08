@@ -3,7 +3,7 @@ function forceDouble(klase, forn, boton, type) {
 	var button = $(boton);
 	button.click(function(event) {
 		event.preventDefault();
-		if (validateDouble(klase, type)) {
+		if (validateDouble(klase, type) && validateMargins(klase)) {
 			formulario.submit();
 		}
 	});
@@ -32,6 +32,20 @@ function validateDouble(klase, type) {
 		}
 	});
 	return resultado;
+}
+
+function validateMargins(klase){
+	var margins = $(klase + ".margin-input-field");
+	var result = true;
+	margins.each(function(){
+		var valor = Number($(this).val());
+		if (valor >= 100) {
+			$(this).parent().css("background-color", "red");
+			$(this).css("background-color", "red");
+			result = false;
+		}
+	});
+	return result;
 }
 
 $(document).ready(function() {

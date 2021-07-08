@@ -55,6 +55,7 @@ function setPvp(marginEl, cost) {
 
 $(document).ready(function() {
 	var margins = $(".margin-input-field");
+	margins.each(function() {resize($(this))});
 	margins.on("input", function() {
 		var porc = $(this).val().replace(",", ".");
 		$(this).val(porc);

@@ -28,7 +28,6 @@
 			<table>
 				<tr>
 					<th class="noborders texto-izquierda" th:colspan="${propuestaCliente.getAttributeColumns().size() + 1}"><button id="limpiar-filtros">Limpiar filtros</button></th>
-					<!-- <th th:each="i, istat : ${#numbers.sequence(0, propuestaCliente.getAttributeColumns().size()-1)}" class="noborders"></th> -->
 					<th:block th:each="pvp, pvpstat : ${propuestaNuestra.getPvps()}">
 					<th class="noborders" rowspan="0"></th>
 					<th th:if="${proposalCostMapperToPVp.findBy(pvp.id).size() > 1}" th:colspan="${proposalCostMapperToPVp.findBy(pvp.id).size() - 1}" class="noborders"></th>
@@ -41,13 +40,11 @@
 				<tr>
 					<th th:each="i, istat : ${#numbers.sequence(0, propuestaCliente.getAttributeColumns().size())}" class="filtro field nopadding" th:id="${'filter-index' + istat.index}"><input type="text" class="field-text width100"></th>
 					<th:block th:each="pvp, pvpstat : ${propuestaNuestra.getPvps()}">
-					<!-- <td rowspan="0"></td> -->
 					<td th:colspan="${proposalCostMapperToPVp.findBy(pvp.id).size()}" class="texto-centro"><span>Costes</span></td>
 					<td><span>Margen</span></td>
 					<td><span>PVP</span></td>
 					<td><input type="checkbox" th:class="${'mastercheck'}" th:id="${'check-index' + pvpstat.index}"></td>
 					</th:block>
-					<!-- <td rowspan="0"></td> -->
 				</tr>
 				<tr>
 					<th>Nombre</th>

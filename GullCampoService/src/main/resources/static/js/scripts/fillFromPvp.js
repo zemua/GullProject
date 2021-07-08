@@ -47,7 +47,7 @@ function setMargins(pvpEl, cost) {
 		pvpEl.css("background-color", "");
 	}
 	var pvp = Number(pvpEl.val());
-	if (pvp != 0) {
+	if (pvp != 0 && $.isNumeric(pvp)) {
 		var margin = (100*(1-(cost/pvp)));
 		margin = margin.toFixed(2);
 		marginEl.val(margin);
@@ -60,6 +60,7 @@ function setMargins(pvpEl, cost) {
 
 $(document).ready(function() {
 	var pvps = $(".pvp-input-field");
+	pvps.each(function() {resize($(this))});
 	pvps.on("input", function() {
 		resize($(this));
 		var precio = $(this).val().replace(",", ".");
