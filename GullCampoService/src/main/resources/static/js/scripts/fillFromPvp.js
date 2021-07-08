@@ -68,6 +68,8 @@ $(document).ready(function() {
 		var coste = getCostValue($(this));
 		if (coste != 0){
 			setMargins($(this), coste);
+		} else {
+			$(this).val("");
 		}
 	});
 });

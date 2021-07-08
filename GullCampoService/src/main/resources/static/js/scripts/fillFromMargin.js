@@ -57,11 +57,14 @@ $(document).ready(function() {
 	var margins = $(".margin-input-field");
 	margins.each(function() {resize($(this))});
 	margins.on("input", function() {
+		resize($(this));
 		var porc = $(this).val().replace(",", ".");
 		$(this).val(porc);
 		var coste = getCostValue($(this));
 		if (coste != 0){
 			setPvp($(this), coste);
+		} else {
+			$(this).val("");
 		}
 	});
 });
