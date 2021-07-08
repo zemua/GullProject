@@ -15,9 +15,13 @@ import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
 import devs.mrp.gullproject.domains.linea.Linea;
 import devs.mrp.gullproject.domains.propuestas.Propuesta;
 import devs.mrp.gullproject.domains.propuestas.PropuestaNuestra;
+import devs.mrp.gullproject.domainsdto.linea.selectable.SelectableLineFactory;
+import devs.mrp.gullproject.domainsdto.linea.selectable.SelectableLinesWrapBuilder;
+import devs.mrp.gullproject.domainsdto.linea.selectable.SelectableLinesWrapFactory;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.AttRemaperUtilities;
 import devs.mrp.gullproject.service.ConsultaService;
+import devs.mrp.gullproject.service.LineaOfferService;
 import devs.mrp.gullproject.service.facade.SupplierLineFinderByProposalAssignation;
 import devs.mrp.gullproject.service.linea.CustomerLineToCostMapper;
 import devs.mrp.gullproject.service.linea.LineByAssignationRetriever;
@@ -50,6 +54,8 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 	@Autowired ProposalCostNameMapperFromPvpFactory costFromPvpMapper;
 	@Autowired FromPropuestaToProveedorFactory proveedorFactory;
 	@Autowired CostMapperByIdFactory lineCostByCostIdMapper;
+	@Autowired SelectableLinesWrapBuilder selectableLinesWrapBuilder;
+	@Autowired LineaOfferService lineaOfertaService;
 	
 	public AssignLinesInOfferController(LineaService lineaService, ConsultaService consultaService,
 			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities,
@@ -69,8 +75,6 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 			Propuesta propCliente = ops.getPropuestaById(propuesta.getForProposalId());
 			
 			model.addAttribute("propuesta", propuesta);
-			MyMapperByDupla<Double, Linea, String> sumsMapper = new PvpSumForLineFinder(propuesta);
-			model.addAttribute("sumsMapper", sumsMapper);
 			model.addAttribute("consulta", rCons);
 			model.addAttribute("propCliente", propCliente);
 			model.addAttribute("lineasCliente", lineaService.findByPropuestaId(propCliente.getId()));
@@ -82,7 +86,7 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 					model.addAttribute("costMapper", new CustomerLineToCostMapper(asignablesProveedor));
 					return true;
 				})
-				.then(lineaService.findByPropuestaId(propuesta.getId()).collectList())
+				.then(lineaOfertaService.findByPropuesta(propuesta.getId()).collectList())
 				.map(ofertaLineList -> {
 					var pvpMapper = pvpMapperByLineFactory.from(ofertaLineList);
 					model.addAttribute("pvpMapper", pvpMapper);
@@ -93,17 +97,14 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 		.then(Mono.just("showAllLineasOfOferta"));
 	}
 
-	@GetMapping("/allof/ofertaid/{propuestaId}/assign")
+	@GetMapping("/allof/ofertaid/{propuestaId}/assign") // TODO test
 	public Mono<String> assignLinesOfOferta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		return consultaService.findConsultaByPropuestaId(propuestaId)
 				.flatMap(rConsulta -> {
-					model.addAttribute("multipleLineaWithAttListDto",new Linea()); // TODO
 					model.addAttribute("consulta", rConsulta);
 					var consultaOps = rConsulta.operations();
 					var propuestaNuestra = ofertaConverter.from(consultaOps.getPropuestaById(propuestaId));
-					// Customer lines
-					model.addAttribute("propuestaCliente", consultaOps.getPropuestaById(propuestaNuestra.getForProposalId()));
-					model.addAttribute("lineasCliente", new ReactiveDataDriverContextVariable(lineaService.findByPropuestaId(propuestaNuestra.getForProposalId())));
+					var propuestaCliente = consultaOps.getPropuestaById(propuestaNuestra.getForProposalId());
 					// Supplier lines mapper
 					return supplierLineFinderByProposalAssignation.findBy(propuestaNuestra.getForProposalId())
 						.collectList()
@@ -114,15 +115,23 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 							return true;
 						})
 					// Offer pvps, sums, margins mappers
-						.thenMany(lineaService.findByPropuestaId(propuestaId))
+						.thenMany(lineaOfertaService.findByPropuesta(propuestaId))
 						.collectList()
-						.map(offerLines -> {
+						.flatMap(offerLines -> {
 							model.addAttribute("propuestaNuestra", propuestaNuestra);
 							model.addAttribute("pvps", propuestaNuestra.getPvps());
 							model.addAttribute("pvpMapper", pvpMapper.from(offerLines));
 							model.addAttribute("marginMapper", marginMapper.from(offerLines));
-							model.addAttribute("sumMapper", sumMapper.from(propuestaNuestra, offerLines));
-							return true;
+							return lineaService.findByPropuestaId(propuestaNuestra.getForProposalId())
+								.collectList()
+								.map(customerLinesList -> {
+					// Customer lines
+									model.addAttribute("propuestaCliente", propuestaCliente);
+									model.addAttribute("lineasCliente", customerLinesList);
+									// TODO construct wrap from customer lines and offer lines
+									model.addAttribute("selectableLinesWrap", selectableLinesWrapBuilder.from(customerLinesList, offerLines, propuestaNuestra));
+									return true;
+								});
 						})
 						;
 				})

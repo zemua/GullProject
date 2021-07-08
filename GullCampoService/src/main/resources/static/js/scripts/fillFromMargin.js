@@ -6,9 +6,9 @@ function validateCostDouble(costs){
 	var resultado = true;
 	costs.each(function() {
 		var content = $(this).text().replace(",", ".");
-		if (!$.isNumeric(content)){
-			$(this).parent().css("background-color", "red");
-			$(this).css("background-color", "red");
+		if (!$.isNumeric(content) && content.trim() != ""){
+			$(this).parent().css("background-color", "yellow");
+			$(this).css("background-color", "yellow");
 			resultado = false;
 		} else {
 			$(this).parent().css("background-color", "");

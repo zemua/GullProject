@@ -6,9 +6,9 @@ function validateCostDouble(costs){
 	var resultado = true;
 	costs.each(function() {
 		var content = $(this).text().replace(",", ".");
-		if (!$.isNumeric(content)){
-			$(this).parent().css("background-color", "red");
-			$(this).css("background-color", "red");
+		if (!$.isNumeric(content) && content.trim() != ""){
+			$(this).parent().css("background-color", "yellow");
+			$(this).css("background-color", "yellow");
 			resultado = false;
 		} else {
 			$(this).parent().css("background-color", "");
@@ -23,7 +23,7 @@ function amountCost(costs) {
 	if (validateCostDouble(costs)){
 		costs.each(function() {
 			var content = $(this).text().replace(",", ".");
-			resultado += Number(content);
+			resultado += Number(content.trim());
 		});
 	}
 	return resultado;
@@ -60,8 +60,8 @@ function setMargins(pvpEl, cost) {
 
 $(document).ready(function() {
 	var pvps = $(".pvp-input-field");
-	pvps.each(function() {resize($(this))});
 	pvps.on("input", function() {
+		console.log("llamado");
 		resize($(this));
 		var precio = $(this).val().replace(",", ".");
 		$(this).val(precio);
@@ -72,4 +72,5 @@ $(document).ready(function() {
 			$(this).val("");
 		}
 	});
+	pvps.trigger("input");
 });

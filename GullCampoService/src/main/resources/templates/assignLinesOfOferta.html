@@ -16,7 +16,7 @@
 		</p>
 	</div>
 	
-	<form method="POST" th:object="${multipleLineaWithAttListDto}" id="val-form-checkable">
+	<form method="POST" th:object="${selectableLinesWrap}" id="val-form-checkable">
 		<div><button id="submit-button-checkable">Guardar</button></div>
 		<br>
 		<div th:if="${#fields.hasErrors()}">
@@ -61,12 +61,15 @@
 					<th:block th:each="pvp, pvpstat : ${propuestaNuestra.getPvps()}">
 					<td th:each="cost : ${proposalCostMapperToPVp.findBy(pvp.id)}"><span th:text="${lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) > 0 ? lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) : ''}" th:class="${'cost-margin-input-field-' + astat.index + '-' + pvpstat.index + ' cost-pvp-input-field-' + astat.index + '-' + pvpstat.index}"></span></td>
 					<td class="field nopadding">
-						<input type="text" th:text="${marginMapper.getByDupla(a.id, pvp.id) > 0 ? marginMapper.getByDupla(a.id, pvp.id) : ''}" th:id="${'margin-input-field-' + astat.index + '-' + pvpstat.index}" th:class="${'noborders field-text is-double-checkable width100 margin-input-field margin-index' + pvpstat.index + ' margin-pvp-input-field-' + astat.index + '-' + pvpstat.index}">
+						<input type="text" th:field="*{lineas[__${astat.index * pvpstat.index}__].pvps[__${pvpstat.index}__].margen}" th:text="${marginMapper.getByDupla(a.id, pvp.id) > 0 ? marginMapper.getByDupla(a.id, pvp.id) : ''}" th:id="${'margin-input-field-' + astat.index + '-' + pvpstat.index}" th:class="${'noborders field-text is-double-checkable width100 margin-input-field margin-index' + pvpstat.index + ' margin-pvp-input-field-' + astat.index + '-' + pvpstat.index}">
 					</td>
 					<td class="field nopadding">
-						<input type="text" th:text="${pvpMapper.getByDupla(a.id, pvp.id) > 0 ? pvpMapper.getByDupla(a.id, pvp.id) : ''}" th:id="${'pvp-input-field-' + astat.index + '-' + pvpstat.index}" th:class="${'noborders field-text is-double-checkable width100 pvp-input-field pvp-index' + pvpstat.index + ' pvp-margin-input-field-' + astat.index + '-' + pvpstat.index}">
+						<input type="text" th:field="*{lineas[__${astat.index * pvpstat.index}__].pvps[__${pvpstat.index}__].pvp}" th:text="${pvpMapper.getByDupla(a.id, pvp.id) > 0 ? pvpMapper.getByDupla(a.id, pvp.id) : ''}" th:id="${'pvp-input-field-' + astat.index + '-' + pvpstat.index}" th:class="${'noborders field-text is-double-checkable width100 pvp-input-field pvp-index' + pvpstat.index + ' pvp-margin-input-field-' + astat.index + '-' + pvpstat.index}">
+						<input type="hidden" th:field="*{lineas[__${astat.index * pvpstat.index}__].pvps[__${pvpstat.index}__].pvperId}">
 					</td>
-					<td><input type="checkbox" th:class="${'slavecheck check-index' + pvpstat.index}"></td>
+					<td>
+						<input type="checkbox" th:class="${'slavecheck check-index' + pvpstat.index}">
+					</td>
 					</th:block>
 				</tr>
 			</table>

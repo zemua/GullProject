@@ -1,12 +1,7 @@
 package devs.mrp.gullproject.domains.linea;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotBlank;
 
@@ -14,19 +9,15 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import devs.mrp.gullproject.ainterfaces.MyOperable;
-import devs.mrp.gullproject.service.linea.LineaOperations;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Data
 @Slf4j
-@Document (collection = "lineas")
+@Document (collection = "lineasoferta")
 @NoArgsConstructor
-public class Linea implements MyOperable<LineaOperations> {
+public abstract class LineaAbstracta {
 
 	@Id
 	private String id = new ObjectId().toString();
@@ -47,7 +38,7 @@ public class Linea implements MyOperable<LineaOperations> {
 	/**
 	 * When creating an offer of suppliers or ours, this will refer to the customer line
 	 */
-	private List<String> counterLineId;
+	private String counterLineId;
 	
 	private Integer order;
 	private Integer qty;
@@ -60,39 +51,16 @@ public class Linea implements MyOperable<LineaOperations> {
 	 */
 	private List<Campo<?>> campos = new ArrayList<>();
 	
-	private List<CosteLineaProveedor> costesProveedor;
-	private List<PvperLinea> pvps;
-	private List<String> pvpSums;
+	private PvperLinea pvp;
 	
-	/**
-	 * Methods and constructors
-	 * @param l
-	 * @return
-	 */
-	
-	public Linea(Linea lin) {
+	public LineaAbstracta(LineaAbstracta lin) {
 		this.counterLineId = lin.counterLineId;
 		this.nombre = lin.nombre;
 		if (lin.order != null) {this.order = lin.order.intValue();}
 		this.parentId = lin.parentId;
 		this.propuestaId = lin.propuestaId;
 		lin.getCampos().stream().forEach(c -> this.campos.add(new Campo<>(c)));
-		if (lin.getPvpSums() != null) {
-			this.pvpSums = new ArrayList<>();
-			lin.getPvpSums().stream().forEach(s -> this.pvpSums.add(s));
-		}
-		if (lin.getPvps() != null) {
-			this.pvps = new ArrayList<>();
-			lin.getPvps().stream().forEach(p -> this.pvps.add(new PvperLinea(p)));
-		}
-		if (lin.getCostesProveedor() != null) {
-			this.costesProveedor = new ArrayList<>();
-			lin.getCostesProveedor().stream().forEach(c -> this.costesProveedor.add(new CosteLineaProveedor(c)));
-		}
-	}
-	
-	public LineaOperations operations() {
-		return new LineaOperations(this);
+		this.pvp = lin.pvp;
 	}
 	
 }
