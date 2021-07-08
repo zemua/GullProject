@@ -16,6 +16,11 @@ th.nopadding, td.nopadding {
 	padding: 0px;
 }
 
+input.noborders {
+	border: none;
+	border-color: transparent;
+}
+
 .sinwrap {
 	white-space: pre;
 	overflow: auto;

@@ -36,31 +36,37 @@ function getCostValue(marginEl) {
 	return coste;
 }
 
-function setPvp(marginEl, cost) {
-	var tag = marginEl.prop("id");
-	var pvpEl = $(".pvp-" + tag).first();
-	var margin = Number(marginEl.val());
-	if (margin < 100 && margin >= 0) {
-		var pvp = (cost/(1-(margin/100)));
-		pvp = pvp.toFixed(2);
-		pvpEl.val(pvp);
-		resize(pvpEl);
-		marginEl.parent().css("background-color", "");
-		marginEl.css("background-color", "");
+function setMargins(pvpEl, cost) {
+	var tag = pvpEl.prop("id");
+	var marginEl = $(".margin-" + tag).first();
+	if (!$.isNumeric(pvpEl.val()) && pvpEl.val().trim() != ""){
+		pvpEl.parent().css("background-color", "red");
+		pvpEl.css("background-color", "red");
 	} else {
-		marginEl.parent().css("background-color", "red");
-		marginEl.css("background-color", "red");
+		pvpEl.parent().css("background-color", "");
+		pvpEl.css("background-color", "");
+	}
+	var pvp = Number(pvpEl.val());
+	if (pvp != 0) {
+		var margin = (100*(1-(cost/pvp)));
+		margin = margin.toFixed(2);
+		marginEl.val(margin);
+		resize(marginEl);
+	} else {
+		marginEl.val(-100);
+		resize(marginEl);
 	}
 }
 
 $(document).ready(function() {
-	var margins = $(".margin-input-field");
-	margins.on("input", function() {
-		var porc = $(this).val().replace(",", ".");
-		$(this).val(porc);
+	var pvps = $(".pvp-input-field");
+	pvps.on("input", function() {
+		resize($(this));
+		var precio = $(this).val().replace(",", ".");
+		$(this).val(precio);
 		var coste = getCostValue($(this));
 		if (coste != 0){
-			setPvp($(this), coste);
+			setMargins($(this), coste);
 		}
 	});
 });

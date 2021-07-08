@@ -1,3 +1,13 @@
+function validar(element) {
+	if (!$.isNumeric(element.val()) && element.val().trim() != ""){
+		element.parent().css("background-color", "red");
+		element.css("background-color", "red");
+	} else {
+		element.parent().css("background-color", "");
+		element.css("background-color", "");
+	}
+}
+
 function getFieldsOfInput(input){
 	var indextag = input.prop("id");
 	var campos = $("input." + indextag + ':visible');
@@ -23,6 +33,10 @@ function clearInputElement(boton) {
 }
 
 $(document).ready(function() {
+	var bulkinputs = $(".bulkinput");
+	bulkinputs.on("input", function() {
+		validar($(this));
+	});
 	var botonesRelleno = $("button.bulk-fill");
 	botonesRelleno.each(function() {
 		var boton = this;

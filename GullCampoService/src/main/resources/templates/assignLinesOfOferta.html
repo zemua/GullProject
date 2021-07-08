@@ -33,8 +33,8 @@
 					<th class="noborders" rowspan="0"></th>
 					<th th:if="${proposalCostMapperToPVp.findBy(pvp.id).size() > 1}" th:colspan="${proposalCostMapperToPVp.findBy(pvp.id).size() - 1}" class="noborders"></th>
 					<th class="noborders"><button class="bulk-fill">Rellenar</button></th>
-					<th class="noborders"><input type ="text" class="width100" th:id="${'margin-index' + pvpstat.index}"></th>
-					<th class="noborders" colspan="2"><input type="text" class="width100" th:id="${'pvp-index' + pvpstat.index}"></th>
+					<th class="noborders"><input type ="text" class="width100 bulkinput" th:id="${'margin-index' + pvpstat.index}"></th>
+					<th class="noborders" colspan="2"><input type="text" class="width100 bulkinput" th:id="${'pvp-index' + pvpstat.index}"></th>
 					</th:block>
 					<th class="noborders" rowspan="0"></th>
 				</tr>
@@ -62,12 +62,12 @@
 					<td><span th:text="${a.nombre}" th:class="${'filter-index0'}"></span></td>
 					<td th:each="t, tstat : ${propuestaCliente.getAttributeColumns()}"><span th:text="${a.operations().getValueByAttId(t.getId())}" th:class="${'filter-index' + (tstat.index + 1)}"></span></td>
 					<th:block th:each="pvp, pvpstat : ${propuestaNuestra.getPvps()}">
-					<td th:each="cost : ${proposalCostMapperToPVp.findBy(pvp.id)}"><span th:text="${lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) > 0 ? lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) : ''}" th:class="${'cost-margin-input-field-' + astat.index + '-' + pvpstat.index}"></span></td>
+					<td th:each="cost : ${proposalCostMapperToPVp.findBy(pvp.id)}"><span th:text="${lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) > 0 ? lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) : ''}" th:class="${'cost-margin-input-field-' + astat.index + '-' + pvpstat.index + ' cost-pvp-input-field-' + astat.index + '-' + pvpstat.index}"></span></td>
 					<td class="field nopadding">
-						<input type="text" th:text="${marginMapper.getByDupla(a.id, pvp.id) > 0 ? marginMapper.getByDupla(a.id, pvp.id) : ''}" th:id="${'margin-input-field-' + astat.index + '-' + pvpstat.index}" th:class="${'field-text is-double-checkable width100 margin-input-field margin-index' + pvpstat.index}">
+						<input type="text" th:text="${marginMapper.getByDupla(a.id, pvp.id) > 0 ? marginMapper.getByDupla(a.id, pvp.id) : ''}" th:id="${'margin-input-field-' + astat.index + '-' + pvpstat.index}" th:class="${'noborders field-text is-double-checkable width100 margin-input-field margin-index' + pvpstat.index + ' margin-pvp-input-field-' + astat.index + '-' + pvpstat.index}">
 					</td>
 					<td class="field nopadding">
-						<input type="text" th:text="${pvpMapper.getByDupla(a.id, pvp.id) > 0 ? pvpMapper.getByDupla(a.id, pvp.id) : ''}" th:class="${'field-text is-double-checkable width100 pvp-input-field pvp-index' + pvpstat.index + ' pvp-margin-input-field-' + astat.index + '-' + pvpstat.index}">
+						<input type="text" th:text="${pvpMapper.getByDupla(a.id, pvp.id) > 0 ? pvpMapper.getByDupla(a.id, pvp.id) : ''}" th:id="${'pvp-input-field-' + astat.index + '-' + pvpstat.index}" th:class="${'noborders field-text is-double-checkable width100 pvp-input-field pvp-index' + pvpstat.index + ' pvp-margin-input-field-' + astat.index + '-' + pvpstat.index}">
 					</td>
 					<td><input type="checkbox" th:class="${'slavecheck check-index' + pvpstat.index}"></td>
 					</th:block>
@@ -83,6 +83,8 @@
 	<script type="text/javascript" th:src="@{/js/scripts/filterByColumn.js}"></script>
 	<script type="text/javascript" th:src="@{/js/scripts/bulkFill.js}"></script>
 	<script type="text/javascript" th:src="@{/js/scripts/preventKeySubmit.js}"></script>
+	<script type="text/javascript" th:src="@{/js/scripts/fillFromMargin.js}"></script>
+	<script type="text/javascript" th:src="@{/js/scripts/fillFromPvp.js}"></script>
 
 </body>
 </html>
