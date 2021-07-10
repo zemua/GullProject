@@ -61,7 +61,6 @@ function setMargins(pvpEl, cost) {
 $(document).ready(function() {
 	var pvps = $(".pvp-input-field");
 	pvps.on("input", function() {
-		console.log("llamado");
 		resize($(this));
 		var precio = $(this).val().replace(",", ".");
 		$(this).val(precio);

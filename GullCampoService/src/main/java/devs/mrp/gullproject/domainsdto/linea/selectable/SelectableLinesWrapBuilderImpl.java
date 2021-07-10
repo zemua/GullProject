@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import devs.mrp.gullproject.domains.linea.Linea;
+import devs.mrp.gullproject.domains.linea.PvperLinea;
 import devs.mrp.gullproject.domains.propuestas.PropuestaNuestra;
 import devs.mrp.gullproject.service.linea.oferta.selectable.SelectableLineMapperByCounterAndPvp;
 import devs.mrp.gullproject.service.linea.oferta.selectable.SelectableLineMapperByCounterAndPvpFactory;
@@ -37,7 +38,10 @@ public class SelectableLinesWrapBuilderImpl implements SelectableLinesWrapBuilde
 				if (linea == null) {
 					linea = lineFactory.create();
 					linea.setCounterLineId(sLineaCliente.getId());
+					linea.setPvp(new PvperLinea());
 					linea.getPvp().setPvperId(sPvp.getId());
+					linea.getPvp().setMargen(0);
+					linea.getPvp().setPvp(0);
 					linea.setNombre("");
 					linea.setQty(sLineaCliente.getQty());
 				}

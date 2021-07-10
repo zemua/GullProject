@@ -1,5 +1,6 @@
 package devs.mrp.gullproject.service.linea;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -13,6 +14,7 @@ public class AbstLineFinderImpl implements AbstLineFinder {
 	
 	public AbstLineFinderImpl(List<LineaAbstracta> lineas) {
 		this.lineas = lineas;
+		byCounterMap = new HashMap<>();
 	}
 	
 	@Override

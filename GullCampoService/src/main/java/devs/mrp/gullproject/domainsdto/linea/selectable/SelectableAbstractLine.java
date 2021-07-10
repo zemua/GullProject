@@ -15,15 +15,15 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 public abstract class SelectableAbstractLine extends LineaAbstracta implements MySelectable {
 
-	private boolean selected;
+	private Boolean selected;
 
 	@Override
-	public boolean getSelected() {
+	public Boolean getSelected() {
 		return selected;
 	}
 
 	@Override
-	public void setSelected(boolean selected) {
+	public void setSelected(Boolean selected) {
 		this.selected = selected;
 	}
 	

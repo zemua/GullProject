@@ -31,12 +31,15 @@ function markAdjacentDoublesForValidation(slavecheckbox, validables){
 function setupClassesforValidation(current, validables) {
 	var text1 = $(current).parent().prev('td').prev('td').children(validables);
 	var text2 = $(current).parent().prev('td').children(validables);
+	var costTexts = $(current).parent().parent().find(".cost-field");
 	if ($(current).is(':checked')) {
 		text1.addClass("checked");
 		text2.addClass("checked");
+		costTexts.addClass("checked");
 	} else {
 		text1.removeClass("checked");
 		text2.removeClass("checked");
+		costTexts.removeClass("checked");
 		text1.parent().css("background-color", "");
 		text2.parent().css("background-color", "");
 		text1.css("background-color", "");

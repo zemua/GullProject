@@ -15,11 +15,16 @@ public class PvpMapperByAssignedLineAbstractImpl implements PvpMapperByAssignedL
 	
 	@Override
 	public PvperLinea findBy(String counterLineId, String pvpId) {
+		PvperLinea defecto = new PvperLinea();
+		defecto.setMargen(0);
+		defecto.setPvp(0);
+		defecto.setPvperId(pvpId);
+		
 		var pvp = lineFinder.findBy(counterLineId).stream().filter(l -> l.getPvp().getPvperId().equals(pvpId)).findAny();
 		if (pvp.isPresent()) {
 			return pvp.get().getPvp();
 		} else {
-			return null;
+			return defecto;
 		}
 	}
 
