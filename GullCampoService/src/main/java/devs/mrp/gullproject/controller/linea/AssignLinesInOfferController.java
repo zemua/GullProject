@@ -32,6 +32,8 @@ import devs.mrp.gullproject.service.linea.oferta.PvpMapperByCounterLineFactory;
 import devs.mrp.gullproject.service.linea.oferta.PvpMarginMapperByCounterIdFactory;
 import devs.mrp.gullproject.service.linea.oferta.PvpSumByCounterIdFactory;
 import devs.mrp.gullproject.service.linea.oferta.PvpSumForLineFinder;
+import devs.mrp.gullproject.service.linea.oferta.pvpmapper.PvpMapperByAssignedLineAbstractFactory;
+import devs.mrp.gullproject.service.linea.oferta.pvpmapper.SumMapperByAssignedLineAbstractFactory;
 import devs.mrp.gullproject.service.linea.proveedor.CostMapperByIdFactory;
 import devs.mrp.gullproject.service.linea.proveedor.CostRemapperUtilities;
 import devs.mrp.gullproject.service.linea.proveedor.SupplierLineMapperByPropAndAssignedLineFactory;
@@ -47,15 +49,15 @@ import reactor.core.publisher.Mono;
 public class AssignLinesInOfferController extends LineaControllerSetup {
 
 	@Autowired SupplierLineMapperByPropAndAssignedLineFactory supplierLineMapperByPropProvIdAndCounterLineId;
-	@Autowired PvpMapperByCounterLineFactory<Linea> pvpMapper;
-	@Autowired PvpMarginMapperByCounterIdFactory marginMapper;
-	@Autowired PvpSumByCounterIdFactory sumMapper;
 	@Autowired FromPropuestaToOfertaFactory ofertaConverter;
 	@Autowired ProposalCostNameMapperFromPvpFactory costFromPvpMapper;
 	@Autowired FromPropuestaToProveedorFactory proveedorFactory;
 	@Autowired CostMapperByIdFactory lineCostByCostIdMapper;
 	@Autowired SelectableLinesWrapBuilder selectableLinesWrapBuilder;
 	@Autowired LineaOfferService lineaOfertaService;
+	@Autowired PvpMapperByAssignedLineAbstractFactory pvperMapper;
+	@Autowired SumMapperByAssignedLineAbstractFactory pvperSumMapper;
+	@Autowired SelectableLineFactory selectableFactory;
 	
 	public AssignLinesInOfferController(LineaService lineaService, ConsultaService consultaService,
 			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities,
@@ -88,8 +90,10 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 				})
 				.then(lineaOfertaService.findByPropuesta(propuesta.getId()).collectList())
 				.map(ofertaLineList -> {
-					var pvpMapper = pvpMapperByLineFactory.from(ofertaLineList);
+					var pvpMapper = pvperMapper.from(ofertaLineList);
+					var sumMapper = pvperSumMapper.from(propuesta, ofertaLineList);
 					model.addAttribute("pvpMapper", pvpMapper);
+					model.addAttribute("sumMapper", sumMapper);
 					return true;
 				})
 				;
@@ -120,8 +124,7 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 						.flatMap(offerLines -> {
 							model.addAttribute("propuestaNuestra", propuestaNuestra);
 							model.addAttribute("pvps", propuestaNuestra.getPvps());
-							model.addAttribute("pvpMapper", pvpMapper.from(offerLines));
-							model.addAttribute("marginMapper", marginMapper.from(offerLines));
+							model.addAttribute("pvpMapper", pvperMapper.from(offerLines));
 							return lineaService.findByPropuestaId(propuestaNuestra.getForProposalId())
 								.collectList()
 								.map(customerLinesList -> {
@@ -129,7 +132,7 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 									model.addAttribute("propuestaCliente", propuestaCliente);
 									model.addAttribute("lineasCliente", customerLinesList);
 									// TODO construct wrap from customer lines and offer lines
-									model.addAttribute("selectableLinesWrap", selectableLinesWrapBuilder.from(customerLinesList, offerLines, propuestaNuestra));
+									model.addAttribute("selectableLinesWrap", selectableLinesWrapBuilder.from(customerLinesList, selectableFactory.from(offerLines), propuestaNuestra));
 									return true;
 								});
 						})
