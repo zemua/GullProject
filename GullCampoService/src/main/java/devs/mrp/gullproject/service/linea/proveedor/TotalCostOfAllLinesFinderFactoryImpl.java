@@ -10,7 +10,7 @@ import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
 import devs.mrp.gullproject.service.propuesta.proveedor.ProposalCostNameMapperFromPvp;
 
 @Service
-public class TotalCostOfAllLinesFinderFactoryImpl implements TotalCostOfAllLinesFinderFactory { // TODO test
+public class TotalCostOfAllLinesFinderFactoryImpl implements TotalCostOfAllLinesFinderFactory {
 
 	@Override
 	public TotalCostOfAllLinesFinder from(MyFinder<List<IdName>, String> proposalCostMapper,

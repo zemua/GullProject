@@ -9,7 +9,7 @@ import devs.mrp.gullproject.ainterfaces.MyFinder;
 import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
 import devs.mrp.gullproject.service.propuesta.proveedor.ProposalCostNameMapperFromPvp;
 
-public class TotalCostOfAllLinesFinderImpl implements TotalCostOfAllLinesFinder { // TODO test
+public class TotalCostOfAllLinesFinderImpl implements TotalCostOfAllLinesFinder {
 
 	private MyFinder<List<IdName>, String> proposalCostMapper;
 	private MyMapperByDupla<Double, String, String> lineCostMapper;
