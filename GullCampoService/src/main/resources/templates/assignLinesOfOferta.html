@@ -59,7 +59,7 @@
 					<td><span th:text="${a.nombre}" th:class="${'filter-index0'}"></span></td>
 					<td th:each="t, tstat : ${propuestaCliente.getAttributeColumns()}"><span th:text="${a.operations().getValueByAttId(t.getId())}" th:class="${'filter-index' + (tstat.index + 1)}"></span></td>
 					<th:block th:each="pvp, pvpstat : ${propuestaNuestra.getPvps()}">
-					<td th:each="cost : ${proposalCostMapperToPVp.findBy(pvp.id)}"><span th:text="${lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) > 0 ? lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) : ''}" th:class="${'cost-field cost-margin-input-field-' + astat.index + '-' + pvpstat.index + ' cost-pvp-input-field-' + astat.index + '-' + pvpstat.index}"></span></td>
+					<td th:each="cost : ${proposalCostMapperToPVp.findBy(pvp.id)}"><span th:text="${lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) > 0 ? lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) : ''}" th:class="${'cost-field is-double-checkable cost-margin-input-field-' + astat.index + '-' + pvpstat.index + ' cost-pvp-input-field-' + astat.index + '-' + pvpstat.index + ' costbreakdown-tot-pvp' + pvpstat.index + ' cost-slavecheck' + pvpstat.index}"></span></td>
 					<td class="field nopadding">
 						<input type="text" th:field="*{lineas[__${astat.index + lineasCliente.size() * pvpstat.index}__].pvp.margen}" th:text="${pvpMapper.findBy(a.id, pvp.id).margen > 0 ? pvpMapper.findBy(a.id, pvp.id).margen : ''}" th:id="${'margin-input-field-' + astat.index + '-' + pvpstat.index}" th:class="${'noborders field-text is-double-checkable width100 margin-input-field margin-index' + pvpstat.index + ' margin-pvp-input-field-' + astat.index + '-' + pvpstat.index}">
 					</td>
@@ -68,7 +68,7 @@
 						<input type="hidden" th:field="*{lineas[__${astat.index + lineasCliente.size() * pvpstat.index}__].pvp.pvperId}">
 					</td>
 					<td>
-						<input type="checkbox" th:field="*{lineas[__${astat.index + lineasCliente.size() * pvpstat.index}__].selected}" th:class="${'slavecheck check-index' + pvpstat.index}">
+						<input type="checkbox" th:id="${'slavecheck' + pvpstat.index}" th:field="*{lineas[__${astat.index + lineasCliente.size() * pvpstat.index}__].selected}" th:class="${'slavecheck check-index' + pvpstat.index + ' check-tot-pvp' + pvpstat.index}">
 						<input type="hidden" th:field="*{lineas[__${astat.index + lineasCliente.size() * pvpstat.index}__].id}">
 						<input type="hidden" th:field="*{lineas[__${astat.index + lineasCliente.size() * pvpstat.index}__].nombre}">
 						<input type="hidden" th:field="*{lineas[__${astat.index + lineasCliente.size() * pvpstat.index}__].propuestaId}">
@@ -87,7 +87,7 @@
 				<tr>
 					<td class="noborders texto-izquierda" th:colspan="${propuestaCliente.getAttributeColumns().size() + 1}"></td>
 					<th:block th:each="pvp, pvpstat : ${propuestaNuestra.getPvps()}">
-					<td th:colspan="${proposalCostMapperToPVp.findBy(pvp.id).size()}"><span th:text="${totalCostMapper.forPvp(pvp.id)}" th:class="${'cost-tot-pvp' + pvpstat.index}"></span></td>
+					<td th:colspan="${proposalCostMapperToPVp.findBy(pvp.id).size()}"><span th:text="${totalCostMapper.forPvp(pvp.id)}" th:class="${'texto-centro cost-tot-pvp' + pvpstat.index}"></span></td>
 					<td><span th:class="${'margin-tot-pvp' + pvpstat.index}"></span></td>
 					<td class="pvp-totaller" colspan="2" th:id="${'tot-pvp' + pvpstat.index}"><span></span></td>
 					</th:block>

@@ -10,15 +10,33 @@ function updateMargin(pvpHolder) {
 	}
 }
 
-function reload() {
-	var sumatorios = $(".pvp-totaller");
-	sumatorios.each(function() {
-		var label = $(this).prop("id");
-		var pvps = $("." + label);
-		var amount = totalAmount(pvps);
-		$(this).children().first().text(amount);
-		updateMargin($(this));
+function reload(sumatorioEl) {
+	var label = sumatorioEl.prop("id");
+	var pvps = $("." + label + ".checked");
+	var amount = totalAmount(pvps);
+	sumatorioEl.children().first().text(amount);
+	updateMargin(sumatorioEl);
+}
+
+function match(sumatorioEl) {
+	var label = sumatorioEl.prop("id");
+	var pvps = $("." + label);
+	var costs = $(".costbreakdown-" + label);
+	var totMargin = $(".margin-" + label).first();
+	var totCost = $(".cost-" + label).first();
+	
+	var totalCost = getTotalCost(costs.filter(".checked"));
+	totCost.text(totalCost);
+	var totalPvp = Number(sumatorioEl.children().first().text());
+	updateMargin(sumatorioEl);
+}
+
+function getTotalCost(costs) {
+	var resultado = 0;
+	costs.each(function() {
+		resultado += Number($(this).text());
 	});
+	return resultado;
 }
 
 function totalAmount(pvps) {
@@ -39,11 +57,20 @@ $(document).ready(function() {
 		var label = $(this).prop("id");
 		var pvps = $("." + label);
 		pvps.on("input", function() {
-			var amount = totalAmount(pvps);
-			sumatorioEl.children().first().text(amount);
-			updateMargin(sumatorioEl);
+			reload(sumatorioEl);
+			match(sumatorioEl);
+		});
+		reload(sumatorioEl);
+		match(sumatorioEl);
+		pvps.each(function() {
+			var tag = $(this).prop("id");
+			var marginEl = $(".margin-" + tag).first();
+			marginEl.on("input", function() {reload(sumatorioEl)});
+		});
+		var checkboxes = $(".check-" + label);
+		checkboxes.on('change', function() {
+			reload(sumatorioEl);
+			match(sumatorioEl);
 		});
 	});
-	reload();
-	$(".margin-input-field").on("input", function() {reload()});
 });

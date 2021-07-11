@@ -23,15 +23,13 @@ function markAdjacentDoublesForValidation(slavecheckbox, validables){
 	});
 	
 	// in case a checkbox is checked on load do it once on start
-	boxes.each(function() {
-		setupClassesforValidation(this, validables);
-	});
+	boxes.trigger('change');
 }
 
 function setupClassesforValidation(current, validables) {
 	var text1 = $(current).parent().prev('td').prev('td').children(validables);
 	var text2 = $(current).parent().prev('td').children(validables);
-	var costTexts = $(current).parent().parent().find(".cost-field");
+	var costTexts = $(current).parent().parent().find(".cost-" + $(current).prop("id"));
 	if ($(current).is(':checked')) {
 		text1.addClass("checked");
 		text2.addClass("checked");
