@@ -10,7 +10,7 @@ import devs.mrp.gullproject.domains.linea.abs.LineaAbstracta;
 import devs.mrp.gullproject.domains.propuestas.PropuestaNuestra;
 import devs.mrp.gullproject.service.linea.AbstLineFinder;
 
-public class SumMapperByAssignedLineAbstractImpl implements SumMapperByAssignedLineAbstract { // TODO test
+public class SumMapperByAssignedLineAbstractImpl implements SumMapperByAssignedLineAbstract {
 
 	private PropuestaNuestra propuestaNuestra;
 	private AbstLineFinder abstLineFinder;

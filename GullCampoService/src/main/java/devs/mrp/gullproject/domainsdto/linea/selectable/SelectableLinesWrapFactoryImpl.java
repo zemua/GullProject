@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class SelectableLinesWrapFactoryImpl implements SelectableLinesWrapFactory { // TODO test
+public class SelectableLinesWrapFactoryImpl implements SelectableLinesWrapFactory {
 
 	@Autowired SelectableLineFactory factory;
 	

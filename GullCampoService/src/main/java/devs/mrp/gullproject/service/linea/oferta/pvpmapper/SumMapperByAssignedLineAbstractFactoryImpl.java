@@ -10,7 +10,7 @@ import devs.mrp.gullproject.domains.propuestas.PropuestaNuestra;
 import devs.mrp.gullproject.service.linea.AbstLineFinderFactory;
 
 @Service
-public class SumMapperByAssignedLineAbstractFactoryImpl implements SumMapperByAssignedLineAbstractFactory { // TODO test
+public class SumMapperByAssignedLineAbstractFactoryImpl implements SumMapperByAssignedLineAbstractFactory {
 
 	@Autowired AbstLineFinderFactory factory;
 	
