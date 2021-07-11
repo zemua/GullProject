@@ -40,13 +40,18 @@ function setPvp(marginEl, cost) {
 	var tag = marginEl.prop("id");
 	var pvpEl = $(".pvp-" + tag).first();
 	var margin = Number(marginEl.val());
-	if (margin < 100 && margin >= 0) {
+	if (margin < 100) {
 		var pvp = (cost/(1-(margin/100)));
 		pvp = pvp.toFixed(2);
 		pvpEl.val(pvp);
 		resize(pvpEl);
-		marginEl.parent().css("background-color", "");
-		marginEl.css("background-color", "");
+		if (margin >= 0) {
+			marginEl.parent().css("background-color", "");
+			marginEl.css("background-color", "");
+		} else {
+			marginEl.parent().css("background-color", "red");
+			marginEl.css("background-color", "red");
+		}
 	} else {
 		marginEl.parent().css("background-color", "red");
 		marginEl.css("background-color", "red");

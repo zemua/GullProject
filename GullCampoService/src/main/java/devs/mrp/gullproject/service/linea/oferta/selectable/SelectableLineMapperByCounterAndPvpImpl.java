@@ -4,7 +4,7 @@ import java.util.List;
 
 import devs.mrp.gullproject.domainsdto.linea.selectable.SelectableAbstractLine;
 
-public class SelectableLineMapperByCounterAndPvpImpl implements SelectableLineMapperByCounterAndPvp { // TODO test
+public class SelectableLineMapperByCounterAndPvpImpl implements SelectableLineMapperByCounterAndPvp {
 
 	private SelectableAbstractLineFinderByCounter finder;
 	

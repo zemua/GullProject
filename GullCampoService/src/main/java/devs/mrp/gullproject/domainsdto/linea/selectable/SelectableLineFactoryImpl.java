@@ -10,7 +10,7 @@ import devs.mrp.gullproject.domains.linea.abs.LineaAbstracta;
 import devs.mrp.gullproject.domains.linea.abs.LineaAbstractaFactory;
 
 @Service
-public class SelectableLineFactoryImpl implements SelectableLineFactory { // TODO test
+public class SelectableLineFactoryImpl implements SelectableLineFactory {
 
 	@Override
 	public SelectableAbstractLine create() {

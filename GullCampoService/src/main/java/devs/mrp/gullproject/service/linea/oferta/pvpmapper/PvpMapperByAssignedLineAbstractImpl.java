@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 import devs.mrp.gullproject.domains.linea.PvperLinea;
 import devs.mrp.gullproject.service.linea.AbstLineFinder;
 
-public class PvpMapperByAssignedLineAbstractImpl implements PvpMapperByAssignedLineAbstract { // TODO test
+public class PvpMapperByAssignedLineAbstractImpl implements PvpMapperByAssignedLineAbstract {
 
 	private AbstLineFinder lineFinder;
 	

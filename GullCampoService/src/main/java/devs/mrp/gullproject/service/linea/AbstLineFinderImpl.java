@@ -21,7 +21,7 @@ public class AbstLineFinderImpl implements AbstLineFinder {
 	public List<LineaAbstracta> findBy(String counterLineId) {
 		List<LineaAbstracta> resultado;
 		if (!byCounterMap.containsKey(counterLineId)) {
-			resultado = this.lineas.stream().filter(l -> l.getCounterLineId().equals(counterLineId)).collect(Collectors.toList());
+			resultado = this.lineas.stream().filter(l -> l.getCounterLineId() != null && l.getCounterLineId().equals(counterLineId)).collect(Collectors.toList());
 			byCounterMap.put(counterLineId, resultado);
 		} else {
 			resultado = byCounterMap.get(counterLineId);

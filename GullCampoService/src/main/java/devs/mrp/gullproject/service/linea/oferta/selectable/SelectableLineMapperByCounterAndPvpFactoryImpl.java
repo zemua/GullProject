@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import devs.mrp.gullproject.domainsdto.linea.selectable.SelectableAbstractLine;
 
 @Service
-public class SelectableLineMapperByCounterAndPvpFactoryImpl implements SelectableLineMapperByCounterAndPvpFactory { // TODO test
+public class SelectableLineMapperByCounterAndPvpFactoryImpl implements SelectableLineMapperByCounterAndPvpFactory {
 
 	@Autowired SelectableAbstractLineFinderByCounterFactory factory;
 	

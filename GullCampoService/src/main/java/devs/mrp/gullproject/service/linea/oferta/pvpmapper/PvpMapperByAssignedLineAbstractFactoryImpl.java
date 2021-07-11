@@ -9,7 +9,7 @@ import devs.mrp.gullproject.domains.linea.abs.LineaAbstracta;
 import devs.mrp.gullproject.service.linea.AbstLineFinderFactory;
 
 @Service
-public class PvpMapperByAssignedLineAbstractFactoryImpl implements PvpMapperByAssignedLineAbstractFactory { // TODO test
+public class PvpMapperByAssignedLineAbstractFactoryImpl implements PvpMapperByAssignedLineAbstractFactory {
 
 	@Autowired AbstLineFinderFactory factory;
 	

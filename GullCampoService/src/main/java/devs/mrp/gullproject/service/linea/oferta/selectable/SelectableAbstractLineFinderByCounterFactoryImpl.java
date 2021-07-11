@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import devs.mrp.gullproject.domainsdto.linea.selectable.SelectableAbstractLine;
 
 @Service
-public class SelectableAbstractLineFinderByCounterFactoryImpl implements SelectableAbstractLineFinderByCounterFactory { // TODO test
+public class SelectableAbstractLineFinderByCounterFactoryImpl implements SelectableAbstractLineFinderByCounterFactory {
 
 	@Override
 	public SelectableAbstractLineFinderByCounter from(List<SelectableAbstractLine> lineas) {
