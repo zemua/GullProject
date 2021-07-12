@@ -43,8 +43,10 @@ import devs.mrp.gullproject.service.propuesta.proveedor.FromPropuestaToProveedor
 import devs.mrp.gullproject.service.propuesta.proveedor.ProposalCostNameMapperFromPvpFactory;
 import devs.mrp.gullproject.service.propuesta.proveedor.PropuestaProveedorExtractorNoFlux;
 import devs.mrp.gullproject.service.propuesta.proveedor.PropuestaProveedorUtilities;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Controller
 @RequestMapping(path = "/lineas")
 public class AssignLinesInOfferController extends LineaControllerSetup {
@@ -74,14 +76,17 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 	public Mono<String> showAllLinesOfOferta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		return consultaService.findConsultaByPropuestaId(propuestaId)
 		.flatMap(rCons -> {
+			log.debug("consulta: " + rCons.toString());
 			var ops = rCons.operations();
 			PropuestaNuestra propuesta = (PropuestaNuestra)ops.getPropuestaById(propuestaId);
+			log.debug("propuestaNuestra: " + propuesta.toString());
 			Propuesta propCliente = ops.getPropuestaById(propuesta.getForProposalId());
+			log.debug("propuestaCliente: " + propCliente.toString());
 			
 			model.addAttribute("propuesta", propuesta);
 			model.addAttribute("consulta", rCons);
 			model.addAttribute("propCliente", propCliente);
-			model.addAttribute("lineasCliente", lineaService.findByPropuestaId(propCliente.getId()));
+			model.addAttribute("lineasCliente", new ReactiveDataDriverContextVariable(lineaService.findByPropuestaId(propCliente.getId()), 1));
 			
 			return supplierLineFinderByProposalAssignation.findBy(propCliente.getId())
 				.collectList()
@@ -103,7 +108,7 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 		.then(Mono.just("showAllLineasOfOferta"));
 	}
 
-	@GetMapping("/allof/ofertaid/{propuestaId}/assign") // TODO test
+	@GetMapping("/allof/ofertaid/{propuestaId}/assign")
 	public Mono<String> assignLinesOfOferta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		return consultaService.findConsultaByPropuestaId(propuestaId)
 				.flatMap(rConsulta -> {
