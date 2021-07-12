@@ -1,20 +1,20 @@
-function forceDouble(klase, forn, boton, type) {
+function forceDouble(klase, forn, boton) {
 	var formulario = $(forn);
 	var button = $(boton);
 	button.click(function(event) {
 		event.preventDefault();
-		if (validateDouble(klase, type) && validateMargins(klase)) {
+		if (validateDouble(klase) && validateMargins(klase)) {
 			formulario.submit();
 		}
 	});
 }
 
-function validateDouble(klase, type) {
+function validateDouble(klase) {
 	var valores = $(klase);
 	var resultado = true;
 	valores.each(function(){
 		var content;
-		if (type === "text") {
+		if ($(this).is("span")) {
 			$(this).text($(this).text().replace(",", "."));
 			content = $(this).text();
 		} else {
@@ -22,7 +22,7 @@ function validateDouble(klase, type) {
 			content = $(this).val();
 		}
 		//this.dispatchEvent(new Event('input'));
-		if (!$.isNumeric(content)){
+		if (!$.isNumeric(content) && content.trim() != ""){
 			$(this).parent().css("background-color", "red");
 			$(this).css("background-color", "red");
 			resultado = false;
@@ -39,7 +39,7 @@ function validateMargins(klase){
 	var result = true;
 	margins.each(function(){
 		var valor = Number($(this).val());
-		if (valor >= 100) {
+		if (valor >= 100 || valor < 0) {
 			$(this).parent().css("background-color", "red");
 			$(this).css("background-color", "red");
 			result = false;
@@ -49,6 +49,6 @@ function validateMargins(klase){
 }
 
 $(document).ready(function() {
-	forceDouble(".is-double", "#val-form", "#submit-button", "text");
-	forceDouble(".is-double-checkable.checked", "#val-form-checkable", "#submit-button-checkable", "val");
+	forceDouble(".is-double", "#val-form", "#submit-button");
+	forceDouble(".is-double-checkable.checked", "#val-form-checkable", "#submit-button-checkable");
 });

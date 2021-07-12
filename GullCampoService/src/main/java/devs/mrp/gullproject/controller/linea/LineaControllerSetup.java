@@ -4,13 +4,17 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import devs.mrp.gullproject.ainterfaces.MyFactoryFromTo;
 import devs.mrp.gullproject.ainterfaces.MyFinder;
 import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
+import devs.mrp.gullproject.controller.pojos.SelectableLinesWrapPojo;
+import devs.mrp.gullproject.controller.pojos.SelectableLinesWrapPojoConverter;
 import devs.mrp.gullproject.domains.linea.Linea;
 import devs.mrp.gullproject.domains.linea.LineaFactory;
+import devs.mrp.gullproject.domainsdto.linea.selectable.SelectableLinesWrap;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.AttRemaperUtilities;
 import devs.mrp.gullproject.service.ConsultaService;

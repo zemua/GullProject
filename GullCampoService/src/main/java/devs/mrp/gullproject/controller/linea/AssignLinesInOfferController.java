@@ -5,17 +5,25 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
 import devs.mrp.gullproject.ainterfaces.MyListOfAsignables;
 import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
+import devs.mrp.gullproject.controller.pojos.SelectableLinesWrapPojo;
+import devs.mrp.gullproject.controller.pojos.SelectableLinesWrapPojoConverter;
 import devs.mrp.gullproject.domains.linea.Linea;
 import devs.mrp.gullproject.domains.propuestas.Propuesta;
 import devs.mrp.gullproject.domains.propuestas.PropuestaNuestra;
 import devs.mrp.gullproject.domainsdto.linea.selectable.SelectableLineFactory;
+import devs.mrp.gullproject.domainsdto.linea.selectable.SelectableLinesWrap;
 import devs.mrp.gullproject.domainsdto.linea.selectable.SelectableLinesWrapBuilder;
 import devs.mrp.gullproject.domainsdto.linea.selectable.SelectableLinesWrapFactory;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
@@ -63,6 +71,8 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 	@Autowired SelectableLineFactory selectableFactory;
 	@Autowired TotalCostOfAllLinesFinderFactory totalCostMapperFactory;
 	
+	@Autowired SelectableLinesWrapPojoConverter wrapSelectablePojoConverter;
+	
 	public AssignLinesInOfferController(LineaService lineaService, ConsultaService consultaService,
 			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities,
 			AttRemaperUtilities attRemaperUtilities, CostRemapperUtilities costRemapperUtilities,
@@ -70,6 +80,11 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 			SupplierLineFinderByProposalAssignation finder) {
 		super(lineaService, consultaService, atributoService, lineaUtilities, attRemaperUtilities, costRemapperUtilities,
 				propuestaProveedorUtilities, finder);
+	}
+	
+	@InitBinder("selectablewrap")
+	public SelectableLinesWrap initSelectableLinesWrap(WebDataBinder binder) { // TODO
+		return wrapSelectablePojoConverter.fromPojo(pojo);
 	}
 	
 	@GetMapping("/allof/ofertaid/{propuestaId}")
@@ -152,6 +167,12 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 						;
 				})
 		.then(Mono.just("assignLinesOfOferta"));
+	}
+	
+	@PostMapping("/allof/ofertaid/{propuestaId}/assign")
+	public Mono<String> processAssignLinesOfOferta(@ModelAttribute("selectablewrap") SelectableLinesWrap selectableLinesWrap, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+		
+		return Mono.empty();
 	}
 	
 }
