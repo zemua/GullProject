@@ -35,7 +35,7 @@ import devs.mrp.gullproject.repository.LineaOfertaRepo;
 import devs.mrp.gullproject.repository.LineaRepo;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.ConsultaService;
-import devs.mrp.gullproject.service.LineaOfferService;
+import devs.mrp.gullproject.service.linea.LineaOfferService;
 import devs.mrp.gullproject.service.linea.LineaService;
 import lombok.extern.slf4j.Slf4j;
 

@@ -1,4 +1,4 @@
-package devs.mrp.gullproject.service;
+package devs.mrp.gullproject.service.linea;
 
 import java.util.List;
 

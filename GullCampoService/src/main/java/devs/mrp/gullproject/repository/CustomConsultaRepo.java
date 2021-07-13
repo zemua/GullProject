@@ -31,6 +31,8 @@ public interface CustomConsultaRepo {
 	
 	public Mono<Consulta> updateLineasDeUnaPropuesta(String idConsulta, Propuesta propuesta);
 	
+	public Mono<Consulta> updateLineasDeUnaPropuesta(String idPropuesta, List<String> lineas);
+	
 	public Mono<Long> updateLineasDeVariasPropuestas(String idConsulta, Flux<Propuesta> propuestas);
 	
 	public Mono<Consulta> updateUnaPropuesta(String idConsulta, Propuesta propuesta);

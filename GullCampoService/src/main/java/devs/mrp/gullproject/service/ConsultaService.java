@@ -301,4 +301,8 @@ public class ConsultaService {
 		List<PvperSum> sums = wrapper.getSums().stream().filter(s -> !s.isSelected()).map(s -> modelMapper.map(s, PvperSum.class)).collect(Collectors.toList());
 		return updatePvpSumsOfPropuesta(idPropuesta, sums);
 	}
+	
+	public Mono<Consulta> updateLineasDePropuesta(String propuestaId, List<String> lineas) {
+		return consultaRepo.updateLineasDeUnaPropuesta(propuestaId, lineas);
+	}
 }

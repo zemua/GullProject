@@ -110,6 +110,14 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 	}
 	
 	@Override
+	public Mono<Consulta> updateLineasDeUnaPropuesta(String idPropuesta, List<String> lineas) { // TODO test
+		Query query = new Query(Criteria.where("propuestas.id").is(idPropuesta));
+		Update update = new Update().set("propuestas.$.lineaIds", lineas);
+		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
+		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
+	}
+	
+	@Override
 	public Mono<Long> updateLineasDeVariasPropuestas(String idConsulta, Flux<Propuesta> propuestas) {
 		return propuestas.flatMap(c -> mongoTemplate.findAndModify(
 				new Query(Criteria.where("id").is(idConsulta).and("propuestas.id").is(c.getId())),

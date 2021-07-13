@@ -37,6 +37,7 @@ public class SelectableLinesWrapBuilderImpl implements SelectableLinesWrapBuilde
 				SelectableAbstractLine linea = mapper.findBy(sLineaCliente.getId(), sPvp.getId());
 				if (linea == null) {
 					linea = lineFactory.create();
+					linea.setSelected(false);
 					linea.setCounterLineId(sLineaCliente.getId());
 					linea.setPvp(new PvperLinea());
 					linea.getPvp().setPvperId(sPvp.getId());
@@ -44,6 +45,8 @@ public class SelectableLinesWrapBuilderImpl implements SelectableLinesWrapBuilde
 					linea.getPvp().setPvp(0);
 					linea.setNombre("");
 					linea.setQty(sLineaCliente.getQty());
+				} else {
+					linea.setSelected(true);
 				}
 				linea.setOrder(order.getAndIncrement());
 				wrap.getLineas().add(linea);

@@ -25,10 +25,11 @@ import devs.mrp.gullproject.domainsdto.linea.selectable.SelectableLinesWrapBuild
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.AttRemaperUtilities;
 import devs.mrp.gullproject.service.ConsultaService;
-import devs.mrp.gullproject.service.LineaOfferService;
+import devs.mrp.gullproject.service.facade.OfferAndLinesServiceFacade;
 import devs.mrp.gullproject.service.facade.SupplierLineFinderByProposalAssignation;
 import devs.mrp.gullproject.service.linea.CustomerLineToCostMapper;
 import devs.mrp.gullproject.service.linea.LineByAssignationRetriever;
+import devs.mrp.gullproject.service.linea.LineaOfferService;
 import devs.mrp.gullproject.service.linea.LineaService;
 import devs.mrp.gullproject.service.linea.LineaUtilities;
 import devs.mrp.gullproject.service.linea.oferta.pvpmapper.PvpMapperByAssignedLineAbstractFactory;
@@ -69,6 +70,7 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 	@Autowired SelectableLinesWrapPojoConverter wrapSelectablePojoConverter;
 	@Autowired AttributesExtractor attributesExtractor;
 	@Autowired LineReConstructor lineReconstructor;
+	@Autowired OfferAndLinesServiceFacade offerLinesFacade;
 	
 	public AssignLinesInOfferController(LineaService lineaService, ConsultaService consultaService,
 			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities,
@@ -183,8 +185,8 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 				// OFFER LINES
 						var atributos = attributesExtractor.fromProposals(consultaOps.getPropuestasProveedorAssignedTo(propuestaNuestra.getForProposalId()));
 						var lineasOferta = lineReconstructor.from(selectableLinesWrap, concatenator, atributos, propuestaNuestra.getId());
-						return lineaOfertaService.clearAllLinesOfOferta(propuestaId)
-								.thenMany(lineaOfertaService.saveAll(lineasOferta))
+						return offerLinesFacade.clearAllLinesOfOffer(propuestaId)
+								.thenMany(offerLinesFacade.saveAll(propuestaNuestra.getId(), lineasOferta))
 								.collectList()
 								.flatMap(offerLines -> {
 									model.addAttribute("lineas", offerLines);
