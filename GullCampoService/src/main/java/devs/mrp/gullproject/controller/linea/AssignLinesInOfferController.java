@@ -82,8 +82,9 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 				propuestaProveedorUtilities, finder);
 	}
 	
-	@InitBinder("selectablewrap")
-	public SelectableLinesWrap initSelectableLinesWrap(WebDataBinder binder) { // TODO
+	@ModelAttribute("selectableLinesWrap")
+	public SelectableLinesWrap getSelectableLinesWrap(SelectableLinesWrapPojo pojo) {
+		if (pojo.getLineas() == null) {return null;}
 		return wrapSelectablePojoConverter.fromPojo(pojo);
 	}
 	
@@ -170,7 +171,7 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 	}
 	
 	@PostMapping("/allof/ofertaid/{propuestaId}/assign")
-	public Mono<String> processAssignLinesOfOferta(@ModelAttribute("selectablewrap") SelectableLinesWrap selectableLinesWrap, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+	public Mono<String> processAssignLinesOfOferta(@ModelAttribute("selectableLinesWrap") SelectableLinesWrap selectableLinesWrap, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		
 		return Mono.empty();
 	}
