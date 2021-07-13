@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import devs.mrp.gullproject.domains.linea.Linea;
 
-public class LinesMapperByCounterIdImpl implements LinesMapperByCounterId { // TODO test
+public class LinesMapperByCounterIdImpl implements LinesMapperByCounterId {
 
 	private List<Linea> lineas;
 	private Map<String, List<Linea>> map;

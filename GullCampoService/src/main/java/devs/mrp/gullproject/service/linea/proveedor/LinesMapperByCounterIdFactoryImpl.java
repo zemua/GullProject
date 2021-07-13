@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import devs.mrp.gullproject.domains.linea.Linea;
 
 @Service
-public class LinesMapperByCounterIdFactoryImpl implements LinesMapperByCounterIdFactory { // TODO test
+public class LinesMapperByCounterIdFactoryImpl implements LinesMapperByCounterIdFactory {
 
 	@Override
 	public LinesMapperByCounterId from(List<Linea> lineas) {

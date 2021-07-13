@@ -1,5 +1,7 @@
 package devs.mrp.gullproject.service.linea.proveedor;
 
+import devs.mrp.gullproject.domains.linea.Linea;
+
 public class LineAttributeConcatenatorImpl implements LineAttributeConcatenator {
 
 	private LinesMapperByCounterId linesMapper;
@@ -9,9 +11,21 @@ public class LineAttributeConcatenatorImpl implements LineAttributeConcatenator 
 	}
 	
 	@Override
-	public String forAtt(String attId) {
-		// TODO Auto-generated method stub
-		return null;
+	public String forLineAtt(String counterLineId, String attId) {
+		StringBuilder builder = new StringBuilder();
+		linesMapper.forCounter(counterLineId)
+			.stream().forEach(l -> {
+				var appender = getAtt(l, attId);
+				if (!appender.isEmpty() && !builder.toString().isEmpty()) {
+					builder.append(" / ");
+				}
+				builder.append(appender);
+			});
+		return builder.toString();
+	}
+	
+	private String getAtt(Linea linea, String attId) {
+		return linea.getCampos().stream().filter(c -> c.getAtributoId().equals(attId)).map(c -> c.getDatosText()).findAny().orElse("");
 	}
 
 }

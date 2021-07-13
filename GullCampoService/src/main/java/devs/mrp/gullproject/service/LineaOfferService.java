@@ -1,5 +1,7 @@
 package devs.mrp.gullproject.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +25,14 @@ public class LineaOfferService {
 	
 	public Mono<LineaAbstracta> updateOrAddLinea(LineaAbstracta linea) {
 		return repo.save(linea);
+	}
+	
+	public Mono<Void> clearAllLinesOfOferta(String ofertaId) {
+		return repo.deleteAllByPropuestaId(ofertaId);
+	}
+	
+	public Flux<LineaAbstracta> saveAll(List<LineaAbstracta> lineas){
+		return repo.saveAll(lineas);
 	}
 	
 }
