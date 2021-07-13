@@ -172,8 +172,43 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 	
 	@PostMapping("/allof/ofertaid/{propuestaId}/assign")
 	public Mono<String> processAssignLinesOfOferta(@ModelAttribute("selectableLinesWrap") SelectableLinesWrap selectableLinesWrap, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
-		
-		return Mono.empty();
+		consultaService.findConsultaByPropuestaId(propuestaId)
+		.flatMap(rConsulta -> {
+			model.addAttribute("consulta", rConsulta);
+			var consultaOps = rConsulta.operations();
+			var propuestaNuestra = ofertaConverter.from(consultaOps.getPropuestaById(propuestaId));
+			var propuestaCliente = consultaOps.getPropuestaById(propuestaNuestra.getForProposalId());
+			// supplier lines mapper
+			return supplierLineFinderByProposalAssignation.findBy(propuestaNuestra.getForProposalId())
+				.collectList()
+				.map(proveedorLines -> {
+					var costMapper = costFromPvpMapper.from(propuestaNuestra, consultaOps.getPropuestasProveedorAssignedTo(propuestaNuestra.getForProposalId()).stream().map(p -> proveedorFactory.from(p)).collect(Collectors.toList()));
+					var lineCostMapper = lineCostByCostIdMapper.from(proveedorLines);
+					model.addAttribute("supplierLineMapper", supplierLineMapperByPropProvIdAndCounterLineId.from(proveedorLines));
+					model.addAttribute("proposalCostMapperToPVp", costMapper);
+					model.addAttribute("lineCostByCostIdMapper", lineCostMapper);
+					return true;
+				})
+				// Offer pvps, sums, margins mappers
+				.thenMany(lineaOfertaService.findByPropuesta(propuestaId))
+				.collectList()
+				.flatMap(offerLines -> {
+					model.addAttribute("propuestaNuestra", propuestaNuestra);
+					model.addAttribute("pvps", propuestaNuestra.getPvps());
+					model.addAttribute("pvpMapper", pvperMapper.from(offerLines));
+					return lineaService.findByPropuestaId(propuestaNuestra.getForProposalId())
+						.collectList()
+						.map(customerLinesList -> {
+				// Customer lines
+							model.addAttribute("propuestaCliente", propuestaCliente);
+							model.addAttribute("lineasCliente", customerLinesList);
+							model.addAttribute("selectableLinesWrap", selectableLinesWrapBuilder.from(customerLinesList, selectableFactory.from(offerLines), propuestaNuestra));
+							return true;
+						});
+				})
+				;
+		});
+		return Mono.just("processAssignLinesOfOferta");
 	}
 	
 }
