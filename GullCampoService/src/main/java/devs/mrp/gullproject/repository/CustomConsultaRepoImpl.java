@@ -110,7 +110,7 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 	}
 	
 	@Override
-	public Mono<Consulta> updateLineasDeUnaPropuesta(String idPropuesta, List<String> lineas) { // TODO test
+	public Mono<Consulta> updateLineasDeUnaPropuesta(String idPropuesta, List<String> lineas) {
 		Query query = new Query(Criteria.where("propuestas.id").is(idPropuesta));
 		Update update = new Update().set("propuestas.$.lineaIds", lineas);
 		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);

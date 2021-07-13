@@ -543,6 +543,42 @@ class CustomConsultaRepoImplTest {
 	}
 	
 	@Test
+	void testUpdateLineasDeUnaPropuestaSegundoMetodo() {
+		Mono<Consulta> mono = repo.findById(consulta.getId());
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals("consulta nombre", cons.getNombre());
+			assertEquals(2, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta1, cons.operations().getPropuestaByIndex(0));
+			assertEquals("nombre propuesta 1", cons.operations().getPropuestaByIndex(0).getNombre());
+			assertEquals("linea 1 id", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(0));
+			assertEquals("linea 2 id", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(1));
+		})
+		.expectComplete()
+		.verify();
+		
+		List<String> lineaIds = new ArrayList<>();
+		lineaIds.add("linea 1 id actualizado");
+		lineaIds.add("linea 2 id actualizado");
+		
+		repo.updateLineasDeUnaPropuesta(propuesta1.getId(), lineaIds).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals("consulta nombre", cons.getNombre());
+			assertEquals(2, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta1.getId(), cons.operations().getPropuestaByIndex(0).getId());
+			assertNotEquals(propuesta1, cons.operations().getPropuestaByIndex(0));
+			assertEquals("nombre propuesta 1", cons.operations().getPropuestaByIndex(0).getNombre());
+			assertEquals("linea 1 id actualizado", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(0));
+			assertEquals("linea 2 id actualizado", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(1));
+		})
+		.expectComplete()
+		.verify();
+	}
+	
+	@Test
 	void testUpdateLineasDeVariasPropuestas() {
 		Mono<Consulta> mono = repo.findById(consulta.getId());		
 		
