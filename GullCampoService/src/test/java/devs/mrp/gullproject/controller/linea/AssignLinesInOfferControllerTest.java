@@ -16,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.function.BodyInserters;
 
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.linea.Campo;
@@ -278,6 +279,93 @@ class AssignLinesInOfferControllerTest {
 					;
 			})
 			;
+	}
+	
+	@Test
+	void testProcessAssignLinesOfOferta() {
+		webTestClient.post()
+		.uri("/lineas/allof/ofertaid/" + propuestaNuestra.getId() + "/assign")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("lineas[0].pvp.margen", "2.91")
+				.with("lineas[0].pvp.pvp", "263.12")
+				.with("lineas[0].pvp.pvperId", propuestaNuestra.getPvps().get(0).getId())
+				.with("lineas[0].selected", "true")
+				.with("lineas[0].id", "idlinea1")
+				.with("lineas[0].nombre", "")
+				.with("lineas[0].propuestaId", propuestaNuestra.getId())
+				.with("lineas[0].counterLineId", lineaCliente1.getId())
+				.with("lineas[0].campos[0].id", "campo1aid")
+				.with("lineas[0].campos[0].atributoId", propuestaCliente.getAttributeColumns().get(0).getId())
+				.with("lineas[0].campos[0].datos", "datos campo 1a")
+				.with("lineas[0].campos[1].id", "campo1bid")
+				.with("lineas[0].campos[1].atributoId", propuestaCliente.getAttributeColumns().get(1).getId())
+				.with("lineas[0].campos[1].datos", "datos campo 1b")
+				
+				.with("lineas[1].pvp.margen", "3.91")
+				.with("lineas[1].pvp.pvp", "264.12")
+				.with("lineas[1].pvp.pvperId", propuestaNuestra.getPvps().get(1).getId())
+				.with("lineas[1].selected", "true")
+				.with("lineas[1].id", "idlinea2")
+				.with("lineas[1].nombre", "")
+				.with("lineas[1].propuestaId", propuestaNuestra.getId())
+				.with("lineas[1].counterLineId", lineaCliente2.getId())
+				.with("lineas[1].campos[0].id", "campo2aid")
+				.with("lineas[1].campos[0].atributoId", propuestaCliente.getAttributeColumns().get(0).getId())
+				.with("lineas[1].campos[0].datos", "datos campo 2a")
+				.with("lineas[1].campos[1].id", "campo2bid")
+				.with("lineas[1].campos[1].atributoId", propuestaCliente.getAttributeColumns().get(1).getId())
+				.with("lineas[1].campos[1].datos", "datos campo 2b")
+				
+				.with("lineas[2].pvp.margen", "4.91")
+				.with("lineas[2].pvp.pvp", "265.12")
+				.with("lineas[2].pvp.pvperId", propuestaNuestra.getPvps().get(0).getId())
+				.with("lineas[2].selected", "true")
+				.with("lineas[2].id", "idlinea3")
+				.with("lineas[2].nombre", "")
+				.with("lineas[2].propuestaId", propuestaNuestra.getId())
+				.with("lineas[2].counterLineId", lineaCliente1.getId())
+				.with("lineas[2].campos[0].id", "campo3aid")
+				.with("lineas[2].campos[0].atributoId", propuestaCliente.getAttributeColumns().get(0).getId())
+				.with("lineas[2].campos[0].datos", "datos campo 3a")
+				.with("lineas[2].campos[1].id", "campo3bid")
+				.with("lineas[2].campos[1].atributoId", propuestaCliente.getAttributeColumns().get(1).getId())
+				.with("lineas[2].campos[1].datos", "datos campo 3b")
+				
+				.with("lineas[3].pvp.margen", "5.91")
+				.with("lineas[3].pvp.pvp", "266.12")
+				.with("lineas[3].pvp.pvperId", propuestaNuestra.getPvps().get(1).getId())
+				.with("lineas[3].selected", "false")
+				.with("lineas[3].id", "idlinea4")
+				.with("lineas[3].nombre", "")
+				.with("lineas[3].propuestaId", propuestaNuestra.getId())
+				.with("lineas[3].counterLineId", lineaCliente2.getId())
+				.with("lineas[3].campos[0].id", "campo4aid")
+				.with("lineas[3].campos[0].atributoId", propuestaCliente.getAttributeColumns().get(0).getId())
+				.with("lineas[3].campos[0].datos", "datos campo 4a")
+				.with("lineas[3].campos[1].id", "campo4bid")
+				.with("lineas[3].campos[1].atributoId", propuestaCliente.getAttributeColumns().get(1).getId())
+				.with("lineas[3].campos[1].datos", "datos campo 4b")
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Gull Project - Asignar lineas de la oferta")
+					.contains("Guardando...")
+					.contains("263.12")
+					.contains("2.91")
+					.contains("3.91")
+					.contains("264.12")
+					.contains("4.91")
+					.contains("265.12")
+					.doesNotContain("5.91")
+					.doesNotContain("266.12")
+					.contains("datos campo 1 de linea 1")
+					.contains("datos campo 2 de linea 1")
+					;
+		});
 	}
 
 }

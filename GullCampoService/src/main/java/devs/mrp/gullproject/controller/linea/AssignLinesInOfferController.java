@@ -169,7 +169,7 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 		.then(Mono.just("assignLinesOfOferta"));
 	}
 	
-	@PostMapping("/allof/ofertaid/{propuestaId}/assign") // TODO test
+	@PostMapping("/allof/ofertaid/{propuestaId}/assign")
 	public Mono<String> processAssignLinesOfOferta(@ModelAttribute("selectableLinesWrap") SelectableLinesWrap selectableLinesWrap, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		return consultaService.findConsultaByPropuestaId(propuestaId)
 				.flatMap(rConsulta -> {
