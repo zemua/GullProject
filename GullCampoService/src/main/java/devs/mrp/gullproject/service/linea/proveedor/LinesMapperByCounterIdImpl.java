@@ -23,7 +23,7 @@ public class LinesMapperByCounterIdImpl implements LinesMapperByCounterId {
 		if (map.containsKey(counterId)) {
 			resultado = map.get(counterId);
 		} else {
-			resultado = lineas.stream().filter(l -> l.getCounterLineId().contains(counterId)).collect(Collectors.toList());
+			resultado = lineas.stream().filter(l -> l.getCounterLineId() != null && l.getCounterLineId().contains(counterId)).collect(Collectors.toList());
 			map.put(counterId, resultado);
 		}
 		return resultado;

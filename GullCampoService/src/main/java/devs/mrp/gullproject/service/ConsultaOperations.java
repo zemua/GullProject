@@ -12,7 +12,9 @@ import devs.mrp.gullproject.domains.propuestas.CosteProveedor;
 import devs.mrp.gullproject.domains.propuestas.Propuesta;
 import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
 import devs.mrp.gullproject.domains.propuestas.TipoPropuesta;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ConsultaOperations {
 
 	private final Consulta consulta;
@@ -77,8 +79,11 @@ public class ConsultaOperations {
 	public List<CosteProveedor> getCostesOfPropuestasProveedor() {
 		List<CosteProveedor> costes = new ArrayList<>();
 		getPropuestasProveedor().stream().forEach(p -> {
+			log.debug("adding costs of propuesta: " + p.toString());
 			costes.addAll(((PropuestaProveedor)p).getCostes());
+			log.debug("all costs are: " + costes.toString());
 		});
+		log.debug("returning costes: " + costes.toString());
 		return costes;
 	}
 	

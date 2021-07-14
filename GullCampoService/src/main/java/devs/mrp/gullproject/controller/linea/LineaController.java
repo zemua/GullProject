@@ -455,7 +455,7 @@ public class LineaController {
 			model.addAttribute("wrapLineasWithSelectorDto", wrapLineasWithSelectorDto);
 			return "deleteLinesOf";
 		}
-		lineaUtilities.removeNotSelectedFromWrap(wrapLineasWithSelectorDto);
+		lineaUtilities.removeNotSelectedFromWrap(wrapLineasWithSelectorDto); // TODO delete also from propuesta
 		model.addAttribute("wrapLineasWithSelectorDto", wrapLineasWithSelectorDto);
 		return "processDeleteLinesOf";
 	}
