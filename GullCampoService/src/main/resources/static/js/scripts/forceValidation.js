@@ -4,7 +4,17 @@ function forceDouble(klase, forn, boton) {
 	button.click(function(event) {
 		event.preventDefault();
 		if (validateDouble(klase) && validateMargins(klase)) {
+			fillEmptiesWithZeros();
 			formulario.submit();
+		}
+	});
+}
+
+function fillEmptiesWithZeros() {
+	var fields = $(".is-double-checkable");
+	fields.each(function() {
+		if ($(this).val().trim() == "") {
+			$(this).val(0.0);
 		}
 	});
 }
