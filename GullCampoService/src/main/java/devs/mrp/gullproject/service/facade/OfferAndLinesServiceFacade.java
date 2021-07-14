@@ -19,13 +19,13 @@ public class OfferAndLinesServiceFacade {
 	@Autowired LineaOfferService lineaService;
 	@Autowired ConsultaService consultaService;
 	
-	public Mono<Void> clearAllLinesOfOffer(String offerId) { // TODO test
+	public Mono<Void> clearAllLinesOfOffer(String offerId) {
 		return lineaService.clearAllLinesOfOferta(offerId)
 				.then(consultaService.updateLineasDePropuesta(offerId, new ArrayList<>()))
 				.then();
 	}
 	
-	public Flux<LineaAbstracta> saveAll(String offerId, List<LineaAbstracta> lineas) { // TODO test
+	public Flux<LineaAbstracta> saveAll(String offerId, List<LineaAbstracta> lineas) {
 		List<String> lineIds = lineas.stream().map(l -> l.getId()).collect(Collectors.toList());
 		return consultaService.updateLineasDePropuesta(offerId, lineIds)
 				.thenMany(lineaService.saveAll(lineas));

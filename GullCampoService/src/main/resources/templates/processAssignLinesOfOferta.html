@@ -25,11 +25,13 @@
 	<div>
 		<table>
 			<tr>
+				<th><span>Nombre</span></th>
 				<th th:each="at : ${atributos}"><span th:text="${at.name}"></span></th>
 				<th><span>Margen</span></th>
 				<th><span>PVP</span></th>
 			</tr>
 			<tr th:each="li : ${lineas}">
+				<td><span th:text="${li.nombre}"></span></td>
 				<td th:each="at, atstat : ${atributos}"><span th:text="${li.getCampos().get(atstat.index).getDatosText()}"></span></td>
 				<td><span th:text="${li.pvp.margen}"></span></td>
 				<td><span th:text="${li.pvp.pvp}"></span></td>

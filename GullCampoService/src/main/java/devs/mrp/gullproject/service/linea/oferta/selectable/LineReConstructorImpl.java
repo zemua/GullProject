@@ -2,6 +2,7 @@ package devs.mrp.gullproject.service.linea.oferta.selectable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public class LineReConstructorImpl implements LineReConstructor {
 	@Override
 	public List<LineaAbstracta> from(SelectableLinesWrap wrap, LineAttributeConcatenator concatenator, List<AtributoForCampo> atributos, String forPropuestaId) {
 		List<LineaAbstracta> lineas = new ArrayList<>();
+		AtomicInteger num = new AtomicInteger(0);
 		wrap.getLineas().stream().filter(l -> l.getSelected()).forEach(lin -> {
 			lin.setCampos(new ArrayList<>());
 			lin.setPropuestaId(forPropuestaId);
@@ -28,6 +30,7 @@ public class LineReConstructorImpl implements LineReConstructor {
 				campo.setDatos(concatenator.forLineAtt(lin.getCounterLineId(), att.getId()));
 				lin.getCampos().add(campo);
 			});
+			if (lin.getNombre().isEmpty()) {lin.setNombre(String.valueOf(num.getAndIncrement()));}
 			lineas.add(lin);
 		});
 		return lineas;

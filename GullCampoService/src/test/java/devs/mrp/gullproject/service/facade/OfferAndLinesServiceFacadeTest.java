@@ -21,10 +21,12 @@ import devs.mrp.gullproject.repository.ConsultaRepo;
 import devs.mrp.gullproject.repository.LineaOfertaRepo;
 import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.linea.LineaOfferService;
+import lombok.extern.slf4j.Slf4j;
 import reactor.test.StepVerifier;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
+@Slf4j
 class OfferAndLinesServiceFacadeTest {
 
 	@Autowired OfferAndLinesServiceFacade facadeService;
@@ -53,8 +55,9 @@ class OfferAndLinesServiceFacadeTest {
 		consulta.setPropuestas(new ArrayList<>());
 		consulta.getPropuestas().add(propuesta);
 		
-		consultaService.save(consulta);
+		consultaService.save(consulta).block();
 		
+		log.debug("first check after saving consulta");
 		StepVerifier.create(consultaService.findById(consulta.getId()))
 		.assertNext(rcons -> {
 			assertEquals(propuesta.getId(), rcons.getPropuestas().get(0).getId());
@@ -63,6 +66,7 @@ class OfferAndLinesServiceFacadeTest {
 		.expectComplete()
 		.verify();
 		
+		log.debug("first check should be no lines");
 		StepVerifier.create(lineaService.findByPropuesta(propuesta.getId()))
 		.expectComplete()
 		.verify()
@@ -70,6 +74,7 @@ class OfferAndLinesServiceFacadeTest {
 		
 		facadeService.saveAll(propuesta.getId(), lineas).blockLast();
 		
+		log.debug("second check offer should have the lines");
 		StepVerifier.create(consultaService.findById(consulta.getId()))
 		.assertNext(rcons -> {
 			assertEquals(propuesta.getId(), rcons.getPropuestas().get(0).getId());
@@ -80,6 +85,7 @@ class OfferAndLinesServiceFacadeTest {
 		.expectComplete()
 		.verify();
 		
+		log.debug("second check lines shall be inserted");
 		StepVerifier.create(lineaService.findByPropuesta(propuesta.getId()))
 		.assertNext(l -> {
 			assertEquals(l1.getId(), l.getId());
@@ -94,6 +100,7 @@ class OfferAndLinesServiceFacadeTest {
 		
 		facadeService.clearAllLinesOfOffer(propuesta.getId()).block();
 		
+		log.debug("third check lines should be removed from the offer");
 		StepVerifier.create(consultaService.findById(consulta.getId()))
 		.assertNext(rcons -> {
 			assertEquals(propuesta.getId(), rcons.getPropuestas().get(0).getId());
@@ -102,6 +109,7 @@ class OfferAndLinesServiceFacadeTest {
 		.expectComplete()
 		.verify();
 		
+		log.debug("third check lines should be removed again");
 		StepVerifier.create(lineaService.findByPropuesta(propuesta.getId()))
 		.expectComplete()
 		.verify()
