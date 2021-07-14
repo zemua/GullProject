@@ -33,7 +33,11 @@ public class CostMapperById implements MyMapperByDupla<Double, String, String> {
 		lineas.forEach(l -> {
 			if (l.getCounterLineId() != null) {
 				l.getCounterLineId().forEach(counter -> {
-					map.put(counter, l.getCostesProveedor());
+					if (!map.containsKey(counter)) {
+						map.put(counter, l.getCostesProveedor());
+					} else {
+						map.get(counter).addAll(l.getCostesProveedor());
+					}
 				});
 			}
 		});
