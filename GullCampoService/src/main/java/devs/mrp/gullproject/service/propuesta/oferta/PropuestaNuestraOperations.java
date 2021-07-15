@@ -72,18 +72,25 @@ public class PropuestaNuestraOperations extends PropuestaOperations {
 		return tiene.isPresent();
 	}
 	
+	public boolean ifPvpCostHasAtt(Pvper pvp, String costId, String attId) {
+		Optional<String> tiene = pvp.getIdAttributesByCost().get(costId).stream().filter(at -> at.equals(attId)).findAny();
+		return tiene.isPresent();
+	}
+	
 	public Mono<PvpsCheckboxedCostWrapper> getPvpsCheckbox(ModelMapper modelMapper, ConsultaService consultaService) {
 		PvpsCheckboxedCostWrapper wrapper = new PvpsCheckboxedCostWrapper();
 		wrapper.setPvps(new ArrayList<>());
 		return consultaService.findConsultaByPropuestaId(propuestaNuestra.getId())
 			.map(cons -> {
-				var costes = cons.operations().getCostesOfPropuestasProveedor();
+				var costes = cons.operations().getCostesOfPropuestasProveedorAssignedTo(propuestaNuestra.getForProposalId());
+				var atributos = cons.operations().getAtributosOfPropuestasProveedorAssignedTo(propuestaNuestra.getForProposalId());
 				//Map<String, CosteProveedor> map = cons.operations().mapIdToCosteProveedor(); // using costes instead for correct ordering
 				propuestaNuestra.getPvps().stream().forEach(pvp -> {
 					PvperCheckboxedCosts boxed = new PvperCheckboxedCosts();
 					boxed.setId(pvp.getId());
 					boxed.setName(pvp.getName());
 					boxed.setCosts(new ArrayList<>());
+					// ADD COSTES TO BOXED
 					costes.stream().map(c -> c.getId()).forEach(id -> {
 						PvperCheckboxedCosts.CheckboxedCostId coste = new PvperCheckboxedCosts.CheckboxedCostId();
 						coste.setId(id);
@@ -93,6 +100,17 @@ public class PropuestaNuestraOperations extends PropuestaOperations {
 							coste.setSelected(false);
 						}
 						boxed.getCosts().add(coste);
+						// ADD ATTRIBUTES TO BOXED
+						if (!boxed.getAttributesByCost().containsKey(id)) {
+							boxed.getAttributesByCost().put(id, new ArrayList<>());
+						}
+						var pvpAtts = boxed.getAttributesByCost().get(id);
+						atributos.stream().map(a -> a.getId()).forEach(aid -> {
+							PvperCheckboxedCosts.CheckboxedAttId atributo = new PvperCheckboxedCosts.CheckboxedAttId();
+							atributo.setId(aid);
+							atributo.setSelected(ifPvpCostHasAtt(pvp, id, aid));
+							pvpAtts.add(atributo);
+						});
 					});
 					wrapper.getPvps().add(boxed);
 				});

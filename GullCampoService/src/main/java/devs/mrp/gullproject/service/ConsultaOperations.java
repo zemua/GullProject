@@ -8,6 +8,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.propuestas.AtributoForCampo;
 import devs.mrp.gullproject.domains.propuestas.CosteProveedor;
 import devs.mrp.gullproject.domains.propuestas.Propuesta;
 import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
@@ -85,6 +86,31 @@ public class ConsultaOperations {
 		});
 		log.debug("returning costes: " + costes.toString());
 		return costes;
+	}
+	
+	public List<CosteProveedor> getCostesOfPropuestasProveedorAssignedTo(String counterPropuestaId) {
+		List<CosteProveedor> costes = new ArrayList<>();
+		getPropuestasProveedorAssignedTo(counterPropuestaId).stream().forEach(p -> {
+			costes.addAll(((PropuestaProveedor)p).getCostes());
+		});
+		return costes;
+	}
+	
+	public List<AtributoForCampo> getAtributosOfPropuestasProveedorAssignedTo(String counterPropuestaId) {
+		List<AtributoForCampo> atributos = new ArrayList<>();
+		getPropuestasProveedorAssignedTo(counterPropuestaId).stream().forEach(p -> {
+			p.getAttributeColumns().forEach(att -> {
+				if (!atributos.stream().filter(a -> a.getId().equals(att.getId())).findAny().isPresent()) {
+					AtributoForCampo matt = new AtributoForCampo(); // different object-id
+					matt.setId(att.getId());
+					matt.setName(att.getName());
+					matt.setOrder(att.getOrder());
+					matt.setTipo(att.getTipo());
+					atributos.add(matt);
+				}
+			});
+		});
+		return atributos;
 	}
 	
 	public Map<String, CosteProveedor> mapIdToCosteProveedor() {

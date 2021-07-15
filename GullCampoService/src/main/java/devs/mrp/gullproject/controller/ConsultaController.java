@@ -661,6 +661,7 @@ public class ConsultaController {
 				;
 	}
 	
+	// BULK EDIT
 	@GetMapping("/pvpsof/propid/{id}/edit")
 	public Mono<String> editPvpsOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
@@ -678,6 +679,7 @@ public class ConsultaController {
 			;
 	}
 	
+	// PROCESS BULK EDIT
 	@PostMapping("/pvpsof/propid/{id}/edit")
 	public Mono<String> processEditPvpsOfProposal(PvpsCheckboxedCostWrapper pvpsCheckboxedCostWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
@@ -705,6 +707,26 @@ public class ConsultaController {
 					})
 					;
 		}
+	}
+	
+	// INDIVIDUAL EDIT
+	@GetMapping("/pvpsof/propid/{propid}/edit/{pvpid}") // TODO test
+	public Mono<String> editPvpOfProposal(Model model, @PathVariable(name = "propid") String proposalId, @PathVariable(name = "pvpid") String pvpId) {
+		model.addAttribute("propuestaId", proposalId);
+		model.addAttribute("pvpId", pvpId);
+		return consultaService.findConsultaByPropuestaId(proposalId)
+			.map(cons -> {
+				Propuesta prop = cons.operations().getPropuestaById(proposalId);
+				model.addAttribute("consulta", cons);
+				model.addAttribute("propuesta", prop);
+				model.addAttribute("proveedores", cons.operations().getPropuestasProveedor());
+				model.addAttribute("costes", cons.operations().getCostesOfPropuestasProveedor());
+				model.addAttribute("map", cons.operations().mapIdToCosteProveedor());
+				// TODO change to single checkboxedPvp
+				model.addAttribute("pvperCheckboxedCosts",((PropuestaNuestra)prop).operationsNuestra().getPvpsCheckbox(modelMapper, consultaService));
+				return "editPvpOfProposal";
+			})
+			;
 	}
 	
 	/**

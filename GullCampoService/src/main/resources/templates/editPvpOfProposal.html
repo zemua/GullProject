@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Nuevo pvp de la propuesta: ' + propuesta.getNombre()}">Gull Project - Nuevo pvp de la propuesta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1 th:text="${'Nuevo pvp de la propuesta: ' + propuesta.getNombre()}">Nuevo pvp de la propuesta</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/consultas/pvpsof/propid/' + propuesta.id}">Volver</a>
+		</p>
+	</div>
+	
+	<form method="POST" th:object="${pvperCheckboxedCosts}" id="val-form">
+	
+		<div><span class="validationError margentb"
+      	th:if="${#fields.hasErrors('name')}"
+      	th:errors="*{name}">Selecciona un nombre</span></div>
+      	<div><span class="validationError margentb"
+      	th:if="${#fields.hasErrors('idCostes')}"
+      	th:errors="*{idCostes}">Selecciona al menos un coste</span></div>
+      	<table>
+      		<tr>
+      			<td><span>Cotización</span></td>
+      			<td th:each="proveedor, proveedorstat : ${proveedores}" th:colspan="proveedor.costes.size()"></td>
+      		</tr>
+      		<tr>
+      			<td><span>Coste</span></td>
+      			<td th:each="cost, coststat : ${costes}"><span th:text="${cost.name}"></span></td>
+      		</tr>
+      		<tr>
+      			<td><span>Incluido</span></td>
+      			<td th:each="cost, coststat : ${costes}">
+      				<input type="checkbox" th:field="*{costs[__${coststat.index}__].selected}"/>
+      				<input type="hidden" th:field="*{costs[__${coststat.index}__].id}"/>
+      			</td>
+      		</tr>
+      		<tr th:each="atributo, atributostat : ${atributos}">
+      			<td><span th:text="${atributo.name}"></span></td>
+      			<td th:each="cost, coststat : ${costes}">
+      				<input type="checkbox" th:field="*{attributesByCost[__${atributos.size() * coststat.index + atributostat.index}__].selected}"/>
+      			</td>
+      		</tr>
+      	</table>
+		
+		<div class="margentb">
+			<div><button id="submit-button">Guardar</button></div>
+		</div>
+	
+	</form>	
+	
+</body>
+</html>
