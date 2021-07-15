@@ -455,14 +455,14 @@ public class LineaController {
 			model.addAttribute("wrapLineasWithSelectorDto", wrapLineasWithSelectorDto);
 			return "deleteLinesOf";
 		}
-		lineaUtilities.removeNotSelectedFromWrap(wrapLineasWithSelectorDto); // TODO delete also from propuesta
+		lineaUtilities.removeNotSelectedFromWrap(wrapLineasWithSelectorDto);
 		model.addAttribute("wrapLineasWithSelectorDto", wrapLineasWithSelectorDto);
 		return "processDeleteLinesOf";
 	}
 
 	@PostMapping("/deleteof/propid/{propuestaId}/confirmed")
 	public String processConfirmDeleteLinesOf(WrapLineasWithSelectorDto wrapLineasWithSelectorDto, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
-		Mono<Void> delete = lineaUtilities.deleteSelectedLinesFromWrap(wrapLineasWithSelectorDto);
+		Mono<Void> delete = lineaUtilities.deleteSelectedLinesFromWrap(wrapLineasWithSelectorDto, propuestaId);
 		model.addAttribute("delete", delete);
 		return "confirmDeleteLinesOf";
 	}

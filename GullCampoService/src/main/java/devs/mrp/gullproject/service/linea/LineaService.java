@@ -91,18 +91,29 @@ public class LineaService {
 	}
 	
 	public Flux<Linea> addVariasLineas(Flux<Linea> lineas, String propuestaId) {
+		log.debug("call to AddVariasLineas");
 		AtomicInteger count = new AtomicInteger();
-		return lineas.flatMap(rLinea -> consultaRepo.findByPropuestaId(rLinea.getPropuestaId())
-										.flatMap(rConsulta -> consultaRepo.addLineaEnPropuesta(rConsulta.getId(), rLinea.getPropuestaId(), rLinea.getId())))
-				.then(lineaRepo.countByPropuestaId(propuestaId)).flatMapMany(rCount -> {
-					count.set(rCount.intValue());
-					return lineas;
-					})
-				.map(rLinea -> {
-					rLinea.setOrder(count.incrementAndGet());
-					return rLinea;
-				})
-				.collectList().flatMapMany(rList -> lineaRepo.insert(rList));
+		return lineas.collectList().flatMapMany(rLineasList -> {
+			return consultaRepo.findByPropuestaId(propuestaId)
+					.flatMapMany(rConsulta ->{
+						return Flux.fromIterable(rLineasList)
+								.flatMap(rLinea -> {
+									return consultaRepo.addLineaEnPropuesta(rConsulta.getId(), propuestaId, rLinea.getId());
+								})
+								.then(lineaRepo.countByPropuestaId(propuestaId)).flatMapMany(rCount -> {
+									count.set(rCount.intValue());
+									return Flux.fromIterable(rLineasList);
+									})
+								.map(rLinea -> {
+									rLinea.setOrder(count.incrementAndGet());
+									return rLinea;
+									})
+								.collectList().flatMapMany(rList -> {
+									log.debug("to insert in lines: " + rList);
+									return lineaRepo.insert(rList);
+									});
+					});
+		});
 	}
 	
 	public Mono<Linea> updateLinea(Linea linea) {

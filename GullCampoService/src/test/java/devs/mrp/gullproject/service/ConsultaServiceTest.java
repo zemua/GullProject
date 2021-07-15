@@ -525,5 +525,33 @@ class ConsultaServiceTest {
 		.verify()
 		;
 	}
+	
+	@Test
+	void testRemoveVariasLineasDePropuesta() {
+		List<String> lineas = new ArrayList<>() {{add("linea1id");add("linea2id");add("linea3id");}};
+		consultaService.updateLineasDePropuesta(propuesta1.getId(), lineas).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals(2, cons.operations().getCantidadPropuestas());
+			assertEquals(3, cons.operations().getPropuestaByIndex(0).getLineaIds().size());
+			assertEquals("linea1id", cons.operations().getPropuestaByIndex(0).getLineaIds().get(0));
+			assertEquals("linea2id", cons.operations().getPropuestaByIndex(0).getLineaIds().get(1));
+			assertEquals("linea3id", cons.operations().getPropuestaByIndex(0).getLineaIds().get(2));
+		})
+		.expectComplete()
+		.verify();
+		
+		consultaService.removeVariasLineasDePropuesta(propuesta1.getId(), new ArrayList<>() {{add("linea1id");add("linea2id");}}).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals(2, cons.operations().getCantidadPropuestas());
+			assertEquals(1, cons.operations().getPropuestaByIndex(0).getLineaIds().size());
+			assertEquals("linea3id", cons.operations().getPropuestaByIndex(0).getLineaIds().get(0));
+		})
+		.expectComplete()
+		.verify();
+	}
 
 }

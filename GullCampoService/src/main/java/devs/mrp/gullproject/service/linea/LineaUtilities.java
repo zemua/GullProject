@@ -160,13 +160,17 @@ public class LineaUtilities { // TODO refractor
 		return lineas;
 	}
 	
-	public Mono<Void> deleteSelectedLinesFromWrap(WrapLineasWithSelectorDto wrapLineasWithSelectorDto) {
+	public Mono<Void> deleteSelectedLinesFromWrap(WrapLineasWithSelectorDto wrapLineasWithSelectorDto, String idPropuesta) {
 		removeNotSelectedFromWrap(wrapLineasWithSelectorDto);
-		return lineaService
-				.deleteVariasLineas(Flux.fromIterable(wrapLineasWithSelectorDto.getLineas()).map(rLineaDto -> {
-					Linea linea = modelMapper.map(rLineaDto, Linea.class);
-					return linea;
-				}));
+		var idLineas = wrapLineasWithSelectorDto.getLineas().stream().map(l -> l.getId()).collect(Collectors.toList());
+		return consultaService.removeVariasLineasDePropuesta(idPropuesta, idLineas)
+				.flatMap(delCount -> {
+					return lineaService
+					.deleteVariasLineas(Flux.fromIterable(wrapLineasWithSelectorDto.getLineas()).map(rLineaDto -> {
+						Linea linea = modelMapper.map(rLineaDto, Linea.class);
+						return linea;
+					}));
+				});
 	}
 	
 	public Flux<LineaWithAttListDto> assertBindingResultOfWrappedMultipleLines(MultipleLineaWithAttListDto multipleLineaWithAttListDto, BindingResult bindingResult) {
@@ -195,9 +199,11 @@ public class LineaUtilities { // TODO refractor
 	}
 	
 	public Flux<Linea> addSeveralCopiesOfSameLineDto (LineaWithAttListDto lineaWithAttListDto, String propuestaId) {
+		log.debug("llamada a addSeveralCopiesOfSameLineDto");
 		Flux<Linea> l1;
 		Mono<List<Linea>> llineas = reconstructLine(lineaWithAttListDto)
 				.map(rLine -> {
+					log.debug("mapping reconstructed line");
 					List<Linea> lista = new ArrayList<>();
 					LineaOperations operationsRline = new LineaOperations(rLine);
 					for (int i=0; i<lineaWithAttListDto.getQty(); i++) {
@@ -205,6 +211,7 @@ public class LineaUtilities { // TODO refractor
 						log.debug("añadimos linea: " + dLine.toString());
 						lista.add(dLine);
 					}
+					log.debug("en total hay lineas: " + lista.toString());
 					return lista;
 				});
 		l1 = lineaService.addVariasLineas(llineas.flatMapMany(ll -> Flux.fromIterable(ll)), propuestaId);

@@ -305,4 +305,17 @@ public class ConsultaService {
 	public Mono<Consulta> updateLineasDePropuesta(String propuestaId, List<String> lineas) {
 		return consultaRepo.updateLineasDeUnaPropuesta(propuestaId, lineas);
 	}
+	
+	public Mono<Consulta> removeLineaDePropuesta(String idConsulta, String idPropuesta, String idLinea) {
+		return consultaRepo.removeLineaEnPropuesta(idConsulta, idPropuesta, idLinea);
+	}
+	
+	public Mono<Long> removeVariasLineasDePropuesta(String idPropuesta, List<String> idLineas){
+		return consultaRepo.findByPropuestaId(idPropuesta).flatMap(rCons -> {
+			return Flux.fromIterable(idLineas).flatMap(linea -> {
+				log.debug("to remove linea id: " + linea + " from " + rCons.operations().getPropuestaById(idPropuesta).getLineaIds());
+				return consultaRepo.removeLineaEnPropuesta(rCons.getId(), idPropuesta, linea);
+			}).count();
+		});
+	}
 }
