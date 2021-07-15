@@ -77,13 +77,14 @@ public class PropuestaNuestraOperations extends PropuestaOperations {
 		wrapper.setPvps(new ArrayList<>());
 		return consultaService.findConsultaByPropuestaId(propuestaNuestra.getId())
 			.map(cons -> {
-				Map<String, CosteProveedor> map = cons.operations().mapIdToCosteProveedor();
+				var costes = cons.operations().getCostesOfPropuestasProveedor();
+				//Map<String, CosteProveedor> map = cons.operations().mapIdToCosteProveedor(); // using costes instead for correct ordering
 				propuestaNuestra.getPvps().stream().forEach(pvp -> {
 					PvperCheckboxedCosts boxed = new PvperCheckboxedCosts();
 					boxed.setId(pvp.getId());
 					boxed.setName(pvp.getName());
 					boxed.setCosts(new ArrayList<>());
-					map.keySet().stream().forEach(id -> {
+					costes.stream().map(c -> c.getId()).forEach(id -> {
 						PvperCheckboxedCosts.CheckboxedCostId coste = new PvperCheckboxedCosts.CheckboxedCostId();
 						coste.setId(id);
 						if (ifPvpHasCost(pvp, id)) {
