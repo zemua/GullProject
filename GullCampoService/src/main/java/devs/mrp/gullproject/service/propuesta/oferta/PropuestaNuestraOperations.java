@@ -68,13 +68,14 @@ public class PropuestaNuestraOperations extends PropuestaOperations {
 	}
 	
 	public boolean ifPvpHasCost(Pvper pvp, String costId) {
+		if (pvp.getIdCostes() == null) {return false;}
 		Optional<String> tiene = pvp.getIdCostes().stream().filter(c -> c.equals(costId)).findAny();
 		return tiene.isPresent();
 	}
 	
-	public boolean ifPvpCostHasAtt(Pvper pvp, String costId, String attId) {
-		if (pvp.getIdAttributesByCost() == null) {return false;}
-		var tiene = pvp.getIdAttributesByCost().stream().filter(al -> al.getCostId().equals(costId)).filter(at -> at.getIds().contains(attId)).findAny();
+	public boolean ifPvpCostHasAtt(Pvper pvp, String cotizId, String attId) {
+		if (pvp.getIdAttributesByCotiz() == null) {return false;}
+		var tiene = pvp.getIdAttributesByCotiz().stream().filter(al -> al.getCotizId().equals(cotizId)).filter(at -> at.getIds().contains(attId)).findAny();
 		return tiene.isPresent();
 	}
 	
@@ -128,6 +129,8 @@ public class PropuestaNuestraOperations extends PropuestaOperations {
 	
 	public Mono<PvperCheckboxedCosts> getSinglePvpCheckboxed(ModelMapper modelMapper, ConsultaService consultaService, Pvper pvp) { // TODO test
 		PvperCheckboxedCosts boxed = new PvperCheckboxedCosts();
+		boxed.setId(pvp.getId());
+		boxed.setName(pvp.getName());
 		boxed.setCosts(new ArrayList<>());
 		boxed.setAttributesByCotiz(new ArrayList<>());
 		

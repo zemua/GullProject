@@ -3,6 +3,9 @@ package devs.mrp.gullproject.domainsdto.propuesta.oferta;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +16,7 @@ public class PvperCheckboxedCosts {
 	String id;
 	List<CheckboxedCostId> costs;
 	List<AttsList> attributesByCotiz;
+	@NotBlank(message = "debes escoger un nombre")
 	String name;
 
 	@Data

@@ -23,6 +23,7 @@ import devs.mrp.gullproject.domainsdto.propuesta.oferta.PvpsCheckboxWrapper;
 import devs.mrp.gullproject.domainsdto.propuesta.proveedor.CostesCheckboxWrapper;
 import devs.mrp.gullproject.repository.ConsultaRepo;
 import devs.mrp.gullproject.repository.LineaRepo;
+import devs.mrp.gullproject.service.propuesta.oferta.FromPropuestaToOfertaFactory;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -35,6 +36,7 @@ public class ConsultaService {
 	ModelMapper modelMapper;
 	LineaRepo lineaRepo;
 	@Autowired LineaFactory lineaFactory;
+	@Autowired FromPropuestaToOfertaFactory toOferta;
 	
 	@Autowired
 	public ConsultaService(ConsultaRepo consultaRepo, ModelMapper modelMapper, LineaRepo lineaRepo) {
@@ -234,6 +236,31 @@ public class ConsultaService {
 	
 	public Mono<Consulta> addPvpToList(String idPropuesta, Pvper pvp) {
 		return consultaRepo.addPvpToList(idPropuesta, pvp);
+	}
+	
+	public Mono<Consulta> updateSinglePvpOfPropuesta(String idPropuesta, Pvper pvp) { // TODO test
+		return findConsultaByPropuestaId(idPropuesta)
+				.flatMap(rCons -> {
+					PropuestaNuestra rPro = toOferta.from(rCons.operations().getPropuestaById(idPropuesta));
+					log.debug("pvp to add: " + pvp.toString());
+					log.debug("into proposal: " + rPro.toString());
+					var pvps = ((PropuestaNuestra)rPro).getPvps();
+					log.debug("que tiene estos pvps: " + pvps.toString());
+					var existingpvp = pvps.stream().filter(p -> p.getId().equals(pvp.getId())).findAny();
+					if (!existingpvp.isPresent()) {
+						log.debug("pvp is not present, adding a new one to the list");
+						return addPvpToList(idPropuesta, pvp);
+					}
+					pvps.forEach(p -> {
+						if (p.getId().equals(pvp.getId())) {
+							p.setIdAttributesByCotiz(pvp.getIdAttributesByCotiz());
+							p.setIdCostes(pvp.getIdCostes());
+							p.setName(pvp.getName());
+						}
+					});
+					return updatePvpsOfPropuesta(idPropuesta, pvps);
+				})
+				;
 	}
 	
 	private Mono<Consulta> removeReferenceToSelectedPvpsFromSums(String idPropuesta, PvpsCheckboxWrapper wrapper) {

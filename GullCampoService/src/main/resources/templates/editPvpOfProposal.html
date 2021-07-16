@@ -29,6 +29,10 @@
       	th:errors="*{attributesByCost}">Selecciona al menos un atributo para cada coste</span></div>
       	<table>
       		<tr>
+      			<td><span>Nombre</span></td>
+      			<td th:colspan="${costes.size()}"><input type="text" th:field="*{name}"/></td>
+      		</tr>
+      		<tr>
       			<td><span>Cotización</span></td>
       			<td th:each="proveedor, proveedorstat : ${proveedores}" th:colspan="${proveedor.costes.size()}" class="texto-centro"><span th:text="${proveedor.nombre}"></span></td>
       		</tr>
@@ -57,7 +61,6 @@
       	</table>
       	
       	<input type="hidden" th:field="*{id}"/>
-      	<input type="hidden" th:field="*{name}"/>
 		
 		<div class="margentb">
 			<div><button id="submit-button">Guardar</button></div>

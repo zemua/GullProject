@@ -15,14 +15,14 @@ public class Pvper {
 
 	String id = new ObjectId().toString();
 	List<String> idCostes;
-	List<IdAttsList> idAttributesByCost;
+	List<IdAttsList> idAttributesByCotiz;
 	@NotBlank
 	String name;
 	
 	@Data
 	@NoArgsConstructor
 	public static class IdAttsList {
-		String costId;
+		String cotizId;
 		List<String> ids;
 	}
 	
