@@ -73,7 +73,8 @@ public class PropuestaNuestraOperations extends PropuestaOperations {
 	}
 	
 	public boolean ifPvpCostHasAtt(Pvper pvp, String costId, String attId) {
-		Optional<String> tiene = pvp.getIdAttributesByCost().get(costId).stream().filter(at -> at.equals(attId)).findAny();
+		if (pvp.getIdAttributesByCost() == null) {return false;}
+		var tiene = pvp.getIdAttributesByCost().stream().filter(al -> al.getCostId().equals(costId)).filter(at -> at.getIds().contains(attId)).findAny();
 		return tiene.isPresent();
 	}
 	
@@ -83,6 +84,7 @@ public class PropuestaNuestraOperations extends PropuestaOperations {
 		return consultaService.findConsultaByPropuestaId(propuestaNuestra.getId())
 			.map(cons -> {
 				var costes = cons.operations().getCostesOfPropuestasProveedorAssignedTo(propuestaNuestra.getForProposalId());
+				var cotizaciones = cons.operations().getPropuestasProveedorAssignedTo(propuestaNuestra.getForProposalId());
 				var atributos = cons.operations().getAtributosOfPropuestasProveedorAssignedTo(propuestaNuestra.getForProposalId());
 				//Map<String, CosteProveedor> map = cons.operations().mapIdToCosteProveedor(); // using costes instead for correct ordering
 				propuestaNuestra.getPvps().stream().forEach(pvp -> {
@@ -100,16 +102,21 @@ public class PropuestaNuestraOperations extends PropuestaOperations {
 							coste.setSelected(false);
 						}
 						boxed.getCosts().add(coste);
+					});
+					cotizaciones.stream().map(c -> c.getId()).forEach(id -> {
 						// ADD ATTRIBUTES TO BOXED
-						if (!boxed.getAttributesByCost().containsKey(id)) {
-							boxed.getAttributesByCost().put(id, new ArrayList<>());
+						var lista = new PvperCheckboxedCosts.AttsList();
+						lista.setCotizId(id);
+						if (!boxed.getAttributesByCotiz().stream().filter(a -> a.getCotizId().equals(id)).findAny().isPresent()) {
+							boxed.getAttributesByCotiz().add(lista);
 						}
-						var pvpAtts = boxed.getAttributesByCost().get(id);
+						var pvpAtts = boxed.getAttributesByCotiz().stream().filter(a -> a.getCotizId().equals(id)).findAny().orElse(lista);
 						atributos.stream().map(a -> a.getId()).forEach(aid -> {
 							PvperCheckboxedCosts.CheckboxedAttId atributo = new PvperCheckboxedCosts.CheckboxedAttId();
 							atributo.setId(aid);
 							atributo.setSelected(ifPvpCostHasAtt(pvp, id, aid));
-							pvpAtts.add(atributo);
+							if (pvpAtts.getAtts() == null) {pvpAtts.setAtts(new ArrayList<>());}
+							pvpAtts.getAtts().add(atributo);
 						});
 					});
 					wrapper.getPvps().add(boxed);
@@ -117,6 +124,47 @@ public class PropuestaNuestraOperations extends PropuestaOperations {
 				return wrapper;
 			})
 			;
+	}
+	
+	public Mono<PvperCheckboxedCosts> getSinglePvpCheckboxed(ModelMapper modelMapper, ConsultaService consultaService, Pvper pvp) { // TODO test
+		PvperCheckboxedCosts boxed = new PvperCheckboxedCosts();
+		boxed.setCosts(new ArrayList<>());
+		boxed.setAttributesByCotiz(new ArrayList<>());
+		
+		return consultaService.findConsultaByPropuestaId(propuestaNuestra.getId())
+				.map(cons -> {
+					var costes = cons.operations().getCostesOfPropuestasProveedorAssignedTo(propuestaNuestra.getForProposalId());
+					var cotizaciones = cons.operations().getPropuestasProveedorAssignedTo(propuestaNuestra.getForProposalId());
+					var atributos = cons.operations().getAtributosOfPropuestasProveedorAssignedTo(propuestaNuestra.getForProposalId());
+					// ADD COSTES TO BOXED
+					costes.stream().map(c -> c.getId()).forEach(id -> {
+						PvperCheckboxedCosts.CheckboxedCostId coste = new PvperCheckboxedCosts.CheckboxedCostId();
+						coste.setId(id);
+						if (ifPvpHasCost(pvp, id)) {
+							coste.setSelected(true);
+						} else {
+							coste.setSelected(false);
+						}
+						boxed.getCosts().add(coste);
+					});
+					cotizaciones.stream().map(c -> c.getId()).forEach(id -> {
+						// ADD ATTRIBUTES TO BOXED
+						var lista = new PvperCheckboxedCosts.AttsList();
+						lista.setCotizId(id);
+						if (!boxed.getAttributesByCotiz().stream().filter(a -> a.getCotizId().equals(id)).findAny().isPresent()) {
+							boxed.getAttributesByCotiz().add(lista);
+						}
+						var pvpAtts = boxed.getAttributesByCotiz().stream().filter(a -> a.getCotizId().equals(id)).findAny().orElse(lista);
+						atributos.stream().map(a -> a.getId()).forEach(aid -> {
+							PvperCheckboxedCosts.CheckboxedAttId atributo = new PvperCheckboxedCosts.CheckboxedAttId();
+							atributo.setId(aid);
+							atributo.setSelected(ifPvpCostHasAtt(pvp, id, aid));
+							if (pvpAtts.getAtts() == null) {pvpAtts.setAtts(new ArrayList<>());}
+							pvpAtts.getAtts().add(atributo);
+						});
+					});
+					return boxed;
+				});
 	}
 	
 	public static void validateNamesAndCostsOfCheckboxedWrapper(PvpsCheckboxedCostWrapper wrapper, BindingResult bindingResult) {

@@ -12,7 +12,7 @@ public class PvperCheckboxedCosts {
 	
 	String id;
 	List<CheckboxedCostId> costs;
-	Map<String, List<CheckboxedAttId>> attributesByCost;
+	List<AttsList> attributesByCotiz;
 	String name;
 
 	@Data
@@ -20,6 +20,13 @@ public class PvperCheckboxedCosts {
 	public static class CheckboxedCostId {
 		String id;
 		boolean selected;
+	}
+	
+	@Data
+	@NoArgsConstructor
+	public static class AttsList {
+		String cotizId;
+		List<CheckboxedAttId> atts;
 	}
 	
 	@Data

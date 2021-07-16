@@ -36,6 +36,7 @@ import devs.mrp.gullproject.domainsdto.propuesta.AttributesListDto;
 import devs.mrp.gullproject.domainsdto.propuesta.ConsultaPropuestaBorrables;
 import devs.mrp.gullproject.domainsdto.propuesta.ProposalPie;
 import devs.mrp.gullproject.domainsdto.propuesta.WrapPropuestaClienteAndSelectableAttributes;
+import devs.mrp.gullproject.domainsdto.propuesta.oferta.PvperCheckboxedCosts;
 import devs.mrp.gullproject.domainsdto.propuesta.oferta.PvperSumCheckboxWrapper;
 import devs.mrp.gullproject.domainsdto.propuesta.oferta.PvperSumCheckboxedPvpsWrapper;
 import devs.mrp.gullproject.domainsdto.propuesta.oferta.PvperSumsOrdenablesWrapper;
@@ -716,17 +717,26 @@ public class ConsultaController {
 		model.addAttribute("pvpId", pvpId);
 		return consultaService.findConsultaByPropuestaId(proposalId)
 			.map(cons -> {
-				Propuesta prop = cons.operations().getPropuestaById(proposalId);
+				var consultaOperations = cons.operations();
+				Propuesta prop = consultaOperations.getPropuestaById(proposalId);
+				var operationsNuestra = ((PropuestaNuestra)prop).operationsNuestra();
+				Pvper pvp = operationsNuestra.getPvpById(pvpId);
 				model.addAttribute("consulta", cons);
 				model.addAttribute("propuesta", prop);
-				model.addAttribute("proveedores", cons.operations().getPropuestasProveedor());
-				model.addAttribute("costes", cons.operations().getCostesOfPropuestasProveedor());
-				model.addAttribute("map", cons.operations().mapIdToCosteProveedor());
-				// TODO change to single checkboxedPvp
-				model.addAttribute("pvperCheckboxedCosts",((PropuestaNuestra)prop).operationsNuestra().getPvpsCheckbox(modelMapper, consultaService));
+				model.addAttribute("proveedores", consultaOperations.getPropuestasProveedor());
+				model.addAttribute("costes", consultaOperations.getCostesOfPropuestasProveedor());
+				model.addAttribute("map", consultaOperations.mapIdToCosteProveedor());
+				model.addAttribute("atributos", consultaOperations.getAtributosOfPropuestasProveedorAssignedTo(prop.getForProposalId()));
+				model.addAttribute("pvperCheckboxedCosts", operationsNuestra.getSinglePvpCheckboxed(modelMapper, consultaService, pvp));
 				return "editPvpOfProposal";
 			})
 			;
+	}
+	
+	// PROCESS INDIVIDUAL EDIT
+	@PostMapping("/pvpsof/propid/{propid}/edit/{pvpid}") // TODO test
+	public Mono<String> processEditPvpOfProposal(PvperCheckboxedCosts pvperCheckboxedCosts, BindingResult bindingResult, Model model, @PathVariable(name = "propid") String proposalId, @PathVariable(name = "pvpid") String pvpId) {
+		
 	}
 	
 	/**

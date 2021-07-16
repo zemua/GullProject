@@ -22,12 +22,15 @@
       	th:if="${#fields.hasErrors('name')}"
       	th:errors="*{name}">Selecciona un nombre</span></div>
       	<div><span class="validationError margentb"
-      	th:if="${#fields.hasErrors('idCostes')}"
-      	th:errors="*{idCostes}">Selecciona al menos un coste</span></div>
+      	th:if="${#fields.hasErrors('costs')}"
+      	th:errors="*{costs}">Selecciona al menos un coste</span></div>
+      	<div><span class="validationError margentb"
+      	th:if="${#fields.hasErrors('attributesByCotiz')}"
+      	th:errors="*{attributesByCost}">Selecciona al menos un atributo para cada coste</span></div>
       	<table>
       		<tr>
       			<td><span>Cotización</span></td>
-      			<td th:each="proveedor, proveedorstat : ${proveedores}" th:colspan="proveedor.costes.size()"></td>
+      			<td th:each="proveedor, proveedorstat : ${proveedores}" th:colspan="${proveedor.costes.size()}" class="texto-centro"><span th:text="${proveedor.nombre}"></span></td>
       		</tr>
       		<tr>
       			<td><span>Coste</span></td>
@@ -35,18 +38,26 @@
       		</tr>
       		<tr>
       			<td><span>Incluido</span></td>
-      			<td th:each="cost, coststat : ${costes}">
+      			<td th:each="cost, coststat : ${costes}" class="texto-centro">
       				<input type="checkbox" th:field="*{costs[__${coststat.index}__].selected}"/>
       				<input type="hidden" th:field="*{costs[__${coststat.index}__].id}"/>
       			</td>
       		</tr>
+      		<tr><td th:colspan="${costes.size() + 1}"></td></tr>
       		<tr th:each="atributo, atributostat : ${atributos}">
-      			<td><span th:text="${atributo.name}"></span></td>
-      			<td th:each="cost, coststat : ${costes}">
-      				<input type="checkbox" th:field="*{attributesByCost[__${atributos.size() * coststat.index + atributostat.index}__].selected}"/>
+      			<td>
+      				<span th:text="${atributo.name}"></span>
+      			</td>
+      			<td th:each="proveedor, proveedorstat : ${proveedores}" th:colspan="${proveedor.costes.size()}" class="texto-centro">
+      				<input type="hidden" th:if="${atributostat.index == 0}" th:field="*{attributesByCotiz[__${proveedorstat.index}__].cotizId}"/>
+      				<input type="checkbox" th:field="*{attributesByCotiz[__${proveedorstat.index}__].atts[__${atributostat.index}__].selected}"/>
+      				<input type="hidden" th:field="*{attributesByCotiz[__${proveedorstat.index}__].atts[__${atributostat.index}__].id}"/>
       			</td>
       		</tr>
       	</table>
+      	
+      	<input type="hidden" th:field="*{id}"/>
+      	<input type="hidden" th:field="*{name}"/>
 		
 		<div class="margentb">
 			<div><button id="submit-button">Guardar</button></div>
