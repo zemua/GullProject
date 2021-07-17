@@ -56,6 +56,7 @@ import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.linea.LineaService;
 import devs.mrp.gullproject.service.propuesta.PropuestaUtilities;
 import devs.mrp.gullproject.service.propuesta.oferta.PropuestaNuestraOperations;
+import devs.mrp.gullproject.service.propuesta.proveedor.CotizacionOfCostMapperFactory;
 import devs.mrp.gullproject.service.propuesta.proveedor.PropuestaProveedorOperations;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -81,6 +82,7 @@ public class ConsultaController {
 	ConsultaFactory consultaFactory;
 	
 	@Autowired PvperCheckboxedCostToPvper pvperCheckboxedCostToPvper;
+	@Autowired CotizacionOfCostMapperFactory costToCotiz;
 	
 	@Autowired
 	public ConsultaController(ConsultaService consultaService, LineaService lineaService, AtributoServiceProxyWebClient atributoService, PropuestaUtilities propuestaUtilities, ModelMapper modelMapper, CompoundedConsultaLineaService compoundedService, ConsultaFactory consultaFactory) {
@@ -742,6 +744,7 @@ public class ConsultaController {
 				model.addAttribute("propuesta", prop);
 				model.addAttribute("proveedores", consultaOperations.getPropuestasProveedor());
 				model.addAttribute("costes", consultaOperations.getCostesOfPropuestasProveedor());
+				model.addAttribute("costToCotiz", costToCotiz.from(cons));
 				model.addAttribute("map", consultaOperations.mapIdToCosteProveedor());
 				model.addAttribute("atributos", consultaOperations.getAtributosOfPropuestasProveedorAssignedTo(prop.getForProposalId()));
 				model.addAttribute("pvperCheckboxedCosts", operationsNuestra.getSinglePvpCheckboxed(modelMapper, consultaService, pvp));

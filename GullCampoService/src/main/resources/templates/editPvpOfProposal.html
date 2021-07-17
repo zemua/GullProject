@@ -27,6 +27,7 @@
       	<div><span class="validationError margentb"
       	th:if="${#fields.hasErrors('attributesByCotiz')}"
       	th:errors="*{attributesByCost}">Selecciona al menos un atributo para cada coste</span></div>
+      	
       	<table>
       		<tr>
       			<td><span>Nombre</span></td>
@@ -43,7 +44,7 @@
       		<tr>
       			<td><span>Incluido</span></td>
       			<td th:each="cost, coststat : ${costes}" class="texto-centro">
-      				<input type="checkbox" th:field="*{costs[__${coststat.index}__].selected}"/>
+      				<input type="checkbox" th:field="*{costs[__${coststat.index}__].selected}" th:class="${'cost' + costToCotiz.of(cost.id)}"/>
       				<input type="hidden" th:field="*{costs[__${coststat.index}__].id}"/>
       			</td>
       		</tr>
@@ -54,7 +55,7 @@
       			</td>
       			<td th:each="proveedor, proveedorstat : ${proveedores}" th:colspan="${proveedor.costes.size()}" class="texto-centro">
       				<input type="hidden" th:if="${atributostat.index == 0}" th:field="*{attributesByCotiz[__${proveedorstat.index}__].cotizId}"/>
-      				<input type="checkbox" th:field="*{attributesByCotiz[__${proveedorstat.index}__].atts[__${atributostat.index}__].selected}"/>
+      				<input type="checkbox" th:field="*{attributesByCotiz[__${proveedorstat.index}__].atts[__${atributostat.index}__].selected}" th:class="${'attr' + proveedor.id}"/>
       				<input type="hidden" th:field="*{attributesByCotiz[__${proveedorstat.index}__].atts[__${atributostat.index}__].id}"/>
       			</td>
       		</tr>
