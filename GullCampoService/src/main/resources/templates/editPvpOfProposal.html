@@ -35,7 +35,7 @@
       		</tr>
       		<tr>
       			<td><span>Cotización</span></td>
-      			<td th:each="proveedor, proveedorstat : ${proveedores}" th:colspan="${proveedor.costes.size()}" class="texto-centro" th:id="${proveedor.id}"><span th:text="${proveedor.nombre}"></span></td>
+      			<td th:each="proveedor, proveedorstat : ${proveedores}" th:colspan="${proveedor.costes.size()}" class="texto-centro es-cotizacion" th:id="${proveedor.id}"><span th:text="${proveedor.nombre}"></span></td>
       		</tr>
       		<tr>
       			<td><span>Coste</span></td>
@@ -67,7 +67,10 @@
 			<div><button id="submit-button">Guardar</button></div>
 		</div>
 	
-	</form>	
+	</form>
+	
+	<script type="text/javascript" th:src="@{/js/jquery/jquery-3.6.0.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/scripts/attsEnabler.js}"></script>
 	
 </body>
 </html>

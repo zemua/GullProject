@@ -575,6 +575,7 @@ public class ConsultaController {
 					model.addAttribute("proveedores", consultaOperations.getPropuestasProveedor());
 					model.addAttribute("costes", consultaOperations.getCostesOfPropuestasProveedor());
 					model.addAttribute("map", consultaOperations.mapIdToCosteProveedor());
+					model.addAttribute("costToCotiz", costToCotiz.from(cons));
 					model.addAttribute("atributos", consultaOperations.getAtributosOfPropuestasProveedorAssignedTo(prop.getForProposalId()));
 					model.addAttribute("pvperCheckboxedCosts", operationsNuestra.getSinglePvpCheckboxed(modelMapper, consultaService, new Pvper()));
 					return "newPvpOfProposal";
