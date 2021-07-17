@@ -34,7 +34,7 @@
       		</tr>
       		<tr>
       			<td><span>Cotización</span></td>
-      			<td th:each="proveedor, proveedorstat : ${proveedores}" th:colspan="${proveedor.costes.size()}" class="texto-centro"><span th:text="${proveedor.nombre}"></span></td>
+      			<td th:each="proveedor, proveedorstat : ${proveedores}" th:colspan="${proveedor.costes.size()}" class="texto-centro" th:id="${proveedor.id}"><span th:text="${proveedor.nombre}"></span></td>
       		</tr>
       		<tr>
       			<td><span>Coste</span></td>
