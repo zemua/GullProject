@@ -34,11 +34,13 @@ public class LineAttributeConcatenatorForPvpImpl implements LineAttributeConcate
 		StringBuilder builder = new StringBuilder();
 		lineas.forEach(l -> {
 			if (includedInPvp(pvp, l.getPropuestaId())) {
-				var appender = getAtt(l, attId);
-				if (!appender.isEmpty() && !builder.toString().isEmpty()) {
-					builder.append(" / ");
+				if (attIncluded(pvp, l.getPropuestaId(), attId)) {
+					var appender = getAtt(l, attId);
+					if (!appender.isEmpty() && !builder.toString().isEmpty()) {
+						builder.append(" / ");
+					}
+					builder.append(appender);
 				}
-				builder.append(appender);
 			}
 		});
 		return builder.toString();
@@ -46,6 +48,12 @@ public class LineAttributeConcatenatorForPvpImpl implements LineAttributeConcate
 	
 	private boolean includedInPvp(Pvper pvper, String cotizacionId) {
 		return checkerFact.from(pvper, consulta).ifIncludes(cotizacionId);
+	}
+	
+	private boolean attIncluded(Pvper pvper, String cotizacionId, String attId) {
+		var atts = pvper.getIdAttributesByCotiz().stream().filter(a -> a.getCotizId().equals(cotizacionId)).findAny();
+		if (atts.isEmpty()) { return false; }
+		return atts.get().getIds().stream().filter(a -> a.equals(attId)).findAny().isPresent();
 	}
 	
 	private String getAtt(Linea linea, String attId) {
