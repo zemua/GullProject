@@ -1,4 +1,4 @@
-package devs.mrp.gullproject.service.linea.proveedor;
+package devs.mrp.gullproject.service.linea.oferta.concatenator;
 
 public interface LineAttributeConcatenatorForPvp {
 

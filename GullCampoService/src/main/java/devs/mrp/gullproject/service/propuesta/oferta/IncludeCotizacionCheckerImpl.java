@@ -8,7 +8,7 @@ import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
 import devs.mrp.gullproject.domains.propuestas.Pvper;
 
-public class IncludeCotizacionCheckerImpl implements IncludeCotizacionChecker {
+public class IncludeCotizacionCheckerImpl implements IncludeCotizacionChecker { // TODO test
 
 	private Map<String, List<String>> cotizacionesVsCosts;
 	private Pvper pvper;
@@ -20,8 +20,9 @@ public class IncludeCotizacionCheckerImpl implements IncludeCotizacionChecker {
 	
 	@Override
 	public boolean ifIncludes(String cotizacionId) {
-		// TODO Auto-generated method stub
-		return false;
+		var costesPropuesta = cotizacionesVsCosts.get(cotizacionId);
+		var costesPvp = pvper.getIdCostes();
+		return costesPvp.stream().filter(c -> costesPropuesta.contains(c)).findAny().isPresent();
 	}
 
 }
