@@ -185,7 +185,7 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 					return supplierLineFinderByProposalAssignation.findBy(propuestaNuestra.getForProposalId())
 						.collectList()
 						.flatMap(proveedorLines -> {
-						var concatenator = pvpConcatenatorFactory.from(proveedorLines, propuestaNuestra.getPvps(), rConsulta); // TODO concatenate correctly
+						var concatenator = pvpConcatenatorFactory.from(proveedorLines, propuestaNuestra.getPvps(), rConsulta);
 				// OFFER LINES
 						var atributos = attributesExtractor.fromProposals(consultaOps.getPropuestasProveedorAssignedTo(propuestaNuestra.getForProposalId()));
 						var lineasOferta = offerLineReconstructor.from(selectableLinesWrap, concatenator, atributos, propuestaNuestra.getId());
