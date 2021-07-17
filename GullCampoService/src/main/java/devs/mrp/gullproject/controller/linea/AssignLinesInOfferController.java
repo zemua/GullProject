@@ -32,9 +32,11 @@ import devs.mrp.gullproject.service.linea.LineByAssignationRetriever;
 import devs.mrp.gullproject.service.linea.LineaOfferService;
 import devs.mrp.gullproject.service.linea.LineaService;
 import devs.mrp.gullproject.service.linea.LineaUtilities;
+import devs.mrp.gullproject.service.linea.oferta.concatenator.LineAttributeConcatenatorForPvpFactory;
 import devs.mrp.gullproject.service.linea.oferta.pvpmapper.PvpMapperByAssignedLineAbstractFactory;
 import devs.mrp.gullproject.service.linea.oferta.pvpmapper.SumMapperByAssignedLineAbstractFactory;
 import devs.mrp.gullproject.service.linea.oferta.selectable.LineReConstructor;
+import devs.mrp.gullproject.service.linea.oferta.selectable.OfferLineReconstructor;
 import devs.mrp.gullproject.service.linea.proveedor.CostMapperByIdFactory;
 import devs.mrp.gullproject.service.linea.proveedor.CostRemapperUtilities;
 import devs.mrp.gullproject.service.linea.proveedor.LineAttributeConcatenator;
@@ -71,6 +73,8 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 	@Autowired AttributesExtractor attributesExtractor;
 	@Autowired LineReConstructor lineReconstructor;
 	@Autowired OfferAndLinesServiceFacade offerLinesFacade;
+	@Autowired LineAttributeConcatenatorForPvpFactory pvpConcatenatorFactory;
+	@Autowired OfferLineReconstructor offerLineReconstructor;
 	
 	public AssignLinesInOfferController(LineaService lineaService, ConsultaService consultaService,
 			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities,
@@ -181,10 +185,10 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 					return supplierLineFinderByProposalAssignation.findBy(propuestaNuestra.getForProposalId())
 						.collectList()
 						.flatMap(proveedorLines -> {
-						LineAttributeConcatenator concatenator = concatenatorFactory.from(proveedorLines); // TODO concatenate correctly
+						var concatenator = pvpConcatenatorFactory.from(proveedorLines, propuestaNuestra.getPvps(), rConsulta); // TODO concatenate correctly
 				// OFFER LINES
 						var atributos = attributesExtractor.fromProposals(consultaOps.getPropuestasProveedorAssignedTo(propuestaNuestra.getForProposalId()));
-						var lineasOferta = lineReconstructor.from(selectableLinesWrap, concatenator, atributos, propuestaNuestra.getId());
+						var lineasOferta = offerLineReconstructor.from(selectableLinesWrap, concatenator, atributos, propuestaNuestra.getId());
 						return offerLinesFacade.clearAllLinesOfOffer(propuestaId)
 								.thenMany(offerLinesFacade.saveAll(propuestaNuestra.getId(), lineasOferta))
 								.collectList()
