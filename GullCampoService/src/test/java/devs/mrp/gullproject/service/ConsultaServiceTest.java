@@ -553,5 +553,37 @@ class ConsultaServiceTest {
 		.expectComplete()
 		.verify();
 	}
+	
+	@Test
+	void testUpdateSinglePvpOfPropuesta() {
+		Pvper pvp1 = new Pvper();
+		pvp1.setName("pvp1");
+		Pvper pvp2 = new Pvper();
+		pvp2.setName("pvp2");
+		List<Pvper> pvps = new ArrayList<>() {{add(pvp1);add(pvp2);}};
+		PropuestaNuestra prop = new PropuestaNuestra();
+		prop.setPvps(pvps);
+		
+		consultaService.addPropuesta(consulta.getId(), prop).block();
+		
+		var monoprop = consultaService.findPropuestaByPropuestaId(prop.getId());
+		
+		StepVerifier.create(monoprop)
+		.assertNext(pro -> {
+			assertEquals("pvp1", ((PropuestaNuestra)pro).getPvps().get(0).getName());
+		})
+		.expectComplete()
+		.verify();
+		
+		pvp1.setName("pvp1 actualizado");
+		consultaService.updateSinglePvpOfPropuesta(prop.getId(), pvp1).block();
+		
+		StepVerifier.create(monoprop)
+		.assertNext(pro -> {
+			assertEquals("pvp1 actualizado", ((PropuestaNuestra)pro).getPvps().get(0).getName());
+		})
+		.expectComplete()
+		.verify();
+	}
 
 }

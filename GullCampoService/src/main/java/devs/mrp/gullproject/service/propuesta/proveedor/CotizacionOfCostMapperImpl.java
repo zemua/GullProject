@@ -8,7 +8,7 @@ import java.util.Map;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
 
-public class CotizacionOfCostMapperImpl implements CotizacionOfCostMapper { // TODO test
+public class CotizacionOfCostMapperImpl implements CotizacionOfCostMapper {
 
 	private Map<String, String> costIdVsCotizacionId;
 	

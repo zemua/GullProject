@@ -238,7 +238,7 @@ public class ConsultaService {
 		return consultaRepo.addPvpToList(idPropuesta, pvp);
 	}
 	
-	public Mono<Consulta> updateSinglePvpOfPropuesta(String idPropuesta, Pvper pvp) { // TODO test
+	public Mono<Consulta> updateSinglePvpOfPropuesta(String idPropuesta, Pvper pvp) {
 		return findConsultaByPropuestaId(idPropuesta)
 				.flatMap(rCons -> {
 					PropuestaNuestra rPro = toOferta.from(rCons.operations().getPropuestaById(idPropuesta));
