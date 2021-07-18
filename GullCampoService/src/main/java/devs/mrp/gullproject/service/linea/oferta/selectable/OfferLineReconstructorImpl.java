@@ -13,7 +13,7 @@ import devs.mrp.gullproject.domainsdto.linea.selectable.SelectableLinesWrap;
 import devs.mrp.gullproject.service.linea.oferta.concatenator.LineAttributeConcatenatorForPvp;
 
 @Service
-public class OfferLineReconstructorImpl implements OfferLineReconstructor { // TODO
+public class OfferLineReconstructorImpl implements OfferLineReconstructor {
 
 	@Override
 	public List<LineaAbstracta> from(SelectableLinesWrap wrap, LineAttributeConcatenatorForPvp concatenator, List<AtributoForCampo> atributos, String forPropuestaId) {

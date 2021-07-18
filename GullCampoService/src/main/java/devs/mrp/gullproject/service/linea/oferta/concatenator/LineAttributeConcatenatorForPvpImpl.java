@@ -11,7 +11,7 @@ import devs.mrp.gullproject.service.linea.proveedor.LinesMapperByCounterId;
 import devs.mrp.gullproject.service.propuesta.oferta.IncludeCotizacionChecker;
 import devs.mrp.gullproject.service.propuesta.oferta.IncludeCotizacionCheckerFactory;
 
-public class LineAttributeConcatenatorForPvpImpl implements LineAttributeConcatenatorForPvp { // TODO test
+public class LineAttributeConcatenatorForPvpImpl implements LineAttributeConcatenatorForPvp {
 
 	private LinesMapperByCounterId linesMapper;
 	private Map<String, Pvper> pvperMapper;

@@ -12,7 +12,7 @@ import devs.mrp.gullproject.service.linea.proveedor.LinesMapperByCounterIdFactor
 import devs.mrp.gullproject.service.propuesta.oferta.IncludeCotizacionCheckerFactory;
 
 @Service
-public class LineAttributeConcatenatorForPvpFactoryImpl implements LineAttributeConcatenatorForPvpFactory { // TODO test
+public class LineAttributeConcatenatorForPvpFactoryImpl implements LineAttributeConcatenatorForPvpFactory {
 
 	@Autowired LinesMapperByCounterIdFactory mapperFactory;
 	@Autowired IncludeCotizacionCheckerFactory checkerFactory;
