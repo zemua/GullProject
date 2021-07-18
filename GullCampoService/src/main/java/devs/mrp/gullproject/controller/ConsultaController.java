@@ -596,6 +596,7 @@ public class ConsultaController {
 				model.addAttribute("propuesta", prop);
 				model.addAttribute("proveedores", consultaOperations.getPropuestasProveedor());
 				model.addAttribute("costes", consultaOperations.getCostesOfPropuestasProveedor());
+				model.addAttribute("costToCotiz", costToCotiz.from(cons));
 				model.addAttribute("map", consultaOperations.mapIdToCosteProveedor());
 				model.addAttribute("atributos", consultaOperations.getAtributosOfPropuestasProveedorAssignedTo(prop.getForProposalId()));
 				model.addAttribute("pvperCheckboxedCosts", pvperCheckboxedCosts);
@@ -731,7 +732,7 @@ public class ConsultaController {
 	}
 	
 	// INDIVIDUAL EDIT
-	@GetMapping("/pvpsof/propid/{propid}/edit/{pvpid}") // TODO test
+	@GetMapping("/pvpsof/propid/{propid}/edit/{pvpid}")
 	public Mono<String> editPvpOfProposal(Model model, @PathVariable(name = "propid") String proposalId, @PathVariable(name = "pvpid") String pvpId) {
 		model.addAttribute("propuestaId", proposalId);
 		model.addAttribute("pvpId", pvpId);
@@ -755,7 +756,7 @@ public class ConsultaController {
 	}
 	
 	// PROCESS INDIVIDUAL EDIT
-	@PostMapping("/pvpsof/propid/{propid}/edit/{pvpid}") // TODO test
+	@PostMapping("/pvpsof/propid/{propid}/edit/{pvpid}")
 	public Mono<String> processEditPvpOfProposal(@Valid PvperCheckboxedCosts pvperCheckboxedCosts, BindingResult bindingResult, Model model, @PathVariable(name = "propid") String proposalId, @PathVariable(name = "pvpid") String pvpId) {
 		var idCostes = pvperCheckboxedCosts.getCosts();
 		if (idCostes == null || idCostes.size() == 0) {bindingResult.rejectValue("costs", "error.costs", "Selecciona al menos un coste");}
@@ -771,6 +772,7 @@ public class ConsultaController {
 				model.addAttribute("propuesta", prop);
 				model.addAttribute("proveedores", consultaOperations.getPropuestasProveedor());
 				model.addAttribute("costes", consultaOperations.getCostesOfPropuestasProveedor());
+				model.addAttribute("costToCotiz", costToCotiz.from(cons));
 				model.addAttribute("map", consultaOperations.mapIdToCosteProveedor());
 				model.addAttribute("atributos", consultaOperations.getAtributosOfPropuestasProveedorAssignedTo(prop.getForProposalId()));
 				model.addAttribute("pvperCheckboxedCosts", pvperCheckboxedCosts);

@@ -93,6 +93,7 @@ public class PropuestaNuestraOperations extends PropuestaOperations {
 					boxed.setId(pvp.getId());
 					boxed.setName(pvp.getName());
 					boxed.setCosts(new ArrayList<>());
+					boxed.setAttributesByCotiz(new ArrayList<>());
 					// ADD COSTES TO BOXED
 					costes.stream().map(c -> c.getId()).forEach(id -> {
 						PvperCheckboxedCosts.CheckboxedCostId coste = new PvperCheckboxedCosts.CheckboxedCostId();

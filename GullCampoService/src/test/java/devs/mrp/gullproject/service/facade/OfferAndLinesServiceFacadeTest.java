@@ -37,7 +37,7 @@ class OfferAndLinesServiceFacadeTest {
 	@Autowired LineaAbstractaFactory lineaFactory;
 	
 	@Test
-	void test() { // TODO test to pass
+	void test() {
 		consultaRepo.deleteAll().block();
 		lineaRepo.deleteAll().block();
 		
