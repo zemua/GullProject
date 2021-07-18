@@ -8,7 +8,7 @@ import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
 import devs.mrp.gullproject.domains.propuestas.Pvper;
 
-public class IncludeCotizacionCheckerImpl implements IncludeCotizacionChecker { // TODO test
+public class IncludeCotizacionCheckerImpl implements IncludeCotizacionChecker {
 
 	private Map<String, List<String>> cotizacionesVsCosts;
 	private Pvper pvper;

@@ -6,7 +6,7 @@ import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.propuestas.Pvper;
 
 @Service
-public class IncludeCotizacionCheckerFactoryImpl implements IncludeCotizacionCheckerFactory { // TODO test
+public class IncludeCotizacionCheckerFactoryImpl implements IncludeCotizacionCheckerFactory {
 
 	@Override
 	public IncludeCotizacionChecker from(Pvper pvper, Consulta consulta) {
