@@ -54,7 +54,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Data
 @Service
-public class LineaUtilities { // TODO refractor
+public class LineaUtilities {
 	
 	ConsultaService consultaService;
 	AtributoServiceProxyWebClient atributoService;

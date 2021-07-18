@@ -213,4 +213,34 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 		.then(Mono.just("processAssignLinesOfOferta"));
 	}
 	
+	@GetMapping("/allof/ofertaid/{propuestaId}/export") // TODO test
+	public Mono<String> exportLinesOfOferta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+		return consultaService.findConsultaByPropuestaId(propuestaId)
+				.flatMap(rConsulta -> {
+					model.addAttribute("consulta", rConsulta);
+					var consultaOps = rConsulta.operations();
+					var propuestaNuestra = ofertaConverter.from(consultaOps.getPropuestaById(propuestaId));
+					var propuestaCliente = consultaOps.getPropuestaById(propuestaNuestra.getForProposalId());
+			// OFFER LINES
+					return lineaOfertaService.findByPropuesta(propuestaId)
+							.collectList()
+							.flatMap(offerLines -> {
+								model.addAttribute("propuestaNuestra", propuestaNuestra);
+								model.addAttribute("pvps", propuestaNuestra.getPvps());
+								model.addAttribute("pvpMapper", pvperMapper.from(offerLines));
+								return lineaService.findByPropuestaId(propuestaNuestra.getForProposalId())
+									.collectList()
+									.map(customerLinesList -> {
+						// CUSTOMER LINES
+										model.addAttribute("propuestaCliente", propuestaCliente);
+										model.addAttribute("lineasCliente", customerLinesList);
+										model.addAttribute("selectableLinesWrap", selectableLinesWrapBuilder.from(customerLinesList, selectableFactory.from(offerLines), propuestaNuestra));
+										return true;
+									});
+							});
+				})
+				.then(Mono.just("exportLinesOfOferta"))
+				;
+	}
+	
 }
