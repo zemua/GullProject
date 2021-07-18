@@ -127,7 +127,7 @@ public class PropuestaNuestraOperations extends PropuestaOperations {
 			;
 	}
 	
-	public Mono<PvperCheckboxedCosts> getSinglePvpCheckboxed(ModelMapper modelMapper, ConsultaService consultaService, Pvper pvp) { // TODO test
+	public Mono<PvperCheckboxedCosts> getSinglePvpCheckboxed(ModelMapper modelMapper, ConsultaService consultaService, Pvper pvp) {
 		PvperCheckboxedCosts boxed = new PvperCheckboxedCosts();
 		boxed.setId(pvp.getId());
 		boxed.setName(pvp.getName());

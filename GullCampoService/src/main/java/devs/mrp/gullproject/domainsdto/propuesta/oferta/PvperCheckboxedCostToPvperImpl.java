@@ -11,7 +11,7 @@ import devs.mrp.gullproject.domains.propuestas.Pvper.IdAttsList;
 import devs.mrp.gullproject.domainsdto.propuesta.oferta.PvperCheckboxedCosts.CheckboxedAttId;
 
 @Service
-public class PvperCheckboxedCostToPvperImpl implements PvperCheckboxedCostToPvper { // TODO test
+public class PvperCheckboxedCostToPvperImpl implements PvperCheckboxedCostToPvper {
 
 	@Override
 	public Pvper from(PvperCheckboxedCosts dto) {
