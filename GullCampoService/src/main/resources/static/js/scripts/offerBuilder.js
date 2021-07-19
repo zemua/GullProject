@@ -1,5 +1,5 @@
+const map = new Map();
 function getMapOfChecks(pvpchecks, sumchecks) {
-	const map = new Map();
 	pvpchecks.each(function() {
 		map.set($(this).prop("id"), $(this).is(":checked"));
 	});
@@ -89,6 +89,72 @@ function setup(pvps, sums, lineas, atts) {
 	});
 }
 
+function copyToClipboard(text) {
+    var dummy = document.createElement("textarea");
+    // to avoid breaking orgain page when copying more words
+    // cant copy when adding below this code
+    // dummy.style.display = 'none'
+    document.body.appendChild(dummy);
+	// For some reason, I had to use .textContent instead of .value
+    dummy.value = text;
+    dummy.select();
+    document.execCommand("copy");
+    document.body.removeChild(dummy);
+}
+
+function exportar(cabeceras, pvpstop, campos, pvpfield, lineas) {
+	let texto = "";
+	
+	cabeceras.each(function() {
+		texto += $(this).text();
+		texto += "\t"
+	});
+	
+	pvpstop.each(function() {
+		if ($(this).prev().is(":checked")) {
+			texto += $(this).text();
+			texto += "\t";
+		}
+	});
+	texto += "\n";
+	
+	lineas.each(function() {
+		let label = $(this).prop("id");
+		let currentCampo = campos.filter("."+label);
+		currentCampo.each(function() {
+			texto += $(this).text();
+			texto += "\t";
+		});
+		var currentpvps = pvpfield.filter("."+label);
+		currentpvps.each(function() {
+			let masterlabel = $(this).data("masterid");
+			let master = $("#"+masterlabel).first();
+			if (master.is(":checked")) {
+				texto += $(this).text();
+				texto += "\t";
+			}
+		});
+		texto += "\n";
+	});
+	
+	copyToClipboard(texto);
+	
+	$("#notification").fadeIn("slow").append('copiado al portapapeles');
+		$(".dismiss").click(function(){
+		$("#notification").fadeOut("slow");
+		setTimeout(function() {
+			$("#notification").fadeOut("slow");
+		}, 2000);
+	});
+}
+
+function setupExport(copyButton, cabeceras, pvpstop, campos, pvpfield, lineas) {
+	copyButton.click(function(event) {
+		event.preventDefault();
+		exportar(cabeceras, pvpstop, campos, pvpfield, lineas);
+	});
+}
+
 $(document).ready(function() {
 	var lineas = $(".linea-cliente");
 	var pvps = $(".pvpcheckbox");
@@ -99,4 +165,11 @@ $(document).ready(function() {
 	
 	sums.trigger("change");
 	pvps.trigger("change");
+	
+	var copyButton = $("#portapapeles-button").first();
+	var cabeceras = $("[data-exportablealways]");
+	var pvpstop = $("[data-exportablemaybe]");
+	var campos = $("[data-exportable]");
+	var pvpfield = $("[data-exportablecond]");
+	setupExport(copyButton, cabeceras, pvpstop, campos, pvpfield, lineas);
 });
