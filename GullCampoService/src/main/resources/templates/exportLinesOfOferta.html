@@ -20,10 +20,17 @@
 		<tr>
 			<td><span>Nombre</span></td>
 			<td th:each="att, attstat : ${propuestaNuestra.attributeColumns}"><span th:text="${att.name}"></span></td>
+			<td th:each="pvp, pvpstat : ${pvps}"><span th:text="${pvp.name}"></span></td>
+			<td th:each="sum, sumstat : ${sums}"><span th:text="${sum.name}" th:class="${#strings.listJoin(sum.pvperIds, ' ')}"></span></td>
 		</tr>
-		<tr th:each="lc, lcstat : ${lineasCliente}">
+		<tr th:each="lc, lcstat : ${lineasCliente}" class="linea-cliente" th:id="${lc.id}">
 			<td><span th:text="${lc.nombre}"></span></td>
-			<td><span></span></td>
+			<td th:each="att, attstat : ${propuestaNuestra.attributeColumns}" class="attribute-td">
+				<input th:each="pvp, pvpstat : ${pvps}" type="hidden" th:class="${lc.id + ' ' + pvp.id + ' ' + att.id + ' field-concatenable'}" th:value="${attMapper.of(lc.id, pvp.id, att.id)}">
+				<span th:class="${lc.id + ' ' + att.id + ' concatenation-field'}"></span>
+			</td>
+			<td th:each="pvp, pvpstat : ${pvps}"><span th:class="${pvp.id + ' pvp-value-field'}" th:text="${pvpMapper.findBy(lc.id, pvp.id).pvp}"></span></td>
+			<td th:each="sum, sumstat : ${sums}"><span th:class="${sum.id + ' sum-value-field'}" th:text="${sumMapper.findBy(lc.id, sum.id)}"></span></td>
 		</tr>
 	</table>
 	

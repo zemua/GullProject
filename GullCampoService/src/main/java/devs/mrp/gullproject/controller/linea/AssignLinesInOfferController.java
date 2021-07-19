@@ -32,6 +32,7 @@ import devs.mrp.gullproject.service.linea.LineByAssignationRetriever;
 import devs.mrp.gullproject.service.linea.LineaOfferService;
 import devs.mrp.gullproject.service.linea.LineaService;
 import devs.mrp.gullproject.service.linea.LineaUtilities;
+import devs.mrp.gullproject.service.linea.attributemap.AttributeFieldMapperFactory;
 import devs.mrp.gullproject.service.linea.oferta.concatenator.LineAttributeConcatenatorForPvpFactory;
 import devs.mrp.gullproject.service.linea.oferta.pvpmapper.PvpMapperByAssignedLineAbstractFactory;
 import devs.mrp.gullproject.service.linea.oferta.pvpmapper.SumMapperByAssignedLineAbstractFactory;
@@ -75,6 +76,9 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 	@Autowired OfferAndLinesServiceFacade offerLinesFacade;
 	@Autowired LineAttributeConcatenatorForPvpFactory pvpConcatenatorFactory;
 	@Autowired OfferLineReconstructor offerLineReconstructor;
+	
+	@Autowired AttributeFieldMapperFactory attFieldMapper;
+	@Autowired SumMapperByAssignedLineAbstractFactory sumMapper;
 	
 	public AssignLinesInOfferController(LineaService lineaService, ConsultaService consultaService,
 			AtributoServiceProxyWebClient atributoService, LineaUtilities lineaUtilities,
@@ -228,6 +232,9 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 								model.addAttribute("propuestaNuestra", propuestaNuestra);
 								model.addAttribute("pvps", propuestaNuestra.getPvps());
 								model.addAttribute("pvpMapper", pvperMapper.from(offerLines));
+								model.addAttribute("attMapper", attFieldMapper.from(offerLines));
+								model.addAttribute("sums", propuestaNuestra.getSums());
+								model.addAttribute("sumMapper", sumMapper.from(propuestaNuestra, offerLines));
 								return lineaService.findByPropuestaId(propuestaNuestra.getForProposalId())
 									.collectList()
 									.map(customerLinesList -> {
