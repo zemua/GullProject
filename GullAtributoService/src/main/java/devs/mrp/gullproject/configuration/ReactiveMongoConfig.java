@@ -10,11 +10,15 @@ import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 
 @Configuration
-public class ReactiveMongoConfig extends AbstractReactiveMongoConfiguration {
+public class ReactiveMongoConfig /*extends AbstractReactiveMongoConfiguration*/ {
 
 	// configuración cuando se utiliza una instalación de MongoDB, no la embedded
 	
-		@Bean
+	/**
+	 * MONGO SERVER CONFIG MOVED TO PROPERTIES
+	 */
+	
+		/*@Bean
 	    public MongoClient mongoClient() {
 	        return MongoClients.create("mongodb://localhost:27017");
 	    }
@@ -22,12 +26,10 @@ public class ReactiveMongoConfig extends AbstractReactiveMongoConfiguration {
 	    @Override
 	    protected String getDatabaseName() {
 	        return "test";
-	    }
+	    }*/
 	    
 	    @Bean
 	    public ModelMapper modelMapper() {
-	    	// https://www.baeldung.com/entity-to-and-from-dto-for-a-java-spring-application
-	    	// https://ngdeveloper.com/entity-to-dto-using-model-mapper-in-spring-restful-web-services/
 	    	return new ModelMapper();
 	    }
 	

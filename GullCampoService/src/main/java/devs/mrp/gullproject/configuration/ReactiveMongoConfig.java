@@ -9,12 +9,16 @@ import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 
 //@EnableReactiveMongoRepositories
-@Configuration
-public class ReactiveMongoConfig extends AbstractReactiveMongoConfiguration {
+//@Configuration
+public class ReactiveMongoConfig /*extends AbstractReactiveMongoConfiguration*/ {
 
 	// solamente necesario cuando se utiliza una instalación de MongoDB, no la embedded
 	
-	@Bean
+	/**
+	 * CONFIGURATION MOVED TO PROPERTIES
+	 */
+	
+	/*@Bean
     public MongoClient mongoClient() {
         return MongoClients.create("mongodb://localhost:27017");
     }
@@ -22,6 +26,6 @@ public class ReactiveMongoConfig extends AbstractReactiveMongoConfiguration {
     @Override
     protected String getDatabaseName() {
         return "test";
-    }
+    }*/
 	
 }
