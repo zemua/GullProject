@@ -544,9 +544,12 @@ class LineaCustomRepoTest {
 				assertEquals(2, entradas);
 				assertEquals(name, line.getNombre());
 				assertEquals(3, lineo.getCantidadCampos());
-				assertEquals(campo1, lineo.getCampoByIndex(0));
+				/*assertEquals(campo1, lineo.getCampoByIndex(0));
 				assertEquals(campo2, lineo.getCampoByIndex(1));
-				assertEquals(campo3, lineo.getCampoByIndex(2));
+				assertEquals(campo3, lineo.getCampoByIndex(2));*/
+				assertTrue(line.getCampos().contains(campo1));
+				assertTrue(line.getCampos().contains(campo2));
+				assertTrue(line.getCampos().contains(campo3));
 			})
 			.expectComplete()
 			.verify();
