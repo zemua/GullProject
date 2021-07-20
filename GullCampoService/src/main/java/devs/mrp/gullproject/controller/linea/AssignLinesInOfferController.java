@@ -217,7 +217,7 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 		.then(Mono.just("processAssignLinesOfOferta"));
 	}
 	
-	@GetMapping("/allof/ofertaid/{propuestaId}/export")
+	@GetMapping("/allof/ofertaid/{propuestaId}/export") // TODO fix show two attributes of different proposals when only one is selected
 	public Mono<String> exportLinesOfOferta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		return consultaService.findConsultaByPropuestaId(propuestaId)
 				.flatMap(rConsulta -> {

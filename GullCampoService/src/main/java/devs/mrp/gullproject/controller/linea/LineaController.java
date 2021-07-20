@@ -111,7 +111,7 @@ public class LineaController {
 		return "processOrderLineasOfPropuesta";
 	}
 	
-	@GetMapping("/allof/propid/{propuestaId}/rename")
+	@GetMapping("/allof/propid/{propuestaId}/rename") // TODO fix error after editing manually
 	public String renameAllLinesOf(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		Mono<StringListOfListsWrapper> lineas = lineaUtilities.stringListOfListsFromPropuestaId(propuestaId);
 		model.addAttribute("stringListOfListsWrapper", lineas);
