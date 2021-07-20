@@ -75,12 +75,12 @@ class AtributoControllerTest {
 	void testProcesarNuevoAtributo() throws Exception {
 		Atributo a = new Atributo();
 		a.setName("nombre");
-		a.setTipo(DataFormat.CANTIDAD);
+		a.setTipo(DataFormat.NUMERO);
 		a.setId("idDelMoNo");
 		
 		Atributo b = new Atributo();
 		b.setName("nombre");
-		b.setTipo(DataFormat.CANTIDAD);
+		b.setTipo(DataFormat.NUMERO);
 		
 		Mono<Atributo> mono = Mono.just(a);
 		when(atributoService.save(ArgumentMatchers.refEq(b, "id"))).thenReturn(mono);
@@ -120,12 +120,12 @@ class AtributoControllerTest {
 		
 		Atributo a = new Atributo();
 		a.setName("nombreA");
-		a.setTipo(DataFormat.CANTIDAD);
+		a.setTipo(DataFormat.NUMERO);
 		a.setId("idDelMoNoA");
 		
 		Atributo b = new Atributo();
 		b.setName("nombreB");
-		b.setTipo(DataFormat.CANTIDAD);
+		b.setTipo(DataFormat.NUMERO);
 		b.setId("idDelMoNoB");
 		
 		Flux<Atributo> flux = Flux.just(a, b);
@@ -151,7 +151,7 @@ class AtributoControllerTest {
 		
 		Atributo a = new Atributo();
 		a.setName("nombreA");
-		a.setTipo(DataFormat.CANTIDAD);
+		a.setTipo(DataFormat.NUMERO);
 		a.setId("idDelMoNoA");
 		
 		Mono<Atributo> mono = Mono.just(a);
@@ -177,7 +177,7 @@ class AtributoControllerTest {
 		
 		Atributo a = new Atributo();
 		a.setName("un nombre cualquiera");
-		a.setTipo(DataFormat.CANTIDAD);
+		a.setTipo(DataFormat.NUMERO);
 		a.setId("idDelMoNoA");
 		
 		Mono<Atributo> mono = Mono.just(a);
@@ -230,7 +230,7 @@ class AtributoControllerTest {
 		
 		Atributo a = new Atributo();
 		a.setName("nombreA");
-		a.setTipo(DataFormat.CANTIDAD);
+		a.setTipo(DataFormat.NUMERO);
 		a.setId("idDelMoNoA");
 		
 		Mono<Atributo> mono = Mono.just(a);
@@ -258,7 +258,7 @@ class AtributoControllerTest {
 		
 		Atributo a = new Atributo();
 		a.setName("un nombre cualquiera");
-		a.setTipo(DataFormat.CANTIDAD);
+		a.setTipo(DataFormat.NUMERO);
 		a.setId("idDelMoNoA");
 		
 		Mono<Atributo> mono = Mono.just(a);
@@ -282,7 +282,7 @@ class AtributoControllerTest {
 		
 		Atributo b = new Atributo();
 		b.setName("");
-		b.setTipo(DataFormat.CANTIDAD);
+		b.setTipo(DataFormat.NUMERO);
 		b.setId("idDelMoNoA");
 		
 		Mono<Atributo> mona = Mono.just(b);
@@ -309,12 +309,12 @@ class AtributoControllerTest {
 	void testOrdenarAtributos() {
 		Atributo a = new Atributo();
 		a.setName("nombreA");
-		a.setTipo(DataFormat.CANTIDAD);
+		a.setTipo(DataFormat.NUMERO);
 		a.setId("idDelMoNoA");
 		
 		Atributo b = new Atributo();
 		b.setName("nombreB");
-		b.setTipo(DataFormat.CANTIDAD);
+		b.setTipo(DataFormat.NUMERO);
 		b.setId("idDelMoNoB");
 		
 		Flux<Atributo> flux = Flux.just(a, b);

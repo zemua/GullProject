@@ -92,7 +92,7 @@ class AtributoRestControllerTest {
 		Atributo a = new Atributo();
 		a.setId("id");
 		a.setName("nombre");
-		a.setTipo(DataFormat.CANTIDAD);
+		a.setTipo(DataFormat.NUMERO);
 		
 		AtributoDTO dto = modelMapper.map(a, AtributoDTO.class);
 		assertEquals(a.getId(), dto.getId());

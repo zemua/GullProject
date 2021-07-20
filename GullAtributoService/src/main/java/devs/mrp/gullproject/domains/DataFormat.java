@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public enum DataFormat {
 
-	DESCRIPCION(String.class), CANTIDAD(Integer.class), COSTE(Double.class), MARGEN(Float.class), PVP(Double.class), PLAZO(Long.class);
+	DESCRIPCION(String.class), NUMERO(Integer.class), DECIMAL(Double.class);
 	
 	Class<?> clase;
 	
