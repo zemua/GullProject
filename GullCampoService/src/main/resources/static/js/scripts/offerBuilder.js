@@ -139,13 +139,13 @@ function exportar(cabeceras, pvpstop, campos, pvpfield, lineas) {
 	
 	copyToClipboard(texto);
 	
-	$("#notification").fadeIn("slow").append('copiado al portapapeles');
+	$("#notification").fadeIn("slow").text('copiado al portapapeles');
 		$(".dismiss").click(function(){
-		$("#notification").fadeOut("slow");
-		setTimeout(function() {
+			$("#notification").fadeOut("slow");
+		});
+	setTimeout(function() {
 			$("#notification").fadeOut("slow");
 		}, 2000);
-	});
 }
 
 function setupExport(copyButton, cabeceras, pvpstop, campos, pvpfield, lineas) {
