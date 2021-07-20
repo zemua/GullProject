@@ -217,7 +217,7 @@ public class AssignLinesInOfferController extends LineaControllerSetup {
 		.then(Mono.just("processAssignLinesOfOferta"));
 	}
 	
-	@GetMapping("/allof/ofertaid/{propuestaId}/export") // TODO test
+	@GetMapping("/allof/ofertaid/{propuestaId}/export")
 	public Mono<String> exportLinesOfOferta(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		return consultaService.findConsultaByPropuestaId(propuestaId)
 				.flatMap(rConsulta -> {

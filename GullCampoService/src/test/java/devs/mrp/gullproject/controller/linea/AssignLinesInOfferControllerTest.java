@@ -1,6 +1,7 @@
 package devs.mrp.gullproject.controller.linea;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
@@ -31,6 +32,7 @@ import devs.mrp.gullproject.domains.propuestas.PropuestaCliente;
 import devs.mrp.gullproject.domains.propuestas.PropuestaNuestra;
 import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
 import devs.mrp.gullproject.domains.propuestas.Pvper;
+import devs.mrp.gullproject.domains.propuestas.Pvper.IdAttsList;
 import devs.mrp.gullproject.repository.ConsultaRepo;
 import devs.mrp.gullproject.repository.LineaOfertaRepo;
 import devs.mrp.gullproject.repository.LineaRepo;
@@ -162,9 +164,14 @@ class AssignLinesInOfferControllerTest {
 		Pvper pvper1 = new Pvper();
 		pvper1.setName("nombre pvper 1");
 		pvper1.setIdCostes(new ArrayList<>() {{add(c1.getId());}});
+		IdAttsList attlist = new IdAttsList();
+		attlist.setCotizId(propuestaProveedor.getId());
+		attlist.setIds(List.of(col1.getId(), col2.getId()));
+		pvper1.setIdAttributesByCotiz(List.of(attlist));
 		Pvper pvper2 = new Pvper();
 		pvper2.setName("nombre pvper 2");
 		pvper2.setIdCostes(new ArrayList<>() {{add(c2.getId());}});
+		pvper2.setIdAttributesByCotiz(List.of(attlist));
 		propuestaNuestra.setPvps(new ArrayList<>() {{add(pvper1);add(pvper2);}});
 		
 		linea1 = lineaAbstractaFactory.create();
@@ -206,6 +213,38 @@ class AssignLinesInOfferControllerTest {
 		pvpl4.setMargen(88);
 		pvpl4.setPvperId(pvper2.getId());
 		linea4.setPvp(pvpl4);
+		
+		Campo<String> c1a = new Campo<>();
+		c1a.setAtributoId(propuestaNuestra.getAttributeColumns().get(0).getId());
+		c1a.setDatos("datos 1a");
+		Campo<String> c1b = new Campo<>();
+		c1b.setAtributoId(propuestaNuestra.getAttributeColumns().get(1).getId());
+		c1b.setDatos("datos 1b");
+		linea1.setCampos(List.of(c1a, c1b));
+		
+		Campo<String> c2a = new Campo<>();
+		c2a.setAtributoId(propuestaNuestra.getAttributeColumns().get(0).getId());
+		c2a.setDatos("datos 2a");
+		Campo<String> c2b = new Campo<>();
+		c2b.setAtributoId(propuestaNuestra.getAttributeColumns().get(1).getId());
+		c2b.setDatos("datos 2b");
+		linea2.setCampos(List.of(c2a, c2b));
+		
+		Campo<String> c3a = new Campo<>();
+		c3a.setAtributoId(propuestaNuestra.getAttributeColumns().get(0).getId());
+		c3a.setDatos("datos 3a");
+		Campo<String> c3b = new Campo<>();
+		c3b.setAtributoId(propuestaNuestra.getAttributeColumns().get(1).getId());
+		c3b.setDatos("datos 3b");
+		linea3.setCampos(List.of(c3a, c3b));
+		
+		Campo<String> c4a = new Campo<>();
+		c4a.setAtributoId(propuestaNuestra.getAttributeColumns().get(0).getId());
+		c4a.setDatos("datos 4a");
+		Campo<String> c4b = new Campo<>();
+		c4b.setAtributoId(propuestaNuestra.getAttributeColumns().get(1).getId());
+		c4b.setDatos("datos 4b");
+		linea4.setCampos(List.of(c4a, c4b));
 		
 		lineaOfferService.addLinea(linea1).block();
 		lineaOfferService.addLinea(linea2).block();
@@ -294,13 +333,16 @@ class AssignLinesInOfferControllerTest {
 				.with("lineas[0].id", "idlinea1")
 				.with("lineas[0].nombre", "")
 				.with("lineas[0].propuestaId", propuestaNuestra.getId())
+				.with("lineas[0].parentId", "")
 				.with("lineas[0].counterLineId", lineaCliente1.getId())
-				.with("lineas[0].campos[0].id", "campo1aid")
+				.with("lineas[0].order", "0")
+				.with("lineas[0].qty", "")
+				/*.with("lineas[0].campos[0].id", "campo1aid")
 				.with("lineas[0].campos[0].atributoId", propuestaCliente.getAttributeColumns().get(0).getId())
 				.with("lineas[0].campos[0].datos", "datos campo 1a")
 				.with("lineas[0].campos[1].id", "campo1bid")
 				.with("lineas[0].campos[1].atributoId", propuestaCliente.getAttributeColumns().get(1).getId())
-				.with("lineas[0].campos[1].datos", "datos campo 1b")
+				.with("lineas[0].campos[1].datos", "datos campo 1b")*/
 				
 				.with("lineas[1].pvp.margen", "3.91")
 				.with("lineas[1].pvp.pvp", "264.12")
@@ -310,12 +352,12 @@ class AssignLinesInOfferControllerTest {
 				.with("lineas[1].nombre", "")
 				.with("lineas[1].propuestaId", propuestaNuestra.getId())
 				.with("lineas[1].counterLineId", lineaCliente2.getId())
-				.with("lineas[1].campos[0].id", "campo2aid")
+				/*.with("lineas[1].campos[0].id", "campo2aid")
 				.with("lineas[1].campos[0].atributoId", propuestaCliente.getAttributeColumns().get(0).getId())
 				.with("lineas[1].campos[0].datos", "datos campo 2a")
 				.with("lineas[1].campos[1].id", "campo2bid")
 				.with("lineas[1].campos[1].atributoId", propuestaCliente.getAttributeColumns().get(1).getId())
-				.with("lineas[1].campos[1].datos", "datos campo 2b")
+				.with("lineas[1].campos[1].datos", "datos campo 2b") */
 				
 				.with("lineas[2].pvp.margen", "4.91")
 				.with("lineas[2].pvp.pvp", "265.12")
@@ -325,12 +367,12 @@ class AssignLinesInOfferControllerTest {
 				.with("lineas[2].nombre", "")
 				.with("lineas[2].propuestaId", propuestaNuestra.getId())
 				.with("lineas[2].counterLineId", lineaCliente1.getId())
-				.with("lineas[2].campos[0].id", "campo3aid")
+				/*.with("lineas[2].campos[0].id", "campo3aid")
 				.with("lineas[2].campos[0].atributoId", propuestaCliente.getAttributeColumns().get(0).getId())
 				.with("lineas[2].campos[0].datos", "datos campo 3a")
 				.with("lineas[2].campos[1].id", "campo3bid")
 				.with("lineas[2].campos[1].atributoId", propuestaCliente.getAttributeColumns().get(1).getId())
-				.with("lineas[2].campos[1].datos", "datos campo 3b")
+				.with("lineas[2].campos[1].datos", "datos campo 3b")*/
 				
 				.with("lineas[3].pvp.margen", "5.91")
 				.with("lineas[3].pvp.pvp", "266.12")
@@ -340,12 +382,12 @@ class AssignLinesInOfferControllerTest {
 				.with("lineas[3].nombre", "")
 				.with("lineas[3].propuestaId", propuestaNuestra.getId())
 				.with("lineas[3].counterLineId", lineaCliente2.getId())
-				.with("lineas[3].campos[0].id", "campo4aid")
+				/*.with("lineas[3].campos[0].id", "campo4aid")
 				.with("lineas[3].campos[0].atributoId", propuestaCliente.getAttributeColumns().get(0).getId())
 				.with("lineas[3].campos[0].datos", "datos campo 4a")
 				.with("lineas[3].campos[1].id", "campo4bid")
 				.with("lineas[3].campos[1].atributoId", propuestaCliente.getAttributeColumns().get(1).getId())
-				.with("lineas[3].campos[1].datos", "datos campo 4b")
+				.with("lineas[3].campos[1].datos", "datos campo 4b")*/
 				)
 		.exchange()
 		.expectStatus().isOk()
@@ -366,6 +408,35 @@ class AssignLinesInOfferControllerTest {
 					.contains("datos campo 2 de linea 1")
 					;
 		});
+	}
+	
+	@Test
+	void testExportLinesOfOferta() {
+		webTestClient.get()
+			.uri("/lineas/allof/ofertaid/" + propuestaNuestra.getId() + "/export")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+				.contains("Exportar lineas de la oferta")
+				.contains(propuestaNuestra.getNombre())
+				.contains(propuestaCliente.getAttributeColumns().get(0).getName())
+				.contains(propuestaCliente.getAttributeColumns().get(1).getName())
+				.contains(lineaCliente1.getNombre())
+				.contains(lineaCliente2.getNombre())
+				.contains(linea1.getCampos().get(0).getDatosText())
+				.contains(linea2.getCampos().get(1).getDatosText())
+				.contains(linea3.getCampos().get(0).getDatosText())
+				.contains(linea4.getCampos().get(1).getDatosText())
+				.contains(String.valueOf(linea1.getPvp().getPvp()))
+				.contains(String.valueOf(linea2.getPvp().getPvp()))
+				.contains(String.valueOf(linea3.getPvp().getPvp()))
+				.contains(String.valueOf(linea4.getPvp().getPvp()))
+				;
+			})
+			;
 	}
 
 }
