@@ -9,6 +9,7 @@ import devs.mrp.gullproject.ainterfaces.MyFinder;
 import devs.mrp.gullproject.domains.propuestas.PropuestaNuestra;
 import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
 
+@Service
 public class ProposalCostNameMapperFromPvpFactoryImpl implements ProposalCostNameMapperFromPvpFactory {
 
 	@Override

@@ -56,7 +56,7 @@ import org.springframework.cloud.contract.spec.Contract
 		 	queryParameters{
 		 		//parameter 'type': $(c(regex("[a-zA-Z]+")), p('abcd'))
 		 		//parameter 'data': $(c(regex(nonBlank())), p('abcd123, asdfg.'))
-		 		parameter 'type': $(c('CANTIDAD'), p('CANTIDAD'))
+		 		parameter 'type': $(c('NUMERO'), p('NUMERO'))
 		 		parameter 'data': $(c(regex(number())), p('123456'))
 		 	}
 		 }
@@ -91,7 +91,7 @@ import org.springframework.cloud.contract.spec.Contract
 		 	queryParameters{
 		 		//parameter 'type': $(c(regex("[a-zA-Z]+")), p('abcd'))
 		 		//parameter 'data': $(c(regex(nonBlank())), p('abcd123, asdfg.'))
-		 		parameter 'type': $(c('CANTIDAD'), p('CANTIDAD'))
+		 		parameter 'type': $(c('NUMERO'), p('NUMERO'))
 		 		parameter 'data': $(c(regex("[a-zA-Z]+")), p('azsxDCFV'))
 		 	}
 		 }
@@ -214,11 +214,8 @@ import org.springframework.cloud.contract.spec.Contract
 		 status 200
 		 body ([
 		 	[string: 'DESCRIPCION'],
-		 	[string: 'CANTIDAD'],
-		 	[string: 'COSTE'],
-		 	[string: 'MARGEN'],
-		 	[string: 'PVP'],
-		 	[string: 'PLAZO']
+		 	[string: 'NUMERO'],
+		 	[string: 'DECIMAL']
 		 ])
 		 headers {
 			 contentType('application/json')
@@ -267,8 +264,8 @@ import org.springframework.cloud.contract.spec.Contract
 	 ''')
 	 request {
 		 method 'GET'
-		 //urlPath $(c(regex('/api/atributos/typeofformat/([A-Z]+)')), p('/api/atributos/typeofformat/CANTIDAD'))
-		 urlPath ('/api/atributos/typeofformat/CANTIDAD')
+		 //urlPath $(c(regex('/api/atributos/typeofformat/([A-Z]+)')), p('/api/atributos/typeofformat/NUMERO'))
+		 urlPath ('/api/atributos/typeofformat/NUMERO')
 		 headers {
 			 contentType('text/html')
 		 }

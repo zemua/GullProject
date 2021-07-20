@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import devs.mrp.gullproject.domains.propuestas.Propuesta;
 import devs.mrp.gullproject.domains.propuestas.PropuestaNuestra;
 
+@Service
 public class FromPropuestaToOfertaFactoryImpl implements FromPropuestaToOfertaFactory {
 
 	@Override

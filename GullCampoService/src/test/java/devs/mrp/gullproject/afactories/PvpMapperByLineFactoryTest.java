@@ -24,7 +24,7 @@ import devs.mrp.gullproject.service.linea.oferta.PvpMapperByAssignedLineFactory;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-@Import({LineByAssignationRetrieverFactory.class, LineaFactory.class, Consulta.class})
+//@Import({LineByAssignationRetrieverFactory.class, LineaFactory.class, Consulta.class})
 class PvpMapperByLineFactoryTest {
 
 	@Autowired PvpMapperByAssignedLineFactory<Linea> factory;

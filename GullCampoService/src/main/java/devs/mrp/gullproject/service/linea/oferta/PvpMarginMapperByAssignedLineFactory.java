@@ -10,6 +10,7 @@ import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
 import devs.mrp.gullproject.domains.linea.Linea;
 import devs.mrp.gullproject.service.linea.LineByAssignationRetrieverFactory;
 
+@Service
 public class PvpMarginMapperByAssignedLineFactory implements PvpMarginMapperByCounterIdFactory {
 
 	@Autowired LineByAssignationRetrieverFactory<Linea> factory;

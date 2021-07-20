@@ -90,7 +90,7 @@ class AtributoControllerTest {
 		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 		.accept(MediaType.TEXT_HTML)
 		.body(BodyInserters.fromFormData("name", "nombre")
-				.with("tipo", "CANTIDAD"))
+				.with("tipo", "NUMERO"))
 		.exchange()
 		.expectStatus().is3xxRedirection();
 		
@@ -208,7 +208,7 @@ class AtributoControllerTest {
 		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 		.accept(MediaType.TEXT_HTML)
 		.body(BodyInserters.fromFormData("name", "un nombre cualquiera")
-				.with("tipo", "CANTIDAD"))
+				.with("tipo", "NUMERO"))
 		.exchange()
 		.expectStatus().isOk()
 		.expectBody()
@@ -220,7 +220,7 @@ class AtributoControllerTest {
 					.contains("Tipo:")
 					.contains("Volver")
 					.contains("un nombre cualquiera")
-					.contains("CANTIDAD");
+					.contains("NUMERO");
 		});
 		
 	}
@@ -269,7 +269,7 @@ class AtributoControllerTest {
 		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 		.accept(MediaType.TEXT_HTML)
 		.body(BodyInserters.fromFormData("name", "un nombre cualquiera")
-				.with("tipo", "CANTIDAD")
+				.with("tipo", "NUMERO")
 				.with("id", "idDelMoNoA"))
 		.exchange()
 		.expectStatus().isOk()

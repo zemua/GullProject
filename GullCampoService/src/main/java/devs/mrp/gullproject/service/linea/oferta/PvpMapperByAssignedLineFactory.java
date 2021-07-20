@@ -10,6 +10,7 @@ import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
 import devs.mrp.gullproject.domains.linea.Linea;
 import devs.mrp.gullproject.service.linea.LineByAssignationRetrieverFactory;
 
+@Service
 public class PvpMapperByAssignedLineFactory <T extends Linea >implements PvpMapperByCounterLineFactory<T> {
 
 	MyMapperByDupla<Double, String, String> mapper;

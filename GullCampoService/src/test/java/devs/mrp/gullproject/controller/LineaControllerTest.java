@@ -343,30 +343,6 @@ class LineaControllerTest {
 	}
 	
 	@Test
-	void testShowAllLinesOfOferta() {
-		addPropuestaNuestra();
-		webTestClient.get()
-		.uri("/lineas/allof/ofertaid/"+propuestaNuestra.getId())
-		.accept(MediaType.TEXT_HTML)
-		.exchange()
-		.expectStatus().isOk()
-		.expectBody()
-		.consumeWith(response -> {
-				Assertions.assertThat(response.getResponseBody()).asString()
-					.contains("Lineas de la oferta")
-					.contains("Nombre")
-					.contains("Pvps")
-					.contains(linea1.getCampos().get(0).getDatosText())
-					.contains(linea2.getCampos().get(1).getDatosText())
-					.contains(propuestaNuestra.getNombre())
-					.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName())
-					.contains(((PropuestaNuestra)propuestaNuestra).getSums().get(0).getName())
-					.contains(String.valueOf(linea1.getPvps().get(0).getPvp()))
-					.contains(String.valueOf(linea2.getPvps().get(0).getPvp()));
-		});
-	}
-	
-	@Test
 	void testAddLineaToPropuesta() {
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
 		when(consultaService.findAttributesByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(fluxAttsPropuesta);
@@ -957,6 +933,7 @@ class LineaControllerTest {
 	@Test
 	void testProcessConfirmDeleteLinesOf() {
 		when(lineaService.deleteVariasLineas(ArgumentMatchers.any(Flux.class))).thenReturn(Mono.empty());
+		when(consultaService.removeVariasLineasDePropuesta(ArgumentMatchers.eq(propuesta.getId()), ArgumentMatchers.anyList())).thenReturn(Mono.just(1L));
 		webTestClient.post()
 			.uri("/lineas/deleteof/propid/" + propuesta.getId() + "/confirmed")
 			.contentType(MediaType.TEXT_HTML)

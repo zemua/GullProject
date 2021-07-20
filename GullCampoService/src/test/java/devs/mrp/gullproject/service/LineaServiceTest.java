@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import devs.mrp.gullproject.domains.Consulta;
@@ -34,13 +35,16 @@ import devs.mrp.gullproject.repository.ConsultaRepo;
 import devs.mrp.gullproject.repository.CustomLineaRepo;
 import devs.mrp.gullproject.repository.LineaRepo;
 import devs.mrp.gullproject.service.linea.LineaService;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-@Import({LineaFactory.class, ConsultaImpl.class, ConsultaFactory.class})
+//@Import({LineaFactory.class, ConsultaImpl.class, ConsultaFactory.class})
+@Slf4j
+@ActiveProfiles({"default", "logdebug"})
 class LineaServiceTest {
 	
 	@Autowired LineaFactory lineaFactory;
@@ -318,7 +322,8 @@ class LineaServiceTest {
 	
 	@Test
 	void testDeleteSeveralLineasFromSeveralPropuestas() {
-		lineaService.addVariasLineas(Flux.just(linea4, linea5, linea6, linea7), propuesta.getId()).blockLast();
+		lineaService.addVariasLineas(Flux.just(linea4, linea5), propuesta.getId()).blockLast();
+		lineaService.addVariasLineas(Flux.just(linea6, linea7), propuesta2.getId()).blockLast();
 		
 		StepVerifier.create(lineaService.findById(linea3.getId()))
 		.assertNext(assertionConsumer -> {})
@@ -393,32 +398,46 @@ class LineaServiceTest {
 		
 		var lp1a = lineaFactory.create();
 		lp1a.setPropuestaId(pp1.getId());
+		lp1a.setNombre("lp1a");
 		var lp1b = lineaFactory.create();
 		lp1b.setPropuestaId(pp1.getId());
+		lp1b.setNombre("lp1b");
 		
 		var lp2a = lineaFactory.create();
 		lp2a.setPropuestaId(pp2.getId());
+		lp2a.setNombre("lp2a");
 		var lp2b = lineaFactory.create();
 		lp2b.setPropuestaId(pp2.getId());
+		lp2b.setNombre("lp2b");
 		
 		lineaRepo.save(lp1a).block();
 		lineaRepo.save(lp1b).block();
 		lineaRepo.save(lp2a).block();
 		lineaRepo.save(lp2b).block();
 		
+		List<Linea> holder = List.of(lp1a, lp1b, lp2a, lp2b);
+		
 		Flux<Linea> lineas = compoundedService.getAllLineasOfPropuestasAssignedTo(propuesta.getId());
 		StepVerifier.create(lineas)
 			.assertNext(l -> {
-				assertEquals(lp1a.getId(), l.getId());
+				log.debug("linea: " + l.toString());
+				//assertEquals(lp1a.getId(), l.getId());
+				assertTrue(holder.contains(l));
 			})
 			.assertNext(l -> {
-				assertEquals(lp1b.getId(), l.getId());
+				log.debug("linea: " + l.toString());
+				//assertEquals(lp1b.getId(), l.getId());
+				assertTrue(holder.contains(l));
 			})
 			.assertNext(l -> {
-				assertEquals(lp2a.getId(), l.getId());
+				log.debug("linea: " + l.toString());
+				//assertEquals(lp2a.getId(), l.getId());
+				assertTrue(holder.contains(l));
 			})
 			.assertNext(l -> {
-				assertEquals(lp2b.getId(), l.getId());
+				log.debug("linea: " + l.toString());
+				//assertEquals(lp2b.getId(), l.getId());
+				assertTrue(holder.contains(l));
 			})
 			.expectComplete()
 			.verify()

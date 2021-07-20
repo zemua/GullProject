@@ -11,14 +11,14 @@ import devs.mrp.gullproject.service.propuesta.proveedor.ProposalCostNameMapperFr
 @Configuration
 public class PropuestaBeansConfiguration {
 
-	@Bean
+	/*@Bean
 	public FromPropuestaToOfertaFactory toOfertaConverter() {
 		return new FromPropuestaToOfertaFactoryImpl();
-	}
+	}*/
 	
-	@Bean
+	/*@Bean
 	public ProposalCostNameMapperFromPvpFactory costMapper() {
 		return new ProposalCostNameMapperFromPvpFactoryImpl();
-	}
+	}*/
 	
 }

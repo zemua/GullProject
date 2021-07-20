@@ -139,11 +139,8 @@ class AtributoRestControllerTest {
 		StepVerifier
 			.create(flux)
 			.expectNext(new StringWrapper("DESCRIPCION"))
-			.expectNext(new StringWrapper("CANTIDAD"))
-			.expectNext(new StringWrapper("COSTE"))
-			.expectNext(new StringWrapper("MARGEN"))
-			.expectNext(new StringWrapper("PVP"))
-			.expectNext(new StringWrapper("PLAZO"))
+			.expectNext(new StringWrapper("NUMERO"))
+			.expectNext(new StringWrapper("DECIMAL"))
 			.verifyComplete();
 	}
 

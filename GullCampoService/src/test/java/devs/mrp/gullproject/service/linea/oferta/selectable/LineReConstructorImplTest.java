@@ -34,15 +34,19 @@ class LineReConstructorImplTest {
 		SelectableAbstractLine l1 = selectableFactory.create();
 		l1.setCounterLineId("counter1");
 		l1.setSelected(true);
+		l1.setNombre("l1 name");
 		SelectableAbstractLine l2 = selectableFactory.create();
 		l2.setCounterLineId("counter2");
 		l2.setSelected(true);
+		l2.setNombre("l2 name");
 		SelectableAbstractLine l3 = selectableFactory.create();
 		l3.setCounterLineId("counter1");
 		l3.setSelected(true);
+		l3.setNombre("l3 name");
 		SelectableAbstractLine l4 = selectableFactory.create();
 		l4.setCounterLineId("counter2");
 		l4.setSelected(false);
+		l4.setNombre("l4 name");
 		
 		var wrap = wrapFactory.create();
 		wrap.setLineas(new ArrayList<>() {{add(l1);add(l2);add(l3);add(l4);}});

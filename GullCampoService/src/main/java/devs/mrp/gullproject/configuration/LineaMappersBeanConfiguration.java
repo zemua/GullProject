@@ -13,27 +13,22 @@ import devs.mrp.gullproject.service.linea.oferta.PvpSumByCounterIdFactory;
 import devs.mrp.gullproject.service.linea.proveedor.SupplierLineMapperByPropAndAssignedLineFactory;
 import devs.mrp.gullproject.service.linea.proveedor.SupplierLineMapperByProposalAndCounterLineFactory;
 
-@Configuration
+//@Configuration
 public class LineaMappersBeanConfiguration {
 
-	@Bean
+	/*@Bean
 	public PvpSumByCounterIdFactory getSumMapperFactory() {
 		return new PvpSumByAssignedLineIdFinderFactory();
-	}
+	}*/
 	
-	@Bean
+	/*@Bean
 	public PvpMarginMapperByCounterIdFactory getMarginMapperFactory() {
 		return new PvpMarginMapperByAssignedLineFactory();
-	}
+	}*/
 	
-	@Bean
-	public PvpMapperByCounterLineFactory<Linea> getPvpMapperFactory() {
-		return new PvpMapperByAssignedLineFactory<>();
-	}
-	
-	@Bean
+	/*@Bean
 	public SupplierLineMapperByPropAndAssignedLineFactory getSupplierLineMapperFactory() {
 		return new SupplierLineMapperByProposalAndCounterLineFactory();
-	}
+	}*/
 	
 }

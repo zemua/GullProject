@@ -62,7 +62,7 @@ class ValorEnumValidatorTest {
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.accept(MediaType.TEXT_HTML)
 			.body(BodyInserters.fromFormData("name", "nombre")
-					.with("tipo", "CANTIDAD"))
+					.with("tipo", "NUMERO"))
 			.exchange()
 			.expectStatus().is3xxRedirection();
 			

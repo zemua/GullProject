@@ -23,7 +23,7 @@ class DataFormatTest {
 	@Test
 	void testCheckIfValidValue() {
 		
-		DataFormat df = DataFormat.valueOf("CANTIDAD");
+		DataFormat df = DataFormat.valueOf("NUMERO");
 		assertTrue(df.checkIfValidValue("12345"));
 		assertFalse(df.checkIfValidValue("invalido"));
 		assertFalse(df.checkIfValidValue("123,45"));

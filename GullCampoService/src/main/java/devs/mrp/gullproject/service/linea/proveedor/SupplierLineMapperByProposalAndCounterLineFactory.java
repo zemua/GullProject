@@ -8,6 +8,7 @@ import devs.mrp.gullproject.ainterfaces.MyFactoryFromTo;
 import devs.mrp.gullproject.ainterfaces.MyMapperByDupla;
 import devs.mrp.gullproject.domains.linea.Linea;
 
+@Service
 public class SupplierLineMapperByProposalAndCounterLineFactory implements SupplierLineMapperByPropAndAssignedLineFactory {
 
 	@Override

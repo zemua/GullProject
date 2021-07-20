@@ -14,6 +14,7 @@ import org.mockito.ArgumentMatchers;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.Link;
@@ -36,8 +37,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(SpringExtension.class)
-@WebFluxTest(controllers = ConsultaRestController.class)
-@Import({ConsultaService.class, ConsultaByIdRestController.class, ModelMapper.class, LineaFactory.class, ConsultaImpl.class, ConsultaFactory.class})
+@SpringBootTest
+//@WebFluxTest(controllers = ConsultaRestController.class)
+//@Import({ConsultaService.class, ConsultaByIdRestController.class, ModelMapper.class, LineaFactory.class, ConsultaImpl.class, ConsultaFactory.class})
 class ConsultaRestControllerTest {
 	
 	@Autowired
