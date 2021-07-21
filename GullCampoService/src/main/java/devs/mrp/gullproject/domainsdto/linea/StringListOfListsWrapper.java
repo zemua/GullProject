@@ -42,4 +42,12 @@ public class StringListOfListsWrapper {
 		return name.get(i);
 	}
 	
+	public List<Integer> getName() {
+		return this.name;
+	}
+	
+	public void setName(List<Integer> names) {
+		this.name = names;
+	}
+	
 }

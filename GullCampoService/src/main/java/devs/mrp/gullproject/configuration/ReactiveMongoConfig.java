@@ -1,5 +1,6 @@
 package devs.mrp.gullproject.configuration;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractReactiveMongoConfiguration;
@@ -9,8 +10,8 @@ import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 
 //@EnableReactiveMongoRepositories
-//@Configuration
-public class ReactiveMongoConfig /*extends AbstractReactiveMongoConfiguration*/ {
+@Configuration
+public class ReactiveMongoConfig extends AbstractReactiveMongoConfiguration {
 
 	// solamente necesario cuando se utiliza una instalación de MongoDB, no la embedded
 	
@@ -18,14 +19,21 @@ public class ReactiveMongoConfig /*extends AbstractReactiveMongoConfiguration*/ 
 	 * CONFIGURATION MOVED TO PROPERTIES
 	 */
 	
-	/*@Bean
+	@Value( "${spring.data.mongodb.database}" )
+	private String dbname;
+	@Value( "${spring.data.mongodb.uri}" )
+	private String dburi;
+	
+	@Bean
     public MongoClient mongoClient() {
-        return MongoClients.create("mongodb://localhost:27017");
+        //return MongoClients.create("mongodb://localhost:27017");
+		return MongoClients.create(dburi);
     }
  
     @Override
     protected String getDatabaseName() {
-        return "test";
-    }*/
+        //return "test";
+    	return dbname;
+    }
 	
 }

@@ -572,8 +572,8 @@ public class ConsultaController {
 					var operationsNuestra = ((PropuestaNuestra)prop).operationsNuestra();
 					model.addAttribute("consulta", cons);
 					model.addAttribute("propuesta", prop);
-					model.addAttribute("proveedores", consultaOperations.getPropuestasProveedor());
-					model.addAttribute("costes", consultaOperations.getCostesOfPropuestasProveedor());
+					model.addAttribute("proveedores", consultaOperations.getPropuestasProveedorAssignedTo(prop.getForProposalId()));
+					model.addAttribute("costes", consultaOperations.getCostesOfPropuestasProveedorAssignedTo(prop.getForProposalId()));
 					model.addAttribute("map", consultaOperations.mapIdToCosteProveedor());
 					model.addAttribute("costToCotiz", costToCotiz.from(cons));
 					model.addAttribute("atributos", consultaOperations.getAtributosOfPropuestasProveedorAssignedTo(prop.getForProposalId()));

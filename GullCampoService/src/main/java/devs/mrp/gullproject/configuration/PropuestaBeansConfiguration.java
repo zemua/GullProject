@@ -8,7 +8,7 @@ import devs.mrp.gullproject.service.propuesta.oferta.FromPropuestaToOfertaFactor
 import devs.mrp.gullproject.service.propuesta.proveedor.ProposalCostNameMapperFromPvpFactory;
 import devs.mrp.gullproject.service.propuesta.proveedor.ProposalCostNameMapperFromPvpFactoryImpl;
 
-@Configuration
+//@Configuration
 public class PropuestaBeansConfiguration {
 
 	/*@Bean
