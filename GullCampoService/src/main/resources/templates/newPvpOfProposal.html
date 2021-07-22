@@ -16,42 +16,60 @@
 		</p>
 	</div>
 	
-	<form method="POST" th:object="${pvper}" id="val-form">
+	<form method="POST" th:object="${pvperCheckboxedCosts}" id="val-form">
 	
-		<span class="validationError margentb"
+		<div><span class="validationError margentb"
       	th:if="${#fields.hasErrors('name')}"
-      	th:errors="*{name}">Selecciona un nombre</span>
-		<div>
-			<span>Nombre:</span>
-		</div>
-		<div>
-			<input type="text" th:field="*{name}"/>
-			<input type="hidden" th:field="*{id}"/>
-		</div>
-		
-		<div class="margentb">
-		<span class="validationError margentb"
-      	th:if="${#fields.hasErrors('idCostes')}"
-      	th:errors="*{idCostes}">Selecciona al menos un coste</span>
-      	</div>
-		<div class="margentb">
-			<span>El cual contempla estos costes:</span>
-		</div>
-		<th:block th:each="proveedor : ${proveedores}">
-		<div class="margentb">
-			<div><span th:text="|De la propuesta ${proveedor.nombre}|"></span></div>
-			<div th:each="cost, cstat : ${proveedor.costes}">
-				<label th:for="${#ids.next('idCostes')}" th:text="${cost.name}"></label>
-				<input type="checkbox" th:field="*{idCostes}" th:value="${cost.id}">
-			</div>
-		</div>
-		</th:block>
+      	th:errors="*{name}">Selecciona un nombre</span></div>
+      	<div><span class="validationError margentb"
+      	th:if="${#fields.hasErrors('costs')}"
+      	th:errors="*{costs}">Selecciona al menos un coste</span></div>
+      	<div><span class="validationError margentb"
+      	th:if="${#fields.hasErrors('attributesByCotiz')}"
+      	th:errors="*{attributesByCost}">Selecciona al menos un atributo para cada coste</span></div>
+      	<table>
+      		<tr>
+      			<td><span>Nombre</span></td>
+      			<td th:colspan="${costes.size()}"><input type="text" th:field="*{name}"/></td>
+      		</tr>
+      		<tr>
+      			<td><span>Cotización</span></td>
+      			<td th:each="proveedor, proveedorstat : ${proveedores}" th:colspan="${proveedor.costes.size()}" class="texto-centro  es-cotizacion" th:id="${proveedor.id}"><span th:text="${proveedor.nombre}"></span></td>
+      		</tr>
+      		<tr>
+      			<td><span>Coste</span></td>
+      			<td th:each="cost, coststat : ${costes}"><span th:text="${cost.name}"></span></td>
+      		</tr>
+      		<tr>
+      			<td><span>Incluido</span></td>
+      			<td th:each="cost, coststat : ${costes}" class="texto-centro">
+      				<input type="checkbox" th:field="*{costs[__${coststat.index}__].selected}" th:class="${'cost' + costToCotiz.of(cost.id)}"/>
+      				<input type="hidden" th:field="*{costs[__${coststat.index}__].id}"/>
+      			</td>
+      		</tr>
+      		<tr><td th:colspan="${costes.size() + 1}"></td></tr>
+      		<tr th:each="atributo, atributostat : ${atributos}">
+      			<td>
+      				<span th:text="${atributo.name}"></span>
+      			</td>
+      			<td th:each="proveedor, proveedorstat : ${proveedores}" th:colspan="${proveedor.costes.size()}" class="texto-centro">
+      				<input type="hidden" th:if="${atributostat.index == 0}" th:field="*{attributesByCotiz[__${proveedorstat.index}__].cotizId}"/>
+      				<input type="checkbox" th:field="*{attributesByCotiz[__${proveedorstat.index}__].atts[__${atributostat.index}__].selected}" th:class="${'attr' + proveedor.id}"/>
+      				<input type="hidden" th:field="*{attributesByCotiz[__${proveedorstat.index}__].atts[__${atributostat.index}__].id}"/>
+      			</td>
+      		</tr>
+      	</table>
+      	
+      	<input type="hidden" th:field="*{id}"/>
 		
 		<div class="margentb">
 			<div><button id="submit-button">Guardar</button></div>
 		</div>
 	
-	</form>	
+	</form>
+	
+	<script type="text/javascript" th:src="@{/js/jquery/jquery-3.6.0.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/scripts/attsEnabler.js}"></script>
 	
 </body>
 </html>

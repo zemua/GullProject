@@ -8,11 +8,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import devs.mrp.gullproject.domains.Consulta;
-import devs.mrp.gullproject.domains.CosteProveedor;
-import devs.mrp.gullproject.domains.Propuesta;
-import devs.mrp.gullproject.domains.PropuestaProveedor;
-import devs.mrp.gullproject.domains.TipoPropuesta;
+import devs.mrp.gullproject.domains.propuestas.AtributoForCampo;
+import devs.mrp.gullproject.domains.propuestas.CosteProveedor;
+import devs.mrp.gullproject.domains.propuestas.Propuesta;
+import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
+import devs.mrp.gullproject.domains.propuestas.TipoPropuesta;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ConsultaOperations {
 
 	private final Consulta consulta;
@@ -70,16 +73,52 @@ public class ConsultaOperations {
 		return consulta.getPropuestas().stream().filter(p-> p.getTipoPropuesta().equals(TipoPropuesta.PROVEEDOR)).collect(Collectors.toList());
 	}
 	
+	public List<Propuesta> getPropuestasProveedorAssignedTo(String idAssignedto) {
+		return consulta.getPropuestas().stream().filter(p -> p.getTipoPropuesta().equals(TipoPropuesta.PROVEEDOR)).filter(p -> p.getForProposalId().equals(idAssignedto)).collect(Collectors.toList());
+	}
+	
 	public List<CosteProveedor> getCostesOfPropuestasProveedor() {
 		List<CosteProveedor> costes = new ArrayList<>();
 		getPropuestasProveedor().stream().forEach(p -> {
+			log.debug("adding costs of propuesta: " + p.toString());
+			costes.addAll(((PropuestaProveedor)p).getCostes());
+			log.debug("all costs are: " + costes.toString());
+		});
+		log.debug("returning costes: " + costes.toString());
+		return costes;
+	}
+	
+	public List<CosteProveedor> getCostesOfPropuestasProveedorAssignedTo(String counterPropuestaId) {
+		List<CosteProveedor> costes = new ArrayList<>();
+		getPropuestasProveedorAssignedTo(counterPropuestaId).stream().forEach(p -> {
 			costes.addAll(((PropuestaProveedor)p).getCostes());
 		});
 		return costes;
 	}
 	
+	public List<AtributoForCampo> getAtributosOfPropuestasProveedorAssignedTo(String counterPropuestaId) {
+		List<AtributoForCampo> atributos = new ArrayList<>();
+		getPropuestasProveedorAssignedTo(counterPropuestaId).stream().forEach(p -> {
+			p.getAttributeColumns().forEach(att -> {
+				if (!atributos.stream().filter(a -> a.getId().equals(att.getId())).findAny().isPresent()) {
+					AtributoForCampo matt = new AtributoForCampo(); // different object-id
+					matt.setId(att.getId());
+					matt.setName(att.getName());
+					matt.setOrder(att.getOrder());
+					matt.setTipo(att.getTipo());
+					atributos.add(matt);
+				}
+			});
+		});
+		return atributos;
+	}
+	
 	public Map<String, CosteProveedor> mapIdToCosteProveedor() {
 		return getCostesOfPropuestasProveedor().stream().collect(Collectors.toMap(CosteProveedor::getId, Function.identity()));
+	}
+	
+	public List<Propuesta> getAllPropuestasAssignedToId(String idAssignedTo) {
+		return consulta.getPropuestas().stream().filter(p -> p.getForProposalId() != null).filter(p -> p.getForProposalId().equals(idAssignedTo)).collect(Collectors.toList());
 	}
 	
 }

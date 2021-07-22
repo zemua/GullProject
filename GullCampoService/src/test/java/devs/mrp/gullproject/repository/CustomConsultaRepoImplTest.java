@@ -14,20 +14,26 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import devs.mrp.gullproject.domains.AtributoForCampo;
-import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Consulta;
-import devs.mrp.gullproject.domains.CosteProveedor;
-import devs.mrp.gullproject.domains.Linea;
-import devs.mrp.gullproject.domains.Propuesta;
-import devs.mrp.gullproject.domains.PropuestaCliente;
-import devs.mrp.gullproject.domains.PropuestaNuestra;
-import devs.mrp.gullproject.domains.PropuestaProveedor;
-import devs.mrp.gullproject.domains.Pvper;
-import devs.mrp.gullproject.domains.PvperSum;
-import devs.mrp.gullproject.service.PropuestaOperations;
+import devs.mrp.gullproject.domains.ConsultaFactory;
+import devs.mrp.gullproject.domains.ConsultaImpl;
+import devs.mrp.gullproject.domains.linea.Campo;
+import devs.mrp.gullproject.domains.linea.CosteLineaProveedor;
+import devs.mrp.gullproject.domains.linea.Linea;
+import devs.mrp.gullproject.domains.linea.LineaFactory;
+import devs.mrp.gullproject.domains.linea.PvperLinea;
+import devs.mrp.gullproject.domains.propuestas.AtributoForCampo;
+import devs.mrp.gullproject.domains.propuestas.CosteProveedor;
+import devs.mrp.gullproject.domains.propuestas.Propuesta;
+import devs.mrp.gullproject.domains.propuestas.PropuestaCliente;
+import devs.mrp.gullproject.domains.propuestas.PropuestaNuestra;
+import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
+import devs.mrp.gullproject.domains.propuestas.Pvper;
+import devs.mrp.gullproject.domains.propuestas.PvperSum;
+import devs.mrp.gullproject.service.propuesta.PropuestaOperations;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -36,9 +42,13 @@ import reactor.test.StepVerifier;
 @Slf4j
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
+@Import({LineaFactory.class, ConsultaImpl.class, ConsultaFactory.class,})
 class CustomConsultaRepoImplTest {
 	
 	ConsultaRepo repo;
+	
+	@Autowired LineaFactory lineaFactory;
+	@Autowired ConsultaFactory consultaFactory;
 	
 	@Autowired
 	public CustomConsultaRepoImplTest(ConsultaRepo repo) {
@@ -66,6 +76,12 @@ class CustomConsultaRepoImplTest {
 	Campo<String> campo7;
 	Campo<String> campo8;
 	Mono<Consulta> mono;
+	
+	PropuestaNuestra propuestaNuestra;
+	Pvper pvp1;
+	Pvper pvp2;
+	PvperSum sum1;
+	PvperSum sum2;
 	
 	@BeforeEach
 	void inicializacion() {
@@ -104,7 +120,7 @@ class CustomConsultaRepoImplTest {
 		campo2.setId("campo_2_id");
 		campos1.add(campo2);
 		
-		linea1 = new Linea();
+		linea1 = lineaFactory.create();
 		linea1.setCampos(campos1);
 		linea1.setId("linea 1 id");
 		linea1.setNombre("nombre linea 1");
@@ -123,7 +139,7 @@ class CustomConsultaRepoImplTest {
 		campo4.setId("campo_4_id");
 		campos2.add(campo4);
 		
-		linea2 = new Linea();
+		linea2 = lineaFactory.create();
 		linea2.setCampos(campos2);
 		linea2.setId("linea 2 id");
 		linea2.setNombre("nombre linea 2");
@@ -154,7 +170,7 @@ class CustomConsultaRepoImplTest {
 		campo6.setId("campo_6_id");
 		campos3.add(campo6);
 		
-		linea3 = new Linea();
+		linea3 = lineaFactory.create();
 		linea3.setCampos(campos3);
 		linea3.setId("linea 3 id");
 		linea3.setNombre("nombre linea 3");
@@ -173,7 +189,7 @@ class CustomConsultaRepoImplTest {
 		campo8.setId("campo_8_id");
 		campos4.add(campo8);
 		
-		linea4 = new Linea();
+		linea4 = lineaFactory.create();
 		linea4.setCampos(campos4);
 		linea4.setId("linea 4 id");
 		linea4.setNombre("nombre linea 4");
@@ -192,7 +208,7 @@ class CustomConsultaRepoImplTest {
 		 * Arrejuntando todo
 		 */
 		
-		consulta = new Consulta();
+		consulta = consultaFactory.create();
 		consulta.setId("consulta id");
 		consulta.setNombre("consulta nombre");
 		consulta.setStatus("estado original");
@@ -232,6 +248,41 @@ class CustomConsultaRepoImplTest {
 		})
 		.expectComplete()
 		.verify();
+	}
+	
+	private void addCosts() {
+		propuestaNuestra = new PropuestaNuestra();
+		propuestaNuestra.setForProposalId(propuesta1.getId());
+		
+		pvp1 = new Pvper();
+		pvp1.setIdCostes(new ArrayList<String>() {{add("idcost1");}});
+		pvp1.setName("name pvp 1");
+		
+		pvp2 = new Pvper();
+		pvp2.setIdCostes(new ArrayList<>() {{add("idcost2");}});
+		pvp2.setName("name pvp 2");
+		
+		List<Pvper> pvps = new ArrayList<>();
+		pvps.add(pvp1);
+		pvps.add(pvp2);
+		
+		propuestaNuestra.setPvps(pvps);
+		
+		sum1 = new PvperSum();
+		sum1.setName("sum 1 name");
+		sum1.setPvperIds(new ArrayList<>() {{add(pvp1.getId());}});
+		
+		sum2 = new PvperSum();
+		sum2.setName("sum 2 name");
+		sum2.setPvperIds(new ArrayList<>() {{add(pvp2.getId());}});
+		
+		List<PvperSum> sums = new ArrayList<>();
+		sums.add(sum1);
+		sums.add(sum2);
+		
+		propuestaNuestra.setSums(sums);
+		
+		repo.addPropuesta(consulta.getId(), propuestaNuestra).block();
 	}
 
 	@Test
@@ -314,6 +365,46 @@ class CustomConsultaRepoImplTest {
 		.expectComplete()
 		.verify();
 		
+	}
+	
+	@Test
+	void testRemovePropuestasByAssignedTo() {
+		PropuestaNuestra pn = new PropuestaNuestra();
+		pn.setForProposalId(propuesta1.getId());
+		PropuestaProveedor pp = new PropuestaProveedor();
+		pp.setForProposalId(propuesta1.getId());
+		PropuestaNuestra otra = new PropuestaNuestra();
+		otra.setForProposalId(propuesta2.getId());
+		
+		repo.addPropuesta(consulta.getId(), pn).block();
+		repo.addPropuesta(consulta.getId(), pp).block();
+		repo.addPropuesta(consulta.getId(), otra).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals("consulta nombre", cons.getNombre());
+			assertEquals(5, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta1, cons.operations().getPropuestaByIndex(0));
+			assertEquals(propuesta2, cons.operations().getPropuestaByIndex(1));
+			assertEquals(pn, cons.operations().getPropuestaByIndex(2));
+			assertEquals(pp, cons.operations().getPropuestaByIndex(3));
+			assertEquals(otra, cons.operations().getPropuestaByIndex(4));
+		})
+		.expectComplete()
+		.verify();
+		
+		repo.removePropuestasByAssignedTo(consulta.getId(), propuesta1.getId()).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals("consulta nombre", cons.getNombre());
+			assertEquals(3, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta1, cons.operations().getPropuestaByIndex(0));
+			assertEquals(propuesta2, cons.operations().getPropuestaByIndex(1));
+			assertEquals(otra, cons.operations().getPropuestaByIndex(2));
+		})
+		.expectComplete()
+		.verify();
 	}
 	
 	@Test
@@ -436,6 +527,42 @@ class CustomConsultaRepoImplTest {
 		propuesta1.setNombre("nombre propuesta actualizado");
 		
 		repo.updateLineasDeUnaPropuesta(consulta.getId(), propuesta1).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals("consulta nombre", cons.getNombre());
+			assertEquals(2, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta1.getId(), cons.operations().getPropuestaByIndex(0).getId());
+			assertNotEquals(propuesta1, cons.operations().getPropuestaByIndex(0));
+			assertEquals("nombre propuesta 1", cons.operations().getPropuestaByIndex(0).getNombre());
+			assertEquals("linea 1 id actualizado", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(0));
+			assertEquals("linea 2 id actualizado", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(1));
+		})
+		.expectComplete()
+		.verify();
+	}
+	
+	@Test
+	void testUpdateLineasDeUnaPropuestaSegundoMetodo() {
+		Mono<Consulta> mono = repo.findById(consulta.getId());
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals("consulta nombre", cons.getNombre());
+			assertEquals(2, cons.operations().getCantidadPropuestas());
+			assertEquals(propuesta1, cons.operations().getPropuestaByIndex(0));
+			assertEquals("nombre propuesta 1", cons.operations().getPropuestaByIndex(0).getNombre());
+			assertEquals("linea 1 id", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(0));
+			assertEquals("linea 2 id", cons.operations().getPropuestaByIndex(0).operations().getLineaIdByIndex(1));
+		})
+		.expectComplete()
+		.verify();
+		
+		List<String> lineaIds = new ArrayList<>();
+		lineaIds.add("linea 1 id actualizado");
+		lineaIds.add("linea 2 id actualizado");
+		
+		repo.updateLineasDeUnaPropuesta(propuesta1.getId(), lineaIds).block();
 		
 		StepVerifier.create(mono)
 		.assertNext(cons -> {

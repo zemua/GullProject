@@ -20,20 +20,26 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 
-import devs.mrp.gullproject.domains.AtributoForCampo;
-import devs.mrp.gullproject.domains.Campo;
-import devs.mrp.gullproject.domains.Linea;
-import devs.mrp.gullproject.domains.Propuesta;
-import devs.mrp.gullproject.domains.PropuestaCliente;
-import devs.mrp.gullproject.domains.PropuestaProveedor;
-import devs.mrp.gullproject.domains.StringListOfListsWrapper;
-import devs.mrp.gullproject.domains.StringListWrapper;
-import devs.mrp.gullproject.domains.dto.AtributoForLineaFormDto;
-import devs.mrp.gullproject.domains.dto.LineaWithAttListDto;
+import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.linea.Campo;
+import devs.mrp.gullproject.domains.linea.Linea;
+import devs.mrp.gullproject.domains.linea.LineaFactory;
+import devs.mrp.gullproject.domains.propuestas.AtributoForCampo;
+import devs.mrp.gullproject.domains.propuestas.Propuesta;
+import devs.mrp.gullproject.domains.propuestas.PropuestaCliente;
+import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
+import devs.mrp.gullproject.domainsdto.StringListWrapper;
+import devs.mrp.gullproject.domainsdto.linea.AtributoForLineaFormDto;
+import devs.mrp.gullproject.domainsdto.linea.LineaWithAttListDto;
+import devs.mrp.gullproject.domainsdto.linea.StringListOfListsWrapper;
+import devs.mrp.gullproject.service.linea.LineaOperations;
+import devs.mrp.gullproject.service.linea.LineaService;
+import devs.mrp.gullproject.service.linea.LineaUtilities;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -42,11 +48,16 @@ import reactor.test.StepVerifier;
 @Slf4j
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
+@Import({LineaFactory.class, Consulta.class})
 public class LineaUtilitiesTest {
+	
+	@Autowired LineaFactory lineaFactory;
 	
 	ModelMapper modelMapper;
 	LineaUtilities lineaUtilities;
 	
+	@MockBean
+	CompoundedConsultaLineaService compoundedService;
 	@MockBean
 	ConsultaService consultaService;
 	@MockBean
@@ -93,7 +104,7 @@ public class LineaUtilitiesTest {
 		campo2 = new Campo<>();
 		campo2.setAtributoId(att2.getId());
 		campo2.setDatos("datos2");
-		linea1 = new Linea();
+		linea1 = lineaFactory.create();
 		linea1o = new LineaOperations(linea1);
 		linea1.setNombre("nombre linea 1");
 		linea1.setPropuestaId(propuesta.getId());
@@ -105,7 +116,7 @@ public class LineaUtilitiesTest {
 		campo4 = new Campo<>();
 		campo4.setAtributoId(att2.getId());
 		campo4.setDatos("datos4");
-		linea2 = new Linea();
+		linea2 = lineaFactory.create();
 		linea2o = new LineaOperations(linea2);
 		linea2.setNombre("nombre linea 2");
 		linea2.setPropuestaId(propuesta.getId());
@@ -414,21 +425,22 @@ public class LineaUtilitiesTest {
 		var pp2 = new PropuestaProveedor();
 		pp2.setForProposalId(propuesta.getId());
 		
-		var lp1a = new Linea();
+		var lp1a = lineaFactory.create();
 		lp1a.setPropuestaId(pp1.getId());
 		lp1a.setCounterLineId(new ArrayList<String>(Arrays.asList("counter1a")));
-		var lp1b = new Linea();
+		var lp1b = lineaFactory.create();
 		lp1b.setPropuestaId(pp1.getId());
 		lp1b.setCounterLineId(new ArrayList<String>(Arrays.asList("counter1b")));
 		
-		var lp2a = new Linea();
+		var lp2a = lineaFactory.create();
 		lp2a.setPropuestaId(pp2.getId());
 		lp2a.setCounterLineId(new ArrayList<String>(Arrays.asList("counter2a")));
-		var lp2b = new Linea();
+		var lp2b = lineaFactory.create();
 		lp2b.setPropuestaId(pp2.getId());
 		lp2b.setCounterLineId(new ArrayList<String>(Arrays.asList("counter2b")));
 		
-		when(lineaService.getAllLineasOfPropuestasAssignedTo(propuesta.getId())).thenReturn(Flux.just(lp1a, lp1b, lp2a, lp2b));
+		when(compoundedService.getAllLineasOfPropuestasAssignedTo(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(lp1a, lp1b, lp2a, lp2b));
+		//when(consultaService.getAllPropuestaProveedorAsignedTo(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(pp1, pp2));
 		
 		Map<String, Set<String>> map = lineaUtilities.get_ProposalId_VS_SetOfCounterLineId(propuesta.getId()).block();
 		

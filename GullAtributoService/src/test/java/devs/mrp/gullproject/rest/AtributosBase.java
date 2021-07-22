@@ -64,7 +64,7 @@ public abstract class AtributosBase {
 		atributo2 = new Atributo();
 		atributo2.setId("unID321");
 		atributo2.setName("name Atributo dos");
-		atributo2.setTipo(DataFormat.COSTE);
+		atributo2.setTipo(DataFormat.DECIMAL);
 		atributo.setValoresFijos(true);
 		
 		fAtributo = Flux.just(atributo, atributo2);

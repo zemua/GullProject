@@ -16,18 +16,21 @@ import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.config.HypermediaWebTestClientConfigurer;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import devs.mrp.gullproject.domains.Campo;
-import devs.mrp.gullproject.domains.Linea;
+import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.linea.Campo;
+import devs.mrp.gullproject.domains.linea.Linea;
+import devs.mrp.gullproject.domains.linea.LineaFactory;
 import devs.mrp.gullproject.domains.models.LineaRepresentationModel;
 import devs.mrp.gullproject.domains.models.LineaRepresentationModelAssembler;
 import devs.mrp.gullproject.repository.LineaRepo;
-import devs.mrp.gullproject.service.LineaService;
+import devs.mrp.gullproject.service.linea.LineaService;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -35,12 +38,15 @@ import reactor.core.publisher.Mono;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
+@Import({LineaFactory.class, Consulta.class})
 class LineaRestControllerTest {
 	
 	@Autowired
 	HypermediaWebTestClientConfigurer configurer;
 	@Autowired
 	LineaRestController lineaRestController;
+	@Autowired
+	LineaFactory lineaFactory;
 	
 	@MockBean
 	LineaRepo lineaRepo;
@@ -61,7 +67,7 @@ class LineaRestControllerTest {
 		List<Campo<?>> campos = new ArrayList<>();
 		campos.add(m);
 		
-		Linea l = new Linea();
+		Linea l = lineaFactory.create();
 		l.setId("linea_id");
 		l.setNombre("linea_name");
 		l.setCampos(campos);
@@ -117,7 +123,7 @@ class LineaRestControllerTest {
 		List<Campo<?>> campos = new ArrayList<>();
 		campos.add(m);
 		
-		Linea l = new Linea();
+		Linea l = lineaFactory.create();
 		l.setId("linea_id");
 		l.setNombre("linea_name");
 		l.setCampos(campos);
@@ -171,7 +177,7 @@ class LineaRestControllerTest {
 		List<Campo<?>> campos = new ArrayList<>();
 		campos.add(m);
 		
-		Linea l = new Linea();
+		Linea l = lineaFactory.create();
 		l.setId("linea_id");
 		l.setNombre("linea_name");
 		l.setCampos(campos);
@@ -225,7 +231,7 @@ class LineaRestControllerTest {
 		List<Campo<?>> campos = new ArrayList<>();
 		campos.add(m);
 		
-		Linea l = new Linea();
+		Linea l = lineaFactory.create();
 		l.setId("linea_id");
 		l.setNombre("linea_name");
 		l.setCampos(campos);

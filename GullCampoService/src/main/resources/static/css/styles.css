@@ -7,6 +7,20 @@ th, td {
   padding: 15px;
 }
 
+th.noborders, td.noborders {
+    border:0;
+    border-collapse: separate;
+}
+
+th.nopadding, td.nopadding {
+	padding: 0px;
+}
+
+input.noborders {
+	border: none;
+	border-color: transparent;
+}
+
 .sinwrap {
 	white-space: pre;
 	overflow: auto;
@@ -25,6 +39,10 @@ table .error {
 	text-align: right;
 }
 
+.texto-izquierda {
+	text-align: left;
+}
+
 .margentb {
 	margin-top: 15px;
 	margin-bottom: 15px;
@@ -32,4 +50,41 @@ table .error {
 
 .tachado {
 	text-decoration: line-through;
+}
+
+.width100 {
+    width: 100%;
+    padding: 15px;
+    margin: 0;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -o-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;        
+}
+
+#notification {
+    position:fixed;
+    top:0px;
+    width:100%;
+    z-index:105;
+    text-align:center;
+    font-weight:normal;
+    font-size:14px;
+    font-weight:bold;
+    color:white;
+    background-color:#FF7800;
+    padding:5px;
+}
+#notification span.dismiss {
+    border:2px solid #FFF;
+    padding:0 5px;
+    cursor:pointer;
+    float:right;
+    margin-right:10px;
+}
+#notification a {
+    color:white;
+    text-decoration:none;
+    font-weight:bold
 }

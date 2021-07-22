@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.springframework.hateoas.RepresentationModel;
 
-import devs.mrp.gullproject.domains.Campo;
+import devs.mrp.gullproject.domains.linea.Campo;
 import lombok.Data;
 
 @Data

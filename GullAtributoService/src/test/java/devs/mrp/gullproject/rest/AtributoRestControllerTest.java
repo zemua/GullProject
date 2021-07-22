@@ -9,7 +9,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.Link;
@@ -23,6 +26,7 @@ import devs.mrp.gullproject.domains.StringWrapper;
 import devs.mrp.gullproject.domains.DTO.AtributoDTO;
 import devs.mrp.gullproject.domains.representationmodels.AtributoRepresentationModel;
 import devs.mrp.gullproject.domains.representationmodels.AtributoRepresentationModelAssembler;
+import devs.mrp.gullproject.domains.representationmodels.AtributoRespresentationModelMapperImpl;
 import devs.mrp.gullproject.repositorios.AtributoRepo;
 import devs.mrp.gullproject.service.AtributoService;
 import reactor.core.publisher.Flux;
@@ -30,10 +34,10 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @ExtendWith(SpringExtension.class)
-//@SpringBootTest
-//@AutoConfigureWebTestClient
-@WebFluxTest(controllers = AtributoRestController.class)
-@Import({AtributoService.class, ModelMapper.class})
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@AutoConfigureWebTestClient
+//@WebFluxTest(controllers = AtributoRestController.class)
+//@Import({AtributoService.class, ModelMapper.class, AtributoRespresentationModelMapperImpl.class})
 class AtributoRestControllerTest {
 	
 	@Autowired
@@ -42,9 +46,11 @@ class AtributoRestControllerTest {
 	AtributoRestController atributoRestController;
 	@Autowired
 	private ModelMapper modelMapper;
+	@Autowired
+	WebTestClient client;
 	
-	@MockBean
-	AtributoRepresentationModelAssembler arma;
+	/*@MockBean
+	AtributoRepresentationModelAssembler arma;*/
 	@MockBean
 	AtributoRepo atributoRepo;
 
@@ -52,7 +58,7 @@ class AtributoRestControllerTest {
 	void testgetAllAtributos() {
 		
 		// Create a WebTestClient by binding to the controller and applying the hypermedia configurer.
-		WebTestClient client = WebTestClient.bindToController(atributoRestController).build().mutateWith(configurer);
+		//WebTestClient client = WebTestClient.bindToController(atributoRestController).build().mutateWith(configurer);
 		
 		Atributo m = new Atributo();
 		m.setName("bonnet");
@@ -63,13 +69,13 @@ class AtributoRestControllerTest {
 		
 		when(atributoRepo.findAll()).thenReturn(mFlux);
 		when(atributoRepo.findAllByOrderByOrdenAsc()).thenReturn(mFlux);
-		AtributoRepresentationModel mrm = new AtributoRepresentationModel();
+		/*AtributoRepresentationModel mrm = new AtributoRepresentationModel();
 		mrm.setId(m.getId());
 		mrm.setName(m.getName());
 		mrm.setTipo(m.getTipo());
 		mrm.setValoresFijos(m.isValoresFijos());
 		mrm.add(Link.of("/api/esto/es/un/link"));
-		when(arma.toModel(ArgumentMatchers.eq(m))).thenReturn(mrm);
+		when(arma.toModel(ArgumentMatchers.eq(m))).thenReturn(mrm);*/
 		
 		client.get()
 			.uri("/api/atributos/all")
@@ -82,7 +88,7 @@ class AtributoRestControllerTest {
 					.contains("bonnet")
 					.contains("idaleatoria")
 					.contains("DESCRIPCION")
-					.contains("esto/es/un/link");
+					.contains("/api/atributos/id/idaleatoria");
 			});
 		
 	}
@@ -92,7 +98,7 @@ class AtributoRestControllerTest {
 		Atributo a = new Atributo();
 		a.setId("id");
 		a.setName("nombre");
-		a.setTipo(DataFormat.CANTIDAD);
+		a.setTipo(DataFormat.NUMERO);
 		
 		AtributoDTO dto = modelMapper.map(a, AtributoDTO.class);
 		assertEquals(a.getId(), dto.getId());
@@ -106,7 +112,7 @@ class AtributoRestControllerTest {
 		// por aprender a usar... aunque con reactor da problemas...
 		// https://www.baeldung.com/spring-cloud-contract
 		
-		WebTestClient client = WebTestClient.bindToController(atributoRestController).build();
+		//WebTestClient client = WebTestClient.bindToController(atributoRestController).build();
 		
 		Atributo m = new Atributo();
 		m.setName("bonnet");
@@ -139,11 +145,8 @@ class AtributoRestControllerTest {
 		StepVerifier
 			.create(flux)
 			.expectNext(new StringWrapper("DESCRIPCION"))
-			.expectNext(new StringWrapper("CANTIDAD"))
-			.expectNext(new StringWrapper("COSTE"))
-			.expectNext(new StringWrapper("MARGEN"))
-			.expectNext(new StringWrapper("PVP"))
-			.expectNext(new StringWrapper("PLAZO"))
+			.expectNext(new StringWrapper("NUMERO"))
+			.expectNext(new StringWrapper("DECIMAL"))
 			.verifyComplete();
 	}
 

@@ -11,12 +11,12 @@ import org.springframework.data.mongodb.core.query.Update;
 
 import com.mongodb.BasicDBObject;
 
-import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
-import devs.mrp.gullproject.domains.CosteProveedor;
-import devs.mrp.gullproject.domains.Propuesta;
-import devs.mrp.gullproject.domains.Pvper;
-import devs.mrp.gullproject.domains.PvperSum;
+import devs.mrp.gullproject.domains.propuestas.AtributoForCampo;
+import devs.mrp.gullproject.domains.propuestas.CosteProveedor;
+import devs.mrp.gullproject.domains.propuestas.Propuesta;
+import devs.mrp.gullproject.domains.propuestas.Pvper;
+import devs.mrp.gullproject.domains.propuestas.PvperSum;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -69,6 +69,14 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 	}
 	
 	@Override
+	public Mono<Consulta> removePropuestasByAssignedTo(String idConsulta, String idAssignedTo) {
+		Query query = new Query(Criteria.where("propuestas.forProposalId").is(idAssignedTo).and("id").is(idConsulta));
+		Update update = new Update().pull("propuestas", new BasicDBObject("forProposalId", idAssignedTo));
+		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(false); // return old one with references to the proposals to delete lines after that
+		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
+	}
+	
+	@Override
 	public Mono<Consulta> removeVariasPropuestas(String idConsulta, Propuesta[] propuestas) {
 		Query query = new Query(Criteria.where("id").is(idConsulta));
 		Update update = new Update().pullAll("propuestas", propuestas);
@@ -97,6 +105,14 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 	public Mono<Consulta> updateLineasDeUnaPropuesta(String idConsulta, Propuesta propuesta) {
 		Query query = new Query(Criteria.where("id").is(idConsulta).and("propuestas.id").is(propuesta.getId()));
 		Update update = new Update().set("propuestas.$.lineaIds", propuesta.operations().getAllLineaIds());
+		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
+		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
+	}
+	
+	@Override
+	public Mono<Consulta> updateLineasDeUnaPropuesta(String idPropuesta, List<String> lineas) {
+		Query query = new Query(Criteria.where("propuestas.id").is(idPropuesta));
+		Update update = new Update().set("propuestas.$.lineaIds", lineas);
 		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
 		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
 	}

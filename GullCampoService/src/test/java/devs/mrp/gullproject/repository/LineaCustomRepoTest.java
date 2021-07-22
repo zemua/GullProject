@@ -16,20 +16,28 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import devs.mrp.gullproject.domains.Campo;
-import devs.mrp.gullproject.domains.Linea;
-import devs.mrp.gullproject.service.LineaOperations;
+import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.linea.Campo;
+import devs.mrp.gullproject.domains.linea.CosteLineaProveedor;
+import devs.mrp.gullproject.domains.linea.Linea;
+import devs.mrp.gullproject.domains.linea.LineaFactory;
+import devs.mrp.gullproject.domains.linea.PvperLinea;
+import devs.mrp.gullproject.service.linea.LineaOperations;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
+@Import({LineaFactory.class, Consulta.class})
 class LineaCustomRepoTest {
 	
 	LineaRepo repo;
+	
+	@Autowired LineaFactory lineaFactory;
 	
 	@Autowired
 	public LineaCustomRepoTest(LineaRepo lineaRepo) {
@@ -93,7 +101,7 @@ class LineaCustomRepoTest {
 		campo3.setAtributoId("atributo_id_3");
 		campos.add(campo3);
 		
-		linea = new Linea();
+		linea = lineaFactory.create();
 		lineaO = new LineaOperations(linea);
 		linea.setCampos(campos);
 		linea.setPropuestaId("propA");
@@ -109,31 +117,31 @@ class LineaCustomRepoTest {
 		
 		mono = repo.findById(id);
 		
-		l1 = new Linea();
+		l1 = lineaFactory.create();
 		l1.setPropuestaId("p1");
 		l1o = new LineaOperations(l1);
-		l2 = new Linea();
+		l2 = lineaFactory.create();
 		l2.setPropuestaId("p1");
 		l2o = new LineaOperations(l2);
-		l3 = new Linea();
+		l3 = lineaFactory.create();
 		l3.setPropuestaId("p2");
 		l3o = new LineaOperations(l3);
-		l4 = new Linea();
+		l4 = lineaFactory.create();
 		l4.setPropuestaId("p2");
 		l4o = new LineaOperations(l4);
-		l5 = new Linea();
+		l5 = lineaFactory.create();
 		l5.setPropuestaId("p3");
 		l5o = new LineaOperations(l5);
-		l6 = new Linea();
+		l6 = lineaFactory.create();
 		l6.setPropuestaId("p3");
 		l6o = new LineaOperations(l6);
-		l7 = new Linea();
+		l7 = lineaFactory.create();
 		l7.setPropuestaId("p4");
 		l7o = new LineaOperations(l7);
-		l8 = new Linea();
+		l8 = lineaFactory.create();
 		l8.setPropuestaId("p4");
 		l8o = new LineaOperations(l8);
-		l9 = new Linea();
+		l9 = lineaFactory.create();
 		l9.setPropuestaId("p5");
 		l9o = new LineaOperations(l9);
 		
@@ -167,7 +175,7 @@ class LineaCustomRepoTest {
 		campo2.setDatos("datos_en_campo_2");
 		campos.add(campo2);
 		
-		Linea linea = new Linea();
+		Linea linea = lineaFactory.create();
 		linea.setCampos(campos);
 		linea.setId(id);
 		linea.setNombre(name);
@@ -222,7 +230,7 @@ class LineaCustomRepoTest {
 		campo2.setId("campo_2_id");
 		// el 2 se añade desde mongo
 		
-		Linea linea = new Linea();
+		Linea linea = lineaFactory.create();
 		linea.setCampos(campos);
 		linea.setId(id);
 		linea.setNombre(name);
@@ -293,7 +301,7 @@ class LineaCustomRepoTest {
 		campo2.setId("campo_2_id");
 		campos.add(campo2);
 		
-		Linea linea = new Linea();
+		Linea linea = lineaFactory.create();
 		linea.setCampos(campos);
 		linea.setId(id);
 		linea.setNombre(name);
@@ -376,14 +384,14 @@ class LineaCustomRepoTest {
 		
 		repo.deleteAll().block();
 		
-		Linea linea1 = new Linea();
+		Linea linea1 = lineaFactory.create();
 		linea1.setCampos(new ArrayList<Campo<?>>());
 		linea1.setId("id_linea_1");
 		linea1.setNombre("nombre_linea_1");
 		
 		repo.save(linea1).block();
 		
-		Linea linea2 = new Linea();
+		Linea linea2 = lineaFactory.create();
 		linea2.setCampos(new ArrayList<Campo<?>>());
 		linea2.setId("id_linea_2");
 		linea2.setNombre("nombre_linea_2");
@@ -443,7 +451,7 @@ class LineaCustomRepoTest {
 		campo3.setAtributoId("atributo_id_3");
 		campos.add(campo3);
 		
-		Linea linea = new Linea();
+		Linea linea = lineaFactory.create();
 		linea.setCampos(campos);
 		linea.setId(id);
 		linea.setNombre(name);
@@ -505,7 +513,7 @@ class LineaCustomRepoTest {
 		campo3.setAtributoId("atributo_id_3");
 		//campos.add(campo3);
 		
-		Linea linea = new Linea();
+		Linea linea = lineaFactory.create();
 		linea.setCampos(campos);
 		linea.setId(id);
 		linea.setNombre(name);
@@ -536,9 +544,12 @@ class LineaCustomRepoTest {
 				assertEquals(2, entradas);
 				assertEquals(name, line.getNombre());
 				assertEquals(3, lineo.getCantidadCampos());
-				assertEquals(campo1, lineo.getCampoByIndex(0));
+				/*assertEquals(campo1, lineo.getCampoByIndex(0));
 				assertEquals(campo2, lineo.getCampoByIndex(1));
-				assertEquals(campo3, lineo.getCampoByIndex(2));
+				assertEquals(campo3, lineo.getCampoByIndex(2));*/
+				assertTrue(line.getCampos().contains(campo1));
+				assertTrue(line.getCampos().contains(campo2));
+				assertTrue(line.getCampos().contains(campo3));
 			})
 			.expectComplete()
 			.verify();
@@ -570,7 +581,7 @@ class LineaCustomRepoTest {
 		campo3.setAtributoId("atributo_id_3");
 		campos.add(campo3);
 		
-		Linea linea = new Linea();
+		Linea linea = lineaFactory.create();
 		linea.setCampos(campos);
 		linea.setId(id);
 		linea.setNombre(name);
@@ -676,7 +687,7 @@ class LineaCustomRepoTest {
 		
 		StepVerifier.create(mono)
 		.assertNext(line -> {
-			assertEquals(3, resultadoO.getCantidadCampos());
+			assertEquals(3, line.operations().getCantidadCampos());
 			assertEquals("new counter id", line.getCounterLineId().get(0));
 		})
 		.expectComplete()
@@ -762,6 +773,45 @@ class LineaCustomRepoTest {
 		})
 		.expectComplete()
 		.verify()
+		;
+	}
+	
+	@Test
+	void testUpdatePvps() {
+		List<PvperLinea> pvps = new ArrayList<>();
+		var pvp1 = new PvperLinea();
+		var pvp2 = new PvperLinea();
+		pvps.add(pvp1);
+		pvps.add(pvp2);
+		
+		Linea resultado = repo.updatePvps(linea.getId(), pvps).block();
+		StepVerifier.create(mono)
+		.assertNext(l -> {
+			assertEquals(2, l.getPvps().size());
+			assertEquals(pvp1.getPvperId(), l.getPvps().get(0).getPvperId());
+			assertEquals(pvp2.getPvperId(), l.getPvps().get(1).getPvperId());
+		})
+		.expectComplete()
+		.verify()
+		;
+	}
+	
+	@Test
+	void testUpdateCosts() {
+		List<CosteLineaProveedor> costs = new ArrayList<>();
+		var cost1 = new CosteLineaProveedor();
+		var cost2 = new CosteLineaProveedor();
+		costs.add(cost1);
+		costs.add(cost2);
+		
+		Linea resultado = repo.updateCosts(linea.getId(), costs).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(l -> {
+			assertEquals(2, l.getCostesProveedor().size());
+			assertEquals(cost1.getCosteProveedorId(), l.getCostesProveedor().get(0).getCosteProveedorId());
+			assertEquals(cost2.getCosteProveedorId(), l.getCostesProveedor().get(0).getCosteProveedorId());
+		})
 		;
 	}
 

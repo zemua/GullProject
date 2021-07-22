@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Exportar lineas de la oferta: ' + propuestaNuestra.getNombre()}">Gull Project - Exportar lineas de la oferta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1 th:text="${'Exportar lineas de la oferta: ' + propuestaNuestra.getNombre()}">Exportar lineas de la oferta</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/lineas/allof/ofertaid/' + propuestaNuestra.id}">Volver</a>
+		</p>
+	</div>
+	
+	<div>
+		<p>
+			<button id="portapapeles-button">Copiar al portapapeles incluyendo cabeceras</button>
+		</p>
+	</div>
+	
+	<table>
+		<tr>
+			<td><span data-exportablealways="true">Nombre</span></td>
+			<td th:each="att, attstat : ${propuestaNuestra.attributeColumns}"><span th:text="${att.name}" data-exportablealways="true"></span></td>
+			<td th:each="pvp, pvpstat : ${pvps}"><input type="checkbox" th:id="${pvp.id}" class="pvpcheckbox" checked><span th:text="${pvp.name}" data-exportablemaybe="true"></span></td>
+			<td th:each="sum, sumstat : ${sums}"><input type="checkbox" th:id="${sum.id}" class="sumcheckbox" checked><span th:text="${sum.name}" th:class="${#strings.listJoin(sum.pvperIds, ' ')}" data-exportablemaybe="true"></span></td>
+		</tr>
+		<tr th:each="lc, lcstat : ${lineasCliente}" class="linea-cliente" th:id="${lc.id}">
+			<td><span th:text="${lc.nombre}" th:class="${lc.id}" data-exportable="true"></span></td>
+			<td th:each="att, attstat : ${propuestaNuestra.attributeColumns}" class="attribute-td" th:id="${att.id}">
+				<input th:each="pvp, pvpstat : ${pvps}" type="hidden" th:class="${lc.id + ' ' + pvp.id + ' ' + att.id + ' field-concatenable'}" th:value="${attMapper.of(lc.id, pvp.id, att.id)}">
+				<span th:class="${lc.id + ' ' + att.id + ' concatenation-field'}" data-exportable="true"></span>
+			</td>
+			<td th:each="pvp, pvpstat : ${pvps}"><span th:class="${pvp.id + ' ' + lc.id + ' pvp-value-field'}" th:text="${pvpMapper.findBy(lc.id, pvp.id).pvp}" data-exportablecond="true" th:data-masterid="${pvp.id}"></span></td>
+			<td th:each="sum, sumstat : ${sums}"><span th:class="${sum.id + ' ' + lc.id + ' sum-value-field'}" th:text="${sumMapper.findBy(lc.id, sum.id)}" data-exportablecond="true" th:data-masterid="${sum.id}"></span></td>
+		</tr>
+	</table>
+	
+	<div id="notification" style="display: none;">
+		<span class="dismiss"><a title="cerrar notificacion">x</a></span>
+	</div>
+	
+	<script type="text/javascript" th:src="@{/js/jquery/jquery-3.6.0.min.js}"></script>
+	<script type="text/javascript" th:src="@{/js/scripts/offerBuilder.js}"></script>
+
+</body>
+</html>

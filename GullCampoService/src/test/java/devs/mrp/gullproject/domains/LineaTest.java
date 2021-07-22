@@ -7,9 +7,14 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import devs.mrp.gullproject.service.LineaOperations;
+import devs.mrp.gullproject.domains.linea.Campo;
+import devs.mrp.gullproject.domains.linea.Linea;
+import devs.mrp.gullproject.domains.linea.LineaFactory;
+import devs.mrp.gullproject.service.linea.LineaOperations;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @ExtendWith(SpringExtension.class)
 @Slf4j
+@Import({LineaFactory.class})
 public class LineaTest {
 
 	Linea linea;
@@ -26,6 +32,8 @@ public class LineaTest {
 	Campo<Double> campo3;
 	Campo<String> campo4;
 	Campo<Integer> campo5;
+	
+	@Autowired LineaFactory lineaFactory;
 	
 	@BeforeEach
 	void init() {
@@ -56,7 +64,7 @@ public class LineaTest {
 		campo5.setDatos(987);
 		campo5.setId("idcampo5");
 		
-		linea = new Linea();
+		linea = lineaFactory.create();
 		linea.setCampos(campos);
 		linea.setId("idlinea");
 		linea.setNombre("nombre linea");
@@ -92,7 +100,7 @@ public class LineaTest {
 		assertEquals(campo1, lineaOperations.getCampoByAttId(campo1.getAtributoId()));
 		assertEquals(campo2, lineaOperations.getCampoByAttId(campo2.getAtributoId()));
 		assertEquals(campo3, lineaOperations.getCampoByAttId(campo3.getAtributoId()));
-		assertNull(lineaOperations.getCampoByAttId("atributo que no existe"));
+		assertEquals("", lineaOperations.getCampoByAttId("atributo que no existe").getDatosText());
 	}
 	
 	@Test
@@ -193,7 +201,7 @@ public class LineaTest {
 	
 	@Test
 	void testEquals() {
-		Linea linea2 = new Linea();
+		Linea linea2 = lineaFactory.create();
 		LineaOperations linea2operations = new LineaOperations(linea2);
 		linea2.setNombre(linea.getNombre());
 		linea2.setPropuestaId(linea.getPropuestaId());

@@ -14,7 +14,7 @@
 		<p>
 			<a th:href="${'/consultas/pvpsof/propid/' + consulta.operations().getPropuestaById(propuestaId).getId() + '/new'}">Añadir PVP</a> -
 			<a th:href="${'/consultas/pvpsof/propid/' + consulta.operations().getPropuestaById(propuestaId).getId() + '/order'}">Ordenar PVP</a> -  
-			<a th:href="${'/consultas/pvpsof/propid/' + consulta.operations().getPropuestaById(propuestaId).getId() + '/edit'}">Editar PVP</a> -  
+			<!-- <a th:href="${'/consultas/pvpsof/propid/' + consulta.operations().getPropuestaById(propuestaId).getId() + '/edit'}">Editar PVP</a> - -->  
 			<a th:href="${'/consultas/pvpsof/propid/' + consulta.operations().getPropuestaById(propuestaId).getId() + '/delete'}">Borrar PVP</a> -
 			<a th:href="${'/consultas/revisar/id/' + consulta.id}">Volver</a>
 		</p>
@@ -29,6 +29,7 @@
 			<tr th:each="a : ${pvps}">
 				<td><span th:text="${a.name}"></span></td>
 				<td><span th:each="cosId, stat : ${a.idCostes}" th:text="${stat.index == a.idCostes.size()-1 ? map.get(cosId).getName() : map.get(cosId).getName() + ', '}"></span></td>
+				<td><a th:href="@{/consultas/pvpsof/propid/{propId}/edit/{pvpid} (propId=${propuestaId},pvpid=${a.id})}">editar</a></td>
 			</tr>
 		</table>
 	</div>

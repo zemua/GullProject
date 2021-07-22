@@ -26,7 +26,7 @@ class DataFormatValidatorApiTest {
 		
 		client
 			.get()
-			.uri("/api/atributos/data-validator?type=CANTIDAD&data=123")
+			.uri("/api/atributos/data-validator?type=NUMERO&data=123")
 			.accept(MediaType.APPLICATION_JSON)
 			.exchange()
 			.expectStatus().isOk()
@@ -38,7 +38,7 @@ class DataFormatValidatorApiTest {
 			
 		client
 			.get()
-			.uri("/api/atributos/data-validator?type=CANTIDAD&data=asd")
+			.uri("/api/atributos/data-validator?type=NUMERO&data=asd")
 			.accept(MediaType.APPLICATION_JSON)
 			.exchange()
 			.expectStatus().isOk()

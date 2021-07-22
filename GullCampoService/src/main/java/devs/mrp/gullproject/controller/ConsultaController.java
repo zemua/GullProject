@@ -20,39 +20,44 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
-import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
-import devs.mrp.gullproject.domains.CosteProveedor;
-import devs.mrp.gullproject.domains.Propuesta;
-import devs.mrp.gullproject.domains.PropuestaCliente;
-import devs.mrp.gullproject.domains.PropuestaNuestra;
-import devs.mrp.gullproject.domains.PropuestaProveedor;
-import devs.mrp.gullproject.domains.Pvper;
-import devs.mrp.gullproject.domains.PvperSum;
-import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
-import devs.mrp.gullproject.domains.dto.AttributesListDto;
-import devs.mrp.gullproject.domains.dto.ConsultaPropuestaBorrables;
-import devs.mrp.gullproject.domains.dto.CostesCheckboxWrapper;
-import devs.mrp.gullproject.domains.dto.CostesOrdenablesWrapper;
-import devs.mrp.gullproject.domains.dto.CostesWrapper;
-import devs.mrp.gullproject.domains.dto.ProposalPie;
-import devs.mrp.gullproject.domains.dto.PvperSumCheckboxWrapper;
-import devs.mrp.gullproject.domains.dto.PvperSumCheckboxedPvpsWrapper;
-import devs.mrp.gullproject.domains.dto.PvperSumsOrdenablesWrapper;
-import devs.mrp.gullproject.domains.dto.PvpsCheckboxWrapper;
-import devs.mrp.gullproject.domains.dto.PvpsCheckboxedCostWrapper;
-import devs.mrp.gullproject.domains.dto.PvpsOrdenablesWrapper;
-import devs.mrp.gullproject.domains.dto.PvpsWrapper;
-import devs.mrp.gullproject.domains.dto.WrapAtributosForCampoDto;
-import devs.mrp.gullproject.domains.dto.WrapPropuestaClienteAndSelectableAttributes;
-import devs.mrp.gullproject.domains.dto.WrapPropuestaNuestraAndSelectableAttributes;
-import devs.mrp.gullproject.domains.dto.WrapPropuestaProveedorAndSelectableAttributes;
+import devs.mrp.gullproject.domains.ConsultaFactory;
+import devs.mrp.gullproject.domains.propuestas.AtributoForCampo;
+import devs.mrp.gullproject.domains.propuestas.CosteProveedor;
+import devs.mrp.gullproject.domains.propuestas.Propuesta;
+import devs.mrp.gullproject.domains.propuestas.PropuestaCliente;
+import devs.mrp.gullproject.domains.propuestas.PropuestaNuestra;
+import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
+import devs.mrp.gullproject.domains.propuestas.Pvper;
+import devs.mrp.gullproject.domains.propuestas.PvperSum;
+import devs.mrp.gullproject.domainsdto.linea.WrapAtributosForCampoDto;
+import devs.mrp.gullproject.domainsdto.propuesta.AtributoForFormDto;
+import devs.mrp.gullproject.domainsdto.propuesta.AttributesListDto;
+import devs.mrp.gullproject.domainsdto.propuesta.ConsultaPropuestaBorrables;
+import devs.mrp.gullproject.domainsdto.propuesta.ProposalPie;
+import devs.mrp.gullproject.domainsdto.propuesta.WrapPropuestaClienteAndSelectableAttributes;
+import devs.mrp.gullproject.domainsdto.propuesta.oferta.PvperCheckboxedCostToPvper;
+import devs.mrp.gullproject.domainsdto.propuesta.oferta.PvperCheckboxedCosts;
+import devs.mrp.gullproject.domainsdto.propuesta.oferta.PvperSumCheckboxWrapper;
+import devs.mrp.gullproject.domainsdto.propuesta.oferta.PvperSumCheckboxedPvpsWrapper;
+import devs.mrp.gullproject.domainsdto.propuesta.oferta.PvperSumsOrdenablesWrapper;
+import devs.mrp.gullproject.domainsdto.propuesta.oferta.PvpsCheckboxWrapper;
+import devs.mrp.gullproject.domainsdto.propuesta.oferta.PvpsCheckboxedCostWrapper;
+import devs.mrp.gullproject.domainsdto.propuesta.oferta.PvpsOrdenablesWrapper;
+import devs.mrp.gullproject.domainsdto.propuesta.oferta.PvpsWrapper;
+import devs.mrp.gullproject.domainsdto.propuesta.oferta.WrapPropuestaNuestraAndSelectableAttributes;
+import devs.mrp.gullproject.domainsdto.propuesta.proveedor.CostesCheckboxWrapper;
+import devs.mrp.gullproject.domainsdto.propuesta.proveedor.CostesOrdenablesWrapper;
+import devs.mrp.gullproject.domainsdto.propuesta.proveedor.CostesWrapper;
+import devs.mrp.gullproject.domainsdto.propuesta.proveedor.WrapPropuestaProveedorAndSelectableAttributes;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
+import devs.mrp.gullproject.service.CompoundedConsultaLineaService;
 import devs.mrp.gullproject.service.ConsultaService;
-import devs.mrp.gullproject.service.LineaService;
-import devs.mrp.gullproject.service.PropuestaNuestraOperations;
-import devs.mrp.gullproject.service.PropuestaProveedorOperations;
-import devs.mrp.gullproject.service.PropuestaUtilities;
+import devs.mrp.gullproject.service.linea.LineaService;
+import devs.mrp.gullproject.service.propuesta.PropuestaUtilities;
+import devs.mrp.gullproject.service.propuesta.oferta.PropuestaNuestraOperations;
+import devs.mrp.gullproject.service.propuesta.proveedor.CotizacionOfCostMapperFactory;
+import devs.mrp.gullproject.service.propuesta.proveedor.PropuestaProveedorOperations;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -73,19 +78,26 @@ public class ConsultaController {
 	AtributoServiceProxyWebClient atributoService;
 	PropuestaUtilities propuestaUtilities;
 	ModelMapper modelMapper;
+	CompoundedConsultaLineaService compoundedService;
+	ConsultaFactory consultaFactory;
+	
+	@Autowired PvperCheckboxedCostToPvper pvperCheckboxedCostToPvper;
+	@Autowired CotizacionOfCostMapperFactory costToCotiz;
 	
 	@Autowired
-	public ConsultaController(ConsultaService consultaService, LineaService lineaService, AtributoServiceProxyWebClient atributoService, PropuestaUtilities propuestaUtilities, ModelMapper modelMapper) {
+	public ConsultaController(ConsultaService consultaService, LineaService lineaService, AtributoServiceProxyWebClient atributoService, PropuestaUtilities propuestaUtilities, ModelMapper modelMapper, CompoundedConsultaLineaService compoundedService, ConsultaFactory consultaFactory) {
 		this.consultaService = consultaService;
 		this.lineaService = lineaService;
 		this.atributoService = atributoService;
 		this.propuestaUtilities = propuestaUtilities;
 		this.modelMapper = modelMapper;
+		this.compoundedService = compoundedService;
+		this.consultaFactory = consultaFactory;
 	}
 	
 	@GetMapping("/nuevo")
 	public String createConsulta(Model model) {
-		model.addAttribute("consulta", new Consulta());
+		model.addAttribute("consulta", consultaFactory.create());
 		return "createConsulta";
 	}
 	
@@ -210,14 +222,15 @@ public class ConsultaController {
 		return "deletePropuestaById";
 	}
 	
-	@PostMapping("/delete/id/{consultaid}/propuesta/{propuestaid}") // TODO delete also the related propuestas (proveedor/nuestras) y sus líneas
+	@PostMapping("/delete/id/{consultaid}/propuesta/{propuestaid}")
 	public Mono<String> processDeletePropuestaById(ConsultaPropuestaBorrables data, Model model) {
 		log.debug("id consulta: " + data.getIdConsulta());
 		log.debug("id propuesta: " + data.getIdPropuesta());
 		Mono<Long> lineas = lineaService.deleteSeveralLineasFromPropuestaId(data.getIdPropuesta());
 		Mono<Integer> c = consultaService.removePropuestaById(data.getIdConsulta(), data.getIdPropuesta());
 		model.addAttribute("idConsulta", data.getIdConsulta());
-		return lineas.map(rLineas -> {
+		return compoundedService.removePropuestasAssignedToAndTheirLines(data.getIdConsulta(), data.getIdPropuesta())
+				.then(lineas).map(rLineas -> {
 			model.addAttribute("lineasBorradas", rLineas);
 			return true;
 		})
@@ -442,7 +455,7 @@ public class ConsultaController {
 			;
 	}
 	
-	@PostMapping("/costof/propid/{id}/delete") // TODO delete also reference from PVPs
+	@PostMapping("/costof/propid/{id}/delete")
 	public Mono<String> confirmDeleteCostsOfProposal(CostesCheckboxWrapper costesCheckboxWraper, Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
 		return consultaService.findConsultaByPropuestaId(proposalId)
@@ -553,28 +566,44 @@ public class ConsultaController {
 		return addConsultaPropuestaAndIdFromPropuestaIdAndGetConsulta(model, proposalId)
 				.map(cons -> {
 					model.addAttribute("proveedores", cons.operations().getPropuestasProveedor());
-					model.addAttribute("pvper", new Pvper());
+					
+					var consultaOperations = cons.operations();
+					Propuesta prop = consultaOperations.getPropuestaById(proposalId);
+					var operationsNuestra = ((PropuestaNuestra)prop).operationsNuestra();
+					model.addAttribute("consulta", cons);
+					model.addAttribute("propuesta", prop);
+					model.addAttribute("proveedores", consultaOperations.getPropuestasProveedorAssignedTo(prop.getForProposalId()));
+					model.addAttribute("costes", consultaOperations.getCostesOfPropuestasProveedorAssignedTo(prop.getForProposalId()));
+					model.addAttribute("map", consultaOperations.mapIdToCosteProveedor());
+					model.addAttribute("costToCotiz", costToCotiz.from(cons));
+					model.addAttribute("atributos", consultaOperations.getAtributosOfPropuestasProveedorAssignedTo(prop.getForProposalId()));
+					model.addAttribute("pvperCheckboxedCosts", operationsNuestra.getSinglePvpCheckboxed(modelMapper, consultaService, new Pvper()));
 					return "newPvpOfProposal";
 				});
 	}
 	
 	@PostMapping("/pvpsof/propid/{id}/new")
-	public Mono<String> processNewPvpOfPropuesta(@Valid @ModelAttribute("pvper") Pvper pvper, BindingResult bindingResult, Model model, @PathVariable(name = "id") String proposalId) {
-		var idCostes = pvper.getIdCostes();
-		if (idCostes == null || idCostes.size() == 0) {bindingResult.rejectValue("idCostes", "error.idCostes", "Selecciona al menos un coste");}
+	public Mono<String> processNewPvpOfPropuesta(@Valid PvperCheckboxedCosts pvperCheckboxedCosts, BindingResult bindingResult, Model model, @PathVariable(name = "id") String proposalId) {
+		var idCostes = pvperCheckboxedCosts.getCosts();
+		if (idCostes == null || idCostes.size() == 0) {bindingResult.rejectValue("costs", "error.costs", "Selecciona al menos un coste");}
 		model.addAttribute("propuestaId", proposalId);
-		if (idCostes == null) {log.debug("costes es nulo");} else {log.debug("los costes del checkbox: " + idCostes.toString());}
 		return consultaService.findConsultaByPropuestaId(proposalId)
-				.flatMap(cons -> {
-					Propuesta prop = cons.operations().getPropuestaById(proposalId);
-					model.addAttribute("consulta", cons);
-					model.addAttribute("propuesta", prop);
-					if (bindingResult.hasErrors()) {
-						log.debug("has errors: " + bindingResult.toString());
-						model.addAttribute("pvper", pvper);
-						model.addAttribute("proveedores", cons.operations().getPropuestasProveedor());
-						return Mono.just("newPvpOfProposal");
-					}
+			.flatMap(cons -> {
+				var consultaOperations = cons.operations();
+				Propuesta prop = consultaOperations.getPropuestaById(proposalId);
+				var operationsNuestra = ((PropuestaNuestra)prop).operationsNuestra();
+				model.addAttribute("consulta", cons);
+				model.addAttribute("propuesta", prop);
+				model.addAttribute("proveedores", consultaOperations.getPropuestasProveedor());
+				model.addAttribute("costes", consultaOperations.getCostesOfPropuestasProveedor());
+				model.addAttribute("costToCotiz", costToCotiz.from(cons));
+				model.addAttribute("map", consultaOperations.mapIdToCosteProveedor());
+				model.addAttribute("atributos", consultaOperations.getAtributosOfPropuestasProveedorAssignedTo(prop.getForProposalId()));
+				model.addAttribute("pvperCheckboxedCosts", pvperCheckboxedCosts);
+				if (bindingResult.hasErrors()) {
+					return Mono.just("newPvpOfProposal");
+				}
+					Pvper pvper = pvperCheckboxedCostToPvper.from(pvperCheckboxedCosts);
 					model.addAttribute("pvper", pvper);
 					model.addAttribute("mapa", cons.operations().mapIdToCosteProveedor());
 					return consultaService.addPvpToList(proposalId, pvper)
@@ -610,7 +639,7 @@ public class ConsultaController {
 			;
 	}
 	
-	@PostMapping("/pvpsof/propid/{id}/delete/confirm") // TODO remove also from sums
+	@PostMapping("/pvpsof/propid/{id}/delete/confirm")
 	public Mono<String> processDeletePvpsOfProposal(PvpsCheckboxWrapper pvpsCheckboxWrapper, Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
 		return consultaService.keepUnselectedPvps(proposalId, pvpsCheckboxWrapper)
@@ -654,6 +683,7 @@ public class ConsultaController {
 				;
 	}
 	
+	// BULK EDIT
 	@GetMapping("/pvpsof/propid/{id}/edit")
 	public Mono<String> editPvpsOfProposal(Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
@@ -663,6 +693,7 @@ public class ConsultaController {
 				model.addAttribute("consulta", cons);
 				model.addAttribute("propuesta", prop);
 				model.addAttribute("proveedores", cons.operations().getPropuestasProveedor());
+				model.addAttribute("costes", cons.operations().getCostesOfPropuestasProveedor());
 				model.addAttribute("map", cons.operations().mapIdToCosteProveedor());
 				model.addAttribute("pvpsCheckboxedCostWrapper",((PropuestaNuestra)prop).operationsNuestra().getPvpsCheckbox(modelMapper, consultaService));
 				return "editPvpsOfProposal";
@@ -670,6 +701,7 @@ public class ConsultaController {
 			;
 	}
 	
+	// PROCESS BULK EDIT
 	@PostMapping("/pvpsof/propid/{id}/edit")
 	public Mono<String> processEditPvpsOfProposal(PvpsCheckboxedCostWrapper pvpsCheckboxedCostWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
@@ -697,6 +729,61 @@ public class ConsultaController {
 					})
 					;
 		}
+	}
+	
+	// INDIVIDUAL EDIT
+	@GetMapping("/pvpsof/propid/{propid}/edit/{pvpid}")
+	public Mono<String> editPvpOfProposal(Model model, @PathVariable(name = "propid") String proposalId, @PathVariable(name = "pvpid") String pvpId) {
+		model.addAttribute("propuestaId", proposalId);
+		model.addAttribute("pvpId", pvpId);
+		return consultaService.findConsultaByPropuestaId(proposalId)
+			.map(cons -> {
+				var consultaOperations = cons.operations();
+				Propuesta prop = consultaOperations.getPropuestaById(proposalId);
+				var operationsNuestra = ((PropuestaNuestra)prop).operationsNuestra();
+				Pvper pvp = operationsNuestra.getPvpById(pvpId);
+				model.addAttribute("consulta", cons);
+				model.addAttribute("propuesta", prop);
+				model.addAttribute("proveedores", consultaOperations.getPropuestasProveedor());
+				model.addAttribute("costes", consultaOperations.getCostesOfPropuestasProveedor());
+				model.addAttribute("costToCotiz", costToCotiz.from(cons));
+				model.addAttribute("map", consultaOperations.mapIdToCosteProveedor());
+				model.addAttribute("atributos", consultaOperations.getAtributosOfPropuestasProveedorAssignedTo(prop.getForProposalId()));
+				model.addAttribute("pvperCheckboxedCosts", operationsNuestra.getSinglePvpCheckboxed(modelMapper, consultaService, pvp));
+				return "editPvpOfProposal";
+			})
+			;
+	}
+	
+	// PROCESS INDIVIDUAL EDIT
+	@PostMapping("/pvpsof/propid/{propid}/edit/{pvpid}")
+	public Mono<String> processEditPvpOfProposal(@Valid PvperCheckboxedCosts pvperCheckboxedCosts, BindingResult bindingResult, Model model, @PathVariable(name = "propid") String proposalId, @PathVariable(name = "pvpid") String pvpId) {
+		var idCostes = pvperCheckboxedCosts.getCosts();
+		if (idCostes == null || idCostes.size() == 0) {bindingResult.rejectValue("costs", "error.costs", "Selecciona al menos un coste");}
+		model.addAttribute("propuestaId", proposalId);
+		model.addAttribute("pvpId", pvpId);
+		return consultaService.findConsultaByPropuestaId(proposalId)
+			.flatMap(cons -> {
+				var consultaOperations = cons.operations();
+				Propuesta prop = consultaOperations.getPropuestaById(proposalId);
+				var operationsNuestra = ((PropuestaNuestra)prop).operationsNuestra();
+				Pvper pvp = operationsNuestra.getPvpById(pvpId);
+				model.addAttribute("consulta", cons);
+				model.addAttribute("propuesta", prop);
+				model.addAttribute("proveedores", consultaOperations.getPropuestasProveedor());
+				model.addAttribute("costes", consultaOperations.getCostesOfPropuestasProveedor());
+				model.addAttribute("costToCotiz", costToCotiz.from(cons));
+				model.addAttribute("map", consultaOperations.mapIdToCosteProveedor());
+				model.addAttribute("atributos", consultaOperations.getAtributosOfPropuestasProveedorAssignedTo(prop.getForProposalId()));
+				model.addAttribute("pvperCheckboxedCosts", pvperCheckboxedCosts);
+				if (bindingResult.hasErrors()) {
+					return Mono.just("editPvpOfProposal");
+				}
+				Pvper pvper = pvperCheckboxedCostToPvper.from(pvperCheckboxedCosts);
+				return consultaService.updateSinglePvpOfPropuesta(proposalId, pvper)
+						.then(Mono.just("processEditPvpOfProposal"));
+			})
+			;
 	}
 	
 	/**

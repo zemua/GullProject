@@ -15,6 +15,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,28 +30,35 @@ import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 
 import devs.mrp.gullproject.configuration.MapperConfig;
-import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
-import devs.mrp.gullproject.domains.CosteLineaProveedor;
-import devs.mrp.gullproject.domains.CosteProveedor;
-import devs.mrp.gullproject.domains.Linea;
-import devs.mrp.gullproject.domains.Propuesta;
-import devs.mrp.gullproject.domains.PropuestaCliente;
-import devs.mrp.gullproject.domains.PropuestaNuestra;
-import devs.mrp.gullproject.domains.PropuestaProveedor;
-import devs.mrp.gullproject.domains.Pvper;
-import devs.mrp.gullproject.domains.PvperLinea;
-import devs.mrp.gullproject.domains.PvperSum;
-import devs.mrp.gullproject.domains.TipoPropuesta;
-import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
-import devs.mrp.gullproject.domains.dto.CostesCheckboxWrapper;
-import devs.mrp.gullproject.domains.dto.PvperSumCheckboxWrapper;
-import devs.mrp.gullproject.domains.dto.PvpsCheckboxWrapper;
+import devs.mrp.gullproject.domains.ConsultaFactory;
+import devs.mrp.gullproject.domains.ConsultaImpl;
+import devs.mrp.gullproject.domains.linea.CosteLineaProveedor;
+import devs.mrp.gullproject.domains.linea.Linea;
+import devs.mrp.gullproject.domains.linea.LineaFactory;
+import devs.mrp.gullproject.domains.linea.PvperLinea;
+import devs.mrp.gullproject.domains.propuestas.AtributoForCampo;
+import devs.mrp.gullproject.domains.propuestas.CosteProveedor;
+import devs.mrp.gullproject.domains.propuestas.Propuesta;
+import devs.mrp.gullproject.domains.propuestas.PropuestaCliente;
+import devs.mrp.gullproject.domains.propuestas.PropuestaNuestra;
+import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
+import devs.mrp.gullproject.domains.propuestas.Pvper;
+import devs.mrp.gullproject.domains.propuestas.PvperSum;
+import devs.mrp.gullproject.domains.propuestas.TipoPropuesta;
+import devs.mrp.gullproject.domainsdto.propuesta.AtributoForFormDto;
+import devs.mrp.gullproject.domainsdto.propuesta.oferta.PvperCheckboxedCostToPvper;
+import devs.mrp.gullproject.domainsdto.propuesta.oferta.PvperCheckboxedCostToPvperImpl;
+import devs.mrp.gullproject.domainsdto.propuesta.oferta.PvperSumCheckboxWrapper;
+import devs.mrp.gullproject.domainsdto.propuesta.oferta.PvpsCheckboxWrapper;
+import devs.mrp.gullproject.domainsdto.propuesta.proveedor.CostesCheckboxWrapper;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.AtributoUtilities;
+import devs.mrp.gullproject.service.CompoundedConsultaLineaService;
 import devs.mrp.gullproject.service.ConsultaService;
-import devs.mrp.gullproject.service.LineaService;
-import devs.mrp.gullproject.service.PropuestaUtilities;
+import devs.mrp.gullproject.service.linea.LineaService;
+import devs.mrp.gullproject.service.propuesta.PropuestaUtilities;
+import devs.mrp.gullproject.service.propuesta.proveedor.CotizacionOfCostMapperFactoryImpl;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -58,14 +66,17 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = ConsultaController.class)
+//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
-@Import({MapperConfig.class, PropuestaUtilities.class, AtributoUtilities.class})
+@Import({MapperConfig.class, PropuestaUtilities.class, AtributoUtilities.class, ConsultaImpl.class, ConsultaFactory.class, LineaFactory.class, PvperCheckboxedCostToPvperImpl.class, CotizacionOfCostMapperFactoryImpl.class})
 @ActiveProfiles("default")
 class ConsultaControllerTestB {
 	
 	WebTestClient webTestClient;
 	ConsultaController consultaController;
 	ModelMapper modelMapper;
+	@Autowired LineaFactory lineaFactory;
+	@Autowired ConsultaFactory consultaFactory;
 	
 	@MockBean
 	ConsultaService consultaService;
@@ -73,6 +84,8 @@ class ConsultaControllerTestB {
 	LineaService lineaService;
 	@MockBean
 	AtributoServiceProxyWebClient atributoService;
+	@MockBean
+	CompoundedConsultaLineaService compoundService;
 	
 	@Autowired
 	public ConsultaControllerTestB(WebTestClient webTestClient, ConsultaController consultaController, ModelMapper modelMapper) {
@@ -96,6 +109,12 @@ class ConsultaControllerTestB {
 	Linea linea3;
 	Linea linea4;
 	
+	Linea linea1p;
+	Linea linea2p;
+	
+	Linea linea1o;
+	Linea linea2o;
+	
 	AtributoForCampo att1;
 	AtributoForCampo att2;
 	AtributoForCampo att3;
@@ -118,13 +137,13 @@ class ConsultaControllerTestB {
 		att3.setName("nameAtt3");
 		att3.setTipo("tipoAtt3");
 		
-		linea1 = new Linea();
+		linea1 = lineaFactory.create();
 		linea1.setNombre("l1");
-		linea2 = new Linea();
+		linea2 = lineaFactory.create();
 		linea2.setNombre("l2");
-		linea3 = new Linea();
+		linea3 = lineaFactory.create();
 		linea3.setNombre("l3");
-		linea4 = new Linea();
+		linea4 = lineaFactory.create();
 		linea4.setNombre("l4");
 		
 		prop1 = new PropuestaCliente() {};
@@ -140,7 +159,7 @@ class ConsultaControllerTestB {
 		op2.addLineaId("linea3");
 		prop2.setNombre("propuesta 2");
 		
-		consulta1 = new Consulta();
+		consulta1 = consultaFactory.create();
 		consulta1.setNombre("consulta 1");
 		consulta1.setStatus("estado 1");
 		consulta1.setId("idConsulta1");
@@ -152,7 +171,7 @@ class ConsultaControllerTestB {
 		op3.addLineaId(linea4.getId());
 		prop3.setNombre("propuesta 3");
 		
-		consulta2 = new Consulta();
+		consulta2 = consultaFactory.create();
 		consulta2.setNombre("consulta 2");
 		consulta2.setStatus("estado 2");
 		consulta2.setId("idConsulta2");
@@ -188,6 +207,7 @@ class ConsultaControllerTestB {
 		sums.add(sum1);
 		((PropuestaNuestra)propuestaNuestra).setSums(sums);
 		
+		when(compoundService.removePropuestasAssignedToAndTheirLines(ArgumentMatchers.eq(consulta1.getId()), ArgumentMatchers.eq(prop1.getId()))).thenReturn(Mono.empty());
 		
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(prop1.getId()))).thenReturn(Mono.just(prop1));
 		when(consultaService.findAttributesByPropuestaId(prop1.getId())).thenReturn(Flux.fromIterable(consulta1.operations().getPropuestaById(prop1.getId()).getAttributeColumns()));
@@ -216,8 +236,10 @@ class ConsultaControllerTestB {
 		cost.setCosteProveedorId(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getId());
 		List<CosteLineaProveedor> costs = new ArrayList<>();
 		costs.add(cost);
-		linea1.setCostesProveedor(costs);
-		linea2.setCostesProveedor(costs);
+		linea1p = lineaFactory.from(linea1);
+		linea1p.setCostesProveedor(costs);
+		linea2p = lineaFactory.from(linea2);
+		linea2p.setCostesProveedor(costs);
 		
 		consulta1.getPropuestas().add(propuestaNuestra);
 		PvperLinea pvp = new PvperLinea();
@@ -226,13 +248,15 @@ class ConsultaControllerTestB {
 		pvp.setPvperId(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId());
 		List<PvperLinea> pvps = new ArrayList<>();
 		pvps.add(pvp);
-		linea1.setPvps(pvps);
-		linea2.setPvps(pvps);
+		linea1o = lineaFactory.from(linea1);
+		linea1o.setPvps(pvps);
+		linea2o = lineaFactory.from(linea2);
+		linea2o.setPvps(pvps);
 		
 		List<String> sums = new ArrayList<>();
 		sums.add(((PropuestaNuestra)propuestaNuestra).getSums().get(0).getId());
-		linea1.setPvpSums(sums);
-		linea2.setPvpSums(sums);
+		linea1o.setPvpSums(sums);
+		linea2o.setPvpSums(sums);
 	}
 
 	@Test
@@ -269,12 +293,12 @@ class ConsultaControllerTestB {
 	
 	@Test
 	void testProcessNewConsulta() {
-		Consulta a = new Consulta();
+		Consulta a = consultaFactory.create();
 		a.setNombre("name of consulta");
 		a.setStatus("open status");
 		a.setId("idConsulta");
 		
-		Consulta b = new Consulta();
+		Consulta b = consultaFactory.create();
 		b.setNombre("name of consulta");
 		b.setStatus("open status");
 		
@@ -350,12 +374,12 @@ class ConsultaControllerTestB {
 	@Test
 	void testShowAllConsultas() throws Exception {
 		
-		Consulta a = new Consulta();
+		Consulta a = consultaFactory.create();
 		a.setNombre("consulta 1");
 		a.setStatus("estado 1");
 		a.setId("idConsulta1");
 		
-		Consulta b = new Consulta();
+		Consulta b = consultaFactory.create();
 		b.setNombre("consulta 2");
 		b.setStatus("estado 2");
 		b.setId("idConsulta2");
@@ -390,13 +414,13 @@ class ConsultaControllerTestB {
 		var op2 = prop2.operations();
 		op2.addLineaId("linea3");
 		prop2.setNombre("propuesta 2");
-		Propuesta prop3 = new PropuestaProveedor(prop1.getId());
+		PropuestaProveedor prop3 = new PropuestaProveedor(prop1.getId());
 		prop3.setNombre("propuesta 3");
-		Propuesta prop4 = new PropuestaProveedor(prop2.getId());
+		PropuestaProveedor prop4 = new PropuestaProveedor(prop2.getId());
 		prop4.setNombre("propuesta 4");
-		Propuesta prop5 = new PropuestaNuestra(prop1.getId());
+		PropuestaNuestra prop5 = new PropuestaNuestra(prop1.getId());
 		prop5.setNombre("propuesta 5");
-		Propuesta prop6 = new PropuestaNuestra(prop2.getId());
+		PropuestaNuestra prop6 = new PropuestaNuestra(prop2.getId());
 		prop6.setNombre("propuesta 6");
 		
 		List<CosteProveedor> costes = new ArrayList<>();
@@ -421,7 +445,7 @@ class ConsultaControllerTestB {
 		((PropuestaNuestra)prop5).setSums(sums);
 		((PropuestaNuestra)prop6).setSums(sums);
 		
-		Consulta a = new Consulta();
+		Consulta a = consultaFactory.create();
 		a.setNombre("consulta 1");
 		a.setStatus("estado 1");
 		a.setId("idConsulta1");
@@ -430,7 +454,7 @@ class ConsultaControllerTestB {
 		a.operations().addPropuesta(prop3);
 		a.operations().addPropuesta(prop5);
 		
-		Consulta b = new Consulta();
+		Consulta b = consultaFactory.create();
 		b.setNombre("consulta 2");
 		b.setStatus("estado 2");
 		b.setId("idConsulta2");
@@ -1537,7 +1561,12 @@ class ConsultaControllerTestB {
 			.accept(MediaType.TEXT_HTML)
 			.body(BodyInserters.fromFormData("name", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName())
 					.with("id", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId())
-					.with("idCostes[0]", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getIdCostes().get(0)))
+					.with("costs[0].selected", "true")
+					.with("costs[0].id", ((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getId())
+					.with("attributesByCotiz[0].cotizId", propuestaProveedor.getId())
+					.with("attributesByCotiz[0].atts[0].selected", "true")
+					.with("attributesByCotiz[0].atts[0].id", propuestaProveedor.getAttributeColumns().get(0).getId())
+					)
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody()
@@ -1545,7 +1574,8 @@ class ConsultaControllerTestB {
 					Assertions.assertThat(response.getResponseBody()).asString()
 						.contains("Nuevo pvp de la propuesta")
 						.contains("Con nombre")
-						.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName());
+						.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName())
+						;
 			})
 			;
 		
@@ -1556,26 +1586,11 @@ class ConsultaControllerTestB {
 		.accept(MediaType.TEXT_HTML)
 		.body(BodyInserters.fromFormData("name", "")
 				.with("id", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId())
-				.with("idCostes[0]", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getIdCostes().get(0)))
-		.exchange()
-		.expectStatus().isOk()
-		.expectBody()
-		.consumeWith(response -> {
-				Assertions.assertThat(response.getResponseBody()).asString()
-					.contains("Nuevo pvp de la propuesta")
-					.contains("no debe estar vacío")
-					.contains("Error")
-					;
-		})
-		;
-		
-		log.debug("should give costs error");
-		webTestClient.post()
-		.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/new")
-		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-		.accept(MediaType.TEXT_HTML)
-		.body(BodyInserters.fromFormData("name", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName())
-				.with("id", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId())
+				.with("costs[0].selected", "true")
+				.with("costs[0].id", ((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getId())
+				.with("attributesByCotiz[0].cotizId", propuestaProveedor.getId())
+				.with("attributesByCotiz[0].atts[0].selected", "true")
+				.with("attributesByCotiz[0].atts[0].id", propuestaProveedor.getAttributeColumns().get(0).getId())
 				)
 		.exchange()
 		.expectStatus().isOk()
@@ -1583,8 +1598,32 @@ class ConsultaControllerTestB {
 		.consumeWith(response -> {
 				Assertions.assertThat(response.getResponseBody()).asString()
 					.contains("Nuevo pvp de la propuesta")
+					.contains("debes escoger un nombre")
 					.contains("Error")
-					.contains("Selecciona al menos un coste")
+					;
+		})
+		;
+		
+		log.debug("should be ok without reference to costs");
+		webTestClient.post()
+		.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/new")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("name", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName())
+				.with("id", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId())
+				.with("costs[0].selected", "false")
+				.with("costs[0].id", ((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getId())
+				.with("attributesByCotiz[0].cotizId", propuestaProveedor.getId())
+				.with("attributesByCotiz[0].atts[0].selected", "true")
+				.with("attributesByCotiz[0].atts[0].id", propuestaProveedor.getAttributeColumns().get(0).getId())
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Nuevo pvp de la propuesta")
+					.doesNotContain(((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getName())
 					.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName());
 		})
 		;
@@ -2124,6 +2163,79 @@ class ConsultaControllerTestB {
 					.contains("Error")
 					.contains("Debes escoger al menos un PVP para cada combinado");
 		});
+	}
+	
+	@Test
+	void testEditPvpOfProposal() {
+		addCosts();
+		
+		webTestClient.get()
+		.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/edit/" + ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId())
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+					.contains("Editar pvp de la propuesta")
+					.contains(propuestaNuestra.getNombre())
+					.contains(((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName());
+		})
+		;
+	}
+	
+	@Test
+	void testProcessEditPvpOfProposal() {
+		addCosts();
+		
+		when(consultaService.updateSinglePvpOfPropuesta(ArgumentMatchers.eq(propuestaNuestra.getId()), ArgumentMatchers.any(Pvper.class))).thenReturn(Mono.just(consulta1));
+		
+		log.debug("should be ok");
+		webTestClient.post()
+			.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/edit/" + ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId())
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("name", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getName())
+					.with("id", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId())
+					.with("costs[0].selected", "true")
+					.with("costs[0].id", ((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getId())
+					.with("attributesByCotiz[0].cotizId", propuestaProveedor.getId())
+					.with("attributesByCotiz[0].atts[0].selected", "true")
+					.with("attributesByCotiz[0].atts[0].id", propuestaProveedor.getAttributeColumns().get(0).getId())
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Actualizado")
+						;
+			})
+			;
+		
+		log.debug("should give name validation error");
+		webTestClient.post()
+			.uri("/consultas/pvpsof/propid/" + propuestaNuestra.getId() + "/edit/" + ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId())
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("name", "")
+					.with("id", ((PropuestaNuestra)propuestaNuestra).getPvps().get(0).getId())
+					.with("costs[0].selected", "true")
+					.with("costs[0].id", ((PropuestaProveedor)propuestaProveedor).getCostes().get(0).getId())
+					.with("attributesByCotiz[0].cotizId", propuestaProveedor.getId())
+					.with("attributesByCotiz[0].atts[0].selected", "true")
+					.with("attributesByCotiz[0].atts[0].id", propuestaProveedor.getAttributeColumns().get(0).getId())
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+						.contains("Error")
+						.contains("debes escoger un nombre")
+						;
+			})
+			;
 	}
 
 }

@@ -4,7 +4,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import devs.mrp.gullproject.domains.dto.AtributoForFormDto;
+import devs.mrp.gullproject.domainsdto.propuesta.AtributoForFormDto;
 import lombok.Data;
 import reactor.core.publisher.Flux;
 

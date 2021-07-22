@@ -2,12 +2,12 @@ package devs.mrp.gullproject.repository;
 
 import java.util.List;
 
-import devs.mrp.gullproject.domains.AtributoForCampo;
 import devs.mrp.gullproject.domains.Consulta;
-import devs.mrp.gullproject.domains.CosteProveedor;
-import devs.mrp.gullproject.domains.Propuesta;
-import devs.mrp.gullproject.domains.Pvper;
-import devs.mrp.gullproject.domains.PvperSum;
+import devs.mrp.gullproject.domains.propuestas.AtributoForCampo;
+import devs.mrp.gullproject.domains.propuestas.CosteProveedor;
+import devs.mrp.gullproject.domains.propuestas.Propuesta;
+import devs.mrp.gullproject.domains.propuestas.Pvper;
+import devs.mrp.gullproject.domains.propuestas.PvperSum;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -21,6 +21,8 @@ public interface CustomConsultaRepo {
 	
 	public Mono<Consulta> removePropuesta(String idConsulta, Propuesta propuesta);
 	
+	public Mono<Consulta> removePropuestasByAssignedTo(String idConsulta, String idAssignedTo);
+	
 	public Mono<Consulta> removeVariasPropuestas(String idConsulta, Propuesta[] propuestas);
 	
 	public Mono<Consulta> updateNombrePropuesta(String idConsulta, Propuesta propuesta);
@@ -28,6 +30,8 @@ public interface CustomConsultaRepo {
 	public Mono<Long> updateNombreVariasPropuestas(String idConsulta, Flux<Propuesta> propuestas);
 	
 	public Mono<Consulta> updateLineasDeUnaPropuesta(String idConsulta, Propuesta propuesta);
+	
+	public Mono<Consulta> updateLineasDeUnaPropuesta(String idPropuesta, List<String> lineas);
 	
 	public Mono<Long> updateLineasDeVariasPropuestas(String idConsulta, Flux<Propuesta> propuestas);
 	

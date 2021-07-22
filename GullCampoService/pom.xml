@@ -51,10 +51,6 @@
     		<artifactId>modelmapper</artifactId>
     		<version>2.3.9</version>
 		</dependency>
-		<dependency>
-			<groupId>de.flapdoodle.embed</groupId>
-			<artifactId>de.flapdoodle.embed.mongo</artifactId>
-		</dependency>
 
 		
 		<dependency>
@@ -130,22 +126,6 @@
 			<properties>
 				<spring.profile.from.maven/>
 			</properties>
-		</profile>
-		<profile>
-			<id>hackteoas</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-            <properties>
-                <spring.profile.from.maven>hackteoas</spring.profile.from.maven>
-            </properties>
-            <dependencies>
-				<dependency>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-starter-web</artifactId> <!-- Breaks Thymeleaf tests, because the project is reactor, not web, but without it we cannot test the model assemblers because of lack of hateoas support for reactor, so this is kind of a hack -->
-					<scope>test</scope>
-				</dependency>
-			</dependencies>
 		</profile>
 	</profiles>
 

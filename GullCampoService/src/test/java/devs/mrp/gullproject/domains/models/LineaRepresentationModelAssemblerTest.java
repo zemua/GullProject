@@ -11,24 +11,28 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.config.EnableHypermediaSupport;
 import org.springframework.hateoas.config.EnableHypermediaSupport.HypermediaType;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+//import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import devs.mrp.gullproject.domains.Campo;
-import devs.mrp.gullproject.domains.Linea;
+
+import devs.mrp.gullproject.domains.linea.Campo;
+import devs.mrp.gullproject.domains.linea.Linea;
+import devs.mrp.gullproject.domains.linea.LineaFactory;
 
 @ExtendWith(SpringExtension.class)
 @EnableHypermediaSupport(type = { HypermediaType.HAL, HypermediaType.HAL_FORMS })
 @SpringBootTest
-@ContextConfiguration(classes = {LineaRepresentationModelAssemblerTest.Config.class})
-@ActiveProfiles("hackteoas")
+//@ContextConfiguration(classes = {LineaRepresentationModelAssemblerTest.Config.class})
+//@ActiveProfiles("hackteoas")
+@Import({LineaFactory.class})
 class LineaRepresentationModelAssemblerTest {
 	
-	static class Config {
+	/*static class Config {
 		@Bean
 		public LineaRepresentationModelAssembler lineaRepresentationModelAssembler() {
 			return new LineaRepresentationModelAssembler();
@@ -51,6 +55,8 @@ class LineaRepresentationModelAssemblerTest {
 
 	@Autowired
 	LineaRepresentationModelAssembler lrma;
+	@Autowired
+	LineaFactory lineaFactory;
 	
 	@Test
 	void testToModel() {
@@ -63,7 +69,7 @@ class LineaRepresentationModelAssemblerTest {
 		List<Campo<?>> campos = new ArrayList<>();
 		campos.add(campo);
 		
-		Linea linea = new Linea();
+		Linea linea = lineaFactory.create();
 		linea.setId("id_linea");
 		linea.setNombre("nombre_linea");
 		linea.setCampos(campos);
@@ -74,6 +80,6 @@ class LineaRepresentationModelAssemblerTest {
 		assertThat(lrm.getCampos()).isSameAs(linea.getCampos());
 		assertThat(lrm.getNombre()).isSameAs(linea.getNombre());
 		assertThat(lrm.getLink("self").toString()).contains("/api/lineas/id/" + linea.getId());
-	}
+	} */
 
 }

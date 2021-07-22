@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title th:text="${'Gull Project - Lineas de la oferta: ' + propuesta.getNombre()}">Gull Project - Lineas de la oferta</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1 th:text="${'Lineas de la oferta: ' + propuesta.getNombre()}">Lineas de la oferta</h1>
+
+	<div>
+		<p>
+			<a th:href="${'/consultas/revisar/id/' + consulta.id}">Volver</a> <th:block th:if="${propuesta.getPvps().size() > 0 or propuesta.getSums().size() > 0}">-
+			<a th:href="@{/lineas/allof/ofertaid/{id}/assign(id=${propuesta.id})}">Asignar Lineas</a> -
+			<a th:href="@{/lineas/allof/ofertaid/{id}/export(id=${propuesta.id})}">Exportar</a></th:block>
+		</p>
+	</div>
+	
+	<div>
+		<table>
+			<tr>
+				<th>Nombre</th>
+				<th th:each="t : ${propCliente.getAttributeColumns()}"><span th:text="${t.getName()}"></span></th>
+				<th:block th:if="${propuesta.getPvps().size() > 0}">
+				<td><span>Pvps:</span></td>
+				<td th:each="pvp : ${propuesta.getPvps()}"><span th:text="${pvp.name}"></span></td>
+				<td th:each="sum : ${propuesta.getSums()}"><span th:text="${sum.name}"></span></td>
+				</th:block>
+				
+			</tr>
+			<tr th:each="a, astat : ${lineasCliente}">
+				<td th:text="${a.nombre}"></td>
+				<td th:each="t : ${propCliente.getAttributeColumns()}"><span th:text="${a.operations().getValueByAttId(t.getId())}"></span></td>
+				<th:block th:if="${propuesta.getPvps().size() > 0 or propuesta.getSums().size() > 0}">
+				<td th:if="${astat.index == 0}" rowspan="0"></td>
+				<td th:each="pvp : ${propuesta.getPvps()}"><span th:text="${pvpMapper.findBy(a.id, pvp.id).pvp > 0 ? pvpMapper.findBy(a.id, pvp.id).pvp : ''}"></span></td>
+				<td th:each="sum : ${propuesta.getSums()}"><span th:text="${sumMapper.findBy(a.id, sum.id) > 0 ? sumMapper.findBy(a.id, sum.id) : ''}"></span></td>
+				</th:block>
+			</tr>
+		</table>
+	</div>
+
+</body>
+</html>

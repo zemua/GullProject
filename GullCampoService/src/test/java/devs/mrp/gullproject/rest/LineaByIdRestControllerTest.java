@@ -15,13 +15,16 @@ import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.config.HypermediaWebTestClientConfigurer;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import devs.mrp.gullproject.domains.Campo;
-import devs.mrp.gullproject.domains.Linea;
+import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.linea.Campo;
+import devs.mrp.gullproject.domains.linea.Linea;
+import devs.mrp.gullproject.domains.linea.LineaFactory;
 import devs.mrp.gullproject.domains.models.LineaRepresentationModel;
 import devs.mrp.gullproject.domains.models.LineaRepresentationModelAssembler;
 import devs.mrp.gullproject.repository.LineaRepo;
@@ -29,12 +32,15 @@ import reactor.core.publisher.Mono;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
+@Import({LineaFactory.class, Consulta.class})
 class LineaByIdRestControllerTest {
 
 	@Autowired
 	HypermediaWebTestClientConfigurer configurer;
 	@Autowired
 	LineaByIdRestController lineaByIdRestController;
+	@Autowired
+	LineaFactory lineaFactory;
 	
 	@MockBean
 	LineaRepo lineaRepo;
@@ -55,7 +61,7 @@ class LineaByIdRestControllerTest {
 		List<Campo<?>> campos = new ArrayList<>();
 		campos.add(m);
 		
-		Linea l = new Linea();
+		Linea l = lineaFactory.create();
 		l.setNombre("nombre_linea");
 		l.setId("id_linea");
 		l.setCampos(campos);

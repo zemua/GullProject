@@ -25,8 +25,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import devs.mrp.gullproject.configuration.ClientProperties;
-import devs.mrp.gullproject.domains.AtributoForCampo;
-import devs.mrp.gullproject.domains.StringWrapper;
+import devs.mrp.gullproject.domains.propuestas.AtributoForCampo;
+import devs.mrp.gullproject.domainsdto.StringWrapper;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -75,7 +75,7 @@ class AtributoServiceProxyWebClientTest {
 			.expectComplete()
 			.verify();
 		
-		type = "CANTIDAD";
+		type = "NUMERO";
 		data = "8569742";
 		
 		response = service.validateDataFormat(type, data);
@@ -86,7 +86,7 @@ class AtributoServiceProxyWebClientTest {
 			.expectComplete()
 			.verify();
 		
-		type = "CANTIDAD";
+		type = "NUMERO";
 		data = "asdqwe";
 		
 		response = service.validateDataFormat(type, data);
@@ -142,11 +142,8 @@ class AtributoServiceProxyWebClientTest {
 		response = service.getAllDataFormats();
 		StepVerifier.create(response)
 			.assertNext(st -> assertEquals("DESCRIPCION", st.getString()))
-			.assertNext(st -> assertEquals("CANTIDAD", st.getString()))
-			.assertNext(st -> assertEquals("COSTE", st.getString()))
-			.assertNext(st -> assertEquals("MARGEN", st.getString()))
-			.assertNext(st -> assertEquals("PVP", st.getString()))
-			.assertNext(st -> assertEquals("PLAZO", st.getString()))
+			.assertNext(st -> assertEquals("NUMERO", st.getString()))
+			.assertNext(st -> assertEquals("DECIMAL", st.getString()))
 			.expectComplete()
 			.verify();
 	}
@@ -161,7 +158,7 @@ class AtributoServiceProxyWebClientTest {
 			.expectComplete()
 			.verify();
 		
-		response = service.getClassTypeOfFormat("CANTIDAD");
+		response = service.getClassTypeOfFormat("NUMERO");
 		StepVerifier.create(response)
 			.assertNext(r -> assertEquals("Integer", r))
 			.expectComplete()

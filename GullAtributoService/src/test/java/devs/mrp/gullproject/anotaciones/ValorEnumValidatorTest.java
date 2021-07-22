@@ -47,12 +47,12 @@ class ValorEnumValidatorTest {
 		
 		Atributo a = new Atributo();
 		a.setName("nombre");
-		a.setTipo(DataFormat.CANTIDAD);
+		a.setTipo(DataFormat.NUMERO);
 		a.setId("idDelMoNo");
 		
 		Atributo b = new Atributo();
 		b.setName("nombre");
-		b.setTipo(DataFormat.CANTIDAD);
+		b.setTipo(DataFormat.NUMERO);
 		
 		Mono<Atributo> mono = Mono.just(a);
 		when(atributoService.save(ArgumentMatchers.refEq(b, "id"))).thenReturn(mono);
@@ -62,7 +62,7 @@ class ValorEnumValidatorTest {
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.accept(MediaType.TEXT_HTML)
 			.body(BodyInserters.fromFormData("name", "nombre")
-					.with("tipo", "CANTIDAD"))
+					.with("tipo", "NUMERO"))
 			.exchange()
 			.expectStatus().is3xxRedirection();
 			

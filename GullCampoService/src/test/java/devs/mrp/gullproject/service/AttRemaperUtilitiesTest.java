@@ -13,13 +13,17 @@ import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.validation.BindException;
 
-import devs.mrp.gullproject.domains.Campo;
-import devs.mrp.gullproject.domains.Linea;
-import devs.mrp.gullproject.domains.dto.AttRemaper;
-import devs.mrp.gullproject.domains.dto.AttRemapersWrapper;
+import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.linea.Campo;
+import devs.mrp.gullproject.domains.linea.Linea;
+import devs.mrp.gullproject.domains.linea.LineaFactory;
+import devs.mrp.gullproject.domainsdto.propuesta.AttRemaper;
+import devs.mrp.gullproject.domainsdto.propuesta.AttRemapersWrapper;
+import devs.mrp.gullproject.service.linea.LineaService;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -28,7 +32,10 @@ import reactor.test.StepVerifier;
 @Slf4j
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
+@Import({LineaFactory.class, Consulta.class})
 public class AttRemaperUtilitiesTest {
+	
+	@Autowired LineaFactory lineaFactory;
 
 	@MockBean
 	AtributoServiceProxyWebClient atributoService;
@@ -57,10 +64,10 @@ public class AttRemaperUtilitiesTest {
 	
 	@BeforeEach
 	void setup() {
-		linea = new Linea();
+		linea = lineaFactory.create();
 		linea.setPropuestaId("propid");
 		
-		lineab = new Linea();
+		lineab = lineaFactory.create();
 		lineab.setPropuestaId(linea.getPropuestaId());
 		
 		rem1 = new AttRemaper();

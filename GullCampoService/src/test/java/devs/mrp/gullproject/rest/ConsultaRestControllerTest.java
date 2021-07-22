@@ -11,8 +11,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.Link;
@@ -20,19 +22,24 @@ import org.springframework.hateoas.config.HypermediaWebTestClientConfigurer;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import devs.mrp.gullproject.domains.Campo;
 import devs.mrp.gullproject.domains.Consulta;
-import devs.mrp.gullproject.domains.Propuesta;
+import devs.mrp.gullproject.domains.ConsultaFactory;
+import devs.mrp.gullproject.domains.ConsultaImpl;
+import devs.mrp.gullproject.domains.linea.Campo;
+import devs.mrp.gullproject.domains.linea.LineaFactory;
 import devs.mrp.gullproject.domains.models.ConsultaRepresentationModel;
 import devs.mrp.gullproject.domains.models.ConsultaRepresentationModelAssembler;
+import devs.mrp.gullproject.domains.propuestas.Propuesta;
 import devs.mrp.gullproject.repository.ConsultaRepo;
+import devs.mrp.gullproject.repository.LineaRepo;
 import devs.mrp.gullproject.service.ConsultaService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(SpringExtension.class)
-@WebFluxTest(controllers = ConsultaRestController.class)
-@Import({ConsultaService.class, ConsultaByIdRestController.class})
+@SpringBootTest
+//@WebFluxTest(controllers = ConsultaRestController.class)
+//@Import({ConsultaService.class, ConsultaByIdRestController.class, ModelMapper.class, LineaFactory.class, ConsultaImpl.class, ConsultaFactory.class})
 class ConsultaRestControllerTest {
 	
 	@Autowired
@@ -41,9 +48,13 @@ class ConsultaRestControllerTest {
 	ConsultaRestController consultaRestController;
 	@Autowired
 	ConsultaByIdRestController consultaByIdRestController;
+	@Autowired
+	ConsultaFactory consultaFactory;
 	
 	@MockBean
 	ConsultaRepo consultaRepo;
+	@MockBean
+	LineaRepo lineaRepo;
 	@MockBean
 	ConsultaRepresentationModelAssembler crma;
 	
@@ -56,14 +67,14 @@ class ConsultaRestControllerTest {
 	
 	@BeforeEach
 	void initialize() {
-		consulta1 = new Consulta();
+		consulta1 = consultaFactory.create();
 		consulta1.setCreatedTime(123456L);
 		consulta1.setId("id1");
 		consulta1.setNombre("nombre1");
 		consulta1.setPropuestas(new ArrayList<Propuesta>());
 		consulta1.setStatus("status1");
 		
-		consulta2 = new Consulta();
+		consulta2 = consultaFactory.create();
 		consulta2.setCreatedTime(654321L);
 		consulta2.setId("id2");
 		consulta2.setNombre("nombre2");
@@ -96,7 +107,7 @@ class ConsultaRestControllerTest {
 	void testGetAllConsultas() {
 		WebTestClient client = WebTestClient.bindToController(consultaRestController).build().mutateWith(configurer);
 		
-		when(consultaRepo.findAll()).thenReturn(flux);
+		when(consultaRepo.findAllByOrderByCreatedTimeDesc()).thenReturn(flux);
 		
 		when(crma.toModel(ArgumentMatchers.any(Consulta.class))).thenReturn(null);
 		when(crma.toModel(ArgumentMatchers.eq(consulta1))).thenReturn(model1);

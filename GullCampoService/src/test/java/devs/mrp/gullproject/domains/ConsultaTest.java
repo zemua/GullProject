@@ -5,6 +5,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import devs.mrp.gullproject.domains.propuestas.Propuesta;
+import devs.mrp.gullproject.domains.propuestas.PropuestaCliente;
+
 class ConsultaTest {
 
 	Consulta consulta;
@@ -16,7 +19,7 @@ class ConsultaTest {
 		propuesta1 = new PropuestaCliente();
 		propuesta2 = new PropuestaCliente();
 		
-		consulta = new Consulta();
+		consulta = new ConsultaImpl();
 		consulta.operations().addPropuesta(propuesta1);
 		consulta.operations().addPropuesta(propuesta2);
 	}

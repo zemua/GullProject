@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
 
-import devs.mrp.gullproject.domains.Linea;
+import devs.mrp.gullproject.domains.linea.Linea;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -23,10 +23,12 @@ public interface LineaRepo extends ReactiveMongoRepository<Linea, String>, Custo
 	Flux<Linea> findAllByPropuestaId(String propuestaId);
 	
 	Flux<Linea> findLineasByIdIn(List<String> ids);
+	Flux<Linea> findLineasByPropuestaIdIn(List<String> propuestaIds);
 	
 	Flux<Linea> findLineasByIdInOrderByOrderAsc(List<String> ids);
 	Flux<Linea> findAllByPropuestaIdOrderByOrderAsc(String propuestaId);
 	Flux<Linea> findAllByOrderByOrderAsc();
+	Flux<Linea> findAllByOrderByOrderDesc();
 	
 	Mono<Long> countByPropuestaId(String propuestaId);
 	

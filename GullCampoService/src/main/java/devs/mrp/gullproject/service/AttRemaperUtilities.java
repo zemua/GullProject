@@ -7,9 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
-import devs.mrp.gullproject.domains.Campo;
-import devs.mrp.gullproject.domains.Linea;
-import devs.mrp.gullproject.domains.dto.AttRemaper;
+import devs.mrp.gullproject.domains.linea.Campo;
+import devs.mrp.gullproject.domains.linea.Linea;
+import devs.mrp.gullproject.domainsdto.propuesta.AttRemaper;
+import devs.mrp.gullproject.service.linea.LineaOperations;
+import devs.mrp.gullproject.service.linea.LineaService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;

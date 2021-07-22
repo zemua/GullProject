@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +19,7 @@ import devs.mrp.gullproject.domains.StringWrapper;
 import devs.mrp.gullproject.domains.DTO.AtributoDTO;
 import devs.mrp.gullproject.domains.representationmodels.AtributoRepresentationModel;
 import devs.mrp.gullproject.domains.representationmodels.AtributoRepresentationModelAssembler;
+import devs.mrp.gullproject.domains.representationmodels.AtributoRespresentationModelMapper;
 import devs.mrp.gullproject.service.AtributoService;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -28,20 +31,21 @@ import reactor.core.publisher.Mono;
 public class AtributoRestController {
 
 	private final AtributoService atributoService;
-	private final AtributoRepresentationModelAssembler arma;
+	//private final AtributoRepresentationModelAssembler arma;
 	private final ModelMapper modelMapper;
 	
+	@Autowired AtributoRespresentationModelMapper repMapper;
+	
 	@Autowired
-	public AtributoRestController(AtributoService atributoService, AtributoRepresentationModelAssembler arma, ModelMapper modelMapper) {
+	public AtributoRestController(AtributoService atributoService, ModelMapper modelMapper) {
 		this.atributoService = atributoService;
-		this.arma = arma;
 		this.modelMapper = modelMapper;
 	}
 	
 	@GetMapping(path = "/all")
-	public Flux<AtributoRepresentationModel> getAllAtributos() {
+	public Flux<EntityModel<Atributo>> getAllAtributos() {
 		Flux<Atributo> atributos = atributoService.findAll();
-		Flux<AtributoRepresentationModel> arm = atributos.map(e -> arma.toModel(e));
+		Flux<EntityModel<Atributo>> arm = atributos.flatMap(e -> repMapper.from(e));
 		return arm;
 	}
 	
