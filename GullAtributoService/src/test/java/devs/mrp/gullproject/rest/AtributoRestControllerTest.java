@@ -23,6 +23,7 @@ import devs.mrp.gullproject.domains.StringWrapper;
 import devs.mrp.gullproject.domains.DTO.AtributoDTO;
 import devs.mrp.gullproject.domains.representationmodels.AtributoRepresentationModel;
 import devs.mrp.gullproject.domains.representationmodels.AtributoRepresentationModelAssembler;
+import devs.mrp.gullproject.domains.representationmodels.AtributoRespresentationModelMapperImpl;
 import devs.mrp.gullproject.repositorios.AtributoRepo;
 import devs.mrp.gullproject.service.AtributoService;
 import reactor.core.publisher.Flux;
@@ -33,7 +34,7 @@ import reactor.test.StepVerifier;
 //@SpringBootTest
 //@AutoConfigureWebTestClient
 @WebFluxTest(controllers = AtributoRestController.class)
-@Import({AtributoService.class, ModelMapper.class})
+@Import({AtributoService.class, ModelMapper.class, AtributoRespresentationModelMapperImpl.class})
 class AtributoRestControllerTest {
 	
 	@Autowired
