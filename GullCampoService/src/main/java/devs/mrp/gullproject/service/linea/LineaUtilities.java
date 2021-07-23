@@ -315,6 +315,17 @@ public class LineaUtilities {
 			fieldArrays.add(new StringListWrapper(fl, "")); // we didn't retrieve the name yet so we use an empty string in the meanwhile
 		}
 		
+		// add missing fields on the first lines if jumped over
+		for (int i = 0; i<lines.length; i++) {
+			var fields = fieldArrays.getStringListWrapper().get(i).getString();
+			if (fields.size() >= nOfCols) {
+				break;
+			}
+			while (fields.size() < nOfCols) {
+				fields.add("");
+			}
+		}
+		
 		for (int i = 0; i<nOfCols; i++) {
 			// it is a bit dumb but is the best way to match the fields in thymeleaf and get the selected value back
 			fieldArrays.add("");
