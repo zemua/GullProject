@@ -4,6 +4,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import devs.mrp.gullproject.domains.linea.Linea;
 import devs.mrp.gullproject.repository.LineaRepo;
@@ -33,6 +34,7 @@ public class CompoundedConsultaLineaService {
 			.flatMap(rProp -> lineaService.findByPropuestaId(rProp.getId()));
 	}
 	
+	@Transactional
 	public Mono<Void> removePropuestasAssignedToAndTheirLines(String idConsulta, String idAssignedTo) {
 		return consultaService.removePropuestasByAssignedtoAndReturnOld(idConsulta, idAssignedTo)
 				.flatMap(rConsulta -> {
