@@ -115,7 +115,7 @@ public class ConsultaController {
 		return "processNewConsulta";
 	}
 	
-	@GetMapping("/all")
+	@GetMapping("/all") // TODO implement pagination
 	public String showAllConsultas(Model model) {
 		Flux<Consulta> consultas = consultaService.findAll();
 		model.addAttribute("consultas", new ReactiveDataDriverContextVariable(consultas, 1));
