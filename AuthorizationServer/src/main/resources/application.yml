@@ -1,0 +1,30 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017
+      database: test
+    rest:
+      base-path: /api
+  application:
+    name: auth-service
+server:
+  port: 0
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+      
+---
+spring:
+  config:
+    activate:
+      on-profile: logdebug
+logging:
+  level:
+    devs.mrp.gullproject: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.test: DEBUG
+    org.thymeleaf: DEBUG
+
