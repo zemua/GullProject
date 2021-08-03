@@ -1,10 +1,10 @@
 spring:
   data:
-    rest:
-      base-path: /api
     mongodb:
       uri: mongodb://localhost:27017
       database: test
+    rest:
+      base-path: /api
   application:
     name: campo-service
 server:
