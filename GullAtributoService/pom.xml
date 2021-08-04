@@ -116,7 +116,7 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
-			<plugin>
+			<!-- <plugin>
     			<groupId>org.springframework.cloud</groupId>
     			<artifactId>spring-cloud-contract-maven-plugin</artifactId>
     			<version>${spring-cloud-contract.version}</version>
@@ -126,7 +126,7 @@
     				<testMode>EXPLICIT</testMode>
         			<baseClassForTests>devs.mrp.gullproject.rest.AtributosBase</baseClassForTests>
     			</configuration>
-			</plugin>
+			</plugin> -->
 		</plugins>
 	</build>
 

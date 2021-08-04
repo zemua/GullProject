@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>Gull Project - Nuevo Usuario</title>
+</head>
+<body>
+
+<h1>Nuevo Usuario</h1>
+
+	<form method="POST" th:object="${myUser}" id="atributoform">
+	
+		<div th:if="${#fields.hasErrors()}">
+     	   <span class="validationError">
+      	  Corrige los errores y reenvía.
+     	   </span>
+    	</div>
+
+		<div>
+			<p>
+				<button>Ok</button>
+			</p>
+		</div>
+		
+		<div>
+			<p>
+				<a th:href="@{/users/all}">Ver todos los usuarios</a>
+			</p>
+		</div>
+		
+	</form>
+
+</body>
+</html>

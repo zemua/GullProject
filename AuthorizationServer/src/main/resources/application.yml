@@ -23,8 +23,10 @@ spring:
       on-profile: logdebug
 logging:
   level:
+    root: DEBUG
     devs.mrp.gullproject: DEBUG
     org.springframework.web: DEBUG
     org.springframework.test: DEBUG
+    org.springframework.security: DEBUG
     org.thymeleaf: DEBUG
 

@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MyUser {
+public abstract class MyUser {
 
 	@Id
 	public String username;
