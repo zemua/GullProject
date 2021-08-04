@@ -1,6 +1,30 @@
+gull:
+  authport: 9000
 spring:
   application:
     name: gateway-service
+  security:
+    oath2:
+      client:
+        registration:
+          gull-client:
+            provider: spring
+            client-id: gull-client
+            client-secret: secret
+            authorization-grant-type: authorization_code
+            redirect-uri-template: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope: openid
+          gull-client-authorization-code:
+            provider: spring
+            client-id: gull-client
+            client-secret: secret
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/authorized"
+            scope: articles.read
+            client-name: gull-client-authorization-code
+        provider:
+          spring:
+            issuer-uri: http://127.0.0.1:${gull.authport}
 server:
   port: 8080
 eureka:

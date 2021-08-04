@@ -25,7 +25,6 @@ public class UserController {
 		return user;
 	}
 
-	@ResponseBody
 	@GetMapping("/add")
 	public String addUser(Model model) {
 		log.debug("getting into addUser()");
