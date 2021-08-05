@@ -13,12 +13,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
 
 import devs.mrp.gullproject.service.MongoUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig /*extends WebSecurityConfigurerAdapter*/ {
 
 	@Autowired
 	MongoUserDetailsService uds;
@@ -30,24 +31,26 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Bean
 	UserDetailsService users() {
-	    UserDetails user = User.withDefaultPasswordEncoder()
+	    UserDetails user = User.builder()
 	      .username("admin")
-	      .password("password")
+	      .password("{noop}admin")
+	      .authorities("admin")
+	      .passwordEncoder(s -> s)
 	      .build();
 	    return new InMemoryUserDetailsManager(user);
 	}
 	
-	@Bean
+	/*@Bean
 	public AuthenticationManager authenticationManagerBean() throws Exception {
 		return super.authenticationManagerBean();
-	}
+	}*/
 	
-	@Bean
+	/*@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
-	}
+	}*/
 	
-	@Override
+	/*@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
 			.authorizeRequests()
@@ -58,6 +61,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.and()
 				.logout().permitAll()
 			;
-	}
+	}*/
+	
+	@Bean
+    SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+        http.authorizeRequests(authorizeRequests ->
+          authorizeRequests.anyRequest().authenticated()
+        )
+          .formLogin().permitAll();
+        return http.build();
+    }
 	
 }

@@ -18,7 +18,7 @@ import devs.mrp.gullproject.repository.UserRepository;
 public class MongoUserDetailsService implements UserDetailsService {
 
 	@Autowired UserRepository repo;
-	@Autowired PasswordEncoder encoder;
+	//@Autowired PasswordEncoder encoder;
 	
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -26,7 +26,7 @@ public class MongoUserDetailsService implements UserDetailsService {
 		if (user == null && username != "admin") {
 			throw new UsernameNotFoundException("User not found");
 		} else if (user == null) {
-			return new User("admin", encoder.encode("admin"), List.of(new SimpleGrantedAuthority("admin")));
+			return new User("admin", /*encoder.encode("admin")*/"admin", List.of(new SimpleGrantedAuthority("admin")));
 		}
 		List<SimpleGrantedAuthority> authorities = user.getAuthorities();
 		return new User(user.getUsername(), user.getPassword(), authorities);

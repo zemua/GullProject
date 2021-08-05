@@ -28,11 +28,13 @@ public class RouteConfiguration {
 	    		
 	    	.route(r -> r.path("/users/**")
 	    			.filters(f -> f.filters(filterFactory.apply())
-	    					.removeRequestHeader("Cookie"))
+	    					//.removeRequestHeader("Cookie")
+	    					)
 	    			.uri(micro.getAuthService()))
 	    	.route(r -> r.path("/login/**")
 	    			.filters(f -> f.filters(filterFactory.apply())
-	    					.removeRequestHeader("Cookie"))
+	    					//.removeRequestHeader("Cookie")
+	    					)
 	    			.uri(micro.getAuthService()))
 	    	
 	      .route(r -> r.path("/consultas/**")
