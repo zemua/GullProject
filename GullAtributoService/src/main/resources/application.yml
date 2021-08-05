@@ -1,3 +1,7 @@
+gull:
+  authport: 9000
+jwk:
+  endpoint: http://localhost:${gull.authport}/auth/realms/master/protocol/openid-connect/certs
 spring:
   data:
     mongodb:
@@ -5,6 +9,11 @@ spring:
       database: test
   application:
     name: atributo-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:${gull.authport}/auth/realms/master
 server:
   port: 0
 eureka:
@@ -25,4 +34,5 @@ logging:
     org.springframework.web: DEBUG
     org.springframework.test: DEBUG
     org.thymeleaf: DEBUG
+    org.springframework.security: DEBUG
     

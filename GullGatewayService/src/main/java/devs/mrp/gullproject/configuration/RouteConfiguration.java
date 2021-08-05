@@ -26,7 +26,7 @@ public class RouteConfiguration {
 	  public RouteLocator myRoutes(RouteLocatorBuilder builder) {
 	    return builder.routes()
 	    		
-	    	.route(r -> r.path("/users/**")
+	    	/*.route(r -> r.path("/users/**")
 	    			.filters(f -> f.filters(filterFactory.apply())
 	    					//.removeRequestHeader("Cookie")
 	    					)
@@ -35,7 +35,7 @@ public class RouteConfiguration {
 	    			.filters(f -> f.filters(filterFactory.apply())
 	    					//.removeRequestHeader("Cookie")
 	    					)
-	    			.uri(micro.getAuthService()))
+	    			.uri(micro.getAuthService()))*/
 	    	
 	      .route(r -> r.path("/consultas/**")
 	    		  .filters(f -> f.filters(filterFactory.apply())

@@ -7,10 +7,10 @@ spring:
     oauth2:
       client:
         registration:
-          gull-client:
+          login:
             provider: keycloak
             client-id: gull-client
-            client-secret: secret
+            client-secret: 863fa419-703d-41ac-bc5e-0b07a8125231
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
             scope: openid
@@ -19,7 +19,8 @@ spring:
             token-uri: http://localhost:${gull.authport}/auth/realms/master/protocol/openid-connect/token
             authorization-uri: http://localhost:${gull.authport}/auth/realms/master/protocol/openid-connect/auth
             user-info-uri: http://localhost:${gull.authport}/auth/realms/master/protocol/openid-connect/userinfo
-            user-name-attribute: gull-client
+            user-name-attribute: preferred_username
+            jwk-set-uri: http://localhost:${gull.authport}/auth/realms/master/protocol/openid-connect/certs
 server:
   port: 8080
 eureka:
@@ -39,3 +40,4 @@ logging:
     devs.mrp.gullproject: DEBUG
     org.springframework.web: DEBUG
     org.springframework.test: DEBUG
+    org.springframework.security: DEBUG

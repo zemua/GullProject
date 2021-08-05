@@ -51,14 +51,9 @@ public class WebSecurityConfig /*extends WebSecurityConfigurerAdapter*/ {
 		return super.authenticationManagerBean();
 	}*/
 	
-	/*@Bean
+	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
-	}*/
-	
-	@Bean
-	public PasswordEncoder noOpPasswordEncoder() {
-		return NoOpPasswordEncoder.getInstance();
 	}
 	
 	/*@Override
