@@ -14,7 +14,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import devs.mrp.gullproject.models.MyUser;
 import devs.mrp.gullproject.repository.UserRepository;
 
-@Component
+//@Component
 public class MongoUserDetailsService implements UserDetailsService {
 
 	@Autowired UserRepository repo;

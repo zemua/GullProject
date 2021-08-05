@@ -4,27 +4,22 @@ spring:
   application:
     name: gateway-service
   security:
-    oath2:
+    oauth2:
       client:
         registration:
           gull-client:
-            provider: spring
+            provider: keycloak
             client-id: gull-client
             client-secret: secret
             authorization-grant-type: authorization_code
-            redirect-uri-template: "{baseUrl}/login/oauth2/code/{registrationId}"
+            redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
             scope: openid
-          gull-client-authorization-code:
-            provider: spring
-            client-id: gull-client
-            client-secret: secret
-            authorization-grant-type: authorization_code
-            redirect-uri: "{baseUrl}/authorized"
-            scope: articles.read
-            client-name: gull-client-authorization-code
         provider:
-          spring:
-            issuer-uri: http://127.0.0.1:${gull.authport}
+          keycloak:
+            token-uri: http://localhost:${gull.authport}/auth/realms/master/protocol/openid-connect/token
+            authorization-uri: http://localhost:${gull.authport}/auth/realms/master/protocol/openid-connect/auth
+            user-info-uri: http://localhost:${gull.authport}/auth/realms/master/protocol/openid-connect/userinfo
+            user-name-attribute: gull-client
 server:
   port: 8080
 eureka:
