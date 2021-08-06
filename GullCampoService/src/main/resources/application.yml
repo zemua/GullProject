@@ -1,3 +1,7 @@
+gull:
+  authport: 9000
+jwk:
+  endpoint: http://localhost:${gull.authport}/auth/realms/master/protocol/openid-connect/certs
 spring:
   data:
     mongodb:
@@ -7,6 +11,11 @@ spring:
       base-path: /api
   application:
     name: campo-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:${gull.authport}/auth/realms/master
 server:
   port: 0
 eureka:
