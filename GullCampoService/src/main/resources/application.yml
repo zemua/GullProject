@@ -16,6 +16,21 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:${gull.authport}/auth/realms/master
+      client:
+        registration:
+          login:
+            provider: keycloak
+            client-id: gull-campo-service
+            client-secret: 73fb0fb7-9aab-42f0-bc7b-66f476bde874
+            authorization-grant-type: client_credentials
+            scope: openid
+        provider:
+          keycloak:
+            token-uri: http://localhost:${gull.authport}/auth/realms/master/protocol/openid-connect/token
+            authorization-uri: http://localhost:${gull.authport}/auth/realms/master/protocol/openid-connect/auth
+            user-info-uri: http://localhost:${gull.authport}/auth/realms/master/protocol/openid-connect/userinfo
+            user-name-attribute: preferred_username
+            jwk-set-uri: http://localhost:${gull.authport}/auth/realms/master/protocol/openid-connect/certs
 server:
   port: 0
 eureka:
