@@ -27,7 +27,7 @@ public class WebClientConfiguration {
 	    // (optional) explicitly opt into using the oauth2Login to provide an access token implicitly
 	    // oauth.setDefaultOAuth2AuthorizedClient(true); // use existing authenticated token from a logged-in user
 	    // (optional) set a default ClientRegistration.registrationId
-	    oauth.setDefaultClientRegistrationId("gull-campo-service"); // use this server's own client credentials to authenticate
+	    oauth.setDefaultClientRegistrationId("campo"); // use this server's own client credentials to authenticate
 	    return WebClient.builder()
 	            .filter(oauth);
 	            //.build();

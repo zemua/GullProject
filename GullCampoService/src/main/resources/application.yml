@@ -18,7 +18,7 @@ spring:
           issuer-uri: http://localhost:${gull.authport}/auth/realms/master
       client:
         registration:
-          login:
+          campo:
             provider: keycloak
             client-id: gull-campo-service
             client-secret: 73fb0fb7-9aab-42f0-bc7b-66f476bde874
