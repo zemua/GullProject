@@ -14,7 +14,7 @@ import org.springframework.web.cors.reactive.CorsConfigurationSource;
 
 @Configuration
 @EnableWebFluxSecurity
-public class ResourceServerConfig {
+public class ResourceServerConfig { // TODO test security
 
 	@Value("${jwk.endpoint}")
 	private String jwkEndpoint;
