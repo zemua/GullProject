@@ -19,11 +19,13 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
 import devs.mrp.gullproject.configuration.MapperConfig;
+import devs.mrp.gullproject.configuration.ResourceServerSecurityConfig;
 import devs.mrp.gullproject.controller.linea.LineaController;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.ConsultaFactory;
@@ -68,7 +70,7 @@ import reactor.core.publisher.Mono;
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = LineaController.class)
 @AutoConfigureWebTestClient
-@Import({MapperConfig.class, LineaUtilities.class, AttRemaperUtilities.class, CostRemapperUtilities.class, PropuestaProveedorUtilities.class, PvpMapperByAssignedLineFactory.class, SupplierLineFinderByProposalAssignation.class, ConsultaImpl.class, ConsultaFactory.class, ProposalIdsMergerFactory.class, PropuestaProveedorExtractor.class, FromPropuestaToProveedorFactory.class, LineByAssignationRetrieverFactory.class, LineaFactory.class})
+@Import({MapperConfig.class, LineaUtilities.class, AttRemaperUtilities.class, CostRemapperUtilities.class, PropuestaProveedorUtilities.class, PvpMapperByAssignedLineFactory.class, SupplierLineFinderByProposalAssignation.class, ConsultaImpl.class, ConsultaFactory.class, ProposalIdsMergerFactory.class, PropuestaProveedorExtractor.class, FromPropuestaToProveedorFactory.class, LineByAssignationRetrieverFactory.class, LineaFactory.class, ResourceServerSecurityConfig.class})
 class LineaControllerTest {
 	
 	WebTestClient webTestClient;
@@ -289,6 +291,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testShowAllLinesOf() {
 		when(lineaService.findByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(flux);
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
@@ -343,6 +346,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testAddLineaToPropuesta() {
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
 		when(consultaService.findAttributesByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(fluxAttsPropuesta);
@@ -390,6 +394,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessAddLineaToPropuesta() {
 		List<Linea> lns = new ArrayList<>();
 		lns.add(linea1);
@@ -558,6 +563,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testRevisarLinea() {
 		when(lineaService.findById(ArgumentMatchers.eq(linea1.getId()))).thenReturn(Mono.just(linea1));
 		propuesta.getAttributeColumns().clear();
@@ -614,6 +620,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessRevisarLinea() {
 		propuesta.operations().addAttribute(atributo2);
 		propuesta.operations().addAttribute(atributo3);
@@ -748,6 +755,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testDeleteLinea() {
 		when(lineaService.findById(linea1.getId())).thenReturn(Mono.just(linea1));
 		
@@ -768,6 +776,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessDeleteLinea() {
 		when(lineaService.deleteLineaById(linea1.getId())).thenReturn(Mono.just(1L));
 		webTestClient.post()
@@ -789,6 +798,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testDeleteLineasOf() {
 		when(lineaService.findByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(flux);
 		when(consultaService.findConsultaByPropuestaId(propuesta.getId())).thenReturn(Mono.just(consulta));
@@ -836,6 +846,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessDeleteLinesOf() {
 		when(consultaService.findConsultaByPropuestaId(propuesta.getId())).thenReturn(Mono.just(consulta));
 		webTestClient.post()
@@ -931,6 +942,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessConfirmDeleteLinesOf() {
 		when(lineaService.deleteVariasLineas(ArgumentMatchers.any(Flux.class))).thenReturn(Mono.empty());
 		when(consultaService.removeVariasLineasDePropuesta(ArgumentMatchers.eq(propuesta.getId()), ArgumentMatchers.anyList())).thenReturn(Mono.just(1L));
@@ -954,6 +966,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testOrderAllLinesOf() {
 		propuesta.operations().addAttribute(atributo1);
 		propuesta.operations().addAttribute(atributo2);
@@ -979,6 +992,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessOrderallLinesOf() {
 		Map<String, Integer> map = new HashMap<>();
 		map.put(linea1.getId(), linea1.getOrder());
@@ -1004,6 +1018,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testBulkAddLineasToPropuesta() {
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
 		
@@ -1022,6 +1037,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessBulkAddLineasToPropuesta() {
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
 		when(consultaService.findAttributesByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(atributo1, atributo2));
@@ -1089,6 +1105,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testVerifyBulkAddLineasToPropuesta() {
 		when(consultaService.findAttributesByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(atributo1, atributo2));
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
@@ -1255,6 +1272,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testEditAllLinesOf() {		
 		webTestClient.get()
 			.uri("/lineas/allof/propid/" + propuesta.getId() + "/edit")
@@ -1297,6 +1315,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessEditAllLinesOf() {
 		log.debug("should be ok");
 		webTestClient.post()
@@ -1601,6 +1620,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testRenameAllLinesOf() {
 		webTestClient.get()
 			.uri("/lineas/allof/propid/" + propuesta.getId() + "/rename")
@@ -1645,6 +1665,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessRenameAllLinesOf() {
 		log.debug("should be ok");
 		webTestClient.post()
@@ -1739,6 +1760,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testRemapValuesGeneral() {
 		webTestClient.get()
 		.uri("/lineas/allof/propid/" + propuesta.getId() + "/remap")
@@ -1782,6 +1804,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testRemapValuesAttColumn() {
 		webTestClient.get()
 		.uri("/lineas/allof/propid/" + propuesta.getId() + "/remap/" + atributo1.getLocalIdentifier())
@@ -1801,6 +1824,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessRemapValuesAttColumn() {
 		Linea lineaA;
 		lineaA = lineaFactory.from(linea1);
@@ -1883,6 +1907,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testRemapCosts() {
 		addCosteToLineas();
 		webTestClient.get()
@@ -1903,6 +1928,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessRemapCost() {
 		addCosteToLineas();
 		CosteLineaProveedor coste = linea1.getCostesProveedor().get(0);
@@ -1948,6 +1974,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testAssignCounterLine() {
 		addCosteToLineas();
 		webTestClient.get()
@@ -2017,6 +2044,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessAssignCounterLineByOrder() {
 		addCosteToLineas();
 		
@@ -2045,6 +2073,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessAssignCounterLineByName() {
 		addCosteToLineas();
 		

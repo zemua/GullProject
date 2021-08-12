@@ -8,18 +8,24 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import devs.mrp.gullproject.configuration.ResourceServerConfig;
+
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = DataFormatValidatorApi.class)
+@Import(ResourceServerConfig.class)
 class DataFormatValidatorApiTest {
 	
 	@Autowired
 	DataFormatValidatorApi dfv;
 
 	@Test
+	@WithMockUser
 	void testValidateDataFormat() {
 		
 		WebTestClient client = WebTestClient.bindToController(dfv).build();

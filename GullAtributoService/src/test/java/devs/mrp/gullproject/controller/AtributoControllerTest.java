@@ -9,10 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
+
+import devs.mrp.gullproject.configuration.ResourceServerConfig;
 import devs.mrp.gullproject.domains.Atributo;
 import devs.mrp.gullproject.domains.DataFormat;
 import devs.mrp.gullproject.rest.AtributoRestController;
@@ -23,6 +27,7 @@ import reactor.core.publisher.Mono;
 
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = AtributoController.class)
+@Import(ResourceServerConfig.class)
 @AutoConfigureWebTestClient
 class AtributoControllerTest {
 
@@ -40,6 +45,7 @@ class AtributoControllerTest {
 	AtributoRestControllerById arcbi;
 	
 	@Test
+	@WithMockUser
 	void testCrearAtributo() throws Exception {
 		
 		webTestClient.get()
@@ -72,6 +78,7 @@ class AtributoControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcesarNuevoAtributo() throws Exception {
 		Atributo a = new Atributo();
 		a.setName("nombre");
@@ -116,6 +123,7 @@ class AtributoControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testMostrarAtributos() {
 		
 		Atributo a = new Atributo();
@@ -147,6 +155,7 @@ class AtributoControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testEditarAtributo() {
 		
 		Atributo a = new Atributo();
@@ -173,6 +182,7 @@ class AtributoControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void actualizarAtributo() {
 		
 		Atributo a = new Atributo();
@@ -226,6 +236,7 @@ class AtributoControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testBorrarAtributo() {
 		
 		Atributo a = new Atributo();
@@ -254,6 +265,7 @@ class AtributoControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testConfirmBorrarAtributo() {
 		
 		Atributo a = new Atributo();
@@ -306,6 +318,7 @@ class AtributoControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testOrdenarAtributos() {
 		Atributo a = new Atributo();
 		a.setName("nombreA");
@@ -335,6 +348,7 @@ class AtributoControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessOrdenarAtributos() {
 		when(atributoService.updateOrderOfSeveralAtributos(ArgumentMatchers.anyMap())).thenReturn(Mono.empty());
 		

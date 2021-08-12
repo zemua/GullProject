@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -266,6 +267,7 @@ class AssignLinesInOfferControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testShowAllLinesOfOferta() {
 		
 		webTestClient.get()
@@ -294,6 +296,7 @@ class AssignLinesInOfferControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testAssignLinesOfOferta() {
 		webTestClient.get()
 			.uri("/lineas/allof/ofertaid/" + propuestaNuestra.getId() + "/assign")
@@ -321,6 +324,7 @@ class AssignLinesInOfferControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessAssignLinesOfOferta() {
 		webTestClient.post()
 		.uri("/lineas/allof/ofertaid/" + propuestaNuestra.getId() + "/assign")
@@ -411,6 +415,7 @@ class AssignLinesInOfferControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testExportLinesOfOferta() {
 		webTestClient.get()
 			.uri("/lineas/allof/ofertaid/" + propuestaNuestra.getId() + "/export")

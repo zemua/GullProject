@@ -17,13 +17,16 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.reactive.function.BodyInserters;
 
+import devs.mrp.gullproject.configuration.ResourceServerConfig;
 import devs.mrp.gullproject.controller.AtributoController;
 import devs.mrp.gullproject.domains.Atributo;
 import devs.mrp.gullproject.domains.DataFormat;
@@ -33,6 +36,7 @@ import reactor.core.publisher.Mono;
 
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = AtributoController.class)
+@Import(ResourceServerConfig.class)
 @AutoConfigureWebTestClient
 class ValorEnumValidatorTest {
 	
@@ -43,6 +47,7 @@ class ValorEnumValidatorTest {
 	AtributoService atributoService;
 	
 	@Test
+	@WithMockUser
 	public void givenAtributoUriPostWithPostAndFormatData_whenMockMvc_ThenVerifyErrorResponse() throws Exception {
 		
 		Atributo a = new Atributo();
