@@ -29,6 +29,7 @@ import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
 import devs.mrp.gullproject.domainsdto.StringWrapper;
 import devs.mrp.gullproject.domainsdto.linea.LineaWithAttListDto;
 import devs.mrp.gullproject.domainsdto.linea.MultipleLineaWithAttListDto;
+import devs.mrp.gullproject.domainsdto.linea.QtyRemapperWrapper;
 import devs.mrp.gullproject.domainsdto.linea.StringListOfListsWrapper;
 import devs.mrp.gullproject.domainsdto.linea.WrapLineasDto;
 import devs.mrp.gullproject.domainsdto.linea.WrapLineasWithSelectorDto;
@@ -203,6 +204,16 @@ public class LineaController {
 		model.addAttribute("propuestaId", propuestaId);
 		return costRemapperUtilities.remapLineasCost(costRemappersWrapper.getRemappers(), propuestaId)
 			.then(Mono.just("processRemapCost"));
+	}
+	
+	@GetMapping("/allof/propid/{propuestaId}/remapqty") // TODO test
+	public Mono<String> remapQty(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+		Mono<QtyRemapperWrapper> remapers = lineaUtilities.getQtyRemappersFromPropuesta(propuestaId);
+		model.addAttribute("qtyRemapperWrapper", remapers);
+		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+		model.addAttribute("consulta",	consulta);
+		model.addAttribute("propuestaId", propuestaId);
+		return Mono.just("remapQty");
 	}
 	
 	@GetMapping("/allof/propid/{propuestaId}/edit")

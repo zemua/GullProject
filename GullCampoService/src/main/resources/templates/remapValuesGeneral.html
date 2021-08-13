@@ -27,6 +27,9 @@
 				<th th:each="t : ${consulta.operations().getPropuestaById(propuestaId).getAttributeColumns()}">
 					<a th:text="${t.getName()}" th:href="@{'/lineas/allof/propid/' + ${propuestaId} + '/remap/' + ${t.localIdentifier}}"></a>
 				</th>
+				<th th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'CLIENTE'}">
+					<a th:text="Cantidad" th:href="@{'/lineas/allof/propid/' + ${propuestaId} + '/remapqty'}"></a>
+				</th>
 				<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'PROVEEDOR'}">
 				<th th:each="coste : ${consulta.operations().getPropuestaById(propuestaId).getCostes()}">
 					<a th:text="${coste.name}" th:href="@{'/lineas/allof/propid/' + ${propuestaId} + '/remapcost/' + ${coste.id}}"></a>
@@ -36,6 +39,7 @@
 			<tr th:each="a : ${lineas}">
 				<td th:text="${a.nombre}"></td>
 				<td th:each="t : ${consulta.operations().getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${a.operations().getValueByAttId(t.getId())}"></span></td>
+				<td th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'CLIENTE'}"><span th:text="${a.qty}"></span></td>
 				<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'PROVEEDOR'}">
 				<td th:each="coste : ${consulta.operations().getPropuestaById(propuestaId).getCostes()}"><span th:text="${a.operations().getCosteByCosteId(coste.getId()).value}"></span></td>
 				</th:block>

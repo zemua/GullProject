@@ -26,6 +26,7 @@ import devs.mrp.gullproject.domains.linea.LineaFactory;
 import devs.mrp.gullproject.domains.propuestas.AtributoForCampo;
 import devs.mrp.gullproject.domains.propuestas.CosteProveedor;
 import devs.mrp.gullproject.domains.propuestas.Propuesta;
+import devs.mrp.gullproject.domains.propuestas.PropuestaCliente;
 import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
 import devs.mrp.gullproject.domainsdto.BooleanWrapper;
 import devs.mrp.gullproject.domainsdto.StringListWrapper;
@@ -34,6 +35,8 @@ import devs.mrp.gullproject.domainsdto.linea.CosteLineaProveedorDto;
 import devs.mrp.gullproject.domainsdto.linea.LineaWithAttListDto;
 import devs.mrp.gullproject.domainsdto.linea.LineaWithSelectorDto;
 import devs.mrp.gullproject.domainsdto.linea.MultipleLineaWithAttListDto;
+import devs.mrp.gullproject.domainsdto.linea.QtyRemapper;
+import devs.mrp.gullproject.domainsdto.linea.QtyRemapperWrapper;
 import devs.mrp.gullproject.domainsdto.linea.StringListOfListsWrapper;
 import devs.mrp.gullproject.domainsdto.linea.WrapLineasDto;
 import devs.mrp.gullproject.domainsdto.linea.WrapLineasWithSelectorDto;
@@ -214,6 +217,7 @@ public class LineaUtilities {
 					LineaOperations operationsRline = new LineaOperations(rLine);
 					for (int i=0; i<lineaWithAttListDto.getQty(); i++) {
 						Linea dLine = lineaFactory.from(rLine);
+						dLine.setQty(1); // create several lines, each with qty 1
 						log.debug("añadimos linea: " + dLine.toString());
 						lista.add(dLine);
 					}
@@ -795,6 +799,26 @@ public class LineaUtilities {
 						;
 				})
 				;
+	}
+	
+	public Mono<QtyRemapperWrapper> getQtyRemappersFromPropuesta(String propuestaId) {
+		return lineaService.findByPropuestaId(propuestaId)
+				.map(rLine -> {
+					QtyRemapper maper = new QtyRemapper();
+					int qty;
+					if (rLine.getQty() != null) {
+						qty = rLine.getQty();
+					} else {
+						qty = 1;
+					}
+					maper.setBefore(qty);
+					maper.setAfter(qty);
+					return maper;
+				})
+				.distinct(QtyRemapper::getBefore).collectList()
+				.map(rList -> {
+					return new QtyRemapperWrapper(rList);
+				});
 	}
 	
 	public Mono<Map<String, Set<String>>> get_ProposalId_VS_SetOfCounterLineId(String customerProposalId) {

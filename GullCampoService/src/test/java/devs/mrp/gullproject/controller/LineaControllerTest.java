@@ -1125,12 +1125,16 @@ class LineaControllerTest {
 			.accept(MediaType.TEXT_HTML)
 			.body(BodyInserters.fromFormData("name[0]", "")
 					.with("name[1]", "2")
+					.with("name[2]", "")
 					.with("strings[0]", propuesta.getAttributeColumns().get(0).getId())
 					.with("strings[1]", propuesta.getAttributeColumns().get(1).getId())
+					.with("strings[2]", LineaController.qtyvalue)
 					.with("stringListWrapper[0].string[0]", campo1a.getDatosText())
 					.with("stringListWrapper[0].string[1]", campo1b.getDatosText())
+					.with("stringListWrapper[0].string[2]", "23")
 					.with("stringListWrapper[1].string[0]", campo2a.getDatosText())
 					.with("stringListWrapper[1].string[1]", campo2b.getDatosText())
+					.with("stringListWrapper[1].string[2]", "43")
 					)
 			.exchange()
 			.expectStatus().isOk()
@@ -1268,6 +1272,39 @@ class LineaControllerTest {
 				Assertions.assertThat(response.getResponseBody()).asString()
 				.contains("Corrige los errores")
 				.contains("Estos campos tienen un valor incorrecto");
+			});
+		
+		
+		log.debug("should give error on qty");
+		webTestClient.post()
+			.uri("/lineas/of/" + propuesta.getId() + "/bulk-add/verify")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("name[0]", "")
+					.with("name[1]", "2")
+					.with("name[2]", "")
+					.with("strings[0]", propuesta.getAttributeColumns().get(0).getId())
+					.with("strings[1]", propuesta.getAttributeColumns().get(1).getId())
+					.with("strings[2]", LineaController.qtyvalue)
+					.with("stringListWrapper[0].string[0]", campo1a.getDatosText())
+					.with("stringListWrapper[0].string[1]", campo1b.getDatosText())
+					.with("stringListWrapper[0].string[2]", "2as")
+					.with("stringListWrapper[1].string[0]", campo2a.getDatosText())
+					.with("stringListWrapper[1].string[1]", campo2b.getDatosText())
+					.with("stringListWrapper[1].string[2]", "43")
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+				.contains(campo1a.getDatosText())
+				.contains(campo1b.getDatosText())
+				.contains(campo2a.getDatosText())
+				.contains(campo2b.getDatosText())
+				.doesNotContain("Lineas añadidas")
+				.contains("Corrige los errores")
+				;
 			});
 	}
 	
