@@ -17,6 +17,7 @@ public class StringListOfListsWrapper {
 	String nameError;
 	String fieldError;
 	String costeError;
+	String qtyError;
 	
 	public void add(StringListWrapper w) {
 		stringListWrapper.add(w);

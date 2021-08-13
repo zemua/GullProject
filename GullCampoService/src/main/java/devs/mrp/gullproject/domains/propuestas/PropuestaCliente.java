@@ -2,17 +2,7 @@ package devs.mrp.gullproject.domains.propuestas;
 
 import org.springframework.data.annotation.PersistenceConstructor;
 
-public class PropuestaCliente extends Propuesta { // TODO add quantities into the views
-	
-	private int qty;
-	
-	public int getQty() {
-		return qty;
-	}
-	
-	public void setQty(int i) {
-		this.qty = i;
-	}
+public class PropuestaCliente extends Propuesta {
 
 	public PropuestaCliente() {
 		super(TipoPropuesta.CLIENTE);

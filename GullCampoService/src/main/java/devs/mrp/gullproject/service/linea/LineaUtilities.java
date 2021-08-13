@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
+import devs.mrp.gullproject.controller.linea.LineaController;
 import devs.mrp.gullproject.domains.linea.Campo;
 import devs.mrp.gullproject.domains.linea.CosteLineaProveedor;
 import devs.mrp.gullproject.domains.linea.Linea;
@@ -64,6 +65,7 @@ public class LineaUtilities {
 	@Autowired LineaFactory lineaFactory;
 	
 	String tipoCoste = "COSTE";
+	String tipoQty = "QTY";
 	
 	@Autowired
 	public LineaUtilities(ConsultaService consultaService, ModelMapper modelMapper, AtributoServiceProxyWebClient atributoService, LineaService lineaService, CompoundedConsultaLineaService compoundedService) {
@@ -72,6 +74,10 @@ public class LineaUtilities {
 		this.atributoService = atributoService;
 		this.lineaService = lineaService;
 		this.compoundedService = compoundedService;
+	}
+	
+	private boolean isValidQuantity(String s) {
+		return s.matches("^[1-9]\\d*$");
 	}
 	
 	private Mono<LineaWithAttListDto> addCostsIfApplies(LineaWithAttListDto dto) {
@@ -470,46 +476,54 @@ public class LineaUtilities {
 		AtomicInteger counter = new AtomicInteger();
 		counter.set(0);
 		
-		return mapOfAttIdsToTipo(propuestaId)
-			.flatMapMany(rAttToTipo -> {
-				return Flux.fromIterable(tuplas)
-						.flatMap(fTupla -> {
-							fTupla.tipo = rAttToTipo.get(fTupla.attId);
-							if (fTupla.attId != null && !fTupla.attId.equals("")) {
-									return consultaService.findPropuestaByPropuestaId(propuestaId)
-										.flatMap(rPro -> {
-											var operations = rPro.operations();
-											if (operations.ifIsAttributeId(fTupla.attId)) { // if it is an attribute validate it
-											return atributoService.validateDataFormat(fTupla.tipo, fTupla.valor)
-													.map(rBool -> {
-														log.debug("respuesta de atributo service para tipo " + fTupla.tipo + " y valor " + fTupla.valor + " es " + rBool);
-														fTupla.validado = rBool;
-														return fTupla;
-													});
-											} else if (rPro instanceof PropuestaProveedor && ((PropuestaProveedor)rPro).operationsProveedor().ifIsCosteProveedorId(fTupla.attId)) { // if it is a cost validate double value
-												log.debug("es un costeProveedor, vamos a validarlo: " + ((PropuestaProveedor)rPro).operationsProveedor().ifValidCosteValue(fTupla.valor));
-												log.debug("de la propuesta: " + rPro.toString());
-												fTupla.validado = ((PropuestaProveedor)rPro).operationsProveedor().ifValidCosteValue(fTupla.valor);
-												return Mono.just(fTupla);
-											}
-											else { // if neither of these, then we don't know what it is, reject
-												log.debug("este campo no encontramos a qué se refiere");
-												if (rPro instanceof PropuestaProveedor) {
-													log.debug("la propuesta es instancia de PropuestaProveedor");
-													log.debug("la id de la tupla es " + fTupla.attId);
-													log.debug("los costes de la propuesta son: " + ((PropuestaProveedor)rPro).getCostes().toString());
+		return consultaService.findPropuestaByPropuestaId(propuestaId)
+		.flatMapMany(rPro1 -> {
+			return mapOfAttIdsToTipo(propuestaId)
+				.flatMapMany(rAttToTipo -> {
+					return Flux.fromIterable(tuplas)
+							.flatMap(fTupla -> {
+								fTupla.tipo = rAttToTipo.get(fTupla.attId);
+								if (fTupla.attId != null && !fTupla.attId.equals("")) {
+										//return consultaService.findPropuestaByPropuestaId(propuestaId) // moved to start of function tree
+										return Mono.just(rPro1)
+											.flatMap(rPro -> {
+												var operations = rPro.operations();
+												if (operations.ifIsAttributeId(fTupla.attId)) { // if it is an attribute validate it
+												return atributoService.validateDataFormat(fTupla.tipo, fTupla.valor)
+														.map(rBool -> {
+															log.debug("respuesta de atributo service para tipo " + fTupla.tipo + " y valor " + fTupla.valor + " es " + rBool);
+															fTupla.validado = rBool;
+															return fTupla;
+														});
+												} else if (rPro instanceof PropuestaProveedor && ((PropuestaProveedor)rPro).operationsProveedor().ifIsCosteProveedorId(fTupla.attId)) { // if it is a cost validate double value
+													log.debug("es un costeProveedor, vamos a validarlo: " + ((PropuestaProveedor)rPro).operationsProveedor().ifValidCosteValue(fTupla.valor));
+													log.debug("de la propuesta: " + rPro.toString());
+													fTupla.validado = ((PropuestaProveedor)rPro).operationsProveedor().ifValidCosteValue(fTupla.valor);
+													return Mono.just(fTupla);
+												} else if (fTupla.attId.equals(LineaController.qtyvalue)) {
+													// it is a quantity
+													fTupla.validado = isValidQuantity(fTupla.valor);
+													return Mono.just(fTupla);
 												}
-												fTupla.validado = false;
-												return Mono.just(fTupla);
-											}
-										});
-									
-							} else { // it is a field that we are not going to use, so any value is ok
-								fTupla.validado = true;
-								return Mono.just(fTupla);
-							}
-						});
-			});
+												else { // if neither of these, then we don't know what it is, reject
+													log.debug("este campo no encontramos a qué se refiere");
+													if (rPro instanceof PropuestaProveedor) {
+														log.debug("la propuesta es instancia de PropuestaProveedor");
+														log.debug("la id de la tupla es " + fTupla.attId);
+														log.debug("los costes de la propuesta son: " + ((PropuestaProveedor)rPro).getCostes().toString());
+													}
+													fTupla.validado = false;
+													return Mono.just(fTupla);
+												}
+											});
+										
+								} else { // it is a field that we are not going to use, so any value is ok
+									fTupla.validado = true;
+									return Mono.just(fTupla);
+								}
+							});
+				});
+		});
 	}
 	
 	private Mono<Map<String, String>> mapOfAttIdsToTipo(String propuestaId) {
@@ -578,7 +592,10 @@ public class LineaUtilities {
 								coste.setCosteProveedorId(sField.attId);
 								coste.setValue(Double.parseDouble(sField.valor.replace(",", ".")));
 								linea.getCostesProveedor().add(coste);
-							} else {
+							} else if (sField.clase.equals(tipoQty)) {
+								linea.setQty(Integer.parseInt(sField.valor));
+							}
+							else {
 								Campo<Object> campo = new Campo<>();
 								campo.setAtributoId(sField.attId);
 								log.debug("vamos a llamar a classDestringfier con clase " + sField.clase + " y valor " + sField.valor);
@@ -634,6 +651,10 @@ public class LineaUtilities {
 											log.debug("es un coste, ponemos tipo y clase a COSTE");
 											rCampo.tipo = tipoCoste;
 											rCampo.clase = tipoCoste;
+										} else if(rCampo.attId.equals(LineaController.qtyvalue)) {
+											log.debug("es cantidad, ponemos tipo y clase a QTY");
+											rCampo.tipo = tipoQty;
+											rCampo.clase = tipoQty;
 										}
 									});
 								});

@@ -48,6 +48,7 @@
 		<div class="grid">
 			<table>
 			<tr id="fila-nombre">
+				<th><span>Nombre</span></th>
 				<th th:each="n, ntat : *{strings}" th:id="${ntat.index}" class="header" th:classappend="${#fields.hasErrors('*{name[__${ntat.index}__]}') ? 'error' : '' }">
 					<select th:field="*{name[__${ntat.index}__]}" class="name-selector">
 						<option th:value="''"></option>
@@ -56,10 +57,12 @@
 				</th>
 			</tr>
 			<tr id="cabecera">
+				<th><span>Campos</span></th>
 				<th th:each="t, ctat : *{strings}" th:id="${ctat.index}" class="header" th:classappend="${#fields.hasErrors('*{strings[__${ctat.index}__]}') ? 'error' : '' }">
 					<select th:field="*{strings[__${ctat.index}__]}" class="column-selector">
 						<option th:value="''"></option>
 						<option th:each="z : ${atributos}" th:value="${z.id}" th:text="${z.name}" class="mono-option"></option>
+						<option th:if="${propuesta.tipoPropuesta.toString() == 'CLIENTE'}" th:value="${qtyvalue}" th:text="Cantidad" class="mono-option"></option>
 						<th:block th:if="${propuesta.tipoPropuesta.toString() == 'PROVEEDOR'}">
 							<option th:each="cost : ${costes}" th:value="${cost.id}" th:text="${cost.name}" class="mono-option"></option>
 						</th:block>
@@ -67,6 +70,7 @@
 				</th>
 			</tr>
 			<tr th:each="a, stat : *{stringListWrapper}" th:id="|line${stat.index}|" class="line" th:classappend="${#fields.hasErrors('*{stringListWrapper[__${stat.index}__].name}') ? 'error' : '' }">
+				<td></td>
 				<td th:each="t, btat : ${a.string}" class="field" th:classappend="${#fields.hasErrors('*{stringListWrapper[__${stat.index}__].string[__${btat.index}__]}') ? 'error' : '' }">
 					<span th:text="${t}" th:id="|line${stat.index}field${btat.index}|" class="field-text" contenteditable="true"></span>
 					<input type="hidden" th:field="*{stringListWrapper[__${stat.index}__].string[__${btat.index}__]}" class="field-input"/>

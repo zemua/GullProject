@@ -65,6 +65,8 @@ public class LineaController {
 	MyFinder<Flux<Linea>, String> supplierLineFinderByProposalAssignation;
 	@Autowired LineaFactory lineaFactory;
 	@Autowired PvpMapperByCounterLineFactory<Linea> pvpMapperByLineFactory;
+	
+	public static final String qtyvalue = "qty-value";
 
 	@Autowired
 	public LineaController(LineaService lineaService, ConsultaService consultaService,
@@ -312,6 +314,7 @@ public class LineaController {
 			}
 			model.addAttribute("propuesta", rPro);
 			model.addAttribute("propuestaId", rPro.getId());
+			model.addAttribute("qtyvalue", qtyvalue);
 			return "processBulkAddLineasToPropuesta";
 		});
 	}
@@ -323,6 +326,7 @@ public class LineaController {
 		Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
 		model.addAttribute("propuesta", propuesta);
 		model.addAttribute("propuestaId", propuestaId);
+		model.addAttribute("qtyvalue", qtyvalue);
 		try {
 			log.debug("going to find errors");
 			return lineaUtilities.addBulkTableErrorsToBindingResult(stringListOfListsWrapper, propuestaId, bindingResult)
