@@ -124,7 +124,7 @@ public class ConsultaController {
 		return "showAllConsultas";
 	}
 	
-	@GetMapping("/revisar/id/{id}")
+	@GetMapping("/revisar/id/{id}") // TODO test assigned count
 	public String reviewConsultaById(Model model, @PathVariable(name = "id") String id) {
 		Mono<Consulta> consulta = consultaService.findById(id);
 		model.addAttribute("consulta", consulta);

@@ -2,6 +2,7 @@ package devs.mrp.gullproject.service.propuesta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -25,6 +26,7 @@ import devs.mrp.gullproject.domainsdto.propuesta.proveedor.WrapPropuestaProveedo
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.AtributoUtilities;
 import devs.mrp.gullproject.service.ConsultaService;
+import devs.mrp.gullproject.service.linea.LineaService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -39,6 +41,7 @@ public class PropuestaUtilities {
 	AtributoServiceProxyWebClient atributoService;
 	ModelMapper modelMapper;
 	AtributoUtilities atributoUtilities;
+	@Autowired LineaService lineaService;
 	
 	@Autowired
 	public PropuestaUtilities(ConsultaService consultaService, AtributoServiceProxyWebClient atributoService, ModelMapper modelMapper, AtributoUtilities atributoUtilities) {
@@ -248,6 +251,32 @@ public class PropuestaUtilities {
 		return list;
 	}
 	
+	private Flux<Integer> setAssignedMap(ProposalPie pie) { // TODO test
+		log.debug("to set the assigned map");
+		var propuestas = pie.getPropuestasProveedores();
+		var map = pie.getAssignedLinesOfProp();
+		log.debug("propuestas " + propuestas.toString());
+		return Flux.fromIterable(propuestas)
+			.flatMap(prop -> {
+				log.debug("for propuesta " + prop.toString());
+				return lineaService.findByPropuestaId(prop.getId())
+						.collectList()
+						.map(rLineList -> {
+							log.debug("to count assigned");
+							var counter = new AtomicInteger();
+							rLineList.stream().forEach(l -> {
+								if (l.getCounterLineId() != null) {
+									counter.addAndGet(l.getCounterLineId().size());
+								}
+							});
+							log.debug("to put into map prop " + prop.getId() + " counter " + counter.get());
+							map.put(prop.getId(), counter.get());
+							return counter.get();
+						});
+			})
+			;
+	}
+	
 	public Flux<ProposalPie> getProposalPieFeast(String consultaId) {
 		return consultaService.findAllPropuestasOfConsulta(consultaId)
 			.collectList().flatMapMany(rList -> {
@@ -262,14 +291,15 @@ public class PropuestaUtilities {
 				});
 				
 				// Add related proposals
-				proposalPieFeast.stream().forEach(pie -> {
+				return Flux.fromIterable(proposalPieFeast).flatMap(pie -> {
 					// from suppliers
 					pie.setPropuestasProveedores(extractPropuestasProveedorForThisPropuestaCustomer(rList, pie.getPropuestaCliente().getId()));
 					// and us
 					pie.setPropuestasNuestras(extractPropuestasNuestrasForThisPropuestaCustomer(rList, pie.getPropuestaCliente().getId()));
-				});
-				
-				return Flux.fromIterable(proposalPieFeast);
+					// set number of assigned lines
+					return setAssignedMap(pie);
+				})
+				.thenMany(Flux.fromIterable(proposalPieFeast));
 			})
 			;
 	}

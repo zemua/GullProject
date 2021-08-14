@@ -18,6 +18,7 @@ import devs.mrp.gullproject.domains.linea.PvperLinea;
 import devs.mrp.gullproject.domains.propuestas.Propuesta;
 import devs.mrp.gullproject.repository.ConsultaRepo;
 import devs.mrp.gullproject.repository.LineaRepo;
+import devs.mrp.gullproject.service.facade.ConsultaAndLinesFacade;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
