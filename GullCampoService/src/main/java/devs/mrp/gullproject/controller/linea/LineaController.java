@@ -41,6 +41,7 @@ import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.facade.SupplierLineFinderByProposalAssignation;
 import devs.mrp.gullproject.service.linea.LineaService;
 import devs.mrp.gullproject.service.linea.LineaUtilities;
+import devs.mrp.gullproject.service.linea.cliente.QtyRemapperUtilities;
 import devs.mrp.gullproject.service.linea.oferta.PvpMapperByAssignedLineFactory;
 import devs.mrp.gullproject.service.linea.oferta.PvpMapperByCounterLineFactory;
 import devs.mrp.gullproject.service.linea.proveedor.CostRemapperUtilities;
@@ -62,6 +63,7 @@ public class LineaController {
 	LineaUtilities lineaUtilities;
 	AttRemaperUtilities attRemaperUtilities;
 	CostRemapperUtilities costRemapperUtilities;
+	@Autowired QtyRemapperUtilities qtyRemapperUtilities;
 	PropuestaProveedorUtilities propuestaProveedorUtilities;
 	MyFinder<Flux<Linea>, String> supplierLineFinderByProposalAssignation;
 	@Autowired LineaFactory lineaFactory;
@@ -206,7 +208,7 @@ public class LineaController {
 			.then(Mono.just("processRemapCost"));
 	}
 	
-	@GetMapping("/allof/propid/{propuestaId}/remapqty") // TODO test
+	@GetMapping("/allof/propid/{propuestaId}/remapqty")
 	public Mono<String> remapQty(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		Mono<QtyRemapperWrapper> remapers = lineaUtilities.getQtyRemappersFromPropuesta(propuestaId);
 		model.addAttribute("qtyRemapperWrapper", remapers);
@@ -214,6 +216,16 @@ public class LineaController {
 		model.addAttribute("consulta",	consulta);
 		model.addAttribute("propuestaId", propuestaId);
 		return Mono.just("remapQty");
+	}
+	
+	@PostMapping("/allof/propid/{propuestaId}/remapqty")
+	public Mono<String> processRemapQty(@Valid QtyRemapperWrapper qtyRemapperWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+		model.addAttribute("qtyRemapperWrapper", qtyRemapperWrapper);
+		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+		model.addAttribute("consulta", consulta);
+		model.addAttribute("propuestaId", propuestaId);
+		return qtyRemapperUtilities.remapLineasQty(qtyRemapperWrapper.getRemappers(), propuestaId)
+				.then(Mono.just("processRemapQty"));
 	}
 	
 	@GetMapping("/allof/propid/{propuestaId}/edit")
