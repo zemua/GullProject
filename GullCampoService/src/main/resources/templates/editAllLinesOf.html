@@ -65,6 +65,7 @@
 							</td>
 							<td th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'CLIENTE'}" class="field" th:classappend="${#fields.hasErrors('*{lineaWithAttListDtos[__${ystat.index}__].linea.qty}') ? 'error' : ''}">
 								<span th:text="${a.linea.qty}" class="field-text is-int" contenteditable="true"></span>
+								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].linea.qty}" class="field-input"/>
 							</td>
 							<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'PROVEEDOR'}">
 							<td th:each="t, tstat : ${consulta.operations().getPropuestaById(propuestaId).getCostes()}" class="field" th:classappend="${#fields.hasErrors('*{lineaWithAttListDtos[__${ystat.index}__].costesProveedor[__${tstat.index}__].id}') ? 'error' : '' }">

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,7 @@ import devs.mrp.gullproject.domainsdto.propuesta.AttRemapersWrapper;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.AttRemaperUtilities;
 import devs.mrp.gullproject.service.ConsultaService;
+import devs.mrp.gullproject.service.facade.ConsultaAndLinesFacade;
 import devs.mrp.gullproject.service.facade.SupplierLineFinderByProposalAssignation;
 import devs.mrp.gullproject.service.linea.LineaService;
 import devs.mrp.gullproject.service.linea.LineaUtilities;
@@ -68,6 +71,7 @@ public class LineaController {
 	MyFinder<Flux<Linea>, String> supplierLineFinderByProposalAssignation;
 	@Autowired LineaFactory lineaFactory;
 	@Autowired PvpMapperByCounterLineFactory<Linea> pvpMapperByLineFactory;
+	@Autowired ConsultaAndLinesFacade consLineFacade;
 	
 	public static final String qtyvalue = "qty-value";
 
@@ -525,6 +529,11 @@ public class LineaController {
 						return lineaService.updateCounterLineId(tuple.getT1().getId(), counter);
 					});
 				})
+				.then(consLineFacade.updateAssignedLinesOfProposal(propuestaId))
+					.map(cant -> {
+						log.debug("cantidad of assigned lines: " + cant);
+						return cant;
+					})
 				.then(Mono.just("assignCounterLineByOrder"))
 				;
 	}

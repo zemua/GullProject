@@ -191,6 +191,7 @@ public class LineaUtilities {
 	}
 	
 	public Flux<LineaWithAttListDto> updateLinesFromListOfLinesWithAttListDto(List<LineaWithAttListDto> lineasDto, String propuestaId) {
+		log.debug("received lineasDto to update in db " + lineasDto.toString());
 		return getAttributesOfProposal(lineaService.updateVariasLineas(Flux.fromIterable(lineasDto)
 				.flatMap(oDto -> reconstructLine(oDto))), propuestaId);
 	}

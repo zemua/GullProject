@@ -20,7 +20,7 @@ function validateInt(klase) {
 			content = $(this).val();
 		}
 		//this.dispatchEvent(new Event('input'));
-		if (!(/^[1-9]\d*$/.test(content)) && content.trim() != ""){
+		if (!(/^[1-9]\d*$/.test(content)) || content.trim() == ""){
 			$(this).parent().css("background-color", "red");
 			$(this).css("background-color", "red");
 			resultado = false;

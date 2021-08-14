@@ -26,9 +26,11 @@ import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.AtributoUtilities;
 import devs.mrp.gullproject.service.ConsultaService;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Data
 @Service
 public class PropuestaUtilities {
@@ -227,7 +229,12 @@ public class PropuestaUtilities {
 	private List<PropuestaProveedor> extractPropuestasProveedorForThisPropuestaCustomer(List<Propuesta> propuestas, String idPropuestaCliente) {
 		List<PropuestaProveedor> list = propuestas.stream()
 				.filter(p-> p.getTipoPropuesta().equals(TipoPropuesta.PROVEEDOR) && p.getForProposalId().equals(idPropuestaCliente))
-				.map(pr -> new PropuestaProveedor(pr))
+				.map(pr -> {
+					var propp = new PropuestaProveedor(pr);
+					log.debug("propuesta proveedor " + propp.toString());
+					log.debug("lineas asignadas " + propp.getLineasAsignadas());
+					return propp;
+				})
 				.collect(Collectors.toList());
 		list.sort((p1, p2) -> Long.valueOf(p1.getCreatedTime()).compareTo(p2.getCreatedTime()));
 		return list;

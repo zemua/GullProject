@@ -1657,6 +1657,80 @@ class LineaControllerTest {
 				.doesNotContain("Guardar");
 			});
 			;
+			
+			log.debug("should be ok with qty");
+			webTestClient.post()
+				.uri("/lineas/allof/propid/" + propuesta.getId() + "/edit")
+				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+				.accept(MediaType.TEXT_HTML)
+				.body(BodyInserters.fromFormData("lineaWithAttListDtos[0].linea.nombre", linea1.getNombre())
+						.with("lineaWithAttListDtos[0].linea.id", linea1.getId())
+						.with("lineaWithAttListDtos[0].linea.propuestaId", linea1.getPropuestaId())
+						.with("lineaWithAttListDtos[0].linea.order", String.valueOf(linea1.getOrder()))
+						.with("lineaWithAttListDtos[0].linea.qty", "321")
+						
+						.with("lineaWithAttListDtos[1].linea.nombre", linea2.getNombre())
+						.with("lineaWithAttListDtos[1].linea.id", linea2.getId())
+						.with("lineaWithAttListDtos[1].linea.propuestaId", linea2.getPropuestaId())
+						.with("lineaWithAttListDtos[1].linea.order", String.valueOf(linea2.getOrder()))
+						.with("lineaWithAttListDtos[0].linea.qty", "456")
+						
+						.with("lineaWithAttListDtos[0].attributes[0].value", campo1a.getDatosText())
+						.with("lineaWithAttListDtos[0].attributes[0].localIdentifier", atributo1.getLocalIdentifier())
+						.with("lineaWithAttListDtos[0].attributes[0].id", atributo1.getId())
+						.with("lineaWithAttListDtos[0].attributes[0].name", atributo1.getName())
+						.with("lineaWithAttListDtos[0].attributes[0].tipo", atributo1.getTipo())
+						
+						.with("lineaWithAttListDtos[0].attributes[1].value", campo1b.getDatosText())
+						.with("lineaWithAttListDtos[0].attributes[1].localIdentifier", atributo2.getLocalIdentifier())
+						.with("lineaWithAttListDtos[0].attributes[1].id", atributo2.getId())
+						.with("lineaWithAttListDtos[0].attributes[1].name", atributo2.getName())
+						.with("lineaWithAttListDtos[0].attributes[1].tipo", atributo2.getTipo())
+						
+						.with("lineaWithAttListDtos[1].attributes[0].value", campo2a.getDatosText())
+						.with("lineaWithAttListDtos[1].attributes[0].localIdentifier", atributo1.getLocalIdentifier())
+						.with("lineaWithAttListDtos[1].attributes[0].id", atributo1.getId())
+						.with("lineaWithAttListDtos[1].attributes[0].name", atributo1.getName())
+						.with("lineaWithAttListDtos[1].attributes[0].tipo", atributo1.getTipo())
+						
+						.with("lineaWithAttListDtos[1].attributes[1].value", campo2b.getDatosText())
+						.with("lineaWithAttListDtos[1].attributes[1].localIdentifier", atributo2.getLocalIdentifier())
+						.with("lineaWithAttListDtos[1].attributes[1].id", atributo2.getId())
+						.with("lineaWithAttListDtos[1].attributes[1].name", atributo2.getName())
+						.with("lineaWithAttListDtos[1].attributes[1].tipo", atributo2.getTipo())
+						
+						.with("lineaWithAttListDtos[0].linea.campos[0].id", campo1a.getId())
+						.with("lineaWithAttListDtos[0].linea.campos[0].atributoId", campo1a.getAtributoId())
+						.with("lineaWithAttListDtos[0].linea.campos[0].datos", campo1a.getDatosText())
+						
+						.with("lineaWithAttListDtos[0].linea.campos[1].id", campo1b.getId())
+						.with("lineaWithAttListDtos[0].linea.campos[1].atributoId", campo1b.getAtributoId())
+						.with("lineaWithAttListDtos[0].linea.campos[1].datos", campo1b.getDatosText())
+						
+						.with("lineaWithAttListDtos[1].linea.campos[0].id", campo2a.getId())
+						.with("lineaWithAttListDtos[1].linea.campos[0].atributoId", campo2a.getAtributoId())
+						.with("lineaWithAttListDtos[1].linea.campos[0].datos", campo2a.getDatosText())
+						
+						.with("lineaWithAttListDtos[1].linea.campos[1].id", campo2b.getId())
+						.with("lineaWithAttListDtos[1].linea.campos[1].atributoId", campo2b.getAtributoId())
+						.with("lineaWithAttListDtos[1].linea.campos[1].datos", campo2b.getDatosText())
+						)
+				.exchange()
+				.expectStatus().isOk()
+				.expectBody()
+				.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+					.contains(linea1.getNombre())
+					.contains(linea2.getNombre())
+					.contains(campo1a.getDatosText())
+					.contains(campo1b.getDatosText())
+					.contains(campo2a.getDatosText())
+					.contains(campo2b.getDatosText())
+					.contains("Editar lineas de la propuesta")
+					.doesNotContain("Corrige los errores")
+					.doesNotContain("Guardar");
+				});
+				;
 	}
 	
 	@Test
