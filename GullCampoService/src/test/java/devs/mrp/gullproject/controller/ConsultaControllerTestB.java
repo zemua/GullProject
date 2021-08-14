@@ -420,8 +420,19 @@ class ConsultaControllerTestB {
 		var op2 = prop2.operations();
 		op2.addLineaId("linea3");
 		prop2.setNombre("propuesta 2");
+		
 		PropuestaProveedor prop3 = new PropuestaProveedor(prop1.getId());
 		prop3.setNombre("propuesta 3");
+		Linea l61 = new Linea();
+		Linea l62 = new Linea();
+		Linea l63 = new Linea();
+		prop3.setLineaIds(List.of(l61.getId(), l62.getId(), l63.getId()));
+		l61.setCounterLineId(List.of("uno", "dos", "tres"));
+		l62.setCounterLineId(List.of("cuatro"));
+		l61.setPropuestaId(prop3.getId());
+		l62.setPropuestaId(prop3.getId());
+		l63.setPropuestaId(prop3.getId());
+		
 		PropuestaProveedor prop4 = new PropuestaProveedor(prop2.getId());
 		prop4.setNombre("propuesta 4");
 		PropuestaNuestra prop5 = new PropuestaNuestra(prop1.getId());
@@ -471,6 +482,7 @@ class ConsultaControllerTestB {
 		when(consultaService.findById(ArgumentMatchers.eq(b.getId()))).thenReturn(mono2);
 		when(consultaService.findAllPropuestasOfConsulta(ArgumentMatchers.eq(a.getId()))).thenReturn(Flux.fromIterable(a.getPropuestas()));
 		when(consultaService.findAllPropuestasOfConsulta(ArgumentMatchers.eq(b.getId()))).thenReturn(Flux.just());
+		when(lineaService.findByPropuestaId(ArgumentMatchers.eq(prop3.getId()))).thenReturn(Flux.just(l61, l62, l63));
 		
 		webTestClient.get()
 			.uri("/consultas/revisar/id/idConsulta1")
@@ -492,6 +504,7 @@ class ConsultaControllerTestB {
 						.contains("propuesta 2")
 						.contains("Respuestas de Proveedores")
 						.contains(prop3.getNombre())
+						.contains("3 / 4") // from assigned lines
 						.doesNotContain(prop4.getNombre())
 						.contains("Ofertas Nuestras")
 						.contains(prop5.getNombre())
