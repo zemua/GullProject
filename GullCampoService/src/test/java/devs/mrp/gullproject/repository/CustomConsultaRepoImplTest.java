@@ -1017,5 +1017,28 @@ class CustomConsultaRepoImplTest {
 		.expectComplete()
 		.verify();
 	}
+	
+	@Test
+	void testUpdateAssignedLinesOfProposal() {
+		PropuestaProveedor prop = new PropuestaProveedor();
+		prop.setLineasAsignadas(2);
+		prop.setForProposalId(propuesta1.getId());
+		repo.addPropuesta(consulta.getId(), prop).block();
+		
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals(2, ((PropuestaProveedor)cons.operations().getPropuestaById(prop.getId())).getLineasAsignadas());
+		})
+		.expectComplete()
+		.verify();
+		
+		repo.updateAssignedLinesOfProposal(prop.getId(), 5).block();
+		StepVerifier.create(mono)
+		.assertNext(cons -> {
+			assertEquals(5, ((PropuestaProveedor)cons.operations().getPropuestaById(prop.getId())).getLineasAsignadas());
+		})
+		.expectComplete()
+		.verify();
+	}
 
 }

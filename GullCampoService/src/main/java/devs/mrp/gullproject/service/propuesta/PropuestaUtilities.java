@@ -251,7 +251,7 @@ public class PropuestaUtilities {
 		return list;
 	}
 	
-	private Flux<Integer> setAssignedMap(ProposalPie pie) { // TODO test
+	private Flux<Integer> setAssignedMap(ProposalPie pie) {
 		log.debug("to set the assigned map");
 		var propuestas = pie.getPropuestasProveedores();
 		var map = pie.getAssignedLinesOfProp();

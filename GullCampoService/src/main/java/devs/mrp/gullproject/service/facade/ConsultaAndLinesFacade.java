@@ -4,11 +4,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
 import devs.mrp.gullproject.repository.ConsultaRepo;
-import devs.mrp.gullproject.service.ConsultaService;
 import devs.mrp.gullproject.service.linea.LineaService;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -18,11 +15,9 @@ import reactor.core.publisher.Mono;
 public class ConsultaAndLinesFacade {
 
 	@Autowired LineaService lineaService;
-	@Autowired ConsultaService consultaService;
 	@Autowired ConsultaRepo consultaRepo;
 	
-	@Transactional
-	public Mono<Integer> updateAssignedLinesOfProposal(String idPropuesta) { // TODO test
+	public Mono<Integer> updateAssignedLinesOfProposal(String idPropuesta) {
 		return lineaService.findByPropuestaId(idPropuesta)
 			.collectList()
 			.flatMap(rList -> {
