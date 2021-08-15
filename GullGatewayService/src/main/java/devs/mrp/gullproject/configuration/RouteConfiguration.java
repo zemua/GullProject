@@ -60,6 +60,11 @@ public class RouteConfiguration {
 	    	                .removeRequestHeader("Cookie"))
 	    		  .uri(micro.getCampoService())) // los primeros archivos JS, para otros, poner en carpeta con nombre de módulo
 	      
+	      .route(r -> r.alwaysTrue()
+	    		  .filters(f -> f.filters(filterFactory.apply())
+	    				  .removeRequestHeader("Cookie"))
+	    		  .uri(micro.getCampoService()))
+	      
 	      .build();
 	  }
 	
