@@ -24,10 +24,22 @@
 	
 	<table>
 		<tr>
-			<td><span data-exportablealways="true">Nombre</span></td>
-			<td th:each="att, attstat : ${propuestaNuestra.attributeColumns}"><span th:text="${att.name}" data-exportablealways="true"></span></td>
-			<td th:each="pvp, pvpstat : ${pvps}"><input type="checkbox" th:id="${pvp.id}" class="pvpcheckbox" checked><span th:text="${pvp.name}" data-exportablemaybe="true"></span></td>
-			<td th:each="sum, sumstat : ${sums}"><input type="checkbox" th:id="${sum.id}" class="sumcheckbox" checked><span th:text="${sum.name}" th:class="${#strings.listJoin(sum.pvperIds, ' ')}" data-exportablemaybe="true"></span></td>
+			<td rowspan="2"><span data-exportablealways="true">Nombre</span></td>
+			<td th:each="att, attstat : ${propuestaNuestra.attributeColumns}" rowspan="2"><span th:text="${att.name}" data-exportablealways="true"></span></td>
+			<td rowspan="2"><span>Cantidad</span></td>
+			<td th:each="pvp, pvpstat : ${pvps}" colspan="2"><input type="checkbox" th:id="${pvp.id}" class="pvpcheckbox" checked><span th:text="${pvp.name}" data-exportablemaybe="true"></span></td>
+			<td th:each="sum, sumstat : ${sums}" colspan="2"><input type="checkbox" th:id="${sum.id}" class="sumcheckbox" checked><span th:text="${sum.name}" th:class="${#strings.listJoin(sum.pvperIds, ' ')}" data-exportablemaybe="true"></span></td>
+		</tr>
+		<tr>
+			
+			<th:block th:each="pvp, pvpstat : ${pvps}">
+			<td><span data-exportablecond="true" th:data-masterid="${pvp.id}">Ud.</span></td>
+			<td><span data-exportablecond="true" th:data-masterid="${pvp.id}">Tot.</span></td>
+			</th:block>
+			<th:block th:each="sum, sumstat : ${sums}">
+			<td><span data-exportablecond="true" th:data-masterid="${sum.id}">Ud.</span></td>
+			<td><span data-exportablecond="true" th:data-masterid="${sum.id}">Tot.</span></td>
+			</th:block>
 		</tr>
 		<tr th:each="lc, lcstat : ${lineasCliente}" class="linea-cliente" th:id="${lc.id}">
 			<td><span th:text="${lc.nombre}" th:class="${lc.id}" data-exportable="true"></span></td>
@@ -35,8 +47,15 @@
 				<input th:each="pvp, pvpstat : ${pvps}" type="hidden" th:class="${lc.id + ' ' + pvp.id + ' ' + att.id + ' field-concatenable'}" th:value="${attMapper.of(lc.id, pvp.id, att.id)}">
 				<span th:class="${lc.id + ' ' + att.id + ' concatenation-field'}" data-exportable="true"></span>
 			</td>
-			<td th:each="pvp, pvpstat : ${pvps}"><span th:class="${pvp.id + ' ' + lc.id + ' pvp-value-field'}" th:text="${pvpMapper.findBy(lc.id, pvp.id).pvp}" data-exportablecond="true" th:data-masterid="${pvp.id}"></span></td>
-			<td th:each="sum, sumstat : ${sums}"><span th:class="${sum.id + ' ' + lc.id + ' sum-value-field'}" th:text="${sumMapper.findBy(lc.id, sum.id)}" data-exportablecond="true" th:data-masterid="${sum.id}"></span></td>
+			<td><span th:text="${lc.qty}" class="cantidad" data-exportablealways="true"></span></td>
+			<th:block th:each="pvp, pvpstat : ${pvps}">
+			<td><span th:class="${pvp.id + ' ' + lc.id + ' pvp-value-field'}" th:text="${pvpMapper.findBy(lc.id, pvp.id).pvp}" data-exportablecond="true" th:data-masterid="${pvp.id}"></span></td>
+			<td><span th:class="${pvp.id + ' ' + lc.id + ' pvp-value-field'}" data-exportablecond="true" th:data-masterid="${pvp.id}" th:text="${lc.qty * pvpMapper.findBy(lc.id, pvp.id).pvp}"></span></td>
+			</th:block>
+			<th:block th:each="sum, sumstat : ${sums}">
+			<td><span th:class="${sum.id + ' ' + lc.id + ' sum-value-field'}" th:text="${sumMapper.findBy(lc.id, sum.id)}" data-exportablecond="true" th:data-masterid="${sum.id}"></span></td>
+			<td><span th:class="${sum.id + ' ' + lc.id + ' sum-value-field'}" data-exportablecond="true" th:data-masterid="${sum.id}" th:text="${lc.qty * sumMapper.findBy(lc.id, sum.id)}"></span></td>
+			</th:block>
 		</tr>
 	</table>
 	
