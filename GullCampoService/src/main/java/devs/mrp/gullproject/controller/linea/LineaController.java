@@ -453,13 +453,13 @@ public class LineaController {
 	@PostMapping("/delete/id/{lineaid}")
 	public String processDeleteLinea(@ModelAttribute("linea") Linea linea, Model model,
 			@PathVariable(name = "lineaid") String lineaId) {
-		Mono<Long> deleteCount;
+		Mono<Void> deleteCount;
 		if (linea.getId().equals(lineaId)) {
 			log.debug("deleting linea: " + linea.toString());
 			deleteCount = lineaService.deleteLineaById(lineaId);
 		} else {
 			log.debug("ids don't match: " + lineaId + " and " + linea.getId());
-			deleteCount = Mono.just(0L);
+			deleteCount = Mono.just(null);
 		}
 		model.addAttribute("deleteCount", deleteCount);
 		model.addAttribute("idPropuesta", linea.getPropuestaId());

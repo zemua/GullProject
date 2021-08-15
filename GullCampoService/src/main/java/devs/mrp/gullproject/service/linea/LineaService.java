@@ -125,12 +125,12 @@ public class LineaService {
 		return lineaRepo.saveAll(lineas);
 	}
 	
-	public Mono<Long> deleteLineaById(String id) {
+	public Mono<Void> deleteLineaById(String id) {
 		Mono<Linea> nlinea = lineaRepo.findById(id);
 		Mono<String> nPropuestaId = nlinea.map(linea -> linea.getPropuestaId());
 		Mono<String> consultaId = nlinea.flatMap(linea -> consultaRepo.findByPropuestaId(linea.getPropuestaId()).map(consulta -> consulta.getId()));
 		return Mono.zip(consultaId, nPropuestaId).flatMap(t -> consultaRepo.removeLineaEnPropuesta(t.getT1(), t.getT2(), id))
-				.then(lineaRepo.deleteByIdReturningDeletedCount(id));		
+				.then(lineaRepo.deleteById(id));		
 	}
 	
 	public Mono<Void> deleteVariasLineasById(Flux<String> ids){

@@ -781,7 +781,7 @@ class LineaControllerTest {
 	@Test
 	@WithMockUser
 	void testProcessDeleteLinea() {
-		when(lineaService.deleteLineaById(linea1.getId())).thenReturn(Mono.just(1L));
+		when(lineaService.deleteLineaById(linea1.getId())).thenReturn(Mono.empty());
 		webTestClient.post()
 		.uri("/lineas/delete/id/" + linea1.getId())
 		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -796,7 +796,7 @@ class LineaControllerTest {
 		.consumeWith(response -> {
 			Assertions.assertThat(response.getResponseBody()).asString()
 			.contains("Borrar Linea")
-			.contains("1 lineas borradas");
+			.contains("Líneas borradas");
 		});
 	}
 	
