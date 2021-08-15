@@ -58,10 +58,16 @@ function setMargins(pvpEl, cost) {
 	}
 }
 
+function setPvpSum(pvp, qty, sum) {
+	sum.text(pvp * qty);
+}
+
 $(document).ready(function() {
 	var pvps = $(".pvp-input-field");
 	pvps.on("input", function() {
 		resize($(this));
+		var pvpsum = $(this).parent().next().children().first();
+		var qty = $(this).parent().parent().find(".qtyfield").first().text();
 		var precio = $(this).val().replace(",", ".");
 		$(this).val(precio);
 		var coste = getCostValue($(this));
@@ -70,6 +76,7 @@ $(document).ready(function() {
 		} else {
 			$(this).val("");
 		}
+		setPvpSum(precio, qty, pvpsum);
 	});
 	pvps.trigger("input");
 });
