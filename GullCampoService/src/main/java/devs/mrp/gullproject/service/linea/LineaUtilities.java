@@ -612,6 +612,9 @@ public class LineaUtilities {
 						});
 						linea.setPropuestaId(propuestaId);
 						linea.setNombre(names.get(sDupla.get(0).linea));
+						if (linea.getQty() == null) {
+							linea.setQty(1);
+						}
 						listOfLineas.add(linea);
 					});
 					return listOfLineas;
