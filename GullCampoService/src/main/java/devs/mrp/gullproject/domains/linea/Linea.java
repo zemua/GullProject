@@ -50,7 +50,7 @@ public class Linea implements MyOperable<LineaOperations> {
 	private List<String> counterLineId;
 	
 	private Integer order;
-	private Integer qty; // TODO include in views and controllers
+	private Integer qty;
 	
 	/**
 	 * Then the proposal will have an ArrayList of attributes, that can have repeated ones, for example 2 dimensions for inlet and outlet

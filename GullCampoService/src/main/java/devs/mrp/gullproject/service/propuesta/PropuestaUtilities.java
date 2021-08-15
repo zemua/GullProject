@@ -26,6 +26,7 @@ import devs.mrp.gullproject.domainsdto.propuesta.proveedor.WrapPropuestaProveedo
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.AtributoUtilities;
 import devs.mrp.gullproject.service.ConsultaService;
+import devs.mrp.gullproject.service.linea.LineaOfferService;
 import devs.mrp.gullproject.service.linea.LineaService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,7 @@ public class PropuestaUtilities {
 	ModelMapper modelMapper;
 	AtributoUtilities atributoUtilities;
 	@Autowired LineaService lineaService;
+	@Autowired LineaOfferService lineaOfferService;
 	
 	@Autowired
 	public PropuestaUtilities(ConsultaService consultaService, AtributoServiceProxyWebClient atributoService, ModelMapper modelMapper, AtributoUtilities atributoUtilities) {

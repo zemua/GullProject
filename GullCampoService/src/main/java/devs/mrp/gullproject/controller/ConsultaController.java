@@ -2,6 +2,7 @@ package devs.mrp.gullproject.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -102,7 +103,6 @@ public class ConsultaController {
 		return "createConsulta";
 	}
 	
-	@CrossOrigin
 	@PostMapping(path = "/nuevo", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public String processNewConsulta(@Valid Consulta consulta, BindingResult bindingResult, Model model) {
 		if (bindingResult.hasErrors()) {
@@ -117,9 +117,16 @@ public class ConsultaController {
 		return "processNewConsulta";
 	}
 	
-	@GetMapping("/all") // TODO implement pagination
-	public String showAllConsultas(Model model) {
-		Flux<Consulta> consultas = consultaService.findAll();
+	@GetMapping("/all")
+	public String showAllConsultas(Model model, @RequestParam("p") Optional<Integer> page, @RequestParam("s") Optional<Integer> size) {
+		int currentPage = page.orElse(0);
+		int pageSize = size.orElse(25);
+		//Flux<Consulta> consultas = consultaService.findAll();
+		Flux<Consulta> consultas = consultaService.findPaginated(currentPage, pageSize);
+		Mono<Long> total = consultaService.countAll();
+		model.addAttribute("page", currentPage);
+		model.addAttribute("size", pageSize);
+		model.addAttribute("total", total);
 		model.addAttribute("consultas", new ReactiveDataDriverContextVariable(consultas, 1));
 		return "showAllConsultas";
 	}
@@ -211,7 +218,7 @@ public class ConsultaController {
 		model.addAttribute("numlineas", remLineas);
 		model.addAttribute("numpropuestas", numPropuestas);
 		model.addAttribute("consultaId", consulta.getId());
-		
+		log.debug("return");
 		return "processDeleteConsultaById";
 	}
 	
@@ -235,8 +242,8 @@ public class ConsultaController {
 				.then(lineas).map(rLineas -> {
 			model.addAttribute("lineasBorradas", rLineas);
 			return true;
-		})
-			.then(c).map(rConsulta -> {
+			})
+				.then(c).map(rConsulta -> {
 				model.addAttribute("propuestasBorradas", rConsulta);
 				return true;
 			})
