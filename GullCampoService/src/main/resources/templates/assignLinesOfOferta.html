@@ -60,11 +60,11 @@
 				<tr th:each="a, astat : ${lineasCliente}" class="line-container"> <!-- Linea de campos -->
 					<td><span th:text="${a.nombre}" th:class="${'filter-index0'}"></span></td>
 					<td th:each="t, tstat : ${propuestaCliente.getAttributeColumns()}"><span th:text="${a.operations().getValueByAttId(t.getId())}" th:class="${'filter-index' + (tstat.index + 1)}"></span></td>
-					<td><span th:text="${a.qty}" class="qtyfield"></span></td> <!-- Qty -->
+					<td><span th:text="${a.qty == null ? 1 : a.qty}" class="qtyfield"></span></td> <!-- Qty -->
 					<th:block th:each="pvp, pvpstat : ${propuestaNuestra.getPvps()}">
 					<th:block th:each="cost : ${proposalCostMapperToPVp.findBy(pvp.id)}"> <!-- COST by line -->
 					<td><span th:text="${lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) > 0 ? lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) : ''}" th:class="${'cost-field is-double-checkable cost-margin-input-field-' + astat.index + '-' + pvpstat.index + ' cost-pvp-input-field-' + astat.index + '-' + pvpstat.index + ' cost-slavecheck' + pvpstat.index}"></span></td>
-					<td><span th:text="${lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) * a.qty}" th:class="${'is-double-checkable costbreakdown-tot-pvp' + pvpstat.index  + ' cost-slavecheck' + pvpstat.index}"></span></td>
+					<td><span th:text="${a.qty == null ? lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) : lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) * a.qty}" th:class="${'is-double-checkable costbreakdown-tot-pvp' + pvpstat.index  + ' cost-slavecheck' + pvpstat.index}"></span></td>
 					</th:block>
 					<td class="field nopadding"> <!-- Margin -->
 						<input type="text" th:field="*{lineas[__${astat.index + lineasCliente.size() * pvpstat.index}__].pvp.margen}" th:value="${pvpMapper.findBy(a.id, pvp.id).margen > 0 ? pvpMapper.findBy(a.id, pvp.id).margen : ''}" th:id="${'margin-input-field-' + astat.index + '-' + pvpstat.index}" th:class="${'noborders field-text is-double-checkable width100 margin-input-field margin-index' + pvpstat.index + ' margin-pvp-input-field-' + astat.index + '-' + pvpstat.index}">
