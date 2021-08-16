@@ -14,11 +14,13 @@ import reactor.core.publisher.Mono;
 @Repository
 public interface LineaRepo extends ReactiveMongoRepository<Linea, String>, CustomLineaRepo {
 	
-	@DeleteQuery("{_id:?0}")
-	Mono<Long> deleteByIdReturningDeletedCount(String id);
+	// throws error with security
+	//@DeleteQuery("{_id:?0}")
+	//Mono<Long> deleteByIdReturningDeletedCount(String id);
 	
-	@DeleteQuery("{ 'propuestaId' : ?0 }")
-	Mono<Long> deleteByPropuestaIdReturningDeletedCount(String propuestaId);
+	// throws error with security
+	//@DeleteQuery("{ 'propuestaId' : ?0 }")
+	//Mono<Long> deleteByPropuestaIdReturningDeletedCount(String propuestaId);
 	
 	Flux<Linea> findAllByPropuestaId(String propuestaId);
 	

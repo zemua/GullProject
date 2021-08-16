@@ -47,10 +47,12 @@ import devs.mrp.gullproject.domainsdto.linea.AtributoForLineaFormDto;
 import devs.mrp.gullproject.domainsdto.linea.LineaWithSelectorDto;
 import devs.mrp.gullproject.domainsdto.linea.WrapLineasWithSelectorDto;
 import devs.mrp.gullproject.domainsdto.propuesta.AtributoForFormDto;
+import devs.mrp.gullproject.repository.ConsultaRepo;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.AttRemaperUtilities;
 import devs.mrp.gullproject.service.CompoundedConsultaLineaService;
 import devs.mrp.gullproject.service.ConsultaService;
+import devs.mrp.gullproject.service.facade.ConsultaAndLinesFacade;
 import devs.mrp.gullproject.service.facade.SupplierLineFinderByProposalAssignation;
 import devs.mrp.gullproject.service.linea.LineByAssignationRetrieverFactory;
 import devs.mrp.gullproject.service.linea.LineaOperations;
@@ -71,7 +73,7 @@ import reactor.core.publisher.Mono;
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = LineaController.class)
 @AutoConfigureWebTestClient
-@Import({MapperConfig.class, LineaUtilities.class, AttRemaperUtilities.class, CostRemapperUtilities.class, PropuestaProveedorUtilities.class, PvpMapperByAssignedLineFactory.class, SupplierLineFinderByProposalAssignation.class, ConsultaImpl.class, ConsultaFactory.class, ProposalIdsMergerFactory.class, PropuestaProveedorExtractor.class, FromPropuestaToProveedorFactory.class, LineByAssignationRetrieverFactory.class, LineaFactory.class, ResourceServerSecurityConfig.class, QtyRemapperUtilitiesImpl.class})
+@Import({MapperConfig.class, LineaUtilities.class, AttRemaperUtilities.class, CostRemapperUtilities.class, PropuestaProveedorUtilities.class, PvpMapperByAssignedLineFactory.class, SupplierLineFinderByProposalAssignation.class, ConsultaImpl.class, ConsultaFactory.class, ProposalIdsMergerFactory.class, PropuestaProveedorExtractor.class, FromPropuestaToProveedorFactory.class, LineByAssignationRetrieverFactory.class, LineaFactory.class, ResourceServerSecurityConfig.class, QtyRemapperUtilitiesImpl.class, ConsultaAndLinesFacade.class})
 class LineaControllerTest {
 	
 	WebTestClient webTestClient;
@@ -87,6 +89,7 @@ class LineaControllerTest {
 	@MockBean
 	AtributoServiceProxyWebClient atributoService;
 	@MockBean CompoundedConsultaLineaService compoundedService;
+	@MockBean ConsultaRepo consultaRepo;
 	
 	@Autowired
 	public LineaControllerTest(WebTestClient webTestClient, LineaController lineaController, ModelMapper modelMapper) {
@@ -2220,6 +2223,7 @@ class LineaControllerTest {
 		lineawithcounter.setCounterLineId(list);
 		when(lineaService.updateCounterLineId(ArgumentMatchers.eq(linea1.getId()), ArgumentMatchers.anyList())).thenReturn(Mono.just(lineawithcounter));
 		when(lineaService.updateCounterLineId(ArgumentMatchers.eq(linea2.getId()), ArgumentMatchers.anyList())).thenReturn(Mono.just(lineawithcounter));
+		when(consultaRepo.updateAssignedLinesOfProposal(ArgumentMatchers.eq(propuestaProveedor.getId()), ArgumentMatchers.anyInt())).thenReturn(Mono.just(consulta));
 		
 		webTestClient.post()
 		.uri("/lineas/allof/propid/" + propuestaProveedor.getId() + "/counter-line")
