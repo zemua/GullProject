@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<title>Gull Project - Clonar Cotización</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<h1>Clonar Cotización</h1>
+
+	<div>
+		<p>
+			<a th:href="@{/consultas/revisar/id/{id}(id=${consultaId})}">Volver</a>
+		</p>
+	</div>
+	
+	<div>		
+		<div th:each="pie : ${pieFeast}">
+			<br/><br/>
+			<table>
+				<tr>
+					<td><span th:text="${pie.propuestaCliente.nombre}">Consulta Cliente</span></td>
+				</tr>
+				<tr th:each="proveedor : ${pie.propuestasProveedores}">
+					<td>
+						<form name="f" method="POST">
+							<input type="hidden" name="string" th:value="${proveedor.id}"/>
+							<button type="submit">Clonar</button>
+						</form>
+					</td>
+					<td><span th:text="${proveedor.nombre}">Cotización Proveedor</span></td>
+				</tr>
+			</table>
+		</div>
+	</div>
+
+</body>
+</html>

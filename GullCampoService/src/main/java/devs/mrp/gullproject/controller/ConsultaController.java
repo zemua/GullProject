@@ -32,6 +32,7 @@ import devs.mrp.gullproject.domains.propuestas.PropuestaNuestra;
 import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
 import devs.mrp.gullproject.domains.propuestas.Pvper;
 import devs.mrp.gullproject.domains.propuestas.PvperSum;
+import devs.mrp.gullproject.domainsdto.StringWrapper;
 import devs.mrp.gullproject.domainsdto.linea.WrapAtributosForCampoDto;
 import devs.mrp.gullproject.domainsdto.propuesta.AtributoForFormDto;
 import devs.mrp.gullproject.domainsdto.propuesta.AttributesListDto;
@@ -55,6 +56,7 @@ import devs.mrp.gullproject.domainsdto.propuesta.proveedor.WrapPropuestaProveedo
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.CompoundedConsultaLineaService;
 import devs.mrp.gullproject.service.ConsultaService;
+import devs.mrp.gullproject.service.facade.CotizacionCloner;
 import devs.mrp.gullproject.service.linea.LineaService;
 import devs.mrp.gullproject.service.propuesta.PropuestaUtilities;
 import devs.mrp.gullproject.service.propuesta.oferta.PropuestaNuestraOperations;
@@ -85,6 +87,7 @@ public class ConsultaController {
 	
 	@Autowired PvperCheckboxedCostToPvper pvperCheckboxedCostToPvper;
 	@Autowired CotizacionOfCostMapperFactory costToCotiz;
+	@Autowired CotizacionCloner cloner;
 	
 	@Autowired
 	public ConsultaController(ConsultaService consultaService, LineaService lineaService, AtributoServiceProxyWebClient atributoService, PropuestaUtilities propuestaUtilities, ModelMapper modelMapper, CompoundedConsultaLineaService compoundedService, ConsultaFactory consultaFactory) {
@@ -340,6 +343,7 @@ public class ConsultaController {
 	@GetMapping("/revisar/id/{consultaId}/onprop/{propuestaClienteId}/addcotizacionproveedor")
 	public String addProposalProveedorToProposalCliente(Model model, @PathVariable(name = "consultaId") String consultaId, @PathVariable(name = "propuestaClienteId") String propuestaClienteId) {
 		model.addAttribute("consultaId", consultaId);
+		model.addAttribute("propClienteId", propuestaClienteId);
 		Mono<WrapPropuestaProveedorAndSelectableAttributes> propuesta = propuestaUtilities.wrapPropuestaProveedorWithAllAvailableAttributesAsSelectable(new PropuestaProveedor(propuestaClienteId));
 		model.addAttribute("wrapPropuestaProveedorAndSelectableAttributes", propuesta);
 		return "addPropuestaProveedorToConsulta";
@@ -361,6 +365,23 @@ public class ConsultaController {
 		model.addAttribute("propuesta", p);
 		model.addAttribute("consultaId", consultaId);
 		return "processAddPropuestaToConsulta";
+	}
+	
+	@GetMapping("/revisar/id/{consultaId}/onprop/{propuestaClienteId}/importcotizacion") // TODO test
+	public String importProposalProveedorToProposalCliente(Model model, @PathVariable(name = "consultaId") String consultaId, @PathVariable(name = "propuestaClienteId") String propuestaClienteId) {
+		model.addAttribute("consultaId", consultaId);
+		model.addAttribute("propClienteId", propuestaClienteId);
+		model.addAttribute("pieFeast", new ReactiveDataDriverContextVariable(propuestaUtilities.getProposalPieFeast(consultaId),1));
+		return "importPropuestaProveedorToConsulta";
+	}
+	
+	@PostMapping("/revisar/id/{consultaId}/onprop/{propuestaClienteId}/importcotizacion") // TODO test
+	public Mono<String> processImportProposalProveedorToProposalCliente(StringWrapper stringWrapper, Model model, @PathVariable(name = "consultaId") String consultaId, @PathVariable(name = "propuestaClienteId") String propuestaClienteId) {
+		model.addAttribute("consultaId", consultaId);
+		model.addAttribute("propClienteId", propuestaClienteId);
+		model.addAttribute("cloneId", stringWrapper.getString());
+		model.addAttribute("clonado", cloner.clone(propuestaClienteId, stringWrapper.getString()));
+		return Mono.just("processImportPropuestaProveedorToConsulta");
 	}
 	
 	@GetMapping("/costof/propid/{id}")
