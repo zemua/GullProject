@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>devs.mrp.gullcampo</groupId>
 	<artifactId>GullCampoService</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
 	<name>GullCampoService</name>
 	<description>O.o</description>
 
