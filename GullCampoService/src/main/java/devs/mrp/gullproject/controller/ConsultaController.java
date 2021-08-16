@@ -367,7 +367,7 @@ public class ConsultaController {
 		return "processAddPropuestaToConsulta";
 	}
 	
-	@GetMapping("/revisar/id/{consultaId}/onprop/{propuestaClienteId}/importcotizacion") // TODO test
+	@GetMapping("/revisar/id/{consultaId}/onprop/{propuestaClienteId}/importcotizacion")
 	public String importProposalProveedorToProposalCliente(Model model, @PathVariable(name = "consultaId") String consultaId, @PathVariable(name = "propuestaClienteId") String propuestaClienteId) {
 		model.addAttribute("consultaId", consultaId);
 		model.addAttribute("propClienteId", propuestaClienteId);
@@ -375,7 +375,7 @@ public class ConsultaController {
 		return "importPropuestaProveedorToConsulta";
 	}
 	
-	@PostMapping("/revisar/id/{consultaId}/onprop/{propuestaClienteId}/importcotizacion") // TODO test
+	@PostMapping("/revisar/id/{consultaId}/onprop/{propuestaClienteId}/importcotizacion")
 	public Mono<String> processImportProposalProveedorToProposalCliente(StringWrapper stringWrapper, Model model, @PathVariable(name = "consultaId") String consultaId, @PathVariable(name = "propuestaClienteId") String propuestaClienteId) {
 		model.addAttribute("consultaId", consultaId);
 		model.addAttribute("propClienteId", propuestaClienteId);
