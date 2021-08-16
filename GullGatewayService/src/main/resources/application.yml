@@ -1,10 +1,12 @@
 gull:
+  scheme: http
+  host: localhost
   authscheme: http
   authport: 9000
   authhost: localhost
   authclient: gull-client
   authsecret: 863fa419-703d-41ac-bc5e-0b07a8125231
-  logouturl: ${gull.authscheme}://${gull.authhost}:${gull.authport}/auth/realms/master/protocol/openid-connect/logout
+  logouturl: ${gull.authscheme}://${gull.authhost}:${gull.authport}/auth/realms/master/protocol/openid-connect/logout?redirect_uri=${gull.scheme}://${gull.host}:${server.port}/consultas/all
   eurekauser: mockUser
   eurekapass: mockPass
   eurekascheme: http
