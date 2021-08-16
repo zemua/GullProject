@@ -2,8 +2,13 @@ gull:
   authscheme: http
   authport: 9000
   authhost: localhost
+  eurekauser: mockUser
+  eurekapass: mockPass
+  eurekascheme: http
+  eurekahost: localhost
+  eurekaport: 8761
 jwk:
-  endpoint: http://localhost:${gull.authport}/auth/realms/master/protocol/openid-connect/certs
+  endpoint: ${gull.authscheme}://${gull.authhost}:${gull.authport}/auth/realms/master/protocol/openid-connect/certs
 spring:
   data:
     mongodb:
@@ -20,10 +25,10 @@ server:
   port: 0
 eureka:
   instance:
-    hostname: localhost
+    hostname: ${gull.eurekahost}
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${gull.eurekascheme}://${gull.eurekauser}:${gull.eurekapass}@${gull.eurekahost}:${gull.eurekaport}/eureka/
       
 ---
 spring:

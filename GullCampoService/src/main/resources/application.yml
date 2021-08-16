@@ -7,7 +7,7 @@ gull:
   eurekauser: mockUser
   eurekapass: mockPass
   eurekascheme: http
-  eurakehost: localhost
+  eurekahost: localhost
   eurekaport: 8761
 jwk:
   endpoint: ${gull.authscheme}://${gull.authhost}:${gull.authport}/auth/realms/master/protocol/openid-connect/certs
