@@ -1,3 +1,9 @@
+gull:
+  user: mockUser
+  secret: mockPass
+spring:
+  application:
+    name: discovery-service
 eureka:
   instance:
     hostname: localhost

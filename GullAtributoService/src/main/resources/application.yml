@@ -1,5 +1,7 @@
 gull:
+  authscheme: http
   authport: 9000
+  authhost: localhost
 jwk:
   endpoint: http://localhost:${gull.authport}/auth/realms/master/protocol/openid-connect/certs
 spring:
@@ -13,7 +15,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:${gull.authport}/auth/realms/master
+          issuer-uri: ${gull.authscheme}://${gull.authhost}:${gull.authport}/auth/realms/master
 server:
   port: 0
 eureka:

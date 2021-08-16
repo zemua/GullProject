@@ -1,7 +1,16 @@
 gull:
+  authscheme: http
   authport: 9000
+  authhost: localhost
+  authclient: gull-campo-service
+  authsecret: 73fb0fb7-9aab-42f0-bc7b-66f476bde874
+  eurekauser: mockUser
+  eurekapass: mockPass
+  eurekascheme: http
+  eurakehost: localhost
+  eurekaport: 8761
 jwk:
-  endpoint: http://localhost:${gull.authport}/auth/realms/master/protocol/openid-connect/certs
+  endpoint: ${gull.authscheme}://${gull.authhost}:${gull.authport}/auth/realms/master/protocol/openid-connect/certs
 spring:
   data:
     mongodb:
@@ -15,30 +24,30 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:${gull.authport}/auth/realms/master
+          issuer-uri: ${gull.authscheme}://${gull.authhost}:${gull.authport}/auth/realms/master
       client:
         registration:
           campo:
             provider: keycloak
-            client-id: gull-campo-service
-            client-secret: 73fb0fb7-9aab-42f0-bc7b-66f476bde874
+            client-id: ${gull.authclient}
+            client-secret: ${gull.authsecret}
             authorization-grant-type: client_credentials
             scope: openid
         provider:
           keycloak:
-            token-uri: http://localhost:${gull.authport}/auth/realms/master/protocol/openid-connect/token
-            authorization-uri: http://localhost:${gull.authport}/auth/realms/master/protocol/openid-connect/auth
-            user-info-uri: http://localhost:${gull.authport}/auth/realms/master/protocol/openid-connect/userinfo
+            token-uri: ${gull.authscheme}://${gull.authhost}:${gull.authport}/auth/realms/master/protocol/openid-connect/token
+            authorization-uri: ${gull.authscheme}://${gull.authhost}:${gull.authport}/auth/realms/master/protocol/openid-connect/auth
+            user-info-uri: ${gull.authscheme}://${gull.authhost}:${gull.authport}/auth/realms/master/protocol/openid-connect/userinfo
             user-name-attribute: preferred_username
-            jwk-set-uri: http://localhost:${gull.authport}/auth/realms/master/protocol/openid-connect/certs
+            jwk-set-uri: ${gull.authscheme}://${gull.authhost}:${gull.authport}/auth/realms/master/protocol/openid-connect/certs
 server:
   port: 0
 eureka:
   instance:
-    hostname: localhost
+    hostname: ${gull.eurekahost}
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${gull.eurekascheme}://${gull.eurekauser}:${gull.eurekapass}@${gull.eurekahost}:${gull.eurekaport}/eureka/
       
 ---
 spring:

@@ -1,6 +1,15 @@
 gull:
+  authscheme: http
   authport: 9000
-  logouturl: http://localhost:9000/auth/realms/master/protocol/openid-connect/logout
+  authhost: localhost
+  authclient: gull-client
+  authsecret: 863fa419-703d-41ac-bc5e-0b07a8125231
+  logouturl: ${gull.authscheme}://${gull.authhost}:${gull.authport}/auth/realms/master/protocol/openid-connect/logout
+  eurekauser: mockUser
+  eurekapass: mockPass
+  eurekascheme: http
+  eurekahost: localhost
+  eurekaport: 8761
 spring:
   application:
     name: gateway-service
@@ -10,26 +19,26 @@ spring:
         registration:
           login:
             provider: keycloak
-            client-id: gull-client
-            client-secret: 863fa419-703d-41ac-bc5e-0b07a8125231
+            client-id: ${gull.authclient}
+            client-secret: ${gull.authsecret}
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             scope: openid
         provider:
           keycloak:
-            token-uri: http://localhost:${gull.authport}/auth/realms/master/protocol/openid-connect/token
-            authorization-uri: http://localhost:${gull.authport}/auth/realms/master/protocol/openid-connect/auth
-            user-info-uri: http://localhost:${gull.authport}/auth/realms/master/protocol/openid-connect/userinfo
+            token-uri: ${gull.authscheme}://${gull.authhost}:${gull.authport}/auth/realms/master/protocol/openid-connect/token
+            authorization-uri: ${gull.authscheme}://${gull.authhost}:${gull.authport}/auth/realms/master/protocol/openid-connect/auth
+            user-info-uri: ${gull.authscheme}://${gull.authhost}:${gull.authport}/auth/realms/master/protocol/openid-connect/userinfo
             user-name-attribute: preferred_username
-            jwk-set-uri: http://localhost:${gull.authport}/auth/realms/master/protocol/openid-connect/certs
+            jwk-set-uri: ${gull.authscheme}://${gull.authhost}:${gull.authport}/auth/realms/master/protocol/openid-connect/certs
 server:
   port: 8080
 eureka:
   instance:
-    hostname: localhost
+    hostname: ${gull.eurekahost}
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${gull.eurekascheme}://${gull.eurekauser}:${gull.eurekapass}@${gull.eurekahost}:${gull.eurekaport}/eureka/
 
 ---
 spring:
