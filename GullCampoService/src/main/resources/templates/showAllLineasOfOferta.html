@@ -35,8 +35,8 @@
 				<td th:each="t : ${propCliente.getAttributeColumns()}"><span th:text="${a.operations().getValueByAttId(t.getId())}"></span></td>
 				<th:block th:if="${propuesta.getPvps().size() > 0 or propuesta.getSums().size() > 0}">
 				<td th:if="${astat.index == 0}" rowspan="0"></td>
-				<td th:each="pvp : ${propuesta.getPvps()}"><span th:text="${pvpMapper.findBy(a.id, pvp.id).pvp > 0 ? pvpMapper.findBy(a.id, pvp.id).pvp : ''}"></span></td>
-				<td th:each="sum : ${propuesta.getSums()}"><span th:text="${sumMapper.findBy(a.id, sum.id) > 0 ? sumMapper.findBy(a.id, sum.id) : ''}"></span></td>
+				<td th:each="pvp : ${propuesta.getPvps()}"><span th:text="${pvpMapper.findBy(a.id, pvp.id).pvp > 0 ? #numbers.formatDecimal(pvpMapper.findBy(a.id, pvp.id).pvp, 0, 2) : ''}"></span></td>
+				<td th:each="sum : ${propuesta.getSums()}"><span th:text="${sumMapper.findBy(a.id, sum.id) > 0 ? #numbers.formatDecimal(sumMapper.findBy(a.id, sum.id), 0, 2) : ''}"></span></td>
 				</th:block>
 			</tr>
 		</table>

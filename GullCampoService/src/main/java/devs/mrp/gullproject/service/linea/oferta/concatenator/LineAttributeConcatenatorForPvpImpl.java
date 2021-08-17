@@ -51,7 +51,11 @@ public class LineAttributeConcatenatorForPvpImpl implements LineAttributeConcate
 	}
 	
 	private boolean attIncluded(Pvper pvper, String cotizacionId, String attId) {
-		var atts = pvper.getIdAttributesByCotiz().stream().filter(a -> a.getCotizId().equals(cotizacionId)).findAny();
+		var idAtt = pvper.getIdAttributesByCotiz();
+		if (idAtt == null) {
+			return false;
+		}
+		var atts = idAtt.stream().filter(a -> a.getCotizId().equals(cotizacionId)).findAny();
 		if (atts.isEmpty()) { return false; }
 		return atts.get().getIds().stream().filter(a -> a.equals(attId)).findAny().isPresent();
 	}
