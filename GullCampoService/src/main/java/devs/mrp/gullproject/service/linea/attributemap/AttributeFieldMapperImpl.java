@@ -19,7 +19,11 @@ public class AttributeFieldMapperImpl implements AttributeFieldMapper {
 	
 	@Override
 	public String of(String lineaClienteId, String pvpOfertaId, String attributeOfertaId) {
-		var linea = lineasByCounter.get(lineaClienteId).stream().filter(l -> l.getPvp().getPvperId().equals(pvpOfertaId)).findAny();
+		var counter = lineasByCounter.get(lineaClienteId);
+		if (counter == null) {
+			return "";
+		}
+		var linea = counter.stream().filter(l -> l.getPvp().getPvperId().equals(pvpOfertaId)).findAny();
 		if (linea.isEmpty()) {
 			log.debug("linea is empty");
 			return "";

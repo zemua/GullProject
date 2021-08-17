@@ -1,11 +1,23 @@
+gull:
+  user: mockUser
+  secret: mockPass
+  schema: http
+  host: localhost
+spring:
+  application:
+    name: discovery-service
+  security:
+    user:
+      name: ${gull.user}
+      password: ${gull.secret}
 eureka:
   instance:
-    hostname: localhost
+    hostname: ${gull.host}
   client:
     fetch-registry: false
     register-with-eureka: false
     service-url:
-      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka
+      defaultZone: ${gull.schema}://${gull.user}:${gull.secret}@${eureka.instance.hostname}:${server.port}/eureka
   server:
     enable-self-preservation: false
 server:

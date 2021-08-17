@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "gull.authport",
+    "type": "java.lang.String",
+    "description": "A description for 'gull.authport'"
+  },
+  {
+    "name": "jwk.endpoint",
+    "type": "java.lang.String",
+    "description": "A description for 'jwk.endpoint'"
+  }
+]}

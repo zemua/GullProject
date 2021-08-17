@@ -17,6 +17,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.config.HypermediaWebTestClientConfigurer;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -55,6 +56,7 @@ class AtributoRestControllerTest {
 	AtributoRepo atributoRepo;
 
 	@Test
+	@WithMockUser
 	void testgetAllAtributos() {
 		
 		// Create a WebTestClient by binding to the controller and applying the hypermedia configurer.
@@ -94,6 +96,7 @@ class AtributoRestControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	public void testModelMapper() {
 		Atributo a = new Atributo();
 		a.setId("id");
@@ -107,6 +110,7 @@ class AtributoRestControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	public void testGetAtributoForCampoById() {
 		
 		// por aprender a usar... aunque con reactor da problemas...
@@ -140,6 +144,7 @@ class AtributoRestControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	public void testGetTodosLosDataFormat() {
 		Flux<StringWrapper> flux = atributoRestController.getTodosLosDataFormat();
 		StepVerifier

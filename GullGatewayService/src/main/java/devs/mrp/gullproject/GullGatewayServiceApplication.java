@@ -18,4 +18,6 @@ public class GullGatewayServiceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(GullGatewayServiceApplication.class, args);
 	}
+	
+	// TODO hide services https://spring.io/blog/2019/07/01/hiding-services-runtime-discovery-with-spring-cloud-gateway
 }

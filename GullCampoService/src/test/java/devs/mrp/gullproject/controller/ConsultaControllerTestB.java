@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -30,6 +31,7 @@ import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 
 import devs.mrp.gullproject.configuration.MapperConfig;
+import devs.mrp.gullproject.configuration.ResourceServerSecurityConfig;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.ConsultaFactory;
 import devs.mrp.gullproject.domains.ConsultaImpl;
@@ -68,7 +70,7 @@ import reactor.core.publisher.Mono;
 @WebFluxTest(controllers = ConsultaController.class)
 //@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
-@Import({MapperConfig.class, PropuestaUtilities.class, AtributoUtilities.class, ConsultaImpl.class, ConsultaFactory.class, LineaFactory.class, PvperCheckboxedCostToPvperImpl.class, CotizacionOfCostMapperFactoryImpl.class})
+@Import({MapperConfig.class, PropuestaUtilities.class, AtributoUtilities.class, ConsultaImpl.class, ConsultaFactory.class, LineaFactory.class, PvperCheckboxedCostToPvperImpl.class, CotizacionOfCostMapperFactoryImpl.class, ResourceServerSecurityConfig.class})
 @ActiveProfiles("default")
 class ConsultaControllerTestB {
 	
@@ -260,6 +262,7 @@ class ConsultaControllerTestB {
 	}
 
 	@Test
+	@WithMockUser
 	void testCrearConsulta() throws Exception {
 		
 		webTestClient.get()
@@ -292,6 +295,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessNewConsulta() {
 		Consulta a = consultaFactory.create();
 		a.setNombre("name of consulta");
@@ -372,6 +376,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testShowAllConsultas() throws Exception {
 		
 		Consulta a = consultaFactory.create();
@@ -403,6 +408,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testReviewConsultaById() throws Exception {
 		
 		Propuesta prop1 = new PropuestaCliente() {};
@@ -414,8 +420,19 @@ class ConsultaControllerTestB {
 		var op2 = prop2.operations();
 		op2.addLineaId("linea3");
 		prop2.setNombre("propuesta 2");
+		
 		PropuestaProveedor prop3 = new PropuestaProveedor(prop1.getId());
 		prop3.setNombre("propuesta 3");
+		Linea l61 = new Linea();
+		Linea l62 = new Linea();
+		Linea l63 = new Linea();
+		prop3.setLineaIds(List.of(l61.getId(), l62.getId(), l63.getId()));
+		l61.setCounterLineId(List.of("uno", "dos", "tres"));
+		l62.setCounterLineId(List.of("cuatro"));
+		l61.setPropuestaId(prop3.getId());
+		l62.setPropuestaId(prop3.getId());
+		l63.setPropuestaId(prop3.getId());
+		
 		PropuestaProveedor prop4 = new PropuestaProveedor(prop2.getId());
 		prop4.setNombre("propuesta 4");
 		PropuestaNuestra prop5 = new PropuestaNuestra(prop1.getId());
@@ -465,6 +482,7 @@ class ConsultaControllerTestB {
 		when(consultaService.findById(ArgumentMatchers.eq(b.getId()))).thenReturn(mono2);
 		when(consultaService.findAllPropuestasOfConsulta(ArgumentMatchers.eq(a.getId()))).thenReturn(Flux.fromIterable(a.getPropuestas()));
 		when(consultaService.findAllPropuestasOfConsulta(ArgumentMatchers.eq(b.getId()))).thenReturn(Flux.just());
+		when(lineaService.findByPropuestaId(ArgumentMatchers.eq(prop3.getId()))).thenReturn(Flux.just(l61, l62, l63));
 		
 		webTestClient.get()
 			.uri("/consultas/revisar/id/idConsulta1")
@@ -486,6 +504,7 @@ class ConsultaControllerTestB {
 						.contains("propuesta 2")
 						.contains("Respuestas de Proveedores")
 						.contains(prop3.getNombre())
+						.contains("3 / 4") // from assigned lines
 						.doesNotContain(prop4.getNombre())
 						.contains("Ofertas Nuestras")
 						.contains(prop5.getNombre())
@@ -516,6 +535,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testAddPropuestaToId() throws Exception {
 		
 		webTestClient.get()
@@ -537,6 +557,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessNewPropuesta() {
 		
 		consulta2.operations().addPropuesta(prop1);
@@ -623,6 +644,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testDeleteConsultaById() throws Exception {
 		
 		when(consultaService.findById(ArgumentMatchers.eq(consulta1.getId()))).thenReturn(mono1);
@@ -646,6 +668,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessDeleteConsultaById() {
 		
 		when(consultaService.deleteById(ArgumentMatchers.anyString())).thenReturn(Mono.just(0L));
@@ -697,6 +720,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testDeletePropuestaById() throws Exception {
 		
 		when(consultaService.findById(ArgumentMatchers.eq(consulta1.getId()))).thenReturn(mono1);
@@ -718,6 +742,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessDeletePropuestaById() throws Exception {
 		
 		when(consultaService.findById(ArgumentMatchers.eq(consulta1.getId()))).thenReturn(mono1);
@@ -746,6 +771,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testShowAttributesOfProposal() {
 		
 		when(consultaService.findConsultaByPropuestaId(prop1.getId())).thenReturn(Mono.just(consulta1));
@@ -774,6 +800,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testAddAttributeToProposal() {
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(prop1.getId()))).thenReturn(Mono.just(prop1));
 		ArrayList<AtributoForCampo> atts = new ArrayList<>();
@@ -799,6 +826,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessAddAttributeToProposal() {
 		ArrayList<AtributoForFormDto> listDtos = new ArrayList<>();
 		ArrayList<AtributoForCampo> list = new ArrayList<>();
@@ -853,6 +881,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testEditConsultaDetails() {
 		when(consultaService.findById(ArgumentMatchers.eq(consulta1.getId()))).thenReturn(Mono.just(consulta1));
 		webTestClient.get()
@@ -870,6 +899,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessEditConsultaDetails() {
 		String newname = "nuevo nombre";
 		String newstatus = "nuevo status";
@@ -914,6 +944,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testEditarProposalCliente() {
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(prop1.getId()))).thenReturn(Mono.just(prop1));
 		when(consultaService.findConsultaByPropuestaId(ArgumentMatchers.eq(prop1.getId()))).thenReturn(Mono.just(consulta1));
@@ -932,6 +963,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessEditarProposalCliente() {
 		String newname = "nuevo nombre";
 		when(consultaService.findConsultaByPropuestaId(ArgumentMatchers.refEq(prop1.getId()))).thenReturn(Mono.just(consulta1));
@@ -971,6 +1003,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testOrderAttributesOfProposal() {
 		webTestClient.get()
 			.uri("/consultas/attof/propid/" + prop1.getId() + "/order")
@@ -989,6 +1022,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessOrderAttributesOfProposal() {
 		when(consultaService.reOrderAttributesOfPropuesta(ArgumentMatchers.eq(prop1.getId()), ArgumentMatchers.anyList())).thenReturn(Mono.just(prop1));
 		
@@ -1034,6 +1068,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testAddProposalProveedorToProposalCliente() {
 		Propuesta propB = new PropuestaProveedor(prop1.getId());
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propB.getId()))).thenReturn(Mono.just(propB));
@@ -1058,6 +1093,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessAddProposalProveedorToProposalCliente() {
 		consulta2.operations().addPropuesta(prop2);
 		when(consultaService.addPropuesta(ArgumentMatchers.eq(consulta2.getId()), ArgumentMatchers.any(Propuesta.class))).thenReturn(Mono.just(consulta2));
@@ -1151,6 +1187,7 @@ class ConsultaControllerTestB {
 	 */
 	
 	@Test
+	@WithMockUser
 	void testShowCostsOfProposal() {
 		addCosts();
 		webTestClient.get()
@@ -1168,6 +1205,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testEditCostsOfProposal() {
 		addCosts();
 		webTestClient.get()
@@ -1185,6 +1223,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessEditCostsOfProposal() {
 		addCosts();
 		
@@ -1224,6 +1263,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testNewCostOfProposal() {
 		addCosts();
 		webTestClient.get()
@@ -1240,6 +1280,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessNewCostOfProposal() {
 		addCosts();
 		
@@ -1280,6 +1321,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testDeleteCostsOfProposal() {
 		addCosts();
 		webTestClient.get()
@@ -1298,6 +1340,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testConfirmDeleteCostsOfProposal() {
 		addCosts();
 		webTestClient.post()
@@ -1325,6 +1368,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessDeleteCostsOfProposal() {
 		addCosts();
 		webTestClient.post()
@@ -1351,6 +1395,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testOrderCostsOfProposal() {
 		addCosts();
 		webTestClient.get()
@@ -1368,6 +1413,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessOrderCostsOfProposal() {
 		addCosts();
 		webTestClient.post()
@@ -1400,6 +1446,7 @@ class ConsultaControllerTestB {
 	 */
 	
 	@Test
+	@WithMockUser
 	void testAddOurOfferToProposalCliente() {
 		Propuesta propB = new PropuestaNuestra(prop1.getId());
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propB.getId()))).thenReturn(Mono.just(propB));
@@ -1424,6 +1471,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessAddOurOfferToProposalCliente() {
 		consulta2.operations().addPropuesta(prop2);
 		when(consultaService.addPropuesta(ArgumentMatchers.eq(consulta2.getId()), ArgumentMatchers.any(Propuesta.class))).thenReturn(Mono.just(consulta2));
@@ -1517,6 +1565,7 @@ class ConsultaControllerTestB {
 	 */
 	
 	@Test
+	@WithMockUser
 	void testShowPvpsOfProposal() {
 		addCosts();
 		webTestClient.get()
@@ -1534,6 +1583,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testNewPvpOfPropuesta() {
 		addCosts();
 		webTestClient.get()
@@ -1551,6 +1601,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessNewPvpOfPropuesta() {
 		addCosts();
 		
@@ -1630,6 +1681,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testDeletePvpOfProposal() {
 		addCosts();
 		webTestClient.get()
@@ -1648,6 +1700,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testConfirmDeletePvpsOfProposal() {
 		addCosts();
 		webTestClient.post()
@@ -1679,6 +1732,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessDeletePvpsOfProposal() {
 		addCosts();
 		webTestClient.post()
@@ -1707,6 +1761,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testOrderPvpsOfProposal() {
 		addCosts();
 		webTestClient.get()
@@ -1724,6 +1779,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessOrderPvpsOfProposal() {
 		addCosts();
 		webTestClient.post()
@@ -1753,6 +1809,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testEditPvpsOfProposal() {
 		addCosts();
 		webTestClient.get()
@@ -1771,6 +1828,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessEditPvpsOfProposal() {
 		addCosts();
 		
@@ -1850,6 +1908,7 @@ class ConsultaControllerTestB {
 	 */
 	
 	@Test
+	@WithMockUser
 	void testShowPvpSumsOfProposal() {
 		addCosts();
 		webTestClient.get()
@@ -1870,6 +1929,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testNewPvpSumOfPropuesta() {
 		addCosts();
 		webTestClient.get()
@@ -1888,6 +1948,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessNewPvpSumOfPropuesta() {
 		addCosts();
 		
@@ -1952,6 +2013,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testDeletePvpSumOfProposal() {
 		addCosts();
 		webTestClient.get()
@@ -1970,6 +2032,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testConfirmDeletePvpSumOfProposal() {
 		addCosts();
 		webTestClient.post()
@@ -2001,6 +2064,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessDeletePvpSumOfProposal() {
 		addCosts();
 		webTestClient.post()
@@ -2029,6 +2093,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testOrderPvpSumsOfProposal() {
 		addCosts();
 		webTestClient.get()
@@ -2046,6 +2111,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessOrderPvpSumsOfProposal() {
 		addCosts();
 		webTestClient.post()
@@ -2075,6 +2141,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testEditPvpSumsOfProposal() {
 		addCosts();
 		webTestClient.get()
@@ -2093,6 +2160,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessEditPvpSumsOfProposal() {
 		addCosts();
 		
@@ -2166,6 +2234,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testEditPvpOfProposal() {
 		addCosts();
 		
@@ -2185,6 +2254,7 @@ class ConsultaControllerTestB {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessEditPvpOfProposal() {
 		addCosts();
 		

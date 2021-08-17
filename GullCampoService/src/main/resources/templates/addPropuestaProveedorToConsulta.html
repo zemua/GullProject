@@ -9,6 +9,8 @@
 
 <h1>Nueva Propuesta Recibida</h1>
 
+	<div><a th:href="@{/consultas/revisar/id/{cid}/onprop/{pid}/importcotizacion(cid=${consultaId},pid=${propClienteId})}">importar</a></div>
+
 	<form method="POST" id="propuestaform" th:object="${wrapPropuestaProveedorAndSelectableAttributes}">
 	
 		<div th:if="${#fields.hasErrors()}">

@@ -10,6 +10,8 @@
 
 <h1>Todas Las Consultas</h1>
 
+	<div><a th:href="@{/logout}">Desconectarse</a></div>
+
 	<div>
 		<p>
 			<a th:href="@{/consultas/nuevo}">Crear nueva consulta</a> - <a th:href="@{/atributos/todos}">Atributos</a>
@@ -38,6 +40,14 @@
 			<span> - </span>
 			<a th:href="@{'/consultas/revisar/id/' + ${a.id}}">revisar</a>
 		</div>
+	</div>
+	
+	<div>
+		<a th:href="@{/consultas/all(p=${page-1},s=${size})}" th:if="${page > 0}">Página Anterior</a>
+		<span th:unless="${page > 0}">Página Anterior</span>
+		<span> - </span>
+		<a th:href="@{/consultas/all(p=${page+1},s=${size})}" th:if="${(page+1)*size < total}"> Página Siguiente</a>
+		<span th:unless="${(page+1)*size < total}">Página Siguiente</span>
 	</div>
 
 </body>

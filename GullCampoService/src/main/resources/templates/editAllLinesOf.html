@@ -32,6 +32,9 @@
 							<th th:each="t : ${consulta.operations().getPropuestaById(propuestaId).getAttributeColumns()}">
 								<span th:text="${t.getName()}"></span>
 							</th>
+							<th th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'CLIENTE'}">
+								<span th:text="Cantidad"></span>
+							</th>
 							<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'PROVEEDOR'}">
 							<th th:each="t, tstat : ${consulta.operations().getPropuestaById(propuestaId).getCostes()}">
 								<span th:text="${t.name}"></span>
@@ -60,6 +63,10 @@
 								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].linea.campos[__${tstat.index}__].atributoId}"/>
 								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].linea.campos[__${tstat.index}__].datos}" class="field-input"/>
 							</td>
+							<td th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'CLIENTE'}" class="field" th:classappend="${#fields.hasErrors('*{lineaWithAttListDtos[__${ystat.index}__].linea.qty}') ? 'error' : ''}">
+								<span th:text="${a.linea.qty}" class="field-text is-int" contenteditable="true"></span>
+								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].linea.qty}" class="field-input"/>
+							</td>
 							<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'PROVEEDOR'}">
 							<td th:each="t, tstat : ${consulta.operations().getPropuestaById(propuestaId).getCostes()}" class="field" th:classappend="${#fields.hasErrors('*{lineaWithAttListDtos[__${ystat.index}__].costesProveedor[__${tstat.index}__].id}') ? 'error' : '' }">
 								<span th:text="${a.linea.operations().getCosteByCosteId(t.getId()).value}" class="field-text is-double" contenteditable="true"></span>
@@ -77,7 +84,12 @@
 
 	<script type="text/javascript" th:src="@{/js/jquery/jquery-3.6.0.min.js}"></script>
 	<script type="text/javascript" th:src="@{/js/scripts/tableEditable.js}"></script>
+	<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'PROVEEDOR'}">
 	<script type="text/javascript" th:src="@{/js/scripts/forceValidation.js}"></script>
+	</th:block>
+	<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'CLIENTE'}">
+	<script type="text/javascript" th:src="@{/js/scripts/forceInt.js}"></script>
+	</th:block>
 
 </body>
 </html>

@@ -76,6 +76,7 @@ public class Linea implements MyOperable<LineaOperations> {
 		if (lin.order != null) {this.order = lin.order.intValue();}
 		this.parentId = lin.parentId;
 		this.propuestaId = lin.propuestaId;
+		this.qty = lin.qty;
 		lin.getCampos().stream().forEach(c -> this.campos.add(new Campo<>(c)));
 		if (lin.getPvpSums() != null) {
 			this.pvpSums = new ArrayList<>();

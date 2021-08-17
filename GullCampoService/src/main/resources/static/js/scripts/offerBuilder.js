@@ -113,6 +113,10 @@ function exportar(cabeceras, pvpstop, campos, pvpfield, lineas) {
 	pvpstop.each(function() {
 		if ($(this).prev().is(":checked")) {
 			texto += $(this).text();
+			texto += " (ud)";
+			texto += "\t";
+			texto += $(this).text();
+			texto += " (tot)";
 			texto += "\t";
 		}
 	});

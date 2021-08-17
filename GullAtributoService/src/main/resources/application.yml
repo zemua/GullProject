@@ -1,3 +1,14 @@
+gull:
+  authscheme: http
+  authport: 9000
+  authhost: localhost
+  eurekauser: mockUser
+  eurekapass: mockPass
+  eurekascheme: http
+  eurekahost: localhost
+  eurekaport: 8761
+jwk:
+  endpoint: ${gull.authscheme}://${gull.authhost}:${gull.authport}/auth/realms/master/protocol/openid-connect/certs
 spring:
   data:
     mongodb:
@@ -5,14 +16,19 @@ spring:
       database: test
   application:
     name: atributo-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${gull.authscheme}://${gull.authhost}:${gull.authport}/auth/realms/master
 server:
   port: 0
 eureka:
   instance:
-    hostname: localhost
+    hostname: ${gull.eurekahost}
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${gull.eurekascheme}://${gull.eurekauser}:${gull.eurekapass}@${gull.eurekahost}:${gull.eurekaport}/eureka/
       
 ---
 spring:
@@ -25,4 +41,5 @@ logging:
     org.springframework.web: DEBUG
     org.springframework.test: DEBUG
     org.thymeleaf: DEBUG
+    org.springframework.security: DEBUG
     

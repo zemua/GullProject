@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.config.HypermediaWebTestClientConfigurer;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -55,6 +56,7 @@ class AtributoRestControllerByIdTest {
 	AtributoRespresentationModelMapperImpl repMapper;*/
 
 	@Test
+	@WithMockUser
 	void testGetAtributoById() {
 		
 		//WebTestClient client = webTestClient.mutateWith(configurer);

@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import devs.mrp.gullproject.domains.Consulta;
@@ -53,6 +54,15 @@ public class ConsultaService {
 		return consultaRepo.findAllByOrderByCreatedTimeDesc();
 	}
 	
+	public Flux<Consulta> findPaginated(int page, int size) {
+		return consultaRepo.findAllByOrderByCreatedTimeDesc()
+				.skip(page*size).take(size);
+	}
+	
+	public Mono<Long> countAll() {
+		return consultaRepo.findAll().count();
+	}
+	
 	public Mono<Consulta> findById(String id) {
 		return consultaRepo.findById(id);
 	}
@@ -62,7 +72,9 @@ public class ConsultaService {
 	}
 	
 	public Mono<Long> deleteById(String id){
-		return consultaRepo.deleteByIdReturningDeletedCount(id);
+		//return consultaRepo.deleteByIdReturningDeletedCount(id); // Error with Spring Security Data
+		return consultaRepo.deleteById(id)
+				.then(Mono.just(1L));
 	}
 	
 	public Mono<Consulta> removePropuesta(String idConsulta, Propuesta propuesta){

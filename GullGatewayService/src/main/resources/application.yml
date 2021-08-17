@@ -1,14 +1,46 @@
+gull:
+  scheme: http
+  host: localhost
+  authscheme: http
+  authport: 9000
+  authhost: localhost
+  authclient: gull-client
+  authsecret: 863fa419-703d-41ac-bc5e-0b07a8125231
+  logouturl: ${gull.authscheme}://${gull.authhost}:${gull.authport}/auth/realms/master/protocol/openid-connect/logout?redirect_uri=${gull.scheme}://${gull.host}:${server.port}/consultas/all
+  eurekauser: mockUser
+  eurekapass: mockPass
+  eurekascheme: http
+  eurekahost: localhost
+  eurekaport: 8761
 spring:
   application:
     name: gateway-service
+  security:
+    oauth2:
+      client:
+        registration:
+          login:
+            provider: keycloak
+            client-id: ${gull.authclient}
+            client-secret: ${gull.authsecret}
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope: openid
+        provider:
+          keycloak:
+            token-uri: ${gull.authscheme}://${gull.authhost}:${gull.authport}/auth/realms/master/protocol/openid-connect/token
+            authorization-uri: ${gull.authscheme}://${gull.authhost}:${gull.authport}/auth/realms/master/protocol/openid-connect/auth
+            user-info-uri: ${gull.authscheme}://${gull.authhost}:${gull.authport}/auth/realms/master/protocol/openid-connect/userinfo
+            user-name-attribute: preferred_username
+            jwk-set-uri: ${gull.authscheme}://${gull.authhost}:${gull.authport}/auth/realms/master/protocol/openid-connect/certs
 server:
   port: 8080
 eureka:
   instance:
-    hostname: localhost
+    hostname: ${gull.eurekahost}
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${gull.eurekascheme}://${gull.eurekauser}:${gull.eurekapass}@${gull.eurekahost}:${gull.eurekaport}/eureka/
 
 ---
 spring:
@@ -20,3 +52,4 @@ logging:
     devs.mrp.gullproject: DEBUG
     org.springframework.web: DEBUG
     org.springframework.test: DEBUG
+    org.springframework.security: DEBUG

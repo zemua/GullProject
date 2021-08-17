@@ -26,6 +26,7 @@ function validateDouble(klase) {
 		var content;
 		if ($(this).is("span")) {
 			$(this).text($(this).text().replace(",", "."));
+			$(this).trigger('input');
 			content = $(this).text();
 		} else {
 			$(this).text($(this).val().replace(",", "."));

@@ -246,5 +246,13 @@ public class CustomConsultaRepoImpl implements CustomConsultaRepo {
 		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
 		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
 	}
+
+	@Override
+	public Mono<Consulta> updateAssignedLinesOfProposal(String idPropuesta, int assignedQty) {
+		Query query = new Query(Criteria.where("propuestas.id").is(idPropuesta));
+		Update update = new Update().set("propuestas.$.lineasAsignadas", Integer.valueOf(assignedQty));
+		FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
+		return mongoTemplate.findAndModify(query, update, options, Consulta.class);
+	}
 	
 }

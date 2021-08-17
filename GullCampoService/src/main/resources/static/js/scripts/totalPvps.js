@@ -12,7 +12,7 @@ function updateMargin(pvpHolder) {
 
 function reload(sumatorioEl) {
 	var label = sumatorioEl.prop("id");
-	var pvps = $("." + label + ".checked");
+	var pvps = $("." + label + ".checked.sumatorio");
 	var amount = totalAmount(pvps);
 	sumatorioEl.children().first().text(amount);
 	updateMargin(sumatorioEl);
@@ -42,7 +42,7 @@ function getTotalCost(costs) {
 function totalAmount(pvps) {
 	var resultado = 0;
 	pvps.each(function() {
-		var content = $(this).val().replace(",", ".");
+		var content = $(this).text().replace(",", ".");
 		if ($.isNumeric(content)){
 			resultado = resultado + Number(content.trim());
 		}

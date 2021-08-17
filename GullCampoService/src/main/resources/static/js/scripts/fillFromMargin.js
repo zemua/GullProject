@@ -56,6 +56,11 @@ function setPvp(marginEl, cost) {
 		marginEl.parent().css("background-color", "red");
 		marginEl.css("background-color", "red");
 	}
+	var pvpsum = pvpEl.parent().next().children().first();
+	var qty = pvpEl.parent().parent().find(".qtyfield").first().text();
+	var sumval = pvpEl.val()*qty;
+	sumval = sumval.toFixed(2);
+	pvpsum.text(sumval);
 }
 
 $(document).ready(function() {

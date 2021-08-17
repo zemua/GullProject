@@ -19,11 +19,13 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
 import devs.mrp.gullproject.configuration.MapperConfig;
+import devs.mrp.gullproject.configuration.ResourceServerSecurityConfig;
 import devs.mrp.gullproject.controller.linea.LineaController;
 import devs.mrp.gullproject.domains.Consulta;
 import devs.mrp.gullproject.domains.ConsultaFactory;
@@ -45,15 +47,18 @@ import devs.mrp.gullproject.domainsdto.linea.AtributoForLineaFormDto;
 import devs.mrp.gullproject.domainsdto.linea.LineaWithSelectorDto;
 import devs.mrp.gullproject.domainsdto.linea.WrapLineasWithSelectorDto;
 import devs.mrp.gullproject.domainsdto.propuesta.AtributoForFormDto;
+import devs.mrp.gullproject.repository.ConsultaRepo;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.AttRemaperUtilities;
 import devs.mrp.gullproject.service.CompoundedConsultaLineaService;
 import devs.mrp.gullproject.service.ConsultaService;
+import devs.mrp.gullproject.service.facade.ConsultaAndLinesFacade;
 import devs.mrp.gullproject.service.facade.SupplierLineFinderByProposalAssignation;
 import devs.mrp.gullproject.service.linea.LineByAssignationRetrieverFactory;
 import devs.mrp.gullproject.service.linea.LineaOperations;
 import devs.mrp.gullproject.service.linea.LineaService;
 import devs.mrp.gullproject.service.linea.LineaUtilities;
+import devs.mrp.gullproject.service.linea.cliente.QtyRemapperUtilitiesImpl;
 import devs.mrp.gullproject.service.linea.oferta.PvpMapperByAssignedLineFactory;
 import devs.mrp.gullproject.service.linea.proveedor.CostRemapperUtilities;
 import devs.mrp.gullproject.service.propuesta.ProposalIdsMergerFactory;
@@ -68,7 +73,7 @@ import reactor.core.publisher.Mono;
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = LineaController.class)
 @AutoConfigureWebTestClient
-@Import({MapperConfig.class, LineaUtilities.class, AttRemaperUtilities.class, CostRemapperUtilities.class, PropuestaProveedorUtilities.class, PvpMapperByAssignedLineFactory.class, SupplierLineFinderByProposalAssignation.class, ConsultaImpl.class, ConsultaFactory.class, ProposalIdsMergerFactory.class, PropuestaProveedorExtractor.class, FromPropuestaToProveedorFactory.class, LineByAssignationRetrieverFactory.class, LineaFactory.class})
+@Import({MapperConfig.class, LineaUtilities.class, AttRemaperUtilities.class, CostRemapperUtilities.class, PropuestaProveedorUtilities.class, PvpMapperByAssignedLineFactory.class, SupplierLineFinderByProposalAssignation.class, ConsultaImpl.class, ConsultaFactory.class, ProposalIdsMergerFactory.class, PropuestaProveedorExtractor.class, FromPropuestaToProveedorFactory.class, LineByAssignationRetrieverFactory.class, LineaFactory.class, ResourceServerSecurityConfig.class, QtyRemapperUtilitiesImpl.class, ConsultaAndLinesFacade.class})
 class LineaControllerTest {
 	
 	WebTestClient webTestClient;
@@ -84,6 +89,7 @@ class LineaControllerTest {
 	@MockBean
 	AtributoServiceProxyWebClient atributoService;
 	@MockBean CompoundedConsultaLineaService compoundedService;
+	@MockBean ConsultaRepo consultaRepo;
 	
 	@Autowired
 	public LineaControllerTest(WebTestClient webTestClient, LineaController lineaController, ModelMapper modelMapper) {
@@ -153,6 +159,7 @@ class LineaControllerTest {
 		linea1Operations = new LineaOperations(linea1);
 		linea1Operations.addCampo(campo1a);
 		linea1Operations.addCampo(campo1b);
+		linea1.setQty(12);
 		linea1.setNombre("nombre linea 1");
 		linea1.setPropuestaId(propuesta.getId());
 		
@@ -166,6 +173,7 @@ class LineaControllerTest {
 		linea2Operations = new LineaOperations(linea2);
 		linea2Operations.addCampo(campo2a);
 		linea2Operations.addCampo(campo2b);
+		linea2.setQty(23);
 		linea2.setNombre("nombre linea 2");
 		linea2.setPropuestaId(propuesta.getId());
 		
@@ -289,6 +297,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testShowAllLinesOf() {
 		when(lineaService.findByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(flux);
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
@@ -343,6 +352,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testAddLineaToPropuesta() {
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
 		when(consultaService.findAttributesByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(fluxAttsPropuesta);
@@ -390,6 +400,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessAddLineaToPropuesta() {
 		List<Linea> lns = new ArrayList<>();
 		lns.add(linea1);
@@ -558,6 +569,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testRevisarLinea() {
 		when(lineaService.findById(ArgumentMatchers.eq(linea1.getId()))).thenReturn(Mono.just(linea1));
 		propuesta.getAttributeColumns().clear();
@@ -614,6 +626,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessRevisarLinea() {
 		propuesta.operations().addAttribute(atributo2);
 		propuesta.operations().addAttribute(atributo3);
@@ -748,6 +761,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testDeleteLinea() {
 		when(lineaService.findById(linea1.getId())).thenReturn(Mono.just(linea1));
 		
@@ -768,8 +782,9 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessDeleteLinea() {
-		when(lineaService.deleteLineaById(linea1.getId())).thenReturn(Mono.just(1L));
+		when(lineaService.deleteLineaById(linea1.getId())).thenReturn(Mono.empty());
 		webTestClient.post()
 		.uri("/lineas/delete/id/" + linea1.getId())
 		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -784,11 +799,12 @@ class LineaControllerTest {
 		.consumeWith(response -> {
 			Assertions.assertThat(response.getResponseBody()).asString()
 			.contains("Borrar Linea")
-			.contains("1 lineas borradas");
+			.contains("Líneas borradas");
 		});
 	}
 	
 	@Test
+	@WithMockUser
 	void testDeleteLineasOf() {
 		when(lineaService.findByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(flux);
 		when(consultaService.findConsultaByPropuestaId(propuesta.getId())).thenReturn(Mono.just(consulta));
@@ -836,6 +852,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessDeleteLinesOf() {
 		when(consultaService.findConsultaByPropuestaId(propuesta.getId())).thenReturn(Mono.just(consulta));
 		webTestClient.post()
@@ -931,6 +948,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessConfirmDeleteLinesOf() {
 		when(lineaService.deleteVariasLineas(ArgumentMatchers.any(Flux.class))).thenReturn(Mono.empty());
 		when(consultaService.removeVariasLineasDePropuesta(ArgumentMatchers.eq(propuesta.getId()), ArgumentMatchers.anyList())).thenReturn(Mono.just(1L));
@@ -954,6 +972,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testOrderAllLinesOf() {
 		propuesta.operations().addAttribute(atributo1);
 		propuesta.operations().addAttribute(atributo2);
@@ -979,6 +998,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessOrderallLinesOf() {
 		Map<String, Integer> map = new HashMap<>();
 		map.put(linea1.getId(), linea1.getOrder());
@@ -1004,6 +1024,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testBulkAddLineasToPropuesta() {
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
 		
@@ -1022,6 +1043,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessBulkAddLineasToPropuesta() {
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
 		when(consultaService.findAttributesByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(atributo1, atributo2));
@@ -1089,6 +1111,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testVerifyBulkAddLineasToPropuesta() {
 		when(consultaService.findAttributesByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Flux.just(atributo1, atributo2));
 		when(consultaService.findPropuestaByPropuestaId(ArgumentMatchers.eq(propuesta.getId()))).thenReturn(Mono.just(propuesta));
@@ -1108,12 +1131,16 @@ class LineaControllerTest {
 			.accept(MediaType.TEXT_HTML)
 			.body(BodyInserters.fromFormData("name[0]", "")
 					.with("name[1]", "2")
+					.with("name[2]", "")
 					.with("strings[0]", propuesta.getAttributeColumns().get(0).getId())
 					.with("strings[1]", propuesta.getAttributeColumns().get(1).getId())
+					.with("strings[2]", LineaController.qtyvalue)
 					.with("stringListWrapper[0].string[0]", campo1a.getDatosText())
 					.with("stringListWrapper[0].string[1]", campo1b.getDatosText())
+					.with("stringListWrapper[0].string[2]", "23")
 					.with("stringListWrapper[1].string[0]", campo2a.getDatosText())
 					.with("stringListWrapper[1].string[1]", campo2b.getDatosText())
+					.with("stringListWrapper[1].string[2]", "43")
 					)
 			.exchange()
 			.expectStatus().isOk()
@@ -1252,9 +1279,43 @@ class LineaControllerTest {
 				.contains("Corrige los errores")
 				.contains("Estos campos tienen un valor incorrecto");
 			});
+		
+		
+		log.debug("should give error on qty");
+		webTestClient.post()
+			.uri("/lineas/of/" + propuesta.getId() + "/bulk-add/verify")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.accept(MediaType.TEXT_HTML)
+			.body(BodyInserters.fromFormData("name[0]", "")
+					.with("name[1]", "2")
+					.with("name[2]", "")
+					.with("strings[0]", propuesta.getAttributeColumns().get(0).getId())
+					.with("strings[1]", propuesta.getAttributeColumns().get(1).getId())
+					.with("strings[2]", LineaController.qtyvalue)
+					.with("stringListWrapper[0].string[0]", campo1a.getDatosText())
+					.with("stringListWrapper[0].string[1]", campo1b.getDatosText())
+					.with("stringListWrapper[0].string[2]", "2as")
+					.with("stringListWrapper[1].string[0]", campo2a.getDatosText())
+					.with("stringListWrapper[1].string[1]", campo2b.getDatosText())
+					.with("stringListWrapper[1].string[2]", "43")
+					)
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> {
+				Assertions.assertThat(response.getResponseBody()).asString()
+				.contains(campo1a.getDatosText())
+				.contains(campo1b.getDatosText())
+				.contains(campo2a.getDatosText())
+				.contains(campo2b.getDatosText())
+				.doesNotContain("Lineas añadidas")
+				.contains("Corrige los errores")
+				;
+			});
 	}
 	
 	@Test
+	@WithMockUser
 	void testEditAllLinesOf() {		
 		webTestClient.get()
 			.uri("/lineas/allof/propid/" + propuesta.getId() + "/edit")
@@ -1297,6 +1358,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessEditAllLinesOf() {
 		log.debug("should be ok");
 		webTestClient.post()
@@ -1598,9 +1660,84 @@ class LineaControllerTest {
 				.doesNotContain("Guardar");
 			});
 			;
+			
+			log.debug("should be ok with qty");
+			webTestClient.post()
+				.uri("/lineas/allof/propid/" + propuesta.getId() + "/edit")
+				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+				.accept(MediaType.TEXT_HTML)
+				.body(BodyInserters.fromFormData("lineaWithAttListDtos[0].linea.nombre", linea1.getNombre())
+						.with("lineaWithAttListDtos[0].linea.id", linea1.getId())
+						.with("lineaWithAttListDtos[0].linea.propuestaId", linea1.getPropuestaId())
+						.with("lineaWithAttListDtos[0].linea.order", String.valueOf(linea1.getOrder()))
+						.with("lineaWithAttListDtos[0].linea.qty", "321")
+						
+						.with("lineaWithAttListDtos[1].linea.nombre", linea2.getNombre())
+						.with("lineaWithAttListDtos[1].linea.id", linea2.getId())
+						.with("lineaWithAttListDtos[1].linea.propuestaId", linea2.getPropuestaId())
+						.with("lineaWithAttListDtos[1].linea.order", String.valueOf(linea2.getOrder()))
+						.with("lineaWithAttListDtos[0].linea.qty", "456")
+						
+						.with("lineaWithAttListDtos[0].attributes[0].value", campo1a.getDatosText())
+						.with("lineaWithAttListDtos[0].attributes[0].localIdentifier", atributo1.getLocalIdentifier())
+						.with("lineaWithAttListDtos[0].attributes[0].id", atributo1.getId())
+						.with("lineaWithAttListDtos[0].attributes[0].name", atributo1.getName())
+						.with("lineaWithAttListDtos[0].attributes[0].tipo", atributo1.getTipo())
+						
+						.with("lineaWithAttListDtos[0].attributes[1].value", campo1b.getDatosText())
+						.with("lineaWithAttListDtos[0].attributes[1].localIdentifier", atributo2.getLocalIdentifier())
+						.with("lineaWithAttListDtos[0].attributes[1].id", atributo2.getId())
+						.with("lineaWithAttListDtos[0].attributes[1].name", atributo2.getName())
+						.with("lineaWithAttListDtos[0].attributes[1].tipo", atributo2.getTipo())
+						
+						.with("lineaWithAttListDtos[1].attributes[0].value", campo2a.getDatosText())
+						.with("lineaWithAttListDtos[1].attributes[0].localIdentifier", atributo1.getLocalIdentifier())
+						.with("lineaWithAttListDtos[1].attributes[0].id", atributo1.getId())
+						.with("lineaWithAttListDtos[1].attributes[0].name", atributo1.getName())
+						.with("lineaWithAttListDtos[1].attributes[0].tipo", atributo1.getTipo())
+						
+						.with("lineaWithAttListDtos[1].attributes[1].value", campo2b.getDatosText())
+						.with("lineaWithAttListDtos[1].attributes[1].localIdentifier", atributo2.getLocalIdentifier())
+						.with("lineaWithAttListDtos[1].attributes[1].id", atributo2.getId())
+						.with("lineaWithAttListDtos[1].attributes[1].name", atributo2.getName())
+						.with("lineaWithAttListDtos[1].attributes[1].tipo", atributo2.getTipo())
+						
+						.with("lineaWithAttListDtos[0].linea.campos[0].id", campo1a.getId())
+						.with("lineaWithAttListDtos[0].linea.campos[0].atributoId", campo1a.getAtributoId())
+						.with("lineaWithAttListDtos[0].linea.campos[0].datos", campo1a.getDatosText())
+						
+						.with("lineaWithAttListDtos[0].linea.campos[1].id", campo1b.getId())
+						.with("lineaWithAttListDtos[0].linea.campos[1].atributoId", campo1b.getAtributoId())
+						.with("lineaWithAttListDtos[0].linea.campos[1].datos", campo1b.getDatosText())
+						
+						.with("lineaWithAttListDtos[1].linea.campos[0].id", campo2a.getId())
+						.with("lineaWithAttListDtos[1].linea.campos[0].atributoId", campo2a.getAtributoId())
+						.with("lineaWithAttListDtos[1].linea.campos[0].datos", campo2a.getDatosText())
+						
+						.with("lineaWithAttListDtos[1].linea.campos[1].id", campo2b.getId())
+						.with("lineaWithAttListDtos[1].linea.campos[1].atributoId", campo2b.getAtributoId())
+						.with("lineaWithAttListDtos[1].linea.campos[1].datos", campo2b.getDatosText())
+						)
+				.exchange()
+				.expectStatus().isOk()
+				.expectBody()
+				.consumeWith(response -> {
+					Assertions.assertThat(response.getResponseBody()).asString()
+					.contains(linea1.getNombre())
+					.contains(linea2.getNombre())
+					.contains(campo1a.getDatosText())
+					.contains(campo1b.getDatosText())
+					.contains(campo2a.getDatosText())
+					.contains(campo2b.getDatosText())
+					.contains("Editar lineas de la propuesta")
+					.doesNotContain("Corrige los errores")
+					.doesNotContain("Guardar");
+				});
+				;
 	}
 	
 	@Test
+	@WithMockUser
 	void testRenameAllLinesOf() {
 		webTestClient.get()
 			.uri("/lineas/allof/propid/" + propuesta.getId() + "/rename")
@@ -1645,6 +1782,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessRenameAllLinesOf() {
 		log.debug("should be ok");
 		webTestClient.post()
@@ -1739,6 +1877,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testRemapValuesGeneral() {
 		webTestClient.get()
 		.uri("/lineas/allof/propid/" + propuesta.getId() + "/remap")
@@ -1782,6 +1921,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testRemapValuesAttColumn() {
 		webTestClient.get()
 		.uri("/lineas/allof/propid/" + propuesta.getId() + "/remap/" + atributo1.getLocalIdentifier())
@@ -1801,6 +1941,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessRemapValuesAttColumn() {
 		Linea lineaA;
 		lineaA = lineaFactory.from(linea1);
@@ -1883,6 +2024,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testRemapCosts() {
 		addCosteToLineas();
 		webTestClient.get()
@@ -1903,6 +2045,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessRemapCost() {
 		addCosteToLineas();
 		CosteLineaProveedor coste = linea1.getCostesProveedor().get(0);
@@ -1948,6 +2091,59 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
+	void testRemapQty() {
+		webTestClient.get()
+		.uri("/lineas/allof/propid/"+propuesta.getId()+"/remapqty")
+		.accept(MediaType.TEXT_HTML)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+			.contains(String.valueOf(linea1.getQty()))
+			.contains(String.valueOf(linea2.getQty()))
+			.doesNotContain(linea1.getCampos().get(1).getDatosText())
+			.doesNotContain(linea2.getCampos().get(1).getDatosText())
+			;
+		})
+		;
+	}
+	
+	@Test
+	@WithMockUser
+	void testProcessRemapQty() {
+		Linea lineaA;
+		lineaA = lineaFactory.from(linea1);
+		lineaA.setQty(11);
+		
+		Linea lineaB;
+		lineaB = lineaFactory.from(linea2);
+		lineaB.setQty(22);
+		
+		when(lineaService.updateLinea(ArgumentMatchers.any(Linea.class))).thenReturn(Mono.just(lineaA));
+		
+		webTestClient.post()
+		.uri("/lineas/allof/propid/"+propuesta.getId()+"/remapqty")
+		.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+		.accept(MediaType.TEXT_HTML)
+		.body(BodyInserters.fromFormData("remapers[0].before", String.valueOf(linea1.getQty()))
+				.with("remappers[0].after", "11")
+				
+				.with("remappers[1].after", "22")
+				.with("remappers[1].before", String.valueOf(linea2.getQty()))
+				)
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody()
+		.consumeWith(response -> {
+			Assertions.assertThat(response.getResponseBody()).asString()
+			.contains("Remapeado");
+		});
+	}
+	
+	@Test
+	@WithMockUser
 	void testAssignCounterLine() {
 		addCosteToLineas();
 		webTestClient.get()
@@ -2017,6 +2213,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessAssignCounterLineByOrder() {
 		addCosteToLineas();
 		
@@ -2026,6 +2223,7 @@ class LineaControllerTest {
 		lineawithcounter.setCounterLineId(list);
 		when(lineaService.updateCounterLineId(ArgumentMatchers.eq(linea1.getId()), ArgumentMatchers.anyList())).thenReturn(Mono.just(lineawithcounter));
 		when(lineaService.updateCounterLineId(ArgumentMatchers.eq(linea2.getId()), ArgumentMatchers.anyList())).thenReturn(Mono.just(lineawithcounter));
+		when(consultaRepo.updateAssignedLinesOfProposal(ArgumentMatchers.eq(propuestaProveedor.getId()), ArgumentMatchers.anyInt())).thenReturn(Mono.just(consulta));
 		
 		webTestClient.post()
 		.uri("/lineas/allof/propid/" + propuestaProveedor.getId() + "/counter-line")
@@ -2045,6 +2243,7 @@ class LineaControllerTest {
 	}
 	
 	@Test
+	@WithMockUser
 	void testProcessAssignCounterLineByName() {
 		addCosteToLineas();
 		

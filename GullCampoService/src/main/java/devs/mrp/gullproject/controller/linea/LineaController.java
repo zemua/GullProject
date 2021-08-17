@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,7 @@ import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
 import devs.mrp.gullproject.domainsdto.StringWrapper;
 import devs.mrp.gullproject.domainsdto.linea.LineaWithAttListDto;
 import devs.mrp.gullproject.domainsdto.linea.MultipleLineaWithAttListDto;
+import devs.mrp.gullproject.domainsdto.linea.QtyRemapperWrapper;
 import devs.mrp.gullproject.domainsdto.linea.StringListOfListsWrapper;
 import devs.mrp.gullproject.domainsdto.linea.WrapLineasDto;
 import devs.mrp.gullproject.domainsdto.linea.WrapLineasWithSelectorDto;
@@ -37,9 +40,11 @@ import devs.mrp.gullproject.domainsdto.propuesta.AttRemapersWrapper;
 import devs.mrp.gullproject.service.AtributoServiceProxyWebClient;
 import devs.mrp.gullproject.service.AttRemaperUtilities;
 import devs.mrp.gullproject.service.ConsultaService;
+import devs.mrp.gullproject.service.facade.ConsultaAndLinesFacade;
 import devs.mrp.gullproject.service.facade.SupplierLineFinderByProposalAssignation;
 import devs.mrp.gullproject.service.linea.LineaService;
 import devs.mrp.gullproject.service.linea.LineaUtilities;
+import devs.mrp.gullproject.service.linea.cliente.QtyRemapperUtilities;
 import devs.mrp.gullproject.service.linea.oferta.PvpMapperByAssignedLineFactory;
 import devs.mrp.gullproject.service.linea.oferta.PvpMapperByCounterLineFactory;
 import devs.mrp.gullproject.service.linea.proveedor.CostRemapperUtilities;
@@ -61,10 +66,14 @@ public class LineaController {
 	LineaUtilities lineaUtilities;
 	AttRemaperUtilities attRemaperUtilities;
 	CostRemapperUtilities costRemapperUtilities;
+	@Autowired QtyRemapperUtilities qtyRemapperUtilities;
 	PropuestaProveedorUtilities propuestaProveedorUtilities;
 	MyFinder<Flux<Linea>, String> supplierLineFinderByProposalAssignation;
 	@Autowired LineaFactory lineaFactory;
 	@Autowired PvpMapperByCounterLineFactory<Linea> pvpMapperByLineFactory;
+	@Autowired ConsultaAndLinesFacade consLineFacade;
+	
+	public static final String qtyvalue = "qty-value";
 
 	@Autowired
 	public LineaController(LineaService lineaService, ConsultaService consultaService,
@@ -203,6 +212,26 @@ public class LineaController {
 			.then(Mono.just("processRemapCost"));
 	}
 	
+	@GetMapping("/allof/propid/{propuestaId}/remapqty")
+	public Mono<String> remapQty(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+		Mono<QtyRemapperWrapper> remapers = lineaUtilities.getQtyRemappersFromPropuesta(propuestaId);
+		model.addAttribute("qtyRemapperWrapper", remapers);
+		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+		model.addAttribute("consulta",	consulta);
+		model.addAttribute("propuestaId", propuestaId);
+		return Mono.just("remapQty");
+	}
+	
+	@PostMapping("/allof/propid/{propuestaId}/remapqty")
+	public Mono<String> processRemapQty(@Valid QtyRemapperWrapper qtyRemapperWrapper, BindingResult bindingResult, Model model, @PathVariable(name = "propuestaId") String propuestaId) {
+		model.addAttribute("qtyRemapperWrapper", qtyRemapperWrapper);
+		Mono<Consulta> consulta = consultaService.findConsultaByPropuestaId(propuestaId);
+		model.addAttribute("consulta", consulta);
+		model.addAttribute("propuestaId", propuestaId);
+		return qtyRemapperUtilities.remapLineasQty(qtyRemapperWrapper.getRemappers(), propuestaId)
+				.then(Mono.just("processRemapQty"));
+	}
+	
 	@GetMapping("/allof/propid/{propuestaId}/edit")
 	public String editAllLinesOf(Model model, @PathVariable(name = "propuestaId") String propuestaId) {
 		Mono<MultipleLineaWithAttListDto> lineaDtos = lineaUtilities.getWrappedLineasWithAttListDtoFromPropuestaId(propuestaId);
@@ -312,6 +341,7 @@ public class LineaController {
 			}
 			model.addAttribute("propuesta", rPro);
 			model.addAttribute("propuestaId", rPro.getId());
+			model.addAttribute("qtyvalue", qtyvalue);
 			return "processBulkAddLineasToPropuesta";
 		});
 	}
@@ -323,6 +353,7 @@ public class LineaController {
 		Mono<Propuesta> propuesta = consultaService.findPropuestaByPropuestaId(propuestaId);
 		model.addAttribute("propuesta", propuesta);
 		model.addAttribute("propuestaId", propuestaId);
+		model.addAttribute("qtyvalue", qtyvalue);
 		try {
 			log.debug("going to find errors");
 			return lineaUtilities.addBulkTableErrorsToBindingResult(stringListOfListsWrapper, propuestaId, bindingResult)
@@ -422,13 +453,13 @@ public class LineaController {
 	@PostMapping("/delete/id/{lineaid}")
 	public String processDeleteLinea(@ModelAttribute("linea") Linea linea, Model model,
 			@PathVariable(name = "lineaid") String lineaId) {
-		Mono<Long> deleteCount;
+		Mono<Void> deleteCount;
 		if (linea.getId().equals(lineaId)) {
 			log.debug("deleting linea: " + linea.toString());
 			deleteCount = lineaService.deleteLineaById(lineaId);
 		} else {
 			log.debug("ids don't match: " + lineaId + " and " + linea.getId());
-			deleteCount = Mono.just(0L);
+			deleteCount = Mono.just(null);
 		}
 		model.addAttribute("deleteCount", deleteCount);
 		model.addAttribute("idPropuesta", linea.getPropuestaId());
@@ -498,6 +529,11 @@ public class LineaController {
 						return lineaService.updateCounterLineId(tuple.getT1().getId(), counter);
 					});
 				})
+				.then(consLineFacade.updateAssignedLinesOfProposal(propuestaId))
+					.map(cant -> {
+						log.debug("cantidad of assigned lines: " + cant);
+						return cant;
+					})
 				.then(Mono.just("assignCounterLineByOrder"))
 				;
 	}
