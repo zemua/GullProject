@@ -286,10 +286,15 @@ class AssignLinesInOfferControllerTest {
 				.contains(lineaCliente2.getNombre())
 				.contains(lineaCliente1.getCampos().get(0).getDatosText())
 				.contains(lineaCliente2.getCampos().get(1).getDatosText())
-				.contains(String.valueOf(linea1.getPvp().getPvp()))
+				/*.contains(String.valueOf(linea1.getPvp().getPvp()))
 				.contains(String.valueOf(linea2.getPvp().getPvp()))
 				.contains(String.valueOf(linea3.getPvp().getPvp()))
-				.contains(String.valueOf(linea4.getPvp().getPvp()))
+				.contains(String.valueOf(linea4.getPvp().getPvp()))*/
+				// decimal format "5555,00"
+				.contains("5555,00")
+				.contains("6666,00")
+				.contains("7777,00")
+				.contains("8888,00")
 				;
 			})
 			;
@@ -435,10 +440,15 @@ class AssignLinesInOfferControllerTest {
 				.contains(linea2.getCampos().get(1).getDatosText())
 				.contains(linea3.getCampos().get(0).getDatosText())
 				.contains(linea4.getCampos().get(1).getDatosText())
-				.contains(String.valueOf(linea1.getPvp().getPvp()))
+				/*.contains(String.valueOf(linea1.getPvp().getPvp()))
 				.contains(String.valueOf(linea2.getPvp().getPvp()))
 				.contains(String.valueOf(linea3.getPvp().getPvp()))
-				.contains(String.valueOf(linea4.getPvp().getPvp()))
+				.contains(String.valueOf(linea4.getPvp().getPvp()))*/
+				// in decimal format 12,43
+				.contains("5555,00")
+				.contains("6666,00")
+				.contains("7777,00")
+				.contains("8888,00")
 				;
 			})
 			;
