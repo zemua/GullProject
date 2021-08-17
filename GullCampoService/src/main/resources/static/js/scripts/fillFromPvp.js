@@ -59,7 +59,9 @@ function setMargins(pvpEl, cost) {
 }
 
 function setPvpSum(pvp, qty, sum) {
-	sum.text(pvp * qty);
+	var result = pvp * qty;
+	result = result.toFixed(2);
+	sum.text(result);
 }
 
 $(document).ready(function() {
@@ -76,7 +78,7 @@ $(document).ready(function() {
 		} else {
 			$(this).val("");
 		}
-		setPvpSum(precio, qty, pvpsum);
+		setPvpSum(Number(precio), qty, pvpsum);
 	});
 	pvps.trigger("input");
 });
