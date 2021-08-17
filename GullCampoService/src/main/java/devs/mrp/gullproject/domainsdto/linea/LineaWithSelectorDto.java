@@ -43,7 +43,11 @@ public class LineaWithSelectorDto {
 	}
 	
 	public CosteLineaProveedor getCosteByCosteId(String costeId) {
-		Optional<CosteLineaProveedor> csot = costesProveedor.stream().filter(c -> c.getCosteProveedorId().equals(costeId)).findAny();
+		Optional<CosteLineaProveedor> csot = costesProveedor.stream().filter(c -> {
+			var cos = c.getCosteProveedorId();
+			if (cos == null) { return false; }
+			return c.getCosteProveedorId().equals(costeId);
+		}).findAny();
 		return csot.orElse(new CosteLineaProveedor(costeId));
 	}
 	
