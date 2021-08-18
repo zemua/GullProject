@@ -69,6 +69,16 @@ public class LineaOperations {
 		}
 	}
 	
+	public Integer getIndexByAttId(String attId) {
+		var campos = linea.getCampos();
+		for (int i =0; i<campos.size(); i++) {
+			if (campos.get(i).getAtributoId().equals(attId)) {
+				return i;
+			}
+		}
+		return null;
+	}
+	
 	public boolean replaceCampo(String atributoId, Campo<?> c) {
 		boolean removed = false;
 		Iterator<Campo<?>> it = linea.getCampos().iterator();

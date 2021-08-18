@@ -59,9 +59,9 @@
 								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].attributes[__${tstat.index}__].id}"/>
 								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].attributes[__${tstat.index}__].name}"/>
 								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].attributes[__${tstat.index}__].tipo}"/>
-								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].linea.campos[__${tstat.index}__].id}"/>
-								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].linea.campos[__${tstat.index}__].atributoId}"/>
-								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].linea.campos[__${tstat.index}__].datos}" class="field-input"/>
+								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].linea.campos[__${a.linea.operations().getIndexByAttId(t.id)}__].id}"/>
+								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].linea.campos[__${a.linea.operations().getIndexByAttId(t.id)}__].atributoId}"/>
+								<input type="hidden" th:field="*{lineaWithAttListDtos[__${ystat.index}__].linea.campos[__${a.linea.operations().getIndexByAttId(t.id)}__].datos}" class="field-input"/>
 							</td>
 							<td th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'CLIENTE'}" class="field" th:classappend="${#fields.hasErrors('*{lineaWithAttListDtos[__${ystat.index}__].linea.qty}') ? 'error' : ''}">
 								<span th:text="${a.linea.qty}" class="field-text is-int" contenteditable="true"></span>

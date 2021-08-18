@@ -184,6 +184,7 @@ public class LineaUtilities {
 	
 	public Flux<LineaWithAttListDto> assertBindingResultOfWrappedMultipleLines(MultipleLineaWithAttListDto multipleLineaWithAttListDto, BindingResult bindingResult) {
 		return Flux.fromIterable(multipleLineaWithAttListDto.getLineaWithAttListDtos()).index().flatMap(rTuple -> {
+			log.debug("tupla index " + rTuple.getT1() + " valor " + rTuple.getT2()); // T1 is index, T2 is line
 			return assertBindingResultOfListDto(rTuple.getT2(), bindingResult, "lineaWithAttListDtos[" + rTuple.getT1() + "].attributes")
 					.then(Mono.just(assertNameBindingResultOfListDto(rTuple.getT2(), bindingResult, "lineaWithAttListDtos[" + rTuple.getT1() + "].linea.nombre")))
 					.then(Mono.just(rTuple.getT2()));
@@ -246,6 +247,7 @@ public class LineaUtilities {
 		return Mono.just(lineaWithAttListDto.getAttributes()).map(rAttList -> {
 			for (int i = 0; i < rAttList.size(); i++) {
 				map.put(rAttList.get(i), i);
+				log.debug("attribute " + rAttList.get(i) + " set to position " + i);
 			}
 			return rAttList;
 		}).flatMapMany(rAttList -> Flux.fromIterable(rAttList)).flatMap(rAtt -> {
@@ -263,7 +265,9 @@ public class LineaUtilities {
 							}
 							log.debug("tipo " + rAtt.getTipo());
 							if (rAtt.getTipo().equals("DECIMAL")) {
+								log.debug("ensuring value is decimal for " + rAtt.toString());
 								rAtt.setValue(rAtt.getValue().replace(",", "."));
+								log.debug("after update " + rAtt.toString());
 							}
 							return rBool;
 						});
