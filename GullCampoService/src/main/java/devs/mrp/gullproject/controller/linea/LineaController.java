@@ -424,6 +424,7 @@ public class LineaController {
 				.flatMap(rBindingResult -> {
 					if (rBindingResult.hasErrors()) {
 						model.addAttribute("lineaWithAttListDto", lineaWithAttListDto);
+						model.addAttribute("propuesta", consultaService.findPropuestaByPropuestaId(lineaWithAttListDto.getLinea().getPropuestaId()));
 						return Mono.just("reviewLinea");
 					} else {
 						Mono<Linea> l1;
