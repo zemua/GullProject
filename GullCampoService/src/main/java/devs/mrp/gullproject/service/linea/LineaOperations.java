@@ -69,14 +69,17 @@ public class LineaOperations {
 		}
 	}
 	
-	public Integer getIndexByAttId(String attId) {
+	public int getIndexByAttId(String attId) {
 		var campos = linea.getCampos();
 		for (int i =0; i<campos.size(); i++) {
 			if (campos.get(i).getAtributoId().equals(attId)) {
 				return i;
 			}
 		}
-		return null;
+		var cextra = new Campo<String>();
+		cextra.setAtributoId(attId);
+		campos.add(cextra);
+		return campos.size()-1;
 	}
 	
 	public boolean replaceCampo(String atributoId, Campo<?> c) {
