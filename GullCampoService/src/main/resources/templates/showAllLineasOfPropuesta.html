@@ -32,7 +32,7 @@
 				<th>Nombre</th>
 				<th>Enlace</th>
 				<th th:each="t : ${consulta.operations().getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${t.getName()}"></span></th>
-				<td><span>Cantidad</span></td>
+				<td th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'CLIENTE'}"><span>Cantidad</span></td>
 				<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'CLIENTE' and mapa.keySet().size() > 0}">
 				<td><span>Incluida:</span></td>
 				<td th:each="prop : ${mapa.keySet()}"><span th:text="${consulta.operations().getPropuestaById(prop).getNombre()}"></span></td>
@@ -47,7 +47,7 @@
 				<td th:text="${a.nombre}"></td>
 				<td><a th:href="@{'/lineas/revisar/id/' + ${a.id}}">revisar</a></td>
 				<td th:each="t : ${consulta.operations().getPropuestaById(propuestaId).getAttributeColumns()}"><span th:text="${a.operations().getValueByAttId(t.getId())}"></span></td>
-				<td><span th:text="${a.qty != null ? a.qty : 1}"></span></td>
+				<td th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'CLIENTE'}"><span th:text="${a.qty != null ? a.qty : 1}"></span></td>
 				<th:block th:if="${consulta.operations().getPropuestaById(propuestaId).tipoPropuesta.toString() == 'CLIENTE' and mapa.keySet().size() > 0}">
 				<td th:if="${astat.index == 0}" rowspan="0"></td>
 				<td th:each="prop : ${mapa.keySet()}"><span th:if="${mapa.get(prop).contains(a.getId())}">X</span></td>
