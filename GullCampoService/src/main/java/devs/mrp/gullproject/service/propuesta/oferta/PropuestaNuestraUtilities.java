@@ -10,8 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import devs.mrp.gullproject.domains.Consulta;
+import devs.mrp.gullproject.domains.propuestas.Propuesta;
 import devs.mrp.gullproject.domains.propuestas.PropuestaNuestra;
 import devs.mrp.gullproject.domains.propuestas.Pvper;
+import devs.mrp.gullproject.domains.propuestas.PvperSum;
 import devs.mrp.gullproject.domainsdto.propuesta.oferta.PvpOrdenable;
 import devs.mrp.gullproject.domainsdto.propuesta.oferta.PvperCheckbox;
 import devs.mrp.gullproject.domainsdto.propuesta.oferta.PvpsCheckboxWrapper;
@@ -24,6 +26,28 @@ public class PropuestaNuestraUtilities {
 	
 	@Autowired ConsultaService consultaService;
 	@Autowired FromPropuestaToOfertaFactory toOf;
+	
+	public Mono<Consulta> orderPvpsInEachSum(Propuesta propuesta, List<Pvper> pvps) throws Exception {
+		if (!(propuesta instanceof PropuestaNuestra)) { throw new Exception("proposal is not an offer"); }
+		var sums = ((PropuestaNuestra)propuesta).getSums();
+		var iterator = sums.listIterator();
+		while(iterator.hasNext()) {
+			var sum = iterator.next();
+			orderPvps(sum, pvps);
+		}
+		return consultaService.updatePvpSumsOfPropuesta(propuesta.getId(), sums);
+	}
+	
+	private PvperSum orderPvps(PvperSum sum, List<Pvper> pvps) {
+		List<String> ids = new ArrayList<>();
+		pvps.stream().forEach(p -> {
+			if (sum.getPvperIds().contains(p.getId())) {
+				ids.add(p.getId());
+			}
+		});
+		sum.setPvperIds(ids);
+		return sum;
+	}
 	
 	public Mono<Consulta> keepUnselectedPvps(String idPropuesta, PvpsCheckboxWrapper wrapper) {
 		return consultaService.removeReferenceToSelectedPvpsFromSums(idPropuesta, wrapper)

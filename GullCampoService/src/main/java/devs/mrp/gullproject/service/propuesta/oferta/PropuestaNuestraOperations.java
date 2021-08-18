@@ -238,10 +238,10 @@ public class PropuestaNuestraOperations extends PropuestaOperations {
 					boxed.setId(sum.getId());
 					boxed.setName(sum.getName());
 					boxed.setPvperIds(new ArrayList<>());
-					map.keySet().stream().forEach(id -> {
+					propuestaNuestra.getPvps().stream().forEach(spvp -> {
 						PvperSumCheckboxedPvps.CheckboxedPvperId pvp = new PvperSumCheckboxedPvps.CheckboxedPvperId();
-						pvp.setId(id);
-						if (ifPvperSumHasPvp(sum, id)) {
+						pvp.setId(spvp.getId());
+						if (ifPvperSumHasPvp(sum, spvp.getId())) {
 							pvp.setSelected(true);
 						} else {
 							pvp.setSelected(false);

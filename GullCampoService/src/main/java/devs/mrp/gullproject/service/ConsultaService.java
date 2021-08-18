@@ -318,16 +318,6 @@ public class ConsultaService {
 			;
 	}
 	
-	/*public Mono<Consulta> keepUnselectedPvps(String idPropuesta, PvpsCheckboxWrapper wrapper) {
-		return removeReferenceToSelectedPvpsFromSums(idPropuesta, wrapper)
-		.thenMany(removeReferenceToSelectedPvpsFromLineas(idPropuesta, wrapper))
-		.then(Mono.just(idPropuesta))
-		.flatMap(rStr -> {
-			List<Pvper> pvps = wrapper.getPvps().stream().filter(p -> !p.isSelected()).map(p -> modelMapper.map(p, Pvper.class)).collect(Collectors.toList());
-			return updatePvpsOfPropuesta(idPropuesta, pvps);
-		});
-	}*/
-	
 	public Mono<Consulta> updatePvpSumsOfPropuesta(String idPropuesta, List<PvperSum> sums) {
 		return consultaRepo.updatePvpSumsOfPropuesta(idPropuesta, sums);
 	}

@@ -707,13 +707,21 @@ public class ConsultaController {
 		return ofertaUtils.fromPvpsOrdenablesToPvper(proposalId, pvpsOrdenablesWrapper.getPvps())
 				.flatMap(xpvps -> {
 					return consultaService.updatePvpsOfPropuesta(proposalId, xpvps)
-						.map(cons -> {
+						.flatMap(cons -> {
 							Propuesta prop = cons.operations().getPropuestaById(proposalId);
-							model.addAttribute("consulta", cons);
-							model.addAttribute("propuesta", prop);
-							model.addAttribute("pvps", ((PropuestaNuestra)prop).getPvps());
-							model.addAttribute("map", cons.operations().mapIdToCosteProveedor());
-							return "processOrderPvpsOfProposal";
+							try {
+								return ofertaUtils.orderPvpsInEachSum(prop, xpvps)
+										.map(rCons -> {
+											model.addAttribute("consulta", cons);
+											model.addAttribute("propuesta", prop);
+											model.addAttribute("pvps", ((PropuestaNuestra)prop).getPvps());
+											model.addAttribute("map", cons.operations().mapIdToCosteProveedor());
+											return "processOrderPvpsOfProposal";
+										});
+							} catch (Exception e) {
+								e.printStackTrace();
+								return null;
+							}
 						})
 						;
 				});
