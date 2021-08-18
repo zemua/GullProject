@@ -261,6 +261,10 @@ public class LineaUtilities {
 										"error." + attsRoute + "[" + pos + "]",
 										"El valor no es correcto para este atributo.");
 							}
+							log.debug("tipo " + rAtt.getTipo());
+							if (rAtt.getTipo().equals("DECIMAL")) {
+								rAtt.setValue(rAtt.getValue().replace(",", "."));
+							}
 							return rBool;
 						});
 			} else {
