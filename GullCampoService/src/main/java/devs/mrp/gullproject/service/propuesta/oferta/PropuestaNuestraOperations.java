@@ -62,11 +62,6 @@ public class PropuestaNuestraOperations extends PropuestaOperations {
 		return propuestaNuestra.getPvps().stream().map(p -> modelMapper.map(p, PvpOrdenable.class)).collect(Collectors.toList());
 	}
 	
-	public static List<Pvper> fromPvpsOrdenablesToPvper(ModelMapper modelMapper, List<PvpOrdenable> pvps) {
-		pvps.sort((p1, p2) -> Integer.valueOf(p1.getOrder()).compareTo(p2.getOrder()));
-		return pvps.stream().map(p -> modelMapper.map(p, Pvper.class)).collect(Collectors.toList());
-	}
-	
 	public boolean ifPvpHasCost(Pvper pvp, String costId) {
 		if (pvp.getIdCostes() == null) {return false;}
 		Optional<String> tiene = pvp.getIdCostes().stream().filter(c -> c.equals(costId)).findAny();

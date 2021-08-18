@@ -60,6 +60,7 @@ import devs.mrp.gullproject.service.facade.CotizacionCloner;
 import devs.mrp.gullproject.service.linea.LineaService;
 import devs.mrp.gullproject.service.propuesta.PropuestaUtilities;
 import devs.mrp.gullproject.service.propuesta.oferta.PropuestaNuestraOperations;
+import devs.mrp.gullproject.service.propuesta.oferta.PropuestaNuestraUtilities;
 import devs.mrp.gullproject.service.propuesta.proveedor.CotizacionOfCostMapperFactory;
 import devs.mrp.gullproject.service.propuesta.proveedor.PropuestaProveedorOperations;
 import lombok.extern.slf4j.Slf4j;
@@ -88,6 +89,7 @@ public class ConsultaController {
 	@Autowired PvperCheckboxedCostToPvper pvperCheckboxedCostToPvper;
 	@Autowired CotizacionOfCostMapperFactory costToCotiz;
 	@Autowired CotizacionCloner cloner;
+	@Autowired PropuestaNuestraUtilities ofertaUtils;
 	
 	@Autowired
 	public ConsultaController(ConsultaService consultaService, LineaService lineaService, AtributoServiceProxyWebClient atributoService, PropuestaUtilities propuestaUtilities, ModelMapper modelMapper, CompoundedConsultaLineaService compoundedService, ConsultaFactory consultaFactory) {
@@ -699,18 +701,23 @@ public class ConsultaController {
 	}
 	
 	@PostMapping("/pvpsof/propid/{id}/order")
-	public Mono<String> processOrderPvpsOfProposal(PvpsOrdenablesWrapper pvpsOrdenablesWrapper, Model model, @PathVariable(name = "id") String proposalId) {
+	public Mono<String> processOrderPvpsOfProposal(PvpsOrdenablesWrapper pvpsOrdenablesWrapper, Model model, @PathVariable(name = "id") String proposalId) throws Exception {
 		model.addAttribute("propuestaId", proposalId);
-		return consultaService.updatePvpsOfPropuesta(proposalId, PropuestaNuestraOperations.fromPvpsOrdenablesToPvper(modelMapper, pvpsOrdenablesWrapper.getPvps()))
-				.map(cons -> {
-					Propuesta prop = cons.operations().getPropuestaById(proposalId);
-					model.addAttribute("consulta", cons);
-					model.addAttribute("propuesta", prop);
-					model.addAttribute("pvps", ((PropuestaNuestra)prop).getPvps());
-					model.addAttribute("map", cons.operations().mapIdToCosteProveedor());
-					return "processOrderPvpsOfProposal";
-				})
-				;
+		
+		return ofertaUtils.fromPvpsOrdenablesToPvper(proposalId, pvpsOrdenablesWrapper.getPvps())
+				.flatMap(xpvps -> {
+					return consultaService.updatePvpsOfPropuesta(proposalId, xpvps)
+						.map(cons -> {
+							Propuesta prop = cons.operations().getPropuestaById(proposalId);
+							model.addAttribute("consulta", cons);
+							model.addAttribute("propuesta", prop);
+							model.addAttribute("pvps", ((PropuestaNuestra)prop).getPvps());
+							model.addAttribute("map", cons.operations().mapIdToCosteProveedor());
+							return "processOrderPvpsOfProposal";
+						})
+						;
+				});
+				
 	}
 	
 	// BULK EDIT
