@@ -506,10 +506,14 @@ public class LineaUtilities {
 											.flatMap(rPro -> {
 												var operations = rPro.operations();
 												if (operations.ifIsAttributeId(fTupla.attId)) { // if it is an attribute validate it
-												return atributoService.validateDataFormat(fTupla.tipo, fTupla.valor)
+												return atributoService.validateDataFormat(fTupla.tipo, fTupla.valor.replace(",", ".")) // replace with "." in case of decimal
 														.map(rBool -> {
 															log.debug("respuesta de atributo service para tipo " + fTupla.tipo + " y valor " + fTupla.valor + " es " + rBool);
 															fTupla.validado = rBool;
+															if (fTupla.tipo.equals("DECIMAL")) { // if a decimal is written with "," replace with "."
+																var campo = wrapper.getStringListWrapper().get(fTupla.fila).getString().get(fTupla.columna);
+																wrapper.getStringListWrapper().get(fTupla.fila).getString().set(fTupla.columna, campo.replace(",", "."));
+															}
 															return fTupla;
 														});
 												} else if (rPro instanceof PropuestaProveedor && ((PropuestaProveedor)rPro).operationsProveedor().ifIsCosteProveedorId(fTupla.attId)) { // if it is a cost validate double value
