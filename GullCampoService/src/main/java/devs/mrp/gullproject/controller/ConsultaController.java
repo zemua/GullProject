@@ -674,7 +674,7 @@ public class ConsultaController {
 	@PostMapping("/pvpsof/propid/{id}/delete/confirm")
 	public Mono<String> processDeletePvpsOfProposal(PvpsCheckboxWrapper pvpsCheckboxWrapper, Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
-		return consultaService.keepUnselectedPvps(proposalId, pvpsCheckboxWrapper)
+		return ofertaUtils.keepUnselectedPvps(proposalId, pvpsCheckboxWrapper)
 				.map(cons -> {
 					Propuesta prop = cons.operations().getPropuestaById(proposalId);
 					model.addAttribute("consulta", cons);
