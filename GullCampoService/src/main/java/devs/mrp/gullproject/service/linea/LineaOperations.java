@@ -57,7 +57,9 @@ public class LineaOperations {
 				return campo;
 			}
 		}
-		return new Campo<String>(attId, "");
+		var ncampo = new Campo<String>(attId, "");
+		this.linea.getCampos().add(ncampo);
+		return ncampo;
 	}
 	
 	public String getValueByAttId(String attId) {
