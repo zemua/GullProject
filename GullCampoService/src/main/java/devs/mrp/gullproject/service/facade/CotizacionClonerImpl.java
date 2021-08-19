@@ -1,7 +1,9 @@
 package devs.mrp.gullproject.service.facade;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +49,8 @@ public class CotizacionClonerImpl implements CotizacionCloner {
 				return l;
 			});
 		//return lineaService.addVariasLineas(existentes, cloneId); // tries to add also to the proposal and fails because it doesn't exist yet
-		return lineaRepo.saveAll(existentes);
+		//return lineaRepo.saveAll(existentes); // need to add new costs Ids
+		return existentes;
 	}
 	
 	private Mono<PropuestaProveedor> getCotizacion(String propClientId, String cotizacionId, String cloneId, Flux<Linea> lineas) {
@@ -59,25 +62,38 @@ public class CotizacionClonerImpl implements CotizacionCloner {
 					log.debug("into " + prop.toString());
 					prop.setForProposalId(propClientId);
 					prop.setId(cloneId);
-					prop.setCostes(cloneCosts(prop));
+					Map<String, String> idToNew = new HashMap<>();
+					prop.setCostes(cloneCosts(prop, idToNew));
 					prop.setLineaIds(new ArrayList<>());
 					return lineas.map(line -> {
+						updateCostsOfLine(line, idToNew);
 						prop.getLineaIds().add(line.getId());
 						log.debug("added line to proposal: " + line.getId());
 						return line;
-					})
+					}).collectList()
+							.flatMapMany(lines -> {
+								return lineaRepo.saveAll(lines);
+							})
 					.then(consultaService.addPropuesta(c.getId(), prop)
 							.map(cons -> (PropuestaProveedor)cons.operations().getPropuestaById(prop.getId())));
 				});
 	}
 	
-	private List<CosteProveedor> cloneCosts(PropuestaProveedor propuesta) {
+	private List<CosteProveedor> cloneCosts(PropuestaProveedor propuesta, Map<String, String> idtoNew) {
 		List<CosteProveedor> costes = new ArrayList<>();
 		costes.addAll(propuesta.getCostes());
 		costes.stream().forEach(c -> {
-			c.setId(new ObjectId().toString());
+			var newid = new ObjectId().toString();
+			idtoNew.put(c.getId(), newid);
+			c.setId(newid);
 		});
 		return costes;
+	}
+	
+	private void updateCostsOfLine(Linea linea, Map<String, String> idToNew) {
+		linea.getCostesProveedor().stream().forEach(c -> {
+			c.setCosteProveedorId(idToNew.get(c.getCosteProveedorId()));
+		});
 	}
 	
 }
