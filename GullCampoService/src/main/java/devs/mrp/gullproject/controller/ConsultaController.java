@@ -3,6 +3,7 @@ package devs.mrp.gullproject.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -616,7 +617,7 @@ public class ConsultaController {
 	
 	@PostMapping("/pvpsof/propid/{id}/new")
 	public Mono<String> processNewPvpOfPropuesta(@Valid PvperCheckboxedCosts pvperCheckboxedCosts, BindingResult bindingResult, Model model, @PathVariable(name = "id") String proposalId) {
-		var idCostes = pvperCheckboxedCosts.getCosts();
+		var idCostes = pvperCheckboxedCosts.getCosts().stream().filter(c -> c.isSelected()).collect(Collectors.toList());
 		if (idCostes == null || idCostes.size() == 0) {bindingResult.rejectValue("costs", "error.costs", "Selecciona al menos un coste");}
 		model.addAttribute("propuestaId", proposalId);
 		return consultaService.findConsultaByPropuestaId(proposalId)
@@ -626,10 +627,10 @@ public class ConsultaController {
 				var operationsNuestra = ((PropuestaNuestra)prop).operationsNuestra();
 				model.addAttribute("consulta", cons);
 				model.addAttribute("propuesta", prop);
-				model.addAttribute("proveedores", consultaOperations.getPropuestasProveedor());
-				model.addAttribute("costes", consultaOperations.getCostesOfPropuestasProveedor());
-				model.addAttribute("costToCotiz", costToCotiz.from(cons));
+				model.addAttribute("proveedores", consultaOperations.getPropuestasProveedorAssignedTo(prop.getForProposalId()));
+				model.addAttribute("costes", consultaOperations.getCostesOfPropuestasProveedorAssignedTo(prop.getForProposalId()));
 				model.addAttribute("map", consultaOperations.mapIdToCosteProveedor());
+				model.addAttribute("costToCotiz", costToCotiz.from(cons));
 				model.addAttribute("atributos", consultaOperations.getAtributosOfPropuestasProveedorAssignedTo(prop.getForProposalId()));
 				model.addAttribute("pvperCheckboxedCosts", pvperCheckboxedCosts);
 				if (bindingResult.hasErrors()) {
@@ -789,8 +790,8 @@ public class ConsultaController {
 				Pvper pvp = operationsNuestra.getPvpById(pvpId);
 				model.addAttribute("consulta", cons);
 				model.addAttribute("propuesta", prop);
-				model.addAttribute("proveedores", consultaOperations.getPropuestasProveedor());
-				model.addAttribute("costes", consultaOperations.getCostesOfPropuestasProveedor());
+				model.addAttribute("proveedores", consultaOperations.getPropuestasProveedorAssignedTo(prop.getForProposalId()));
+				model.addAttribute("costes", consultaOperations.getCostesOfPropuestasProveedorAssignedTo(prop.getForProposalId()));
 				model.addAttribute("costToCotiz", costToCotiz.from(cons));
 				model.addAttribute("map", consultaOperations.mapIdToCosteProveedor());
 				model.addAttribute("atributos", consultaOperations.getAtributosOfPropuestasProveedorAssignedTo(prop.getForProposalId()));
@@ -815,8 +816,8 @@ public class ConsultaController {
 				Pvper pvp = operationsNuestra.getPvpById(pvpId);
 				model.addAttribute("consulta", cons);
 				model.addAttribute("propuesta", prop);
-				model.addAttribute("proveedores", consultaOperations.getPropuestasProveedor());
-				model.addAttribute("costes", consultaOperations.getCostesOfPropuestasProveedor());
+				model.addAttribute("proveedores", consultaOperations.getPropuestasProveedorAssignedTo(prop.getForProposalId()));
+				model.addAttribute("costes", consultaOperations.getCostesOfPropuestasProveedorAssignedTo(prop.getForProposalId()));
 				model.addAttribute("costToCotiz", costToCotiz.from(cons));
 				model.addAttribute("map", consultaOperations.mapIdToCosteProveedor());
 				model.addAttribute("atributos", consultaOperations.getAtributosOfPropuestasProveedorAssignedTo(prop.getForProposalId()));

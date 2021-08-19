@@ -1,6 +1,7 @@
 package devs.mrp.gullproject.service.facade;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import devs.mrp.gullproject.domains.linea.Linea;
+import devs.mrp.gullproject.domains.propuestas.CosteProveedor;
 import devs.mrp.gullproject.domains.propuestas.PropuestaProveedor;
 import devs.mrp.gullproject.repository.LineaRepo;
 import devs.mrp.gullproject.service.ConsultaService;
@@ -57,6 +59,7 @@ public class CotizacionClonerImpl implements CotizacionCloner {
 					log.debug("into " + prop.toString());
 					prop.setForProposalId(propClientId);
 					prop.setId(cloneId);
+					prop.setCostes(cloneCosts(prop));
 					prop.setLineaIds(new ArrayList<>());
 					return lineas.map(line -> {
 						prop.getLineaIds().add(line.getId());
@@ -66,6 +69,15 @@ public class CotizacionClonerImpl implements CotizacionCloner {
 					.then(consultaService.addPropuesta(c.getId(), prop)
 							.map(cons -> (PropuestaProveedor)cons.operations().getPropuestaById(prop.getId())));
 				});
+	}
+	
+	private List<CosteProveedor> cloneCosts(PropuestaProveedor propuesta) {
+		List<CosteProveedor> costes = new ArrayList<>();
+		costes.addAll(propuesta.getCostes());
+		costes.stream().forEach(c -> {
+			c.setId(new ObjectId().toString());
+		});
+		return costes;
 	}
 	
 }
