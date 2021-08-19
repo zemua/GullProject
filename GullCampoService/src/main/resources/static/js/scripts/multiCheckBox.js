@@ -27,21 +27,26 @@ function markAdjacentDoublesForValidation(slavecheckbox, validables){
 }
 
 function setupClassesforValidation(current, validables) {
-	var text1 = $(current).parent().prev('td').prev('td').children(validables);
-	var text2 = $(current).parent().prev('td').children(validables);
+	var text1 = $(current).parent().prev('td').prev('td').prev('td').children(validables);
+	var text2 = $(current).parent().prev('td').prev('td').children(validables);
+	var text3 = $(current).parent().prev('td').children(validables);
 	var costTexts = $(current).parent().parent().find(".cost-" + $(current).prop("id"));
 	if ($(current).is(':checked')) {
 		text1.addClass("checked");
 		text2.addClass("checked");
+		text3.addClass("checked");
 		costTexts.addClass("checked");
 	} else {
 		text1.removeClass("checked");
 		text2.removeClass("checked");
+		text3.removeClass("checked");
 		costTexts.removeClass("checked");
 		text1.parent().css("background-color", "");
 		text2.parent().css("background-color", "");
+		text3.parent().css("background-color", "");
 		text1.css("background-color", "");
 		text2.css("background-color", "");
+		taxt3.css("background-color", "");
 	}
 }
 
