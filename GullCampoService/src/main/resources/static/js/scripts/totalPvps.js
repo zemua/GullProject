@@ -26,7 +26,7 @@ function match(sumatorioEl) {
 	var totCost = $(".cost-" + label).first();
 	
 	var totalCost = getTotalCost(costs.filter(".checked"));
-	totCost.text(totalCost);
+	totCost.text(totalCost.toFixed(2));
 	var totalPvp = Number(sumatorioEl.children().first().text());
 	updateMargin(sumatorioEl);
 }

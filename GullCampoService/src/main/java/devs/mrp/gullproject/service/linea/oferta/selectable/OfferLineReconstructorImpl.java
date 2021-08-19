@@ -19,7 +19,7 @@ public class OfferLineReconstructorImpl implements OfferLineReconstructor {
 	public List<LineaAbstracta> from(SelectableLinesWrap wrap, LineAttributeConcatenatorForPvp concatenator, List<AtributoForCampo> atributos, String forPropuestaId) {
 		List<LineaAbstracta> lineas = new ArrayList<>();
 		AtomicInteger num = new AtomicInteger(0);
-		wrap.getLineas().stream().filter(l -> l.getSelected()).forEach(lin -> {
+		wrap.getLineas().stream().filter(l -> l.getSelected() != null && l.getSelected()).forEach(lin -> {
 			lin.setCampos(new ArrayList<>());
 			lin.setPropuestaId(forPropuestaId);
 			atributos.forEach(att -> {
