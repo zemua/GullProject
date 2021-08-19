@@ -36,7 +36,6 @@ public class LineaOperations {
 		linea.getCampos().addAll(campos);
 	}
 	
-	@JsonIgnore
 	public int getCantidadCampos() {
 		return linea.getCampos().size();
 	}
