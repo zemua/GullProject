@@ -27,16 +27,16 @@
 			<td rowspan="2"><span data-exportablealways="true">Nombre</span></td>
 			<td th:each="att, attstat : ${propuestaNuestra.attributeColumns}" rowspan="2"><span th:text="${att.name}" data-exportablealways="true"></span></td>
 			<td rowspan="2"><span data-exportablealways="true">Cantidad</span></td>
-			<td th:each="pvp, pvpstat : ${pvps}" colspan="2"><input type="checkbox" th:id="${pvp.id}" class="pvpcheckbox" checked><span th:text="${pvp.name}" data-exportablemaybe="true"></span></td>
-			<td th:each="sum, sumstat : ${sums}" colspan="2"><input type="checkbox" th:id="${sum.id}" class="sumcheckbox" checked><span th:text="${sum.name}" th:class="${#strings.listJoin(sum.pvperIds, ' ')}" data-exportablemaybe="true"></span></td>
+			<td th:each="pvp, pvpstat : ${pvps}" th:if="${pvp.idCostes.size() > 0}" colspan="2"><input type="checkbox" th:id="${pvp.id}" class="pvpcheckbox" checked><span th:text="${pvp.name}" data-exportablemaybe="true"></span></td>
+			<td th:each="sum, sumstat : ${sums}" th:if="${sum.pvperIds.size() > 0}" colspan="2"><input type="checkbox" th:id="${sum.id}" class="sumcheckbox" checked><span th:text="${sum.name}" th:class="${#strings.listJoin(sum.pvperIds, ' ')}" data-exportablemaybe="true"></span></td>
 		</tr>
 		<tr>
 			
-			<th:block th:each="pvp, pvpstat : ${pvps}">
+			<th:block th:each="pvp, pvpstat : ${pvps}" th:if="${pvp.idCostes.size() > 0}">
 			<td><span>Ud.</span></td>
 			<td><span>Tot.</span></td>
 			</th:block>
-			<th:block th:each="sum, sumstat : ${sums}">
+			<th:block th:each="sum, sumstat : ${sums}" th:if="${sum.pvperIds.size() > 0}">
 			<td><span>Ud.</span></td>
 			<td><span>Tot.</span></td>
 			</th:block>
@@ -48,13 +48,13 @@
 				<span th:class="${lc.id + ' ' + att.id + ' concatenation-field'}" data-exportable="true"></span>
 			</td>
 			<td><span th:text="${lc.qty == null ? 1 : lc.qty}" th:class="${lc.id}" data-exportable="true"></span></td>
-			<th:block th:each="pvp, pvpstat : ${pvps}">
-			<td><span th:class="${pvp.id + ' ' + lc.id + ' pvp-value-field'}" th:text="${pvpMapper.findBy(lc.id, pvp.id).pvp}" data-exportablecond="true" th:data-masterid="${pvp.id}"></span></td>
-			<td><span th:class="${pvp.id + ' ' + lc.id + ' pvp-value-field'}" data-exportablecond="true" th:data-masterid="${pvp.id}" th:text="${lc.qty == null ? pvpMapper.findBy(lc.id, pvp.id).pvp : #numbers.formatDecimal(lc.qty * pvpMapper.findBy(lc.id, pvp.id).pvp, 0, 2)}"></span></td>
+			<th:block th:each="pvp, pvpstat : ${pvps}" th:if="${pvp.idCostes.size() > 0}">
+			<td><span th:class="${pvp.id + ' ' + lc.id + ' pvp-value-field'}" th:text="${#numbers.formatDecimal(pvpMapper.findBy(lc.id, pvp.id).pvp, 0, 2)}" data-exportablecond="true" th:data-masterid="${pvp.id}"></span></td>
+			<td><span th:class="${pvp.id + ' ' + lc.id + ' pvp-value-field'}" data-exportablecond="true" th:data-masterid="${pvp.id}" th:text="${lc.qty == null ? #numbers.formatDecimal(pvpMapper.findBy(lc.id, pvp.id).pvp, 0, 2) : #numbers.formatDecimal(lc.qty * pvpMapper.findBy(lc.id, pvp.id).pvp, 0, 2)}"></span></td>
 			</th:block>
-			<th:block th:each="sum, sumstat : ${sums}">
-			<td><span th:class="${sum.id + ' ' + lc.id + ' sum-value-field'}" th:text="${sumMapper.findBy(lc.id, sum.id)}" data-exportablecond="true" th:data-masterid="${sum.id}"></span></td>
-			<td><span th:class="${sum.id + ' ' + lc.id + ' sum-value-field'}" data-exportablecond="true" th:data-masterid="${sum.id}" th:text="${lc.qty == null ? sumMapper.findBy(lc.id, sum.id) : #numbers.formatDecimal(lc.qty * sumMapper.findBy(lc.id, sum.id), 0, 2)}"></span></td>
+			<th:block th:each="sum, sumstat : ${sums}" th:if="${sum.pvperIds.size() > 0}">
+			<td><span th:class="${sum.id + ' ' + lc.id + ' sum-value-field'}" th:text="${#numbers.formatDecimal(sumMapper.findBy(lc.id, sum.id), 0, 2)}" data-exportablecond="true" th:data-masterid="${sum.id}"></span></td>
+			<td><span th:class="${sum.id + ' ' + lc.id + ' sum-value-field'}" data-exportablecond="true" th:data-masterid="${sum.id}" th:text="${lc.qty == null ? #numbers.formatDecimal(sumMapper.findBy(lc.id, sum.id), 0, 2) : #numbers.formatDecimal(lc.qty * sumMapper.findBy(lc.id, sum.id), 0, 2)}"></span></td>
 			</th:block>
 		</tr>
 	</table>

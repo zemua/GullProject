@@ -3,6 +3,7 @@ package devs.mrp.gullproject.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -60,6 +61,7 @@ import devs.mrp.gullproject.service.facade.CotizacionCloner;
 import devs.mrp.gullproject.service.linea.LineaService;
 import devs.mrp.gullproject.service.propuesta.PropuestaUtilities;
 import devs.mrp.gullproject.service.propuesta.oferta.PropuestaNuestraOperations;
+import devs.mrp.gullproject.service.propuesta.oferta.PropuestaNuestraUtilities;
 import devs.mrp.gullproject.service.propuesta.proveedor.CotizacionOfCostMapperFactory;
 import devs.mrp.gullproject.service.propuesta.proveedor.PropuestaProveedorOperations;
 import lombok.extern.slf4j.Slf4j;
@@ -88,6 +90,7 @@ public class ConsultaController {
 	@Autowired PvperCheckboxedCostToPvper pvperCheckboxedCostToPvper;
 	@Autowired CotizacionOfCostMapperFactory costToCotiz;
 	@Autowired CotizacionCloner cloner;
+	@Autowired PropuestaNuestraUtilities ofertaUtils;
 	
 	@Autowired
 	public ConsultaController(ConsultaService consultaService, LineaService lineaService, AtributoServiceProxyWebClient atributoService, PropuestaUtilities propuestaUtilities, ModelMapper modelMapper, CompoundedConsultaLineaService compoundedService, ConsultaFactory consultaFactory) {
@@ -614,7 +617,7 @@ public class ConsultaController {
 	
 	@PostMapping("/pvpsof/propid/{id}/new")
 	public Mono<String> processNewPvpOfPropuesta(@Valid PvperCheckboxedCosts pvperCheckboxedCosts, BindingResult bindingResult, Model model, @PathVariable(name = "id") String proposalId) {
-		var idCostes = pvperCheckboxedCosts.getCosts();
+		var idCostes = pvperCheckboxedCosts.getCosts().stream().filter(c -> c.isSelected()).collect(Collectors.toList());
 		if (idCostes == null || idCostes.size() == 0) {bindingResult.rejectValue("costs", "error.costs", "Selecciona al menos un coste");}
 		model.addAttribute("propuestaId", proposalId);
 		return consultaService.findConsultaByPropuestaId(proposalId)
@@ -624,10 +627,10 @@ public class ConsultaController {
 				var operationsNuestra = ((PropuestaNuestra)prop).operationsNuestra();
 				model.addAttribute("consulta", cons);
 				model.addAttribute("propuesta", prop);
-				model.addAttribute("proveedores", consultaOperations.getPropuestasProveedor());
-				model.addAttribute("costes", consultaOperations.getCostesOfPropuestasProveedor());
-				model.addAttribute("costToCotiz", costToCotiz.from(cons));
+				model.addAttribute("proveedores", consultaOperations.getPropuestasProveedorAssignedTo(prop.getForProposalId()));
+				model.addAttribute("costes", consultaOperations.getCostesOfPropuestasProveedorAssignedTo(prop.getForProposalId()));
 				model.addAttribute("map", consultaOperations.mapIdToCosteProveedor());
+				model.addAttribute("costToCotiz", costToCotiz.from(cons));
 				model.addAttribute("atributos", consultaOperations.getAtributosOfPropuestasProveedorAssignedTo(prop.getForProposalId()));
 				model.addAttribute("pvperCheckboxedCosts", pvperCheckboxedCosts);
 				if (bindingResult.hasErrors()) {
@@ -672,7 +675,7 @@ public class ConsultaController {
 	@PostMapping("/pvpsof/propid/{id}/delete/confirm")
 	public Mono<String> processDeletePvpsOfProposal(PvpsCheckboxWrapper pvpsCheckboxWrapper, Model model, @PathVariable(name = "id") String proposalId) {
 		model.addAttribute("propuestaId", proposalId);
-		return consultaService.keepUnselectedPvps(proposalId, pvpsCheckboxWrapper)
+		return ofertaUtils.keepUnselectedPvps(proposalId, pvpsCheckboxWrapper)
 				.map(cons -> {
 					Propuesta prop = cons.operations().getPropuestaById(proposalId);
 					model.addAttribute("consulta", cons);
@@ -699,18 +702,31 @@ public class ConsultaController {
 	}
 	
 	@PostMapping("/pvpsof/propid/{id}/order")
-	public Mono<String> processOrderPvpsOfProposal(PvpsOrdenablesWrapper pvpsOrdenablesWrapper, Model model, @PathVariable(name = "id") String proposalId) {
+	public Mono<String> processOrderPvpsOfProposal(PvpsOrdenablesWrapper pvpsOrdenablesWrapper, Model model, @PathVariable(name = "id") String proposalId) throws Exception {
 		model.addAttribute("propuestaId", proposalId);
-		return consultaService.updatePvpsOfPropuesta(proposalId, PropuestaNuestraOperations.fromPvpsOrdenablesToPvper(modelMapper, pvpsOrdenablesWrapper.getPvps()))
-				.map(cons -> {
-					Propuesta prop = cons.operations().getPropuestaById(proposalId);
-					model.addAttribute("consulta", cons);
-					model.addAttribute("propuesta", prop);
-					model.addAttribute("pvps", ((PropuestaNuestra)prop).getPvps());
-					model.addAttribute("map", cons.operations().mapIdToCosteProveedor());
-					return "processOrderPvpsOfProposal";
-				})
-				;
+		
+		return ofertaUtils.fromPvpsOrdenablesToPvper(proposalId, pvpsOrdenablesWrapper.getPvps())
+				.flatMap(xpvps -> {
+					return consultaService.updatePvpsOfPropuesta(proposalId, xpvps)
+						.flatMap(cons -> {
+							Propuesta prop = cons.operations().getPropuestaById(proposalId);
+							try {
+								return ofertaUtils.orderPvpsInEachSum(prop, xpvps)
+										.map(rCons -> {
+											model.addAttribute("consulta", cons);
+											model.addAttribute("propuesta", prop);
+											model.addAttribute("pvps", ((PropuestaNuestra)prop).getPvps());
+											model.addAttribute("map", cons.operations().mapIdToCosteProveedor());
+											return "processOrderPvpsOfProposal";
+										});
+							} catch (Exception e) {
+								e.printStackTrace();
+								return null;
+							}
+						})
+						;
+				});
+				
 	}
 	
 	// BULK EDIT
@@ -774,8 +790,8 @@ public class ConsultaController {
 				Pvper pvp = operationsNuestra.getPvpById(pvpId);
 				model.addAttribute("consulta", cons);
 				model.addAttribute("propuesta", prop);
-				model.addAttribute("proveedores", consultaOperations.getPropuestasProveedor());
-				model.addAttribute("costes", consultaOperations.getCostesOfPropuestasProveedor());
+				model.addAttribute("proveedores", consultaOperations.getPropuestasProveedorAssignedTo(prop.getForProposalId()));
+				model.addAttribute("costes", consultaOperations.getCostesOfPropuestasProveedorAssignedTo(prop.getForProposalId()));
 				model.addAttribute("costToCotiz", costToCotiz.from(cons));
 				model.addAttribute("map", consultaOperations.mapIdToCosteProveedor());
 				model.addAttribute("atributos", consultaOperations.getAtributosOfPropuestasProveedorAssignedTo(prop.getForProposalId()));
@@ -800,8 +816,8 @@ public class ConsultaController {
 				Pvper pvp = operationsNuestra.getPvpById(pvpId);
 				model.addAttribute("consulta", cons);
 				model.addAttribute("propuesta", prop);
-				model.addAttribute("proveedores", consultaOperations.getPropuestasProveedor());
-				model.addAttribute("costes", consultaOperations.getCostesOfPropuestasProveedor());
+				model.addAttribute("proveedores", consultaOperations.getPropuestasProveedorAssignedTo(prop.getForProposalId()));
+				model.addAttribute("costes", consultaOperations.getCostesOfPropuestasProveedorAssignedTo(prop.getForProposalId()));
 				model.addAttribute("costToCotiz", costToCotiz.from(cons));
 				model.addAttribute("map", consultaOperations.mapIdToCosteProveedor());
 				model.addAttribute("atributos", consultaOperations.getAtributosOfPropuestasProveedorAssignedTo(prop.getForProposalId()));

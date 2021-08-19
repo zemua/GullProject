@@ -57,7 +57,9 @@ public class LineaOperations {
 				return campo;
 			}
 		}
-		return new Campo<String>(attId, "");
+		var ncampo = new Campo<String>(attId, "");
+		this.linea.getCampos().add(ncampo);
+		return ncampo;
 	}
 	
 	public String getValueByAttId(String attId) {
@@ -67,6 +69,19 @@ public class LineaOperations {
 		} else {
 			return String.valueOf(c.getDatos());
 		}
+	}
+	
+	public int getIndexByAttId(String attId) {
+		var campos = linea.getCampos();
+		for (int i =0; i<campos.size(); i++) {
+			if (campos.get(i).getAtributoId().equals(attId)) {
+				return i;
+			}
+		}
+		var cextra = new Campo<String>();
+		cextra.setAtributoId(attId);
+		campos.add(cextra);
+		return campos.size()-1;
 	}
 	
 	public boolean replaceCampo(String atributoId, Campo<?> c) {
@@ -164,10 +179,17 @@ public class LineaOperations {
 	
 	public CosteLineaProveedor getCosteByCosteId(String costeId) {
 		if (linea.getCostesProveedor() == null) {
-			return new CosteLineaProveedor(costeId);
+			if (linea.getCostesProveedor() == null) { linea.setCostesProveedor(new ArrayList<>()); }
+			var ncost = new CosteLineaProveedor(costeId);
+			linea.getCostesProveedor().add(ncost);
+			return ncost;
 		}
 		Optional<CosteLineaProveedor> cos = linea.getCostesProveedor().stream().filter(c -> c.getCosteProveedorId().equals(costeId)).findFirst();
-		return cos.orElse(new CosteLineaProveedor(costeId));
+		var ncos = cos.orElse(new CosteLineaProveedor(costeId));
+		if (cos.isEmpty()) {
+			this.linea.getCostesProveedor().add(ncos);
+		}
+		return ncos;
 	}
 	
 	public boolean ifHasCost(String costId) {

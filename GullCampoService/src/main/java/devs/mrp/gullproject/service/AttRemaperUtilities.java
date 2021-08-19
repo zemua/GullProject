@@ -32,7 +32,7 @@ public class AttRemaperUtilities {
 	}
 	
 	public Mono<Boolean> validateAttRemaper(AttRemaper attRemaper) {
-		return atributoService.validateDataFormat(attRemaper.getTipo(), attRemaper.getAfter());
+		return atributoService.validateDataFormat(attRemaper.getTipo(), attRemaper.getAfter().replace(",", ".")); // replace "," by "." for decimals
 	}
 	
 	public Flux<Boolean> validateAttRemapers(List<AttRemaper> remapers, BindingResult bindingResult, String errorRoute) {
@@ -61,6 +61,9 @@ public class AttRemaperUtilities {
 					return Flux.fromIterable(remapers)
 						.map(rMapper -> {
 							rMapper.setClase(rClase);
+							if (rClase.equalsIgnoreCase("Double")) {
+								rMapper.setAfter(rMapper.getAfter().replace(",", "."));
+							}
 							rMapper.setAfterObj(ClassDestringfier.toObject(rMapper.getClase(), rMapper.getAfter()));
 							return rMapper;
 						})

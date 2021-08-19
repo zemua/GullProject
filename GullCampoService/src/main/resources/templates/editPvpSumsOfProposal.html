@@ -34,7 +34,7 @@
 			<table>
 				<tr>
 					<th>Nombre</th>
-					<th th:each="c : ${map.keySet()}" th:text="${map.get(c).name}"></th>
+					<th th:each="c : ${pvps}" th:text="${map.get(c.id).name}"></th>
 				</tr>
 				<tr th:each="a, astat : *{sums}">
 					<td class="field" th:classappend="${#fields.hasErrors('*{sums[__${astat.index}__].name}') ? 'error' : '' }">
@@ -42,7 +42,7 @@
 						<input type="hidden" th:field="*{sums[__${astat.index}__].id}"/>
 						<input type="hidden" th:field="*{sums[__${astat.index}__].name}" class="field-input"/>
 					</td>
-					<td th:each="c, cstat : ${map.keySet()}" class="texto-centro" th:classappend="${#fields.hasErrors('*{sums[__${astat.index}__].pvperIds[__${cstat.index}__].id}') ? 'error' : '' }">
+					<td th:each="c, cstat : ${pvps}" class="texto-centro" th:classappend="${#fields.hasErrors('*{sums[__${astat.index}__].pvperIds[__${cstat.index}__].id}') ? 'error' : '' }">
 						<input type="checkbox" th:field="*{sums[__${astat.index}__].pvperIds[__${cstat.index}__].selected}">
 						<input type="hidden" th:field="*{sums[__${astat.index}__].pvperIds[__${cstat.index}__].id}"/>
 					</td>

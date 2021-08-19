@@ -30,6 +30,17 @@
       							th:errors="*{linea.nombre}">Selecciona un nombre</span>
       				</td>
 				</tr>
+				<th:block th:if="${propuesta.tipoPropuesta.toString() == 'CLIENTE'}">
+				<tr>
+					<td><span>Qty:</span></td>
+					<td>
+						<input type="number" min="1" step="1" th:field="*{linea.qty}"/>
+						<span class="validationError"
+      							th:if="${#fields.hasErrors('${lineaWithAttListDto.linea.qty}')}"
+      							th:errors="*{linea.qty}">Selecciona una cantidad</span>
+					</td>
+				</tr>
+				</th:block>
 				<tr class="texto-centro"><td colspan="2">ATRIBUTOS</td></tr>
 				<tr class="atribute-group" th:each="t, stat : *{attributes}">
 					<td>

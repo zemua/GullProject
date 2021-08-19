@@ -37,6 +37,7 @@ import devs.mrp.gullproject.domainsdto.propuesta.proveedor.CostesCheckboxWrapper
 import devs.mrp.gullproject.repository.ConsultaRepo;
 import devs.mrp.gullproject.repository.CustomConsultaRepo;
 import devs.mrp.gullproject.repository.LineaRepo;
+import devs.mrp.gullproject.service.propuesta.oferta.PropuestaNuestraUtilities;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -55,6 +56,7 @@ class ConsultaServiceTest {
 	
 	@Autowired LineaFactory lineaFactory;
 	@Autowired ConsultaFactory consultaFactory;
+	@Autowired PropuestaNuestraUtilities ofertaUtils;
 	
 	@Autowired
 	public ConsultaServiceTest(ConsultaService consultaService, ConsultaRepo consultaRepo, ModelMapper modelMapper, LineaRepo lineaRepo) {
@@ -472,7 +474,7 @@ class ConsultaServiceTest {
 		wrapper.getPvps().add(modelMapper.map(pvp2, PvperCheckbox.class));
 		wrapper.getPvps().get(0).setSelected(true);
 		wrapper.getPvps().get(1).setSelected(false);
-		consultaService.keepUnselectedPvps(propuestaNuestra.getId(), wrapper).block();
+		ofertaUtils.keepUnselectedPvps(propuestaNuestra.getId(), wrapper).block();
 		
 		StepVerifier.create(prop)
 			.assertNext(p ->{

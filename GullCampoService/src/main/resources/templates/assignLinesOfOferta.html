@@ -28,7 +28,7 @@
 			<table>
 				<tr> <!-- Linea de botones -->
 					<th class="noborders texto-izquierda" th:colspan="${propuestaCliente.getAttributeColumns().size() + 2}"><button id="limpiar-filtros">Limpiar filtros</button></th>
-					<th:block th:each="pvp, pvpstat : ${propuestaNuestra.getPvps()}">
+					<th:block th:each="pvp, pvpstat : ${propuestaNuestra.getPvps()}"  th:if="${pvp.idCostes.size() > 0}">
 					<th class="noborders" rowspan="0"></th>
 					<th th:colspan="${proposalCostMapperToPVp.findBy(pvp.id).size() *2 - 1}" class="noborders"></th>
 					<th class="noborders"><button class="bulk-fill">Rellenar</button></th>
@@ -38,9 +38,8 @@
 					<th class="noborders" rowspan="0"></th>
 				</tr>
 				<tr> <!-- Linea de filtros y cabecera superior -->
-					<th th:each="i, istat : ${#numbers.sequence(0, propuestaCliente.getAttributeColumns().size())}" class="filtro field nopadding" th:id="${'filter-index' + istat.index}"><input type="text" class="field-text width100"></th>
-					<th class="filtro field nopadding" th:id="${'filter-indexQty'}"><input type="text" class="field-text width100"></th>
-					<th:block th:each="pvp, pvpstat : ${propuestaNuestra.getPvps()}">
+					<th th:each="i, istat : ${#numbers.sequence(0, propuestaCliente.getAttributeColumns().size()+1)}" class="filtro field nopadding" th:id="${'filter-index' + istat.index}"><input type="text" class="field-text width100"></th>
+					<th:block th:each="pvp, pvpstat : ${propuestaNuestra.getPvps()}" th:if="${pvp.idCostes.size() > 0}">
 					<td th:colspan="${proposalCostMapperToPVp.findBy(pvp.id).size()*2}" class="texto-centro"><span>Costes</span></td>
 					<td><span>Margen</span></td>
 					<td colspan="2"><span>PVP</span></td>
@@ -48,10 +47,10 @@
 					</th:block>
 				</tr>
 				<tr> <!-- Linea de cabeceras -->
-					<th>Nombre</th>
+					<th><span>Nombre</span></th>
 					<th th:each="t : ${propuestaCliente.getAttributeColumns()}"><span th:text="${t.getName()}"></span></th>
 					<th><span>Cantidad</span></th>
-					<th:block th:each="pvp : ${propuestaNuestra.getPvps()}">
+					<th:block th:each="pvp : ${propuestaNuestra.getPvps()}"  th:if="${pvp.idCostes.size() > 0}">
 					<td colspan="2" th:each="cost : ${proposalCostMapperToPVp.findBy(pvp.id)}"><span th:text="${cost.name}"></span></td>
 					<td><span>%</span></td>
 					<td colspan="3"><span th:text="${pvp.name}"></span></td>
@@ -60,11 +59,11 @@
 				<tr th:each="a, astat : ${lineasCliente}" class="line-container"> <!-- Linea de campos -->
 					<td><span th:text="${a.nombre}" th:class="${'filter-index0'}"></span></td>
 					<td th:each="t, tstat : ${propuestaCliente.getAttributeColumns()}"><span th:text="${a.operations().getValueByAttId(t.getId())}" th:class="${'filter-index' + (tstat.index + 1)}"></span></td>
-					<td><span th:text="${a.qty == null ? 1 : a.qty}" class="qtyfield"></span></td> <!-- Qty -->
-					<th:block th:each="pvp, pvpstat : ${propuestaNuestra.getPvps()}">
+					<td><span th:text="${a.qty == null ? 1 : a.qty}" th:class="${'qtyfield filter-index' + (propuestaCliente.getAttributeColumns().size() + 1)}"></span></td> <!-- Qty -->
+					<th:block th:each="pvp, pvpstat : ${propuestaNuestra.getPvps()}"  th:if="${pvp.idCostes.size() > 0}">
 					<th:block th:each="cost : ${proposalCostMapperToPVp.findBy(pvp.id)}"> <!-- COST by line -->
-					<td><span th:text="${lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) > 0 ? lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) : ''}" th:class="${'cost-field is-double-checkable cost-margin-input-field-' + astat.index + '-' + pvpstat.index + ' cost-pvp-input-field-' + astat.index + '-' + pvpstat.index + ' cost-slavecheck' + pvpstat.index}"></span></td>
-					<td><span th:text="${a.qty == null ? lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) : lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) * a.qty}" th:class="${'is-double-checkable costbreakdown-tot-pvp' + pvpstat.index  + ' cost-slavecheck' + pvpstat.index}"></span></td>
+					<td><span th:text="${lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) > 0 ? #numbers.formatDecimal(lineCostByCostIdMapper.getByDupla(a.getId(), cost.id),1,2,'POINT') : ''}" th:class="${'cost-field is-double-checkable cost-margin-input-field-' + astat.index + '-' + pvpstat.index + ' cost-pvp-input-field-' + astat.index + '-' + pvpstat.index + ' cost-slavecheck' + pvpstat.index}"></span></td>
+					<td><span th:text="${a.qty == null ? #numbers.formatDecimal(lineCostByCostIdMapper.getByDupla(a.getId(), cost.id),1,2,'POINT') : #numbers.formatDecimal(lineCostByCostIdMapper.getByDupla(a.getId(), cost.id) * a.qty,1,2,'POINT')}" th:class="${'is-double-checkable costbreakdown-tot-pvp' + pvpstat.index  + ' cost-slavecheck' + pvpstat.index}"></span></td>
 					</th:block>
 					<td class="field nopadding"> <!-- Margin -->
 						<input type="text" th:field="*{lineas[__${astat.index + lineasCliente.size() * pvpstat.index}__].pvp.margen}" th:value="${pvpMapper.findBy(a.id, pvp.id).margen > 0 ? pvpMapper.findBy(a.id, pvp.id).margen : ''}" th:id="${'margin-input-field-' + astat.index + '-' + pvpstat.index}" th:class="${'noborders field-text is-double-checkable width100 margin-input-field margin-index' + pvpstat.index + ' margin-pvp-input-field-' + astat.index + '-' + pvpstat.index}">
@@ -93,7 +92,7 @@
 				</tr>
 				<tr> <!-- Linea de totales -->
 					<td class="noborders texto-izquierda" th:colspan="${propuestaCliente.getAttributeColumns().size() + 2}"></td>
-					<th:block th:each="pvp, pvpstat : ${propuestaNuestra.getPvps()}">
+					<th:block th:each="pvp, pvpstat : ${propuestaNuestra.getPvps()}"  th:if="${pvp.idCostes.size() > 0}">
 					<td th:colspan="${proposalCostMapperToPVp.findBy(pvp.id).size()*2}"><span th:text="${totalCostMapper.forPvp(pvp.id)}" th:class="${'texto-centro cost-tot-pvp' + pvpstat.index}"></span></td>
 					<td><span th:class="${'margin-tot-pvp' + pvpstat.index}"></span></td>
 					<td class="pvp-totaller" colspan="3" th:id="${'tot-pvp' + pvpstat.index}"><span></span></td>
@@ -103,9 +102,13 @@
 		</div>
 	</form>
 	
+	<div id="notification" style="display: none;">
+		<span class="dismiss"><a title="cerrar notificacion">x</a></span>
+	</div>
+	
 	<script type="text/javascript" th:src="@{/js/jquery/jquery-3.6.0.min.js}"></script>
 	<script type="text/javascript" th:src="@{/js/scripts/tableEditable.js}"></script>
-	<script type="text/javascript" th:src="@{/js/scripts/forceValidation.js}"></script>
+	<script type="text/javascript" th:src="@{/js/scripts/forceValidationOffer.js}"></script>
 	<script type="text/javascript" th:src="@{/js/scripts/multiCheckBox.js}"></script>
 	<script type="text/javascript" th:src="@{/js/scripts/filterByColumn.js}"></script>
 	<script type="text/javascript" th:src="@{/js/scripts/bulkFill.js}"></script>

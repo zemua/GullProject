@@ -184,6 +184,7 @@ public class LineaUtilities {
 	
 	public Flux<LineaWithAttListDto> assertBindingResultOfWrappedMultipleLines(MultipleLineaWithAttListDto multipleLineaWithAttListDto, BindingResult bindingResult) {
 		return Flux.fromIterable(multipleLineaWithAttListDto.getLineaWithAttListDtos()).index().flatMap(rTuple -> {
+			log.debug("tupla index " + rTuple.getT1() + " valor " + rTuple.getT2()); // T1 is index, T2 is line
 			return assertBindingResultOfListDto(rTuple.getT2(), bindingResult, "lineaWithAttListDtos[" + rTuple.getT1() + "].attributes")
 					.then(Mono.just(assertNameBindingResultOfListDto(rTuple.getT2(), bindingResult, "lineaWithAttListDtos[" + rTuple.getT1() + "].linea.nombre")))
 					.then(Mono.just(rTuple.getT2()));
@@ -246,6 +247,7 @@ public class LineaUtilities {
 		return Mono.just(lineaWithAttListDto.getAttributes()).map(rAttList -> {
 			for (int i = 0; i < rAttList.size(); i++) {
 				map.put(rAttList.get(i), i);
+				log.debug("attribute " + rAttList.get(i) + " set to position " + i);
 			}
 			return rAttList;
 		}).flatMapMany(rAttList -> Flux.fromIterable(rAttList)).flatMap(rAtt -> {
@@ -260,6 +262,12 @@ public class LineaUtilities {
 								bindingResult.rejectValue(attsRoute + "[" + pos + "].id",
 										"error." + attsRoute + "[" + pos + "]",
 										"El valor no es correcto para este atributo.");
+							}
+							log.debug("tipo " + rAtt.getTipo());
+							if (rAtt.getTipo().equals("DECIMAL")) {
+								log.debug("ensuring value is decimal for " + rAtt.toString());
+								rAtt.setValue(rAtt.getValue().replace(",", "."));
+								log.debug("after update " + rAtt.toString());
 							}
 							return rBool;
 						});
@@ -369,9 +377,17 @@ public class LineaUtilities {
 	private StringListOfListsWrapper stringListOfListsFromPropuestaAndLineas(Propuesta propuesta, List<Linea> lineas) {
 		StringListOfListsWrapper wrap = new StringListOfListsWrapper();
 		wrap.setStrings(propuesta.getAttributeColumns().stream().map(att -> att.getName()).collect(Collectors.toList()));
-		propuesta.getAttributeColumns().stream().forEach(att -> wrap.getName().add(null));
+		log.debug("tenemos una lista de " + wrap.getStrings().size() + " strings tal que " + wrap.getStrings().toString());
+		propuesta.getAttributeColumns().stream().forEach(att -> {
+			log.debug("we add name field for one att " + att.toString());
+			wrap.getName().add(null);
+		});
 		if (propuesta instanceof PropuestaProveedor) {
-			((PropuestaProveedor)propuesta).getCostes().stream().forEach(cos -> wrap.getName().add(null));
+			((PropuestaProveedor)propuesta).getCostes().stream().forEach(cos -> {
+				log.debug("we add name field for one cost " + cos.toString());
+				wrap.getName().add(null);
+				wrap.getStrings().add(cos.getName());
+			});
 		}
 		lineas.stream().forEach(sLine -> {
 			LineaOperations sLineOp = sLine.operations();
@@ -494,10 +510,14 @@ public class LineaUtilities {
 											.flatMap(rPro -> {
 												var operations = rPro.operations();
 												if (operations.ifIsAttributeId(fTupla.attId)) { // if it is an attribute validate it
-												return atributoService.validateDataFormat(fTupla.tipo, fTupla.valor)
+												return atributoService.validateDataFormat(fTupla.tipo, fTupla.valor.replace(",", ".")) // replace with "." in case of decimal
 														.map(rBool -> {
 															log.debug("respuesta de atributo service para tipo " + fTupla.tipo + " y valor " + fTupla.valor + " es " + rBool);
 															fTupla.validado = rBool;
+															if (fTupla.tipo.equals("DECIMAL")) { // if a decimal is written with "," replace with "."
+																var campo = wrapper.getStringListWrapper().get(fTupla.fila).getString().get(fTupla.columna);
+																wrapper.getStringListWrapper().get(fTupla.fila).getString().set(fTupla.columna, campo.replace(",", "."));
+															}
 															return fTupla;
 														});
 												} else if (rPro instanceof PropuestaProveedor && ((PropuestaProveedor)rPro).operationsProveedor().ifIsCosteProveedorId(fTupla.attId)) { // if it is a cost validate double value
