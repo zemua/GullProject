@@ -179,10 +179,17 @@ public class LineaOperations {
 	
 	public CosteLineaProveedor getCosteByCosteId(String costeId) {
 		if (linea.getCostesProveedor() == null) {
-			return new CosteLineaProveedor(costeId);
+			if (linea.getCostesProveedor() == null) { linea.setCostesProveedor(new ArrayList<>()); }
+			var ncost = new CosteLineaProveedor(costeId);
+			linea.getCostesProveedor().add(ncost);
+			return ncost;
 		}
 		Optional<CosteLineaProveedor> cos = linea.getCostesProveedor().stream().filter(c -> c.getCosteProveedorId().equals(costeId)).findFirst();
-		return cos.orElse(new CosteLineaProveedor(costeId));
+		var ncos = cos.orElse(new CosteLineaProveedor(costeId));
+		if (cos.isEmpty()) {
+			this.linea.getCostesProveedor().add(ncos);
+		}
+		return ncos;
 	}
 	
 	public boolean ifHasCost(String costId) {
