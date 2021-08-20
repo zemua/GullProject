@@ -1,7 +1,9 @@
 # GullProject
-Spring application to manage sales and supply in engineering projects.
+Aplicación programada en Spring para gestionar la parte comercial de proyectos para ingenierías.
+Esto proyectos generalmente tienen cientos o miles de líneas en un excel, y se manejan excels de los clientes, proveedores, internos... Y diferentes versiones de cada uno, con actualizaciones, revisiones, cambios, etc.
+Esta aplicación pretende facilitar la gestión y versionado de dichos listados de suministro.
 
-Click en la imagen para un vídeo de demostración
+Click en cada imagen para un vídeo de demostración
 
 Initial Alfa release:
 [![Demo](http://img.youtube.com/vi/xPQSo2RwByk/0.jpg)](http://www.youtube.com/watch?v=xPQSo2RwByk "Tuto aplicación")
