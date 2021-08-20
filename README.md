@@ -5,11 +5,13 @@ Esta aplicación pretende facilitar la gestión y versionado de dichos listados 
 
 Click en cada una de las imágenes para un vídeo de demostración
 
-Initial Alfa release:
-
-[![Demo](http://img.youtube.com/vi/xPQSo2RwByk/0.jpg)](http://www.youtube.com/watch?v=xPQSo2RwByk "Tuto aplicación")
-
+V0.0.2
 Funcionalidades añadidas y algunos errores corregidos:
 
 [![Demo](http://img.youtube.com/vi/BxhwrRcs6f0/0.jpg)](http://www.youtube.com/watch?v=BxhwrRcs6f0 "Tuto aplicación")
 
+
+V0.0.1
+Initial Alfa release:
+
+[![Demo](http://img.youtube.com/vi/xPQSo2RwByk/0.jpg)](http://www.youtube.com/watch?v=xPQSo2RwByk "Tuto aplicación")
