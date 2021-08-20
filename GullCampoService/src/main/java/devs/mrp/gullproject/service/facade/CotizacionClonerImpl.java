@@ -81,6 +81,7 @@ public class CotizacionClonerImpl implements CotizacionCloner {
 	
 	private List<CosteProveedor> cloneCosts(PropuestaProveedor propuesta, Map<String, String> idtoNew) {
 		List<CosteProveedor> costes = new ArrayList<>();
+		if (propuesta.getCostes() == null) {propuesta.setCostes(new ArrayList<>());}
 		costes.addAll(propuesta.getCostes());
 		costes.stream().forEach(c -> {
 			var newid = new ObjectId().toString();
@@ -91,9 +92,11 @@ public class CotizacionClonerImpl implements CotizacionCloner {
 	}
 	
 	private void updateCostsOfLine(Linea linea, Map<String, String> idToNew) {
-		linea.getCostesProveedor().stream().forEach(c -> {
-			c.setCosteProveedorId(idToNew.get(c.getCosteProveedorId()));
-		});
+		if (linea.getCostesProveedor() != null) {
+			linea.getCostesProveedor().stream().forEach(c -> {
+				c.setCosteProveedorId(idToNew.get(c.getCosteProveedorId()));
+			});
+		}
 	}
 	
 }

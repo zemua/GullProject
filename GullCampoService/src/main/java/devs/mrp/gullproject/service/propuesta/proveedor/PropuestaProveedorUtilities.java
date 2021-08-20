@@ -1,5 +1,6 @@
 package devs.mrp.gullproject.service.propuesta.proveedor;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -38,6 +39,7 @@ public class PropuestaProveedorUtilities {
 				list.stream().forEach(linea -> {
 					var lin = linea;
 					var operationsDelMapa = map.get(lin.getNombre()).operations();
+					if (lin.getCostesProveedor() == null) {lin.setCostesProveedor(new ArrayList<>());}
 					lin.getCostesProveedor().stream().forEach(coste -> {
 						CosteLineaProveedor costeDelMapa = operationsDelMapa.getCosteByCosteId(coste.getCosteProveedorId()); 
 						if (costeDelMapa.getValue() != coste.getValue()) {

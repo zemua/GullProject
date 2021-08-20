@@ -617,8 +617,12 @@ public class ConsultaController {
 	
 	@PostMapping("/pvpsof/propid/{id}/new")
 	public Mono<String> processNewPvpOfPropuesta(@Valid PvperCheckboxedCosts pvperCheckboxedCosts, BindingResult bindingResult, Model model, @PathVariable(name = "id") String proposalId) {
-		var idCostes = pvperCheckboxedCosts.getCosts().stream().filter(c -> c.isSelected()).collect(Collectors.toList());
-		if (idCostes == null || idCostes.size() == 0) {bindingResult.rejectValue("costs", "error.costs", "Selecciona al menos un coste");}
+		if (pvperCheckboxedCosts.getCosts() != null) {
+			var idCostes = pvperCheckboxedCosts.getCosts().stream().filter(c -> c.isSelected()).collect(Collectors.toList());
+			if (idCostes == null || idCostes.size() == 0) {bindingResult.rejectValue("costs", "error.costs", "Selecciona al menos un coste");}
+		} else {
+			bindingResult.rejectValue("costs", "error.costs", "Selecciona al menos un coste");
+		}
 		model.addAttribute("propuestaId", proposalId);
 		return consultaService.findConsultaByPropuestaId(proposalId)
 			.flatMap(cons -> {

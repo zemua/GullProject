@@ -293,10 +293,10 @@ public class LineaUtilities {
 	public Mono<Linea> reconstructLine(LineaWithAttListDto lineaWithAttListDto) {
 		Linea nLinea = lineaWithAttListDto.getLinea();
 		List<CosteLineaProveedorDto> costesDto = lineaWithAttListDto.getCostesProveedor();
+		if (nLinea.getCostesProveedor() == null) {
+			nLinea.setCostesProveedor(new ArrayList<>());
+		}
 		if (costesDto != null) {
-			if (nLinea.getCostesProveedor() == null) {
-				nLinea.setCostesProveedor(new ArrayList<>());
-			}
 			costesDto.stream().forEach(dto -> {
 				CosteLineaProveedor coste = new CosteLineaProveedor();
 				coste.setCosteProveedorId(dto.getId());
